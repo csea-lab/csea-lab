@@ -1,0 +1,1 @@
+% plotstrucfunction []=plotstruc(StrucMat, slice)	Tmp=squeeze(StrucMat(:,:,slice));	Tmp=Tmp./max(max(Tmp));	RGBAnatImg(:,:,1)=Tmp;	RGBAnatImg(:,:,2)=Tmp;	RGBAnatImg(:,:,3)=Tmp;	image(RGBAnatImg)

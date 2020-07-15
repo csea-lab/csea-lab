@@ -1,0 +1,1 @@
+% SEM% determines standrad error of mean for a matrix of clomumn vectors or a single column vectorfunction [semvec] = SEM(inmat)semvec = sqrt(std(inmat).^2 ./ size(inmat,1));

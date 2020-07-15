@@ -1,0 +1,1 @@
+function [v] = runde(vector,stellen)% RUNDE rundet VECTOR auf STELLEN Stellen% gibt neuen Vektor v zurückv = vector*stellen;v = round(v);v = v/stellen;

@@ -1,0 +1,1 @@
+% getregmean computes regional mean of 129 elk vector for % electrodes around PZfunction [meanvalue] = getregmean(inpath);a = load(inpath);meanvalue = mean(a([54 55 80 68 61 79 67 73 78]));

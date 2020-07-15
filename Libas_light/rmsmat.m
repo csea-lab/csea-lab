@@ -1,0 +1,1 @@
+% rms.m% computes rms for avf or atg - format matrix, i.e. columns are % time pointsfunction [rmsvec] = rmsmat(inmat)inmat(1:148,:) = inmat(1:148,:); inmat(1,1), pausefor timepoint = 1:size(inmat,2)		rmsvec(timepoint) = sqrt(sum (inmat(1:148, timepoint) .^ 2));	end

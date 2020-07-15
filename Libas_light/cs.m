@@ -1,0 +1,2 @@
+function [] = cs()
+clear screen

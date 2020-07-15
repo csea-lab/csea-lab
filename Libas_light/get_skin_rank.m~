@@ -1,0 +1,5 @@
+% findinIAPS
+function [index_out, outvalues] = getskinrank(arovalues, skinvec)
+
+compvec = arovalues + skinvec .*1000; 
+

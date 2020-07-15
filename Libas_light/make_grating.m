@@ -1,0 +1,1 @@
+% make_gratingfunction [outmat] = make_grating(infreq)t = 0:.001:2.5;y = SQUARE(2*pi*infreq*t);squaremat = [];for x = 1 : 400; squaremat = [squaremat; y];endcolormap(gray)contourf(squaremat')clearprint -djpeg99 test

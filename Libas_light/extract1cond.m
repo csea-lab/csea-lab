@@ -1,0 +1,10 @@
+function [outvec] = extract1cond(filemat, timevec, elecvec, bslvec); 
+
+for x = 1:size(filemat,1)
+a = readavgfile(deblank(filemat(x,:))); 
+a = bslcorr(a, [bslvec]); 
+outvec(x) = mean(mean(a(elecvec,timevec))); 
+
+end
+
+outvec = outvec'; 

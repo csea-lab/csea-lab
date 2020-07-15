@@ -1,0 +1,1 @@
+% 1. bestimme filterkoeffsWn = [0.32];N = 8[B,A] = BUTTER(8,Wn);for chan = 1 : 129matnew(chan,:) = filtfilt(B,A, InputMat(chan,:));end

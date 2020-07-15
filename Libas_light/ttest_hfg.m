@@ -1,0 +1,1 @@
+% Ttest.m erhaelt zwei vektoren% berechnet T-wert fuer häufigkeiten...% input sind matrizen mit häufigkeitenfunction[tmat] = ttest_hfg(mat1, mat2, N1, N2)pmat=(mat1.*N1+mat2.* N2)/(N1+N2)qmat=1-pmattmat=sqrt((N1*N2)/(N1+N2))*abs(mat1-mat2)./sqrt(pmat*qmat)% Die Anzahl der Freiheitsgrade berechnet man mit% % N1 + N2 -2

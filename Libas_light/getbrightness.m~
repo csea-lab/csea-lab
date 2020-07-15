@@ -1,0 +1,18 @@
+%getbrightness
+% calcualtes brightness from jpgs. pix_area is a two vector matrix of
+% pixels selected, with third dimension (i.e. [200:300, 200:300])
+function[brightnessvec] = getbrightness(jpgfilemat,pix_area); 
+
+if nargin < 2, pix_area = []; end
+
+for index = 1:size(jpgfilemat,1)
+    imagmat = imread(deblank(jpgfilemat(index,:)), 'jpg');
+    
+    if ~isempty(pix_area)
+        brightnessvec(index) = mean(mean(mean(imagmat(pix_area)))); 
+        image(imagmat(pix_area)), pause(2)
+        else 
+        brightnessvec(index) = mean(mean(mean(imagmat))); 
+        
+    end
+end

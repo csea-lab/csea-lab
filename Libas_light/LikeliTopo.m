@@ -1,0 +1,1 @@
+%likeliTopofunction [likelihood, likelivec] = likelitopo(invec);likelivec = stdNV(invec);likelihood = prod(stdNV(invec));

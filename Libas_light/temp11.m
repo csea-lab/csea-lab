@@ -1,0 +1,1 @@
+[filemat, namelist] = getfilesindir('elnino:temp');for index = 1 : size(filemat, 1);[AvgMat,File,Path,FilePath,NTrialAvgVec,StdChanTimeMat,...	SampRate,AvgRef,Version,MedMedRawVec,MedMedAvgVec] = ...	ReadAvgFile(filemat(index, :));		SaveAvgFile([filemat(index, :) 'm300_1000'],AvgMat(:,[175:500]),NTrialAvgVec,StdChanTimeMat,SampRate,MedMedRawVec,MedMedAvgVec);	end

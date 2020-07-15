@@ -1,0 +1,1 @@
+for x = 1 : 100;	a = randperm(20);	if x == 1;		mat = a;	else		mat = [mat; a];	endend

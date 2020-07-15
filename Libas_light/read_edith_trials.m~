@@ -1,0 +1,37 @@
+% read_edith_ERP.m
+% reads exported file from edith
+function [outmat] = read_edith_trials(filemat); 
+
+
+
+for fileindex = 1: size(filemat,1); 
+    
+    line = 1; 
+    
+    outmat =[];
+    
+    fid = fopen(filemat(fileindex,:)); 
+    
+    values = fgetl(fid);
+    condition  = fgetl(fid)
+    trial_window = fgetl(fid)
+    bslwindow = fgetl(fid)
+    trials = fgetl(fid)
+   channels = fgetl(fid)
+   
+   line = fgetl(fid)
+   
+   while line ~= 1
+       
+       outmat = [outmat str2num(line)'];
+       
+       if line > 0
+       
+        line = fgetl(fid);
+       
+   end
+   
+   
+end
+    
+    

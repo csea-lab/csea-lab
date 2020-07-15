@@ -1,0 +1,1 @@
+%tempschizfunction []= tempschiz(infile)a = read_avr(infile);neumat =  [a a];neumat(:,1:2:size(neumat,2)) = a;neumat(:,2:2:size(neumat,2)) = a;write_avr(neumat,infile, -200, 2.5);

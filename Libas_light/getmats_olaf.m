@@ -1,0 +1,1 @@
+% getmats_olaf% berechnet invCoeff und Csf Coeff matrizen 'fuer Olaf'for Lambda = 0.1 : 0.2 : 10;[CsdFileMat, InvCoeff, CsdCoeff, Lambda] = App2Csd_neu('UBIES:AS_Exps:hypnosis_pain:grandaverages:alleleftMerge.atg.app', Lambda);eval(['save ubies:tmp:CSDmats_' num2str(Lambda) '.mat InvCoeff CsdCoeff  Lambda -mat'])end

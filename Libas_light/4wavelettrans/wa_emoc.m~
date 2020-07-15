@@ -1,0 +1,91 @@
+% wa_emoc
+% reads app files and calculates TF amplitude and phaselocking
+function []=wa_emoc(filemat, fsamp);
+
+resize_flag = 1     % 1 : Resizefunktion an (siehe Zeile 111)
+						  % 0 : Resizefunktion aus	
+                    % ueberfluessige Werte durch Zeropadding fliegen raus und nur jeder 
+                    % <resize_step> .te Wert wird gespeichert
+resize_step = 1     % Schrittweite der Resizefunktion
+						  % (1 : jeder Wert wird geschrieben)
+                    % ACHTUNG: dies muss natuerlich bei der Achsenbeschriftung
+                    % mit make_xy_wa beruecksichtigt werden
+                    
+Phase_lock_flag = 1 % 1 : Phaselockfaktor Datei wird erzeugt
+						  % 0 : Phaselockfaktor Datei wird nicht erzeugt
+                          
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
+
+electrodes = 1:129;
+
+disp('read first file to determine parameters')
+    
+    mat = ReadAppData(filemat(1,:));
+   
+    freqRes = fsamp/size(mat,2);
+    f0_start = round(8/freqRes); % 8 Hz
+    f0_end = round(90/freqRes); % 90 Hz
+
+    sigma_f = round((f0_end-f0_start)./40);
+    
+    faxis = f0_start*freqRes : sigma_f*freqRes :f0_end*freqRes;
+    
+    % wavelet generieren
+    disp('generate wavelet')
+    pause(.5)
+    [wavelet,cosine] = gener_wav_fast(size(mat,2), size(mat,2), sigma_f, f0_start, f0_end,7,size(mat,2)./10);
+    pause(.5)
+    
+     tmp1=ifft(repmat(fft(mat .* repmat(cosine,size(electrodes,2),1),[],2),[1,1,size(wavelet,2)]) .*permute(repmat(wavelet,[1,1,size(electrodes,2)]),[3,1,2]),[],2);
+         
+     % mit daten falten
+     disp('wavelet convolution with data')
+
+for fileindex = 1:size(filemat,1) % schleife ueber files
+    tic
+    disp([filemat(fileindex,:)])
+    WA_power_sum = zeros(size(tmp1));
+    WA_phasesum_complex = zeros(size(tmp1));
+    WA_73_diff = zeros(size(tmp1));
+    
+    [data,Version,LHeader,ScaleBins,NChan,NPoints,NTrials,SampRate] = ReadAppData(filemat(fileindex,:),1);
+     
+        for trial = 1:NTrials;
+       
+            [data]=ReadAppData(filemat(fileindex,:), trial);
+
+            disp(['Trial ' num2str(trial) ' out of ' num2str(NTrials)])
+
+            tmp=ifft(repmat(fft(data .* repmat(cosine,size(electrodes,2),1),[],2),[1,1,size(wavelet,2)]) .*permute(repmat(wavelet,[1,1,size(electrodes,2)]),[3,1,2]),[],2);
+            
+            WA_power_sum=WA_power_sum+abs(tmp);  
+            
+            WA_phasesum_complex = WA_phasesum_complex + tmp./abs(tmp);
+            
+            WA_73_diff = WA_73_diff + abs((repmat(tmp(73,:,:)./abs(tmp(73,:,:)),[length(electrodes), 1,1])+ tmp./abs(tmp)))./2;
+            
+        end
+
+        WA.power=WA_power_sum ./ NTrials;
+        
+        Wa.powerbsldiv=bslcorrWAMat(WA.power, 30:60);
+        
+        WA.triallock = abs(WA_phasesum_complex ./ NTrials);
+        
+        WA.intersitelock = WA_73_diff ./ NTrials;
+        
+        disp('saving files')
+        
+        eval(['save ' filemat(fileindex,:) '.WA -STRUCT WA'])
+        
+        toc
+end
+
+
+
+
+
+
+
+
+
