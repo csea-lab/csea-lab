@@ -25,10 +25,11 @@ Param(
 # as an administrator on Windows. If you don't, then you won't be able to connect to the server.
 python ./start_docker_process.py
 
-# Launch the server. The directory you set as $source will be visible within the container under the directory you
+# The directory you set as $source will be visible within the container under the directory you
 # set as $destination. Because I used $PSScriptRoot/volume for $source, this program will mount the directory "volume"
 # in the directory it is located in.
 $mount = $source + ":" + $destination
 Write-Output "Mounting $source to $destination"
 
+# Launch the container.
 docker run --interactive --tty --rm --volume $mount -p 8888:8888 --env DISPLAY=host.docker.internal:0 $image bash
