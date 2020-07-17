@@ -6,6 +6,7 @@
 # Ben Velie, veliebm@gmail.com
 #-----------------------------------------------------------------------------------------------------------#
 
+# Each of these parameters can be set from the command line, but they default to the values here.
 Param(
     [String]
     $image = "afni/afni",
