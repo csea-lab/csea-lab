@@ -22,6 +22,7 @@ Param(
     $destination = "/volume"
 )
 
+# Automatically start X Windows if it isn't running.
 $vcxsrv_running = Get-Process vcxsrv -ErrorAction SilentlyContinue
 if (!$vcxsrv_running) {
     C:\"Program Files"\VcXsrv\vcxsrv.exe :0 -multiwindow -clipboard -wgl
