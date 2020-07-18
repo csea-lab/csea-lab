@@ -22,6 +22,12 @@ Param(
     $destination = "/volume"
 )
 
+$vcxsrv_running = Get-Process vcxsrv -ErrorAction SilentlyContinue
+if (!$vcxsrv_running) {
+    C:\"Program Files"\VcXsrv\vcxsrv.exe :0 -multiwindow -clipboard -wgl
+    Write-Output "Starting X Windows"
+}
+
 
 # start_docker_process.py launches docker as an administrator if it isn't already running. You must run docker
 # as an administrator on Windows. If you don't, then you won't be able to connect to the server.
