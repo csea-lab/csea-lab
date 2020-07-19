@@ -7,13 +7,16 @@
 
 # Each of these parameters can be set from the command line, but they default to the values here.
 Param(
+    # Image to run inside the container.
     [String]
     $image = "afni/afni",
 
+    # Volume to mount to the container.
     [CmdletBinding(PositionalBinding=$False)]
     [String]
     $source = "volume",
 
+    # Sets the location of the volume inside the container.
     [CmdletBinding(PositionalBinding=$False)]
     [String]
     $destination = "/volume"
