@@ -25,7 +25,7 @@ Param(
     # If you set $container_user = "root", then you'll login with root access.
     [CmdletBinding(PositionalBinding=$False)]
     [String]
-    $container_user = "neuro"
+    $user = "neuro"
 )
 
 
@@ -56,4 +56,4 @@ Write-Output "You can access the files inside '$source' from inside your contain
 Write-Output "To transfer data into or out of your container, use the command 'docker cp' in PowerShell"
 
 # Launch the container.
-docker run --interactive --tty --rm --user $container_user --name afni --mount source=$source,destination=$destination -p 8888:8888 --env DISPLAY=host.docker.internal:0 $image bash
+docker run --interactive --tty --rm --user $user --name afni --mount source=$source,destination=$destination -p 8888:8888 --env DISPLAY=host.docker.internal:0 $image bash
