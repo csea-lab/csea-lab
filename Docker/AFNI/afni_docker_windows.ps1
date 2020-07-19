@@ -7,13 +7,16 @@
 
 # Each of these parameters can be set from the command line, but they default to the values here.
 Param(
+    # Image to run inside the container.
     [String]
     $image = "afni/afni",
 
+    # Volume to mount to the container.
     [CmdletBinding(PositionalBinding=$False)]
     [String]
     $source = "volume",
 
+    # Sets the location of the volume inside the container.
     [CmdletBinding(PositionalBinding=$False)]
     [String]
     $destination = "/volume"
@@ -24,7 +27,7 @@ Param(
 $vcxsrv_running = Get-Process vcxsrv -ErrorAction SilentlyContinue
 if (!$vcxsrv_running) {
     C:\"Program Files"\VcXsrv\vcxsrv.exe :0 -multiwindow -clipboard -wgl
-    Write-Output "Starting X Windows"
+    Write-Output "Starting X Server"
 }
 
 # Launch Docker as an administrator if it isn't already running. You must run Docker
@@ -40,6 +43,7 @@ while (!$docker_running) {
     docker ps 2>&1 | Out-Null
     $docker_running = $?
 }
+Write-Output "Docker is running"
 
 Write-Output "Mounting the volume '$source'"
 Write-Output "You can access the files inside '$source' from inside your container by navigating to '$destination'"

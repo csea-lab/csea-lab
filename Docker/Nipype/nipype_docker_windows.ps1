@@ -8,24 +8,32 @@
 
 # Each of these parameters can be set from the command line, but they default to the values here.
 Param(
+    # Image to run inside the container.
     [String]
     $image = "nipype/nipype",
 
+    # Volume to mount to the container.
     [CmdletBinding(PositionalBinding=$False)]
     [String]
     $source = "volume",
 
+    # Sets the location of the volume inside the container.
     [CmdletBinding(PositionalBinding=$False)]
     [String]
-    $destination = "/volume"
+    $destination = "/volume",
+
+    # If you set $container_user = "root", then you'll login with root access.
+    [CmdletBinding(PositionalBinding=$False)]
+    [String]
+    $container_user = "neuro"
 )
 
 
-# Automatically start X Windows if it isn't running.
+# Automatically start X Server if it isn't running.
 $vcxsrv_running = Get-Process vcxsrv -ErrorAction SilentlyContinue
 if (!$vcxsrv_running) {
     C:\"Program Files"\VcXsrv\vcxsrv.exe :0 -multiwindow -clipboard -wgl
-    Write-Output "Starting X Windows"
+    Write-Output "Starting X Server"
 }
 
 # Launch Docker as an administrator if it isn't already running. You must run Docker
@@ -41,10 +49,11 @@ while (!$docker_running) {
     docker ps 2>&1 | Out-Null
     $docker_running = $?
 }
+Write-Output "Docker is running"
 
 Write-Output "Mounting the volume '$source'"
 Write-Output "You can access the files inside '$source' from inside your container by navigating to '$destination'"
 Write-Output "To transfer data into or out of your container, use the command 'docker cp' in PowerShell"
 
 # Launch the container.
-docker run --interactive --tty --rm --name afni --mount source=$source,destination=$destination -p 8888:8888 --env DISPLAY=host.docker.internal:0 $image bash
+docker run --interactive --tty --rm --user $container_user --name afni --mount source=$source,destination=$destination -p 8888:8888 --env DISPLAY=host.docker.internal:0 $image bash
