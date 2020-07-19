@@ -1,4 +1,6 @@
 #!/bin/bash
+# This script is really useful! If you run it from within a container, the container
+# will download and install Jupyter Notebook and Jupyter Lab. Then it launches Jupyter Lab.
 
 set -e
 
