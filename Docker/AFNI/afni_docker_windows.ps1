@@ -1,7 +1,6 @@
 # This program must be run from the command line.
 # This program launches AFNI as a docker image. It also mounts into the container the volume "volume".
-# To learn about volumes (they're wacky!), visit https://docs.docker.com/storage/volumes/
-# To transfer files to and from a volume, learn how at https://docs.docker.com/engine/reference/commandline/cp/
+# To learn about volumes (they're wacky!) and moving files into or out of your container, see README.
 # I began writing this on July 17, 2020. Please feel free to ask me any questions 🙂
 # Ben Velie, veliebm@gmail.com
 #-----------------------------------------------------------------------------------------------------------#
@@ -21,7 +20,7 @@ Param(
 )
 
 
-# Automatically start X Windows if it isn't running.
+# Automatically start X Server if it isn't running.
 $vcxsrv_running = Get-Process vcxsrv -ErrorAction SilentlyContinue
 if (!$vcxsrv_running) {
     C:\"Program Files"\VcXsrv\vcxsrv.exe :0 -multiwindow -clipboard -wgl
