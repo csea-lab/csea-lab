@@ -8,16 +8,24 @@
 
 # Each of these parameters can be set from the command line, but they default to the values here.
 Param(
+    # Image to run inside the container.
     [String]
     $image = "nipype/nipype",
 
+    # Volume to mount to the container.
     [CmdletBinding(PositionalBinding=$False)]
     [String]
     $source = "volume",
 
+    # Sets the location of the volume inside the container.
     [CmdletBinding(PositionalBinding=$False)]
     [String]
-    $destination = "/volume"
+    $destination = "/volume",
+
+    # If you set $container_user = "root", then you'll login with root access.
+    [CmdletBinding(PositionalBinding=$False)]
+    [String]
+    $container_user = "neuro"
 )
 
 
@@ -47,4 +55,4 @@ Write-Output "You can access the files inside '$source' from inside your contain
 Write-Output "To transfer data into or out of your container, use the command 'docker cp' in PowerShell"
 
 # Launch the container.
-docker run --interactive --tty --rm --name afni --mount source=$source,destination=$destination -p 8888:8888 --env DISPLAY=host.docker.internal:0 $image bash
+docker run --interactive --tty --rm --user $container_user --name afni --mount source=$source,destination=$destination -p 8888:8888 --env DISPLAY=host.docker.internal:0 $image bash
