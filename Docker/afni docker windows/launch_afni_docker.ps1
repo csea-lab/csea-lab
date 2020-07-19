@@ -37,7 +37,7 @@ if (!$docker_running) {
     Start-Process 'C:/Program Files/Docker/Docker/Docker Desktop.exe' -Verb runAs
 }
 while (!$docker_running) {
-    Sleep 5
+    Start-Sleep 5
     docker ps 2>&1 | Out-Null
     $docker_running = $?
 }
