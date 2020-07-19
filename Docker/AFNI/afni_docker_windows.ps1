@@ -40,6 +40,7 @@ while (!$docker_running) {
     docker ps 2>&1 | Out-Null
     $docker_running = $?
 }
+Write-Output "Docker is running"
 
 Write-Output "Mounting the volume '$source'"
 Write-Output "You can access the files inside '$source' from inside your container by navigating to '$destination'"
