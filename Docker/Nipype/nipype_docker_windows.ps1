@@ -33,7 +33,7 @@ Param(
 $vcxsrv_running = Get-Process vcxsrv -ErrorAction SilentlyContinue
 if (!$vcxsrv_running) {
     C:\"Program Files"\VcXsrv\vcxsrv.exe :0 -multiwindow -clipboard -wgl
-    Write-Output "Starting X Windows"
+    Write-Output "Starting X Server"
 }
 
 # Launch Docker as an administrator if it isn't already running. You must run Docker
