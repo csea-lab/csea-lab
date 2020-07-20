@@ -15,7 +15,7 @@ Param(
     [String]
     $source = "/c/Volumes/volume",
 
-    # Sets the location of the volume inside the container.
+    # Sets the location of the mounted directory inside the container.
     [CmdletBinding(PositionalBinding=$False)]
     [String]
     $destination = "/volume",
