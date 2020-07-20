@@ -30,13 +30,12 @@ if (!$vcxsrv_running) {
     Write-Output "Starting X Server"
 }
 
-# Launch Docker as an administrator if it isn't already running. You must run Docker
-# as an administrator on Windows. If you don't, then you won't be able to connect to the server.
+# Launch Docker if it isn't running.
 docker ps 2>&1 | Out-Null
 $docker_running = $?
 if (!$docker_running) {
-    Write-Output "Starting Docker as an administrator"
-    Start-Process 'C:/Program Files/Docker/Docker/Docker Desktop.exe' -Verb runAs
+    Write-Output "Starting Docker"
+    Start-Process 'C:/Program Files/Docker/Docker/Docker Desktop.exe'
 }
 while (!$docker_running) {
     Start-Sleep 5
