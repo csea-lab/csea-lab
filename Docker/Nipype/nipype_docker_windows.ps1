@@ -12,10 +12,10 @@ Param(
     [String]
     $image = "nipype/nipype",
 
-    # Volume to mount to the container.
+    # Directory to mount to the container.
     [CmdletBinding(PositionalBinding=$False)]
     [String]
-    $source = "volume",
+    $source = "/c/Volumes/volume",
 
     # Sets the location of the volume inside the container.
     [CmdletBinding(PositionalBinding=$False)]
@@ -49,11 +49,13 @@ while (!$docker_running) {
     docker ps 2>&1 | Out-Null
     $docker_running = $?
 }
-Write-Output "Docker is running"
 
-Write-Output "Mounting the volume '$source'"
+Write-Output "Docker is running"
+Write-Output "Mounting the directory '$source'"
+
+$mount = $source + ":" + $destination
+
 Write-Output "You can access the files inside '$source' from inside your container by navigating to '$destination'"
-Write-Output "To transfer data into or out of your container, use the command 'docker cp' in PowerShell"
 
 # Launch the container.
-docker run --interactive --tty --rm --user $user --name nipype --mount source=$source,destination=$destination -p 8888:8888 --env DISPLAY=host.docker.internal:0 $image bash
+docker run --interactive --tty --rm --user $user --name nipype --volume $mount -p 8888:8888 --env DISPLAY=host.docker.internal:0 $image bash
