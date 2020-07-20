@@ -1,7 +1,5 @@
 # This program must be run from the command line.
-# This program launches nipype as a docker image. It also mounts into the container the volume "volume".
-# To learn about volumes (they're wacky!), visit https://docs.docker.com/storage/volumes/
-# To transfer files to and from a volume, learn how at https://docs.docker.com/engine/reference/commandline/cp/
+# This program launches nipype as a docker image. It also mounts into the container the directory "/c/Volumes/volume".
 # I began writing this on July 19, 2020. Please feel free to ask me any questions 🙂
 # Ben Velie, veliebm@gmail.com
 #-----------------------------------------------------------------------------------------------------------#
