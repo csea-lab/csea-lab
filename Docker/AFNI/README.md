@@ -13,7 +13,7 @@ Ben Velie, veliebm@ufl.edu
 1) Just launch the script from PowerShell! It'll automatically start X Server, Docker, and your AFNI container. Hopefully it saves you a bunch of time!
 
 # Starting AFNI without launch_afni_docker.ps1
-1) Start XLaunch. Just click next a bunch of times when it asks - the default settings are fine. Explanation: XLaunch enables our AFNI GUI in case we want to visualize datasets.
+1) Start XLaunch. Just click next a bunch of times when it asks - the default settings are fine. Explanation: XLaunch starts something called an X Server, which lets us access the AFNI GUI in case we want to visualize datasets.
 2) Launch Docker.
 3) Enter the following command into PowerShell: "docker run --interactive --tty --rm --name afni --mount source=volume,destination=/volume -p 8888:8888 --env DISPLAY=host.docker.internal:0 afni/afni bash"
 3) Your powershell session should become a bash shell. This bash shell is connected to your docker container.
