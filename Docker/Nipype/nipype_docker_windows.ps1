@@ -36,7 +36,9 @@ if (!$vcxsrv_running) {
 
 # Launch Docker as an administrator if it isn't already running. You must run Docker
 # as an administrator on Windows. If you don't, then you won't be able to connect to Jupyter Notebook.
+# docker ps throws an error if Docker isn't running.
 docker ps 2>&1 | Out-Null
+# $? returns false if the previous command threw an error.
 $docker_running = $?
 if (!$docker_running) {
     Write-Output "Starting Docker as an administrator"
