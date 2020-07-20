@@ -55,7 +55,7 @@ Write-Output "Mounting the directory '$source'"
 
 $mount = $source + ":" + $destination
 
-Write-Output "You can access the files inside '$source' from inside your container by navigating to '$destination'"
+Write-Output "You can access that directory from inside your container by navigating to '$destination'"
 
 # Launch the container.
 docker run --interactive --tty --rm --user $user --name nipype --volume $mount -p 8888:8888 --env DISPLAY=host.docker.internal:0 $image bash
