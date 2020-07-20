@@ -14,7 +14,7 @@ Ben Velie, veliebm@ufl.edu
 
 # Starting AFNI without launch_afni_docker.ps1
 1) Start XLaunch. Just click next a bunch of times when it asks - the default settings are fine. Explanation: XLaunch enables our AFNI GUI in case we want to visualize datasets.
-2) Launch Docker as an administrator. Explanation: On Windows, ALWAYS start Docker as an administrator. Otherwise, you won't be able to connect to your container.
+2) Launch Docker.
 3) Enter the following command into PowerShell: "docker run --interactive --tty --rm --name afni --mount source=volume,destination=/volume -p 8888:8888 --env DISPLAY=host.docker.internal:0 afni/afni bash"
 3) A shell should open up. This is a bash shell connected to your docker container.
 4) If you want to make sure everything's working, type "afni" (without the quotes!) into the shell. The AFNI GUI should pop up with a beautiful brain for you to look at.
