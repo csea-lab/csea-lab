@@ -20,7 +20,7 @@ Param(
     [String]
     $destination = "/volume",
 
-    # If you set $container_user = "root", then you'll login with root access.
+    # If you set $container = "root", then you'll login with root access.
     [CmdletBinding(PositionalBinding=$False)]
     [String]
     $user = "neuro"
