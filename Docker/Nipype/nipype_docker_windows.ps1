@@ -4,7 +4,7 @@
 # Ben Velie, veliebm@gmail.com
 #-----------------------------------------------------------------------------------------------------------#
 
-# Each of these parameters can be set from the command line, but they default to the values here.
+#region Parameters 
 Param(
     # Image to run inside the container.
     [String]
@@ -25,17 +25,27 @@ Param(
     [String]
     $user = "neuro"
 )
+#endregion
 
+#region Test-Process
+function Test-Process {
+    Param(
+        [String]
+        $process
+    )
+    Get-Process $process -ErrorAction SilentlyContinue
+}
+#endregion
 
-# Automatically start X Server if it isn't running.
-$vcxsrv_running = Get-Process vcxsrv -ErrorAction SilentlyContinue
-if (!$vcxsrv_running) {
+#region Start X Server if it isn't running
+if (!(Test-Process vcxsrv)) {
     C:\"Program Files"\VcXsrv\vcxsrv.exe :0 -multiwindow -clipboard -wgl
     Write-Output "Starting X Server"
 }
+#endregion
 
-# Launch Docker as an administrator if it isn't already running. You must run Docker
-# as an administrator on Windows. If you don't, then you won't be able to connect to Jupyter Notebook.
+#region Start Docker if it isn't running
+# You must run Docker as an administrator on Windows. If you don't, then you won't be able to connect to Jupyter Notebook.
 # docker ps throws an error if Docker isn't running. 2>&1 | Out-Null hides the error message.
 docker ps 2>&1 | Out-Null
 # $? returns false if the previous command threw an error.
@@ -49,13 +59,15 @@ while (!$docker_running) {
     docker ps 2>&1 | Out-Null
     $docker_running = $?
 }
-
 Write-Output "Docker is running"
+#endregion
+
+#region Set mount location
 Write-Output "Mounting the directory '$source'"
-
 $mount = $source + ":" + $destination
-
 Write-Output "You can access that directory from inside your container by navigating to '$destination'"
+#endregion
 
-# Launch the container.
+#region Launch container
 docker run --interactive --tty --rm --user $user --name nipype --volume $mount -p 8888:8888 --env DISPLAY=host.docker.internal:0 $image bash
+#endregion
