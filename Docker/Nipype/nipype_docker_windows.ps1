@@ -38,7 +38,7 @@ Param(
 #region Test-Process()
 function Test-Process{
     <#
-    .SYNOPSIS
+    .DESCRIPTION
     Returns true if $process is running.
     #>
     Param($process)
@@ -49,7 +49,7 @@ function Test-Process{
 #region Test-Docker()
 function Test-Docker{
     <#
-    .SYNOPSIS
+    .DESCRIPTION
     Returns true if Docker is running.
     #>
     docker ps 2>&1 | Out-Null
@@ -100,6 +100,6 @@ $mount = $source + ":" + $destination
 Write-Output "You can access that directory from inside your container by navigating to '$destination'"
 #endregion
 
-#region Launch Docker
+#region Launch the container
 docker run --interactive --tty --rm --user $user --name nipype --volume $mount -p 8888:8888 --env DISPLAY=host.docker.internal:0 $image bash
 #endregion
