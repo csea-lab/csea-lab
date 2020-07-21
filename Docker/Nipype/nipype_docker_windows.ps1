@@ -57,23 +57,41 @@ function Test-Docker{
 }
 #endregion
 
-#region Start X Server if it isn't running
-if (!(Test-Process vcxsrv)) {
-    C:\"Program Files"\VcXsrv\vcxsrv.exe :0 -multiwindow -clipboard -wgl
-    Write-Output "Starting X Server"
+#region Open-XServer()
+function Open-XServer {
+    <#
+    .DESCRIPTION
+    Launches X Server if it isn't running.
+    #>
+    if (!(Test-Process vcxsrv)) {
+        C:\"Program Files"\VcXsrv\vcxsrv.exe :0 -multiwindow -clipboard -wgl
+        Write-Output "Starting X Server"
+    }
 }
 #endregion
 
-#region Start Docker if it isn't running
-# You must run Docker as an administrator on Windows. If you don't, then you won't be able to connect to Jupyter Notebook.
-if (!(Test-Docker)) {
-    Write-Output "Starting Docker as an administrator"
-    Start-Process 'C:/Program Files/Docker/Docker/Docker Desktop.exe' -Verb runAs
+#region Open-Docker()
+function Open-Docker() {
+    <#
+    .DESCRIPTION
+    Opens Docker as an administrator if it's not already running.
+    You must open Docker as an administrator on Windows.
+    If you don't, then you won't be able to connect to Jupyter Notebook.
+    #>
+    if (!(Test-Docker)) {
+        Write-Output "Starting Docker as an administrator"
+        Start-Process 'C:/Program Files/Docker/Docker/Docker Desktop.exe' -Verb runAs
+    }
+    while (!(Test-Docker)) {
+        Start-Sleep 5
+    }
+    Write-Output "Docker is running"
 }
-while (!(Test-Docker)) {
-    Start-Sleep 5
-}
-Write-Output "Docker is running"
+#endregion
+
+#region Launch Docker and XServer
+Open-XServer
+Open-Docker
 #endregion
 
 #region Set mount location
@@ -82,6 +100,6 @@ $mount = $source + ":" + $destination
 Write-Output "You can access that directory from inside your container by navigating to '$destination'"
 #endregion
 
-#region Launch container
+#region Launch Docker
 docker run --interactive --tty --rm --user $user --name nipype --volume $mount -p 8888:8888 --env DISPLAY=host.docker.internal:0 $image bash
 #endregion
