@@ -27,13 +27,19 @@ Param(
 )
 #endregion
 
-#region Test-Process
-function Test-Process {
-    Param(
-        [String]
-        $process
-    )
-    Get-Process $process -ErrorAction SilentlyContinue
+#region Test-Process()
+function Test-Process{
+    #.SYNOPSIS Returns true if input process is running.
+    Param($process)
+    return Get-Process $process -ErrorAction SilentlyContinue
+}
+#endregion
+
+#region Test-Docker()
+function Test-Docker{
+    #.SYNOPSIS Returns true if Docker is running.
+    docker ps 2>&1 | Out-Null
+    return $?
 }
 #endregion
 
@@ -46,18 +52,12 @@ if (!(Test-Process vcxsrv)) {
 
 #region Start Docker if it isn't running
 # You must run Docker as an administrator on Windows. If you don't, then you won't be able to connect to Jupyter Notebook.
-# docker ps throws an error if Docker isn't running. 2>&1 | Out-Null hides the error message.
-docker ps 2>&1 | Out-Null
-# $? returns false if the previous command threw an error.
-$docker_running = $?
-if (!$docker_running) {
+if (!(Test-Docker)) {
     Write-Output "Starting Docker as an administrator"
     Start-Process 'C:/Program Files/Docker/Docker/Docker Desktop.exe' -Verb runAs
 }
-while (!$docker_running) {
+while (!(Test-Docker)) {
     Start-Sleep 5
-    docker ps 2>&1 | Out-Null
-    $docker_running = $?
 }
 Write-Output "Docker is running"
 #endregion
