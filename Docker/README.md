@@ -14,7 +14,7 @@ Most people have Windows 10 Home Edition. Unfortunately, the version of Docker w
 
 Upgrading Windows was the hard part. It's easy to install the other software you'll need. First you'll download and install Docker, then you'll download and install X Server for Windows. X Server allows us to have GUI's for applications running in Docker containers. You'll need it if you want to use AFNI's snazzy neuroimaging viewer.
 
-***In short, you must (A) upgrade to Windows 10 Education Edition, (B) install Docker, and (C) install X Server.***
+**In summary, to use Docker you must (A) upgrade to Windows 10 Education Edition, (B) install Docker, and (C) install X Server.**
 
 ### Upgrading Windows 10 Home Edition to Windows 10 Education Edition.
 
