@@ -1,8 +1,16 @@
-# This program must be run from the command line.
-# This program launches nipype as a docker image. It also mounts into the container the directory "/c/Volumes/volume".
-# I began writing this on July 19, 2020. Please feel free to ask me any questions 🙂
-# Ben Velie, veliebm@gmail.com
-#-----------------------------------------------------------------------------------------------------------#
+<#
+.SYNOPSIS
+Launches nipype within a Docker container.
+.DESCRIPTION
+This program launches nipype within a Docker container. It also mounts into the container the directory "/c/Volumes/volume".
+Contact me via email or Slack if you need help. I'm here whenever you need me :)
+Created July 19, 2020
+Ben Velie
+veliebm@ufl.edu
+.LINK
+Check out our repository!
+https://github.com/csea-lab/csea-lab/
+#>
 
 #region Parameters 
 Param(
@@ -29,7 +37,10 @@ Param(
 
 #region Test-Process()
 function Test-Process{
-    #.SYNOPSIS Returns true if input process is running.
+    <#
+    .SYNOPSIS
+    Returns true if $process is running.
+    #>
     Param($process)
     return Get-Process $process -ErrorAction SilentlyContinue
 }
@@ -37,7 +48,10 @@ function Test-Process{
 
 #region Test-Docker()
 function Test-Docker{
-    #.SYNOPSIS Returns true if Docker is running.
+    <#
+    .SYNOPSIS
+    Returns true if Docker is running.
+    #>
     docker ps 2>&1 | Out-Null
     return $?
 }
