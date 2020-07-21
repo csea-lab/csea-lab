@@ -1,52 +1,98 @@
-# This program must be run from the command line.
-# This program launches AFNI as a docker image. It also mounts into the container the volume "volume".
-# To learn about volumes (they're wacky!) and moving files into or out of your container, see README.
-# I began writing this on July 17, 2020. Please feel free to ask me any questions 🙂
-# Ben Velie, veliebm@gmail.com
-#-----------------------------------------------------------------------------------------------------------#
+<#
+.SYNOPSIS
+Launches AFNI within a Docker container.
+.DESCRIPTION
+This program launches AFNI within a Docker container. It also mounts into the container the directory "/c/Volumes/volume".
+Contact me via email or Slack if you need help. I'm here whenever you need me :)
+Created July 17, 2020
+Ben Velie
+veliebm@ufl.edu
+.LINK
+Check out our repository!
+https://github.com/csea-lab/csea-lab/
+#>
 
-# Each of these parameters can be set from the command line, but they default to the values here.
+#region Parameters 
 Param(
     # Image to run inside the container.
     [String]
     $image = "afni/afni",
 
-    # Volume to mount to the container.
+    # Directory to mount to the container.
     [CmdletBinding(PositionalBinding=$False)]
     [String]
-    $source = "volume",
+    $source = "/c/Volumes/volume",
 
-    # Sets the location of the volume inside the container.
+    # Sets the location of the mounted directory inside the container.
     [CmdletBinding(PositionalBinding=$False)]
     [String]
     $destination = "/volume"
 )
+#endregion
 
-
-# Automatically start X Server if it isn't running.
-$vcxsrv_running = Get-Process vcxsrv -ErrorAction SilentlyContinue
-if (!$vcxsrv_running) {
-    C:\"Program Files"\VcXsrv\vcxsrv.exe :0 -multiwindow -clipboard -wgl
-    Write-Output "Starting X Server"
+#region Test-Process()
+function Test-Process{
+    <#
+    .DESCRIPTION
+    Returns true if $process is running.
+    #>
+    Param($process)
+    return Get-Process $process -ErrorAction SilentlyContinue
 }
+#endregion
 
-# Launch Docker if it isn't running.
-docker ps 2>&1 | Out-Null
-$docker_running = $?
-if (!$docker_running) {
-    Write-Output "Starting Docker"
-    Start-Process 'C:/Program Files/Docker/Docker/Docker Desktop.exe'
-}
-while (!$docker_running) {
-    Start-Sleep 5
+#region Test-Docker()
+function Test-Docker{
+    <#
+    .DESCRIPTION
+    Returns true if Docker is running.
+    #>
     docker ps 2>&1 | Out-Null
-    $docker_running = $?
+    return $?
 }
-Write-Output "Docker is running"
+#endregion
 
-Write-Output "Mounting the volume '$source'"
-Write-Output "You can access the files inside '$source' from inside your container by navigating to '$destination'"
-Write-Output "To transfer data into or out of your container, use the command 'docker cp' in PowerShell"
+#region Open-XServer()
+function Open-XServer {
+    <#
+    .DESCRIPTION
+    Launches X Server if it isn't running.
+    #>
+    if (!(Test-Process vcxsrv)) {
+        C:\"Program Files"\VcXsrv\vcxsrv.exe :0 -multiwindow -clipboard -wgl
+        Write-Output "Starting X Server"
+    }
+}
+#endregion
 
-# Launch the container.
-docker run --interactive --tty --rm --name afni --mount source=$source,destination=$destination -p 8888:8888 --env DISPLAY=host.docker.internal:0 $image bash
+#region Open-Docker()
+function Open-Docker() {
+    <#
+    .DESCRIPTION
+    Opens Docker if it's not already running.
+    #>
+    if (!(Test-Docker)) {
+        Write-Output "Starting Docker"
+        Start-Process 'C:/Program Files/Docker/Docker/Docker Desktop.exe'
+    }
+    while (!(Test-Docker)) {
+        Start-Sleep 5
+    }
+    Write-Output "Docker is running"
+}
+#endregion
+
+#region Launch Docker and XServer
+Open-XServer
+Open-Docker
+#endregion
+
+#region Set mount location
+Write-Output "Mounting the directory '$source'"
+$mount = $source + ":" + $destination
+Write-Output "You can access that directory from inside your container by navigating to '$destination'"
+#endregion
+
+#region Launch the container
+docker run --interactive --tty --rm --name afni --volume $mount -p 8888:8888 --env DISPLAY=host.docker.internal:0 $image bash
+#endregion
