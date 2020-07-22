@@ -18,6 +18,10 @@ Param(
     [String]
     $image = "afni/afni",
 
+    # Name of the container.
+    [String]
+    $name = "afni",
+
     # Directory to mount to the container.
     [CmdletBinding(PositionalBinding=$False)]
     [String]
@@ -101,5 +105,5 @@ Write-Output "You can access that directory from inside your container by naviga
 #endregion
 
 #region Launch the container
-docker run --interactive --tty --rm --name afni --volume $mount -p $p --env DISPLAY=host.docker.internal:0 $image bash
+docker run --interactive --tty --rm --name $name --volume $mount -p $p --env DISPLAY=host.docker.internal:0 $image bash
 #endregion
