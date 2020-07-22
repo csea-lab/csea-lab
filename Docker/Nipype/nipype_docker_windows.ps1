@@ -35,7 +35,12 @@ Param(
     # If you set $user = "root", then you'll login with root access.
     [CmdletBinding(PositionalBinding=$False)]
     [String]
-    $user = "neuro"
+    $user = "neuro",
+
+    # Sets the port the container runs on.
+    [CmdletBinding(PositionalBinding=$False)]
+    [String]
+    $p = "8888:8888"
 )
 #endregion
 
@@ -107,5 +112,5 @@ Write-Output "You can access that directory from inside your container by naviga
 #endregion
 
 #region Launch the container
-docker run --interactive --tty --rm --user $user --name $name --volume $mount -p 8888:8888 $image bash
+docker run --interactive --tty --rm --user $user --name $name --volume $mount -p $p $image bash
 #endregion
