@@ -7,7 +7,7 @@ image="nipype/nipype"
 name="nipype"
 
 # Directory to mount to the container.
-source="/c/Volumes/volume"
+source="/Volumes/volume"
 
 # Sets the location of the mounted directory inside the container.
 destination="/volume"
