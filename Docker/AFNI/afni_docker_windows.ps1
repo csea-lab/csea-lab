@@ -18,6 +18,10 @@ Param(
     [String]
     $image = "afni/afni",
 
+    # Name of the container.
+    [String]
+    $name = "afni",
+
     # Directory to mount to the container.
     [CmdletBinding(PositionalBinding=$False)]
     [String]
@@ -26,7 +30,17 @@ Param(
     # Sets the location of the mounted directory inside the container.
     [CmdletBinding(PositionalBinding=$False)]
     [String]
-    $destination = "/volume"
+    $destination = "/volume",
+
+    # Sets the working directory within the container.
+    [CmdletBinding(PositionalBinding=$False)]
+    [String]
+    $workdir = "/volume",
+
+    # Sets the port the container runs on.
+    [CmdletBinding(PositionalBinding=$False)]
+    [String]
+    $p = "8889:8889"
 )
 #endregion
 
@@ -96,5 +110,5 @@ Write-Output "You can access that directory from inside your container by naviga
 #endregion
 
 #region Launch the container
-docker run --interactive --tty --rm --name afni --volume $mount -p 8888:8888 --env DISPLAY=host.docker.internal:0 $image bash
+docker run --interactive --tty --rm --name $name --volume $mount --workdir $workdir -p $p --env DISPLAY=host.docker.internal:0 $image bash
 #endregion

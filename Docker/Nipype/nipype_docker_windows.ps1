@@ -18,6 +18,10 @@ Param(
     [String]
     $image = "nipype/nipype",
 
+    # Name of the container.
+    [String]
+    $name = "nipype",
+
     # Directory to mount to the container.
     [CmdletBinding(PositionalBinding=$False)]
     [String]
@@ -31,7 +35,17 @@ Param(
     # If you set $user = "root", then you'll login with root access.
     [CmdletBinding(PositionalBinding=$False)]
     [String]
-    $user = "neuro"
+    $user = "neuro",
+
+    # Sets the working directory within the container.
+    [CmdletBinding(PositionalBinding=$False)]
+    [String]
+    $workdir = "/volume",
+
+    # Sets the port the container runs on.
+    [CmdletBinding(PositionalBinding=$False)]
+    [String]
+    $p = "8888:8888"
 )
 #endregion
 
@@ -51,6 +65,8 @@ function Test-Docker{
     <#
     .DESCRIPTION
     Returns true if Docker is running.
+    .NOTES
+    We use this function instead of Test-Process because Test-Process doesn't work well for Docker.
     #>
     docker ps 2>&1 | Out-Null
     return $?
@@ -101,5 +117,5 @@ Write-Output "You can access that directory from inside your container by naviga
 #endregion
 
 #region Launch the container
-docker run --interactive --tty --rm --user $user --name nipype --volume $mount -p 8888:8888 --env DISPLAY=host.docker.internal:0 $image bash
+docker run --interactive --tty --rm --user $user --name $name --workdir $workdir --volume $mount -p $p $image bash
 #endregion
