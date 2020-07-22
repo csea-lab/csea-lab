@@ -37,6 +37,11 @@ Param(
     [String]
     $user = "neuro",
 
+    # Sets the working directory within the container.
+    [CmdletBinding(PositionalBinding=$False)]
+    [String]
+    $workdir = "/volume",
+
     # Sets the port the container runs on.
     [CmdletBinding(PositionalBinding=$False)]
     [String]
@@ -112,5 +117,5 @@ Write-Output "You can access that directory from inside your container by naviga
 #endregion
 
 #region Launch the container
-docker run --interactive --tty --rm --user $user --name $name --volume $mount -p $p $image bash
+docker run --interactive --tty --rm --user $user --name $name --workdir $workdir --volume $mount -p $p $image bash
 #endregion
