@@ -48,7 +48,11 @@ Upgrading Windows was the hard part. It's easy to install the other software you
 
 # Mac
 
-[TODO]
+It's way easier to use OS X for this stuff. All you need to do is install Docker and install XQuartz. XQuartz lets you use a GUI within your containers.
+
+1) [Install Docker.](
+https://docs.docker.com/docker-for-mac/install/)
+2) [Install XQuartz.](https://www.xquartz.org/)
 
 # More help
 
