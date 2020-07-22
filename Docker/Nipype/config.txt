@@ -1,0 +1,7 @@
+image="nipype/nipype"
+name="nipype"
+source="/c/Volumes/volume"
+destination="/volume"
+user="neuro"
+workdir="/volume"
+p="8888:8888"
