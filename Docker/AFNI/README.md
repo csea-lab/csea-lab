@@ -1,7 +1,7 @@
 # Introduction
-Follow these instructions to get a slick copy of AFNI inside a docker container! Note: You must install some things before you begin. You can learn what to install by reading the README in the Docker directory.
+Follow these instructions to get a slick copy of AFNI inside a Docker container! Note: You must install some things before you begin. You can learn what to install by reading the README in the Docker directory.
 
-Please contact me on slack or email if you need help. I'm here anytime you need me 🙂
+Please contact me on Slack or email if you need help. I'm here anytime you need me 🙂
 
 Created July 17, 2020  
 Ben Velie  
@@ -25,10 +25,10 @@ veliebm@ufl.edu
 [TODO]
 
 # Moving files into or out of your container
-A docker container is self-contained. Also, you don't usually permanently change the files inside of it - most of the time they reset each time you start the container. This makes our AFNI container very safe and protects us from accidentally hurting our computer. But at some point you'll probably need to load external datasets into AFNI and permanently change them. To move data to and from your container, you should use something called a volume.
+A docker container is self-contained. You also don't usually permanently change the files inside of it - they usually reset whenever you start the container. This makes our AFNI container very safe and protects us from accidentally hurting our computer. But eventually you'll probably need to load external datasets into AFNI and permanently change them. To move data to and from your container, you'll use a snazzy little thing called a bind mount.
 
-Volumes are magic storage boxes managed by Docker. When you mount a volume to a container, the container can access it like a regular folder. However, you CANNOT access a volume from your computer like a regular folder. To move files between your computer and a volume (or vice versa!), you MUST use Docker to do it. First, mount the volume to a container. Then, use the command "docker cp" to copy files into or out the volume's location inside the container. "docker cp" can also be used to copy files to and from other places in the container as well. You can basically think of a volume as a bridge. To get stuff from your computer into your container, copy the stuff into a volume and mount the volume to your container. To get stuff from your container into your computer, first put the files you want to move into your volume, then copy them out of the volume into your computer.
+When you bind mount a folder on your computer to a container, the container is able to access that folder. The folder basically becomes a bridge between your computer and the container. If you want to slurp files out of the container, move them from the container to the folder. If you want to get files into your container, move them from your computer to the folder. Bind mounts are very convenient.
 
-If you followed the directions I gave you about starting your AFNI container, you should have a volume named "volume" on your computer that mounts into the container at the path "/volume". Thus, to copy a file into "/volume" on the container, just type "docker cp path/to/file afni:/volume". Alternatively, to copy files out of the volume, type "docker cp afni:/volume path/on/your/computer". You can learn more about volumes [here](https://docs.docker.com/storage/volumes/) and "docker cp" [here](https://docs.docker.com/engine/reference/commandline/cp/)
+If you followed the directions I gave you about starting your AFNI container, you should have a folder at "/c/Volumes/volume" on your computer that bind mounts into the container at the path "/volume". Thus you can access anything you plop into "/c/Volumes/volume" from within your container by navigating to "/volume". This is how you move files between your AFNI setup and your computer.
 
-You might have noticed that volumes are pretty annoying to navigate. I agree. There's another option to move files between your computer and a container called bind mounting. Bind mounting is one of the Dark Arts. In some ways bind mounts are easier to use, but Docker seems to be phasing out support for them. They're also buggy as heck. That being said, if you're anti-volume and want to access your files in a more convenient (but buggy!) way, [read more here.](https://docs.docker.com/storage/bind-mounts/)
+But you have other options besides bind mounts. You can also move files between your computer and container using something called a volume. Volumes are Dark Majick. Docker prefers that you use them, but they're *really hecking hard to use*. That being said, if you're curious or you're having trouble with bind mounts, [read more here about volumes here.](https://docs.docker.com/storage/bind-mounts/)
