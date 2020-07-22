@@ -26,7 +26,12 @@ Param(
     # Sets the location of the mounted directory inside the container.
     [CmdletBinding(PositionalBinding=$False)]
     [String]
-    $destination = "/volume"
+    $destination = "/volume",
+
+    # Sets the port the container runs on.
+    [CmdletBinding(PositionalBinding=$False)]
+    [String]
+    $p = "8889:8889"
 )
 #endregion
 
@@ -96,5 +101,5 @@ Write-Output "You can access that directory from inside your container by naviga
 #endregion
 
 #region Launch the container
-docker run --interactive --tty --rm --name afni --volume $mount -p 8889:8889 --env DISPLAY=host.docker.internal:0 $image bash
+docker run --interactive --tty --rm --name afni --volume $mount -p $p --env DISPLAY=host.docker.internal:0 $image bash
 #endregion
