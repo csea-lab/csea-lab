@@ -51,6 +51,8 @@ function Test-Docker{
     <#
     .DESCRIPTION
     Returns true if Docker is running.
+    .NOTES
+    We use this function instead of Test-Process because Test-Process doesn't work well for Docker.
     #>
     docker ps 2>&1 | Out-Null
     return $?
