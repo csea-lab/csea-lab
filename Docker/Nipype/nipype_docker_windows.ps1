@@ -18,6 +18,10 @@ Param(
     [String]
     $image = "nipype/nipype",
 
+    # Name of the container.
+    [String]
+    $name = "nipype",
+
     # Directory to mount to the container.
     [CmdletBinding(PositionalBinding=$False)]
     [String]
@@ -103,5 +107,5 @@ Write-Output "You can access that directory from inside your container by naviga
 #endregion
 
 #region Launch the container
-docker run --interactive --tty --rm --user $user --name nipype --volume $mount -p 8888:8888 $image bash
+docker run --interactive --tty --rm --user $user --name $name --volume $mount -p 8888:8888 $image bash
 #endregion
