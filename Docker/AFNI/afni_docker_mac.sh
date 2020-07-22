@@ -14,4 +14,4 @@ workdir="/volume"
 p="8889:8889"
 
 
-docker run --interactive --tty --rm --name $name --volume $mount --workdir $workdir -p $p --env DISPLAY=host.docker.internal:0 $image bash
+docker run --interactive --tty --rm --name $name --volume $mount --workdir $workdir -p $p --env DISPLAY=docker.for.mac.host.internal:0 $image bash
