@@ -1,5 +1,5 @@
 # Introduction
-Follow these instructions to get a slick copy of AFNI inside a Docker container! Note: You must install some things before you begin. You can learn what to install by reading the README in the Docker directory.
+Follow these instructions to get a slick copy of AFNI inside a Docker container! Note: You must install some things before you begin. You can learn what to install by reading the directions in "csea-lab/Docker/README.md".
 
 Please contact me on Slack or email if you need help. I'm here anytime you need me 🙂
 
