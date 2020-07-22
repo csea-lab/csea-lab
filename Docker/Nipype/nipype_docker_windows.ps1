@@ -3,7 +3,7 @@
 Launches nipype within a Docker container.
 .DESCRIPTION
 This program launches nipype within a Docker container. It also mounts into the container the directory "/c/Volumes/volume".
-Contact me via email or Slack if you need help. I'm here whenever you need me :)
+Contact me via email or Slack if you need help. I'm here whenever you need me 🙂
 Created July 19, 2020
 Ben Velie
 veliebm@ufl.edu
