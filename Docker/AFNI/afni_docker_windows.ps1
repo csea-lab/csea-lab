@@ -90,9 +90,13 @@ function Open-XServer {
     Launches X Server if it isn't running.
     #>
     if (!(Test-Process vcxsrv)) {
-        C:\"Program Files"\VcXsrv\vcxsrv.exe :0 -multiwindow -clipboard -wgl
         Write-Output "Starting X Server"
+        C:\"Program Files"\VcXsrv\vcxsrv.exe :0 -multiwindow -clipboard -wgl
     }
+    while (!(Test-Process vcxsrv)) {
+        Start-Sleep 5
+    }
+    Write-Output "X Server is running"
 }
 #endregion
 
