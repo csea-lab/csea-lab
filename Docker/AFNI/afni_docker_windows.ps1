@@ -25,17 +25,17 @@ Param(
     # Writeable directory to mount to the container.
     [CmdletBinding(PositionalBinding=$False)]
     [String]
-    $write_source = "/c/Volumes/volume",
+    $write_source = "/c/Volumes/volume/",
 
     # Sets the location of the writeable directory within the container.
     [CmdletBinding(PositionalBinding=$False)]
     [String]
-    $write_destination = "/write_host",
+    $write_destination = "/write_host/",
 
     # Read-only directory to mount to the container.
     [CmdletBinding(PositionalBinding=$False)]
     [String]
-    $read_source = "/c/users/$env:UserName",
+    $read_source = "/c/users/$env:UserName/",
 
     # Sets the location of the read-only directory within the container.
     [CmdletBinding(PositionalBinding=$False)]
@@ -45,7 +45,7 @@ Param(
     # Sets the working directory within the container.
     [CmdletBinding(PositionalBinding=$False)]
     [String]
-    $workdir = "/write_host",
+    $workdir = "/write_host/",
 
     # Sets the port the container runs on.
     [CmdletBinding(PositionalBinding=$False)]
