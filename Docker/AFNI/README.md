@@ -22,6 +22,8 @@ WIP. I can't guarantee this will work.
 
 Dont use the GUI while you're processing images. Unfortunately, enabling the GUI *might* make AFNI buggy. I've disabled the GUI by default. To enable it and view some beautiful brain images, on Windows you can launch "./afni_docker_windows.ps1" with the flag "-enableGUI". Try it and see! Just navigate in PowerShell to the folder the .ps1 script is in, then type "./afni_docker_windows.ps1 -enableGUI". When your container opens, you can launch the viewer by typing "afni".
 
+On Mac, you need to manually edit $enableGUI inside "afni_docker_mac.sh". Set it to true. I know this is a hassle. I'm sorry.
+
 # Moving files into or out of your container
 A docker container is self-contained. You also don't usually permanently change the files inside of it - they usually reset whenever you start the container. This makes our AFNI container very safe and protects us from accidentally hurting our computer. But eventually you'll probably need to load external datasets into AFNI and permanently change them. To move data to and from your container, you'll use a snazzy little thing called a bind mount.
 
