@@ -50,7 +50,12 @@ Param(
     # Sets the port the container runs on.
     [CmdletBinding(PositionalBinding=$False)]
     [String]
-    $p = "8889:8889"
+    $p = "8889:8889",
+
+    # Sets whether the AFNI GUI is enabled.
+    [CmdletBinding(PositionalBinding=$False)]
+    [switch]
+    $enableGUI
 )
 #endregion
 
@@ -121,5 +126,10 @@ $write_mount = $write_source + ":" + $write_destination
 #endregion
 
 #region Launch the container
-docker run --interactive --tty --rm --name $name --volume $write_mount --volume $read_mount --workdir $workdir -p $p --env DISPLAY=host.docker.internal:0 $image bash
+$GUI = "DISPLAY=host.docker.internal:0"
+if ($enableGUI) {
+    docker run --interactive --tty --rm --name $name --volume $write_mount --volume $read_mount --workdir $workdir -p $p --env $GUI $image bash
+} else {
+    docker run --interactive --tty --rm --name $name --volume $write_mount --volume $read_mount --workdir $workdir -p $p $image bash
+}
 #endregion
