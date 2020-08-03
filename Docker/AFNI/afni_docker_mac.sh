@@ -1,5 +1,20 @@
 #! /usr/bin/env bash
 
+# .SYNOPSIS
+# Launches AFNI within a Docker container.
+
+# .DESCRIPTION
+# You need to manually launch docker before running this script. If you want a GUI,
+# you also need to launch X Quartz. The GUI is disabled by default. See README for more info.
+# Contact me via email or Slack if you need help. I'm here whenever you need me 🙂
+# Created July 17, 2020
+# Ben Velie
+# veliebm@ufl.edu
+
+# .LINK
+# Check out our repository!
+# https://github.com/csea-lab/csea-lab/
+
 #Image to run inside the container.
 image="afni/afni"
 # Name of the container.
