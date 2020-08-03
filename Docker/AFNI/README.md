@@ -18,7 +18,7 @@ WIP. I can't guarantee this will work.
 3) Launch "afni_docker_mac.sh" from a bash shell.
 4) Your shell should transform into a new bash shell connected to your docker container. You can now access AFNI.
 
-# About the GUI
+# Enabling the GUI
 
 Dont use the GUI while you're processing images. Unfortunately, enabling the GUI *might* make AFNI buggy. I've disabled the GUI by default. To enable it and view some beautiful brain images, on Windows you can launch "./afni_docker_windows.ps1" with the flag "-enableGUI". Try it and see! Just navigate in PowerShell to the folder the .ps1 script is in, then type "./afni_docker_windows.ps1 -enableGUI". When your container opens, you can launch the viewer by typing "afni".
 
