@@ -2,8 +2,8 @@
 .SYNOPSIS
 Launches AFNI within a Docker container.
 .DESCRIPTION
-This program launches AFNI within a Docker container. It also mounts into the container the directory "/c/Volumes/volume".
-Contact me via email or Slack if you need help. I'm here whenever you need me :)
+First, this program launches X Server and Docker if they aren't running. Then, it launches AFNI within a Docker container.
+Contact me via email or Slack if you need help. I'm here whenever you need me 🙂
 Created July 17, 2020
 Ben Velie
 veliebm@ufl.edu
@@ -22,25 +22,40 @@ Param(
     [String]
     $name = "afni",
 
-    # Directory to mount to the container.
+    # Writeable directory to mount to the container.
     [CmdletBinding(PositionalBinding=$False)]
     [String]
-    $source = "/c/Volumes/volume",
+    $write_source = "/c/Volumes/volume/",
 
-    # Sets the location of the mounted directory inside the container.
+    # Sets the location of the writeable directory within the container.
     [CmdletBinding(PositionalBinding=$False)]
     [String]
-    $destination = "/volume",
+    $write_destination = "/write_host/",
+
+    # Read-only directory to mount to the container.
+    [CmdletBinding(PositionalBinding=$False)]
+    [String]
+    $read_source = "/c/users/$env:UserName/",
+
+    # Sets the location of the read-only directory within the container.
+    [CmdletBinding(PositionalBinding=$False)]
+    [String]
+    $read_destination = "/read_host/",
 
     # Sets the working directory within the container.
     [CmdletBinding(PositionalBinding=$False)]
     [String]
-    $workdir = "/volume",
+    $workdir = "/write_host/",
 
     # Sets the port the container runs on.
     [CmdletBinding(PositionalBinding=$False)]
     [String]
-    $p = "8889:8889"
+    $p = "8889:8889",
+
+    # Sets whether the AFNI GUI is enabled.
+    [CmdletBinding(PositionalBinding=$False)]
+    [switch]
+    $enableGUI
 )
 #endregion
 
@@ -75,9 +90,13 @@ function Open-XServer {
     Launches X Server if it isn't running.
     #>
     if (!(Test-Process vcxsrv)) {
-        C:\"Program Files"\VcXsrv\vcxsrv.exe :0 -multiwindow -clipboard -wgl
         Write-Output "Starting X Server"
+        C:\"Program Files"\VcXsrv\vcxsrv.exe :0 -multiwindow -clipboard -wgl
     }
+    while (!(Test-Process vcxsrv)) {
+        Start-Sleep 5
+    }
+    Write-Output "X Server is running"
 }
 #endregion
 
@@ -99,16 +118,28 @@ function Open-Docker() {
 #endregion
 
 #region Launch Docker and XServer
-Open-XServer
 Open-Docker
+if($enableGUI){
+    Open-XServer
+}
 #endregion
 
-#region Set mount location
-Write-Output "Mounting the directory '$source'"
-$mount = $source + ":" + $destination
-Write-Output "You can access that directory from inside your container by navigating to '$destination'"
+#region Set mount locations
+Write-Output "From within your container, you can READ anything in $read_source by navigating to $read_destination"
+$read_mount = $read_source + ":" + $read_destination + ":ro"
+Write-Output "From within your container, you can read OR write anything in $write_source by navigating to $write_destination"
+$write_mount = $write_source + ":" + $write_destination
 #endregion
 
 #region Launch the container
-docker run --interactive --tty --rm --name $name --volume $mount --workdir $workdir -p $p --env DISPLAY=host.docker.internal:0 $image bash
+$GUI = "DISPLAY=host.docker.internal:0"
+if ($enableGUI) {
+    Write-Output "The GUI is enabled, which can make the container buggy"
+    Write-Output "Please run the container without the GUI unless you're using the AFNI viewer"
+    docker run --interactive --tty --rm --name $name --volume $write_mount --volume $read_mount --workdir $workdir -p $p --env $GUI $image bash
+} else {
+    Write-Output "The GUI is disabled"
+    Write-Output "To enable the GUI, launch this script with the flag -enableGUI"
+    docker run --interactive --tty --rm --name $name --volume $write_mount --volume $read_mount --workdir $workdir -p $p $image bash
+}
 #endregion
