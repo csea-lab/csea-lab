@@ -114,8 +114,10 @@ function Open-Docker() {
 #endregion
 
 #region Launch Docker and XServer
-Open-XServer
 Open-Docker
+if($enableGUI){
+    Open-XServer
+}
 #endregion
 
 #region Set mount locations
@@ -128,8 +130,12 @@ $write_mount = $write_source + ":" + $write_destination
 #region Launch the container
 $GUI = "DISPLAY=host.docker.internal:0"
 if ($enableGUI) {
+    Write-Output "Running with the GUI enabled, which can make the container buggy"
+    Write-Output "Please run the container without the GUI unless you're using the AFNI viewer"
     docker run --interactive --tty --rm --name $name --volume $write_mount --volume $read_mount --workdir $workdir -p $p --env $GUI $image bash
 } else {
+    Write-Output "Running without enabling the GUI"
+    Write-Output "To enable the GUI, launch this script with the flag -enableGUI"
     docker run --interactive --tty --rm --name $name --volume $write_mount --volume $read_mount --workdir $workdir -p $p $image bash
 }
 #endregion
