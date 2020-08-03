@@ -2,8 +2,8 @@
 .SYNOPSIS
 Launches AFNI within a Docker container.
 .DESCRIPTION
-This program launches AFNI within a Docker container. It also mounts into the container the directory "/c/Volumes/volume".
-Contact me via email or Slack if you need help. I'm here whenever you need me :)
+First, this program launches X Server and Docker if they aren't running. Then, it launches AFNI within a Docker container.
+Contact me via email or Slack if you need help. I'm here whenever you need me 🙂
 Created July 17, 2020
 Ben Velie
 veliebm@ufl.edu
