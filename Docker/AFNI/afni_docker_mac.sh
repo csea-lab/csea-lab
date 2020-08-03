@@ -33,7 +33,7 @@ workdir="/write_host/"
 p="8889:8889"
 # Sets whether the AFNI GUI is enabled.
 enableGUI=False
-# Sets the settings to make X Quartz work
+# Sets the environment variable to make X Quartz work
 GUI="DISPLAY=docker.for.mac.host.internal:0"
 
 if [ $enableGUI = True ]
