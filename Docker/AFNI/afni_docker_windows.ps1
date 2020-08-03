@@ -22,20 +22,30 @@ Param(
     [String]
     $name = "afni",
 
-    # Directory to mount to the container.
+    # Writeable directory to mount to the container.
     [CmdletBinding(PositionalBinding=$False)]
     [String]
-    $source = "/c/Volumes/volume",
+    $write_source = "/c/Volumes/volume",
 
-    # Sets the location of the mounted directory inside the container.
+    # Sets the location of the writeable directory within the container.
     [CmdletBinding(PositionalBinding=$False)]
     [String]
-    $destination = "/volume",
+    $write_destination = "/write_host",
+
+    # Read-only directory to mount to the container.
+    [CmdletBinding(PositionalBinding=$False)]
+    [String]
+    $read_source = "/c/users/$env:UserName",
+
+    # Sets the location of the read-only directory within the container.
+    [CmdletBinding(PositionalBinding=$False)]
+    [String]
+    $read_destination = "/read_host/",
 
     # Sets the working directory within the container.
     [CmdletBinding(PositionalBinding=$False)]
     [String]
-    $workdir = "/volume",
+    $workdir = "/write_host",
 
     # Sets the port the container runs on.
     [CmdletBinding(PositionalBinding=$False)]
@@ -103,12 +113,13 @@ Open-XServer
 Open-Docker
 #endregion
 
-#region Set mount location
-Write-Output "Mounting the directory '$source'"
-$mount = $source + ":" + $destination
-Write-Output "You can access that directory from inside your container by navigating to '$destination'"
+#region Set mount locations
+Write-Output "From within your container, you can READ anything in $read_source by navigating to $read_destination"
+$read_mount = $read_source + ":" + $read_destination + ":ro"
+Write-Output "From within your container, you can read OR write anything in $write_source by navigating to $write_destination"
+$write_mount = $write_source + ":" + $write_destination
 #endregion
 
 #region Launch the container
-docker run --interactive --tty --rm --name $name --volume $mount --workdir $workdir -p $p --env DISPLAY=host.docker.internal:0 $image bash
+docker run --interactive --tty --rm --name $name --volume $write_mount --volume $read_mount --workdir $workdir -p $p --env DISPLAY=host.docker.internal:0 $image bash
 #endregion
