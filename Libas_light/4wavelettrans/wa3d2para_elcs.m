@@ -1,1 +1,0 @@
-% extracts paramters from 3d wa result matrixfunction[paravec] = wa3d2para_elcs(InMat, sensorvec, timepointvec, freqbandvec);paravec = mean(mean(squeeze(InMat(sensorvec, [freqbandvec],[timepointvec])), 2), 3);paravec = paravec'

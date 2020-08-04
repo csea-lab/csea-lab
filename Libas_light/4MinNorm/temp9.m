@@ -1,1 +1,0 @@
-%temp9filemat = getfilesindir('elnino:temp');for fileindex = 1 : size(filemat, 1)	a = read_avr_bsl(filemat(fileindex, :), [175:249]);	write_avr(a(:,176:500),filemat(fileindex, :), 75, 4)end

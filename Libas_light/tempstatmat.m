@@ -1,1 +1,0 @@
-%tempstatmatfunction [outvec] = tempstatmat(invec)neuvec = zeros(1, 36)neuvec(

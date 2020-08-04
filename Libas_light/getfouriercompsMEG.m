@@ -1,1 +1,0 @@
-% getfouriercompsMEG% loads MEG avr file and computes Fourier components for 39Hz SSresponsefunction [FourierCompMat] = getfouriercompsMEG(dirname);FourierCompMat = [];filemat = getfilesindir(dirname)for FileIndex = 1 : size(filemat, 1);  rawmat = read_avr_MEG(filemat(FileIndex, :));fftMat = fft (rawmat', 128); FourierCompMat(FileIndex, :) = fftMat(8,:);end

@@ -1,1 +1,0 @@
-% avgmats% average .mat files specified in filematinfunction [outmat] = wavmatswork(filematin)outmat = []; for fileindex = 1 : size(filematin, 1)		strucmat = load(deblank(filematin(fileindex, :)));         mat = strucmat.PLI;		disp(filematin(fileindex, :))		    outmat(:, :, fileindex) = mean(mat(:,:, 7), 3); 		end

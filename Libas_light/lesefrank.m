@@ -1,1 +1,0 @@
-nlines = 3354fid = fopen('ElNino:users:Frank:fmp1ID.dat')matrix = []for count = 1 : nlinesa = fgetl(fid)length (a)if count == 1	matrix = a;else	matrix = [matrix;a]endendfclose('all')

@@ -1,1 +1,0 @@
-% holt matrixreihen in einen zeilenvektor% Reihenfolge der spalten entspricht abfolge der neuen zeilenelementefunction[vec] = mat2vec(mat)s = size(mat); vec = reshape(mat, 1, prod(s)); 

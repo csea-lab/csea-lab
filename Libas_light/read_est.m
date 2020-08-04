@@ -1,1 +1,0 @@
-% read_estfunction [Nrbadchan,Nambadchan] = read_est(filepath,Nchan);if nargin < 2	NChan = input('number of chans ');endif nargin <1	[file,path]=uigetfile('*est','select file');	filepath = [path file];endEstFid=fopen(filepath);[EstVec,Count]=fread(EstFid,NChan,'int16');Nambadchan = find(EstVec==0)Nrbadchan = length(Nambadchan)

@@ -1,1 +1,0 @@
-zumir;load vp05_bl3.e1.app1.wa.matx=AvgWaPower;x=mean(x,1);a=squeeze(x);load vp05_bl3.e1.app2.wa.matx=AvgWaPower;x=mean(x,1);b=squeeze(x);load vp05_bl3.e1.app3.wa.matx=AvgWaPower;x=mean(x,1);c=squeeze(x);load vp05_bl3.e1.app4.wa.matx=AvgWaPower;x=mean(x,1);d=squeeze(x);x=(a+b)/2;save 'vp05_b01_wa.mat' x -matx=(c+d)/2;save 'vp05_b23_wa.mat' x -mat

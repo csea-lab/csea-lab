@@ -1,1 +1,0 @@
-% load_files_dirdirname = input(' name of dir   ');struc = dir(dirname)for fileindex = 4 : size(struc,1);fname = getfield(struc,{fileindex}, 'name');eval(['load ' dirname '/' fname ' -ascii'])%vollmat = eval(fname);end

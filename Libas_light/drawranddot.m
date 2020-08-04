@@ -1,1 +1,0 @@
-function[]=drawranddot(matsize, directory, name)a = zeros(matsize/2, matsize); b = ones(matsize/2, matsize); c = [a; b]; d = c; d(randperm(matsize*matsize)) = c(1:matsize*matsize); pcolor(d)axis offeval(['cd ' directory])imwrite(d, name,'jpeg')

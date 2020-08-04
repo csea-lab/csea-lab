@@ -1,1 +1,0 @@
-% tmpfor timeindex = 1 : 6   for freqindex = 1 :10      eval(['save ubies:as_exps:exoperant:freqstatsASCII:saMAT_t' num2str(timeindex) 'f' num2str(freqindex) '  saMAT_t'num2str(timeindex) 'f'num2str(freqindex) '  -ascii' ])        end end   

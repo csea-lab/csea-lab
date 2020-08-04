@@ -1,1 +1,0 @@
-% bslcorrmat% corrects 129 channel ar mat % by subtracting mean of baseline in samplepointsfunction [data] = bslcorrdivide(inmat, bslvec);for chan = 1 : size(inmat, 1)data(chan,:) = inmat(chan,:) ./ mean(inmat(chan,bslvec),2);end

@@ -1,1 +1,0 @@
-% get_Twin_rmsfunction [outvec] = get_Twin_rms(filemat, t_vector, outname); for index = 1 : size(filemat); 		a = load(filemat(index, :)); 			outvec(index) = mean(a(t_vector)); 	endoutvec = outvec';	 eval(['save elnino:tmpstats:' outname ' outvec -ascii'])			

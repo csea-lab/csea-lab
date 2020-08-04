@@ -1,1 +1,0 @@
-%tmp6 : fuer behav operantvps = ['03'; '05'; '06'; '08';'11'; '12'; '13'; '15'; '17' ; '18'; '19']for ind = 1 : 11meanRWD_OK(ind)  = eval (['mean(VP' vps(ind, :) 'OK_Rwd)'])meanRWD_EX(ind)  = eval (['mean(VP' vps(ind, :) 'K_Rwd)'])end

@@ -1,1 +1,0 @@
-% reduce mat function [] = reduce_mat(directory)filemat = getfilesindir(directory)cd(directory)for index = 1 : size(filemat, 1); 	load([filemat( index, :)]); 	AvgWaPower = AvgWaPower(:, :,1:4:512); 	eval(['save ' filemat( index, :) ' AvgWaPower -mat'])end

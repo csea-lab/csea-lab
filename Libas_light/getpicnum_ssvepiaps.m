@@ -1,1 +1,0 @@
-% getcondveceprime% searches condnumberes in e-prime *.txt filefunction [picnum] = getpicnum_ssvepiaps(filepath);picnum = []; fid = fopen(filepath)a = 1  while a > 0	    a = fgetl(fid);        if a > 0;  	   blankvec = findstr(a, ' ') ;      picnum = [picnum; str2num(a(max(blankvec)+1:max(blankvec)+5))];       end end

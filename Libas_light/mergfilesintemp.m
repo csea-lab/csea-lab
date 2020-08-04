@@ -1,1 +1,0 @@
-% mergfilesintemp% merges SCADS at files in temporary folderfilemat = getfilesindir('Elnino:temp')MergeAvgFiles(filemat,'Elnino:temp:GMmerge.atg.ar' ,1)

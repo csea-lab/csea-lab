@@ -1,1 +1,0 @@
-function A = normalize_cols(matrix);n = norm_col(matrix);for i=1:length(matrix(1,:)),	A(:,i) = matrix(:,i)/n(i);end;
