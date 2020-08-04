@@ -1,0 +1,11 @@
+function kappa = kappaneg(mat); 
+
+%assumes that positive agreement is in the bottom right cell of the mat
+
+pa = (mat(2,2))./(sum(mat(2,:))+sum(mat(:,2)));
+pe = (sum(mat(1,:))./sum(sum(mat))).*(sum(mat(:,1))./sum(sum(mat))); %+ (sum(mat(1,:))./sum(sum(mat))).*(sum(mat(:,1))./sum(sum(mat)));
+kappa=(pa-pe)./(1-pe);
+
+test = mat(2,2)./sum(sum(mat))
+ 
+

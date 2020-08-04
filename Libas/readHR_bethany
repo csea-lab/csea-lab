@@ -1,0 +1,18 @@
+% readHR_bethany
+function [outmat] = readHR_bethany(path)
+
+fid = fopen(path)
+
+matrix = []; 
+
+dummy = fgetl(fid)
+dummy = fgetl(fid)
+dummy = fgetl(fid)
+dummy = fgetl(fid)
+
+for lineindex = 1:25
+    line = fgetl(fid)
+    line = str2num(line)
+    trialvector = [trialvector line]
+end
+

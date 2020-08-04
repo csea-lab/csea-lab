@@ -1,0 +1,1 @@
+% Agauss produces gaussian function for given freq_j; freq_i ; sigma_f ; A function [time_wavelet] = Agauss_time(t, sigma_t, A, f);time_wavelet = A * exp((-t*t)/(2*sigma_t.^2)) * exp(2.0 * i *pi * f * t) ;%theta_wavelet = (A/(sqrt(2*pi)*sigma_f)) * exp(-k^2 /(2*sigma_f^2));

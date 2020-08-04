@@ -1,0 +1,1 @@
+function outmat = shift_matrix(inmat, nr);if nargin==0,   disp(' outmat = shift_mat(inmat, nr); ');   return;end;[m n] = size(inmat);for i=1:nr,   outmat(:,i:nr:nr*n) = inmat;end;

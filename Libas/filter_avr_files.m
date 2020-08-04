@@ -1,0 +1,1 @@
+function [filtdata] = filter_avr_files(filemat, LPcutoff);[B, A] = butter(6, LPcutoff);for fileindex = 1 : size(filemat, 1);		[data, latencies] = read_avr(filemat(fileindex, :));	size(data)		datafilt = filtfilt(B, A, data');	datafilt = datafilt';		write_avr(datafilt, filemat(fileindex, :), -200, 2.5);	end

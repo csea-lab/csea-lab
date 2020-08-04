@@ -1,0 +1,1 @@
+function [matrix, sumof] = append_nsum(matrix);if nargin==0,   disp(' [matrix, average] = append_average(matrix); ');   return;end;[m n] = size(matrix);sumof = sum(matrix);matrix(m+1,:) = -1.0*sumof;

@@ -1,0 +1,1 @@
+function matriz=leematri(mask,text)% read matrix from a file%rgpm 3-1-97;if nargin<2,  text=' Chose a file ';end;if nargin<1,  mask='*.*';end;[datafile datapath]=uigetfile(mask,text);if datafile,  eval(['load(''' datapath datafile ''')']);  matriz=eval(strtok(datafile,'.'));end;%over  

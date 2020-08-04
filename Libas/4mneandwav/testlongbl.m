@@ -1,0 +1,1 @@
+baseline_correct_avr('/export/jesse/data3/ZAV/longmndata/ZAV001LFAC_mn2050.avr','/export/jesse/data3/ZAV/longmndata/bl/ZAV001LFAC_mn2050.avr',-100, 0);

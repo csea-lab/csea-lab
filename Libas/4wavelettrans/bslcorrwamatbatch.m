@@ -1,0 +1,1 @@
+%bslcorrwamatbatchfunction [] = bslcorrwamatbatch(filemat, timevec)for index = 1 : size(filemat, 1);         filename = deblank(filemat(index,:));	load(filename);	[WaPower] = bslcorrWAMat_div(WaPower, timevec);	eval(['save ' filename(1:end-4) '.bsl.mat WaPower -mat'])end

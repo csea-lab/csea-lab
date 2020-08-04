@@ -1,0 +1,1 @@
+function [avgdata] = merge_avr_files(filemat, outname, TSB, DI);sumdata = [];for fileindex = 1 : size(filemat, 1);		[data, latencies] = read_avr(filemat(fileindex, :));	size(data)		if fileindex == 1		sumdata = data;	else	sumdata = sumdata + data; 	end	endavgdata = sumdata ./ size(filemat, 1); write_avr(avgdata, outname, TSB, DI);	

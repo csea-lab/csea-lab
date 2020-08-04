@@ -1,0 +1,9 @@
+%beamforminterp_batch
+% reads source from individual solution, the individual mr, a template MR
+% passes everything on to source2norm4Gavg_as and saves the results...
+function[] = beamforminterp_batch(directory, indiv_MR_path, template_path)
+
+cd (directory)
+
+[indiv_mri] = read_fcdc_mri(indiv_MR_path);
+template_MRI = 

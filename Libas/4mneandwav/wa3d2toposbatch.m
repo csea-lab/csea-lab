@@ -1,0 +1,1 @@
+%wa3d2toposbatchfilemat = getfilesindir('ElNino:users:Kelly:todo')for fileindex = 1:size(filemat, 1);	eval(['load ' filemat(fileindex, :)]);	bslcorrmat = bslcorrwamat(AvgWaPower, [40:60]);	wa3d2topos(bslcorrmat, [filemat(fileindex, 1:length(filemat(fileindex, :))-6) '22t30.avr'], 18:28, 1:420); end

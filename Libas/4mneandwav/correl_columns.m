@@ -1,0 +1,1 @@
+function values = correl_columns(A, B);nA = norm_col(A);nB = norm_col(B);values = diagprod(A',B);values = values./nA;values = values./nB;

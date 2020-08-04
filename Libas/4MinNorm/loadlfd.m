@@ -1,0 +1,1 @@
+% lodes 129 channel leadfield into matrix lfdmat1load lfd129_sph_08_02_01_06.datlfdmat1 = lfd129_sph_08_02_01_06;

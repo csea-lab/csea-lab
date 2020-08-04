@@ -1,0 +1,10 @@
+% tempget
+function [endvec] = tempget(filemat, picvec_all); 
+
+endvec = ones(1,60) .* -
+picturevec = str2num(filemat(:,11:14)); 
+
+for pictureIndex = 1 : 60
+matindex = find(picturevec == picvec_all(pictureIndex))
+if ~isempty(matindex), a = ReadAvgFile(filemat(matindex,:)); endvec(pictureIndex) = mean(a([72 156 67 129])); end
+end

@@ -1,0 +1,1 @@
+whatcondition = 'ANI';whatregpar = '050';whatshell = 'mn2';normalize_foc_avr(['/export/jesse/data3/ZAV/mndata/pure/ZAV0011' whatcondition '_' whatshell whatregpar '.avr'], ['/export/jesse/data3/ZAV/mndata/pure/ZAV0011' whatcondition '_' whatshell whatregpar '.avr'], 'ZAVfocs.fdn', ['/export/jesse/data3/ZAV/mndata/pure/testnormzavcs.avr']);

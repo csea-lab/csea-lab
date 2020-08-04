@@ -1,0 +1,1 @@
+-n sensor_name = '/home/btimap21/WRG/MN/

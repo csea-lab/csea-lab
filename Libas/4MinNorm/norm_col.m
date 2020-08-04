@@ -1,0 +1,1 @@
+function n=norm_col(m,squared)% computes the norm of the columns of m% if nargin==2 then computes the square of the norm of the columns% it does not matter what value is entered in square%rgpm 20-1-97[f,c]=size(m);n=zeros(c,1);n=diagprod(m',m);if nargin==1,  n=sqrt(n);end;%over

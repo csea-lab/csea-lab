@@ -1,0 +1,1 @@
+function outmat = meanfreq(inmat, f1, f2)outmat = zeros(size(inmat,1), size(inmat,3));for i=f1:f2   outmat(:,:) = outmat(:,:) + squeeze(inmat(:,i,:));endoutmat = outmat /(1+f2-f1);

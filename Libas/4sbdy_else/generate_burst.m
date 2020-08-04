@@ -1,0 +1,1 @@
+t1 = 0:.004:1;x1 = sin(2*pi*20*t1);t2 = 1:.004:3;x2 = 2 * sin(2*pi*20*t2);testsig = [x1 x2];plot([t1 t2], testsig)

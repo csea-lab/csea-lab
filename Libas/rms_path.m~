@@ -1,0 +1,1 @@
+% rms.m% computes rms for avf or atg - format matrix, i.e. columns are % time pointsfunction [vec] = rms_path; filemat = a = readavgfile(filepath);inmat(1:129,:) = inmat(1:129,:); inmat(1,1), pausefor timepoint = 1:size(inmat,2)		GPvec(timepoint) = (sum(inmat(1:129, timepoint) .^ 2));	endmittel1 = mean(GPvec(

@@ -1,0 +1,1 @@
+% extracts paramters from 3d wa result matrixfunction[para] = wa3d2para(InMat, sensorvec, timepointvec, freqbandvec);para = mean(mean(mean(squeeze(InMat(sensorvec, [freqbandvec],[timepointvec])))));

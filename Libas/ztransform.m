@@ -1,0 +1,1 @@
+function[z] = ztransform(invec);% function [] = mc_norm();% calculates the z-transformed vector for invec%%z = (invec-mean(invec))./std(invec);

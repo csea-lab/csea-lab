@@ -1,0 +1,1 @@
+function make_means(name_in, name_out);nr_vps = 14;fid_in = fopen(name_in);linie = fgetl(fid_in);cnt = 1;while cnt<=nr_vps,   disp(cnt);   data = str2num(linie);   med(cnt) = median(data);   cnt = cnt+1;   linie = fgetl(fid_in);end;fclose(fid_in);write_matrix(med', name_out);

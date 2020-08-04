@@ -1,0 +1,1 @@
+function baseline_correct_avrlist;filelist = read_filelist;for i=1:length(filelist(:,1)),   name_out = sprintf('%s2', deblank(filelist(i,:)));   baseline_correct_avr(deblank(filelist(i,:)), name_out, -300, 0.0);end;

@@ -1,0 +1,1 @@
+[namelist, paths, names] = experimenter_mn_meg(sensor_name, cos_name, inpaths, infiles, '/export/jesse/data3/ZAV/mndata', -100, 800);

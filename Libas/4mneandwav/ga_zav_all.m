@@ -1,0 +1,1 @@
+clear;%x = ga_zav('LEG', '100', 'mn2');%x = ga_zav('ARM', '100', 'mn2');%x = ga_zav('FAC', '100', 'mn2');%x = ga_zav('ANI', '100', 'mn2');x = ga_zav('f4LEG', '050', 'mn2');x = ga_zav('f4ARM', '050', 'mn2');x = ga_zav('f4FAC', '050', 'mn2');x = ga_zav('f4ANI', '050', 'mn2');

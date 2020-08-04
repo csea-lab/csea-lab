@@ -1,0 +1,1 @@
+infiles(1,:) = 'test1.avr';infiles(2,:) = 'test2.avr';inpaths(1,:) = '/home/assadoll/Programme/MN/';inpaths(2,:) = '/home/assadoll/Programme/MN/';x = grand_mean(inpaths, infiles, 'avr',0,6,  'test3.avr');

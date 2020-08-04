@@ -1,0 +1,1 @@
+% F00sensor_name = '/home/btimap21/WRG/MN/mit55_1_0L1.pmg'cos_name = '/home/btimap21/WRG/MN/mit55_1_0L1.cot'infiles(1,:) = 'mit55_1_0L1.avr';infiles(2,:) = 'mit55_1_0L2.avr';inpaths(1,:) = '/home/btimap21/WRG/MN/';inpaths(2,:) = '/home/btimap21/WRG/MN/';[namelist, paths, names] = wr_mn_meg(sensor_name, cos_name, inpaths, infiles);

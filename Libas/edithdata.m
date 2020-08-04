@@ -1,0 +1,53 @@
+% read and transfer edith kaan's TF data and test against rando,m
+% distribution for a first assessment of significance
+
+function [outvec] = edithdata(nsubjects); 
+
+% generate data_vector with the following properties
+% each subject has 624 data points: 16 conditions:
+%(post/pre; cond(4); std/dv)* 39 sensor, of which last two are 0 (eog channels) 
+outvec = []; 
+% 1... loop over subjects
+for subj = 1:nsubjects
+    subjectvec624 = [];
+    % loop over conditions
+    for condition = 1:16
+        if ismember(condition, [1:8]), additionpost = rand(1,1)/11; else additionpost = 0; end
+        if ismember(condition, [1:2:16]), additiondev = rand(1,1)/15; else additiondev = 0; end
+        if ismember(condition, [1:4 9:12]), additionlow = rand(1,1)/20; else additionlow = 0; end
+            % generate one data vector for testing
+            datavec = (rand(39,1)./4.2) + .13 - (rand(39,1)./20); 
+            % last two lements are zeros
+            datavec(38:39) = 0; 
+            % FCz = 1 in FCz reference condition
+               %datavec(18) = 1; 
+               datavec([3:5 9:12] ) = datavec([3:5 9:12] ) + rand(7,1)/20 +  double(additionpost) + additiondev + additionlow;
+              % 
+    subjectvec624 = [subjectvec624; datavec];
+    end
+    plot(subjectvec624), pause
+   outvec = [outvec; subjectvec624]; 
+end
+
+% PLI gamma -? FCz 3elecsLeftant
+%10  c: 10 6 15
+%10  e: 7 8 8
+%11 t: 15 4 15
+
+% PLI alpha -> Cz [3 5 16 17 9 13 19 20 25]
+% c: 12 7 20
+% e: 7 8 20
+% t: 20 7 20
+
+% Power alpha -> Cz [15:21 23:25] set to minus!!!!!!
+% c: 14 3 20
+% e: 7 3 10
+% t: 12 5 20
+
+% Power gamma -> FCz [3:5 9:12] set to minus!!!!!!
+% c: 14 23 20
+% e: 7 13 10
+% t: 10 15 20
+
+
+    

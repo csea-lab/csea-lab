@@ -1,0 +1,1 @@
+function [OutWAMat] = wa_mean(InWAMat, chnlz);OutWAMat = (squeeze(InWAMat(chnlz(1),:,:)));if (length(chnlz)>1), for i=2:length(chnlz),  OutWAMat = OutWAMat + (squeeze(InWAMat(chnlz(i),:,:)));  OutWAMat = OutWAMat ./ length(chnlz); end;end;

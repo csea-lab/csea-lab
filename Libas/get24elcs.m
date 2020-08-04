@@ -1,0 +1,1 @@
+% get24elcs computes 24 electrodes% function [vector] = get24elcs(inpath);a = load(inpath);elvec_stat =  [34 25 46 37 48 54 58 60 67 65 71 69 122 124 109 105 99 80 97 86 78 91 84 95];vector = a(elvec_stat);eval(['save ' inpath '.elc vector -ascii']); 

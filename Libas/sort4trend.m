@@ -1,0 +1,1 @@
+function [trendmat]=sort4trend(matrix)%Reorganizes condition-arrays with sensors or sources as rows and subjects as %columns, so that a 3 dimensional array is returned with: subjects as rows,%conditions as columns and sensors/sources as 3. dimension.%%see also repeatcont.mtrendmat=permute(matrix,[2,3,1]);

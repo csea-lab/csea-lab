@@ -1,0 +1,1 @@
+function [normcol, maxcol] = plot_norm(matrix);if nargin==0,   disp(' [normcol, maxcol] = plot_norm(matrix); ');   return;end;normcol = norm_col(matrix);maxcol = max(abs(matrix));figure(gcf+1);clf;plot(normcol);title('Norms of columns');figure(gcf+1);clf;plot(maxcol);title('Maxima of absolute values of columns');

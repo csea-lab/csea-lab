@@ -1,0 +1,2 @@
+% read many files of many conditions in many matrices in workspace
+for cond = 1:20, for x = cond:20:1000; eval(['mat3d_' num2str(cond) '(:, :, ' num2str(cond) ') = ReadAvgFile(filemat(x,:));']); end, end

@@ -1,0 +1,1 @@
+function [stringlist] = read_strings(filename);if nargin==0,   disp(' [stringlist] = read_strings(filename); ');   return;end;fid = fopen(filename, 'r');line = fgetl(fid);cnt = 1;while isstr(line),   stringlist(cnt, 1:length(line)) = line;   line = fgetl(fid);   cnt = cnt+1;end;fclose(fid);

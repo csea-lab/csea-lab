@@ -1,0 +1,1 @@
+% Outputs the first principal components for rows and columns of a matrix for a% given column range (default: all columns)% OH 30.10.97function [col, row] = princ_comp(matrix, from, to);if nargin == 1	from = 1;	to = length(matrix(1,:));end;[U,S,V] = svd(matrix(:,from:to));col = U(:,1);row = V(:,1);clear U;clear V;clear S;

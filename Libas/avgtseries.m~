@@ -1,0 +1,12 @@
+function [outmat] = avgtseries(inmat); 
+
+for file = 1:size(filemat,1)
+    a = readavgfile(deblank(inmat(file,:))); 
+
+        b = [];
+        time = 1;
+        for shift = 1:50:2200
+        b(:,time) = mean(a(:, shift:shift+105),2); time = time+1
+        end; b = [b a(:, end)];
+
+end

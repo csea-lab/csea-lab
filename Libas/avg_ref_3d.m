@@ -1,0 +1,1 @@
+ function matrixout = avg_ref_3d(matrix);matrixout =zeros(size(matrix,1), size(matrix,2), size(matrix,3));for trial = 1: size(matrix,3)        ref = [];         matrixtrial = squeeze((matrix(:, :, trial)));         mean_col = mean(matrixtrial', 2)';for i=1:length(matrixtrial(1,:)),	ref(:,i) = matrixtrial(:,i)-mean_col(i);end;matrixout(:, :, trial) = ref;end

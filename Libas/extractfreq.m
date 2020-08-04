@@ -1,0 +1,1 @@
+% avgmats% extract freqs from .mat files specified in filematinfunction [outmat3d] = extractfreq(filematin, freqindexvec)for fileindex = 1 : size(filematin, 1)		strucmat = load(deblank(filematin(fileindex, :)));         mat = strucmat.WaPower;		disp(filematin(fileindex, :))		outmat3d(:, :, fileindex) = squeeze(mean(mat(:, :, freqindexvec), 3)); end

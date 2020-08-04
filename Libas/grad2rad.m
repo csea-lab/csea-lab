@@ -1,0 +1,1 @@
+%rad2grad%berechnet fuer beliebige matrix, scalar etc. aus radians die entsprechenden werte in Bogengrad%function[outMat] = grad2rad(inMat)outMat = inMat ./ (180/pi);

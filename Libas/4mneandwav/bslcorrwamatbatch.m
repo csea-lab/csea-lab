@@ -1,0 +1,1 @@
+% bslcorrwamatbatchfunction = [] = bslcorrwamatbatch(dirname, timevec); filemat = getfilesindir(dirname); for fileIndex = 1: size(filemat, 1); 	eval(['load ' filemat(fileIndex,:) ' -mat']);	[BslMat] = bslcorrWAMat(AvgWaMat, timevec);	eval(['save ' filemat(fileIndex,:) '.bsl BslMat -mat']);end

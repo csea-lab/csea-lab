@@ -1,0 +1,1 @@
+function matrix = spread_weight_matrix(diploc);nr_dip = length(diploc(1,:));for i=1:nr_dip,   if mod(i,100)==0, disp(i); end;   dist(1,:) = diploc(1,:) - diploc(1,i);   dist(2,:) = diploc(2,:) - diploc(2,i);   dist(3,:) = diploc(3,:) - diploc(3,i);   weights = norm_col(dist);   clear dist;   matrix(i,:) = weights';end;

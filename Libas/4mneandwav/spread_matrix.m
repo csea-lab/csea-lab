@@ -1,0 +1,1 @@
+% Spreadmatrix for WROP/TROPfunction  spreadmatrix = spread_matrix(lfdmat, diagwgt);[m n] = size(lfdmat);if size(diagwgt)~=n,   disp(' Dimensions of source space and weighting do not match (spread_matrix)!!! ');   return;end;for i=1:m,   lfdmat2(i,:) = lfdmat(i,:).*diagwgt';end;spreadmatrix = lfdmat2*lfdmat'; % clear lfdmat2;

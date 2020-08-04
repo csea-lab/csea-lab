@@ -1,0 +1,1 @@
+function wcmeanfocs = allwcmeanfocs(animat, facmat, armmat, legmat, f1,f2,t1,t2)% compute word classeswcmeanfocs(1:6) = allmeanfocs(animat, f1,f2,t1,t2);wcmeanfocs(7:12) = allmeanfocs(facmat, f1,f2,t1,t2);wcmeanfocs(13:18) = allmeanfocs(armmat, f1,f2,t1,t2);wcmeanfocs(19:24) = allmeanfocs(legmat, f1,f2,t1,t2);

@@ -1,0 +1,14 @@
+function [] = ecog3dplot(gridlocmat, pairmat, values)
+% gridlocmat = 2-d matrix of electrode names corresponding to electrode
+% names (numbers) in pairmat, e.g., 21 22 23 24 25; 26 27 28 29 30; ...
+% arranged as on brain. pairmat is n by 2 mat of electrode pairs for
+% bipolar data, used to interpolate locations, values are values...
+
+% first step: find coordinates for drawing the bipolar data (in between
+% sensors)
+
+for index1 = 1:size(pairmat,1)
+    
+    
+    
+end

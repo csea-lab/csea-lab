@@ -1,0 +1,1 @@
+function thisresult = alltfwcmeanfocs(animat, facmat, armmat, legmat)resmat = allfreqwcmeanfocs(animat, facmat, armmat, legmat, -300, 0);wadlmwrite('d:\first.txt',resmat);
