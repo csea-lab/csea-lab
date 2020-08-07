@@ -51,10 +51,6 @@ def start_xserver_process():
     elif OS == "Linux":
         pass
 
-def set_display_var():
-    pass
-
-
 # Functions to launch the container
 def launch_docker():
     """

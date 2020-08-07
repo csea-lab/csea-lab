@@ -137,7 +137,7 @@ if ($enableGUI) {
     Write-Output "The GUI is enabled, which can make the container buggy"
     Write-Output "Please run the container without the GUI unless you're using the AFNI viewer"
     docker run --interactive --tty --rm --name $name --volume $write_mount --volume $read_mount --workdir $workdir -p $p --env $GUI $image bash
-} else {
+} else {a
     Write-Output "The GUI is disabled"
     Write-Output "To enable the GUI, launch this script with the flag -enableGUI"
     docker run --interactive --tty --rm --name $name --volume $write_mount --volume $read_mount --workdir $workdir -p $p $image bash
