@@ -143,7 +143,7 @@ def launch_docker():
         print("Starting Docker")
         while not docker_running():
             start_docker_process()
-            sleep(5)
+            sleep(2)
     print("Docker is running")
 def start_docker_process():
     """
