@@ -28,12 +28,21 @@ def main():
 
 # Functions to launch an X Server
 def launch_xserver():
+    """
+    Launch X Server if it isn't already running.
+    """
     start_xserver_process()
 
 def xserver_running():
+    """
+    Returns True if X Server is running.
+    """
     pass
 
 def start_xserver_process():
+    """
+    Start whatever X Server you have on your OS.
+    """
     OS = get_OS()
     if OS == "Windows":
         subprocess.Popen([XSERVER_PATH_WINDOWS, ":0", "-multiwindow", "-clipboard", "-wgl"])
