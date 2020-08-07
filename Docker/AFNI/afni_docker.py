@@ -5,9 +5,14 @@ import platform
 
 CONFIG_NAME = "config.ini"
 
+
 def main():
 
     initialize_config_file()
+
+    # TODO: start_docker()
+
+    # TODO: start_xserver()
 
     launch_container()
 
@@ -18,7 +23,7 @@ def get_docker_args():
     """
     config = configparser.ConfigParser()
     config.read(CONFIG_NAME)
-    
+
     args_list = ["docker",
                  "run",
                  "--interactive",
@@ -27,21 +32,21 @@ def get_docker_args():
                  "--name",
                  config["DEFAULT"]["name"],
                  "--volume",
-                 config["DEFAULT"]["host directory to read or write to"] + ":" + config["DEFAULT"]["read/write directory in container"],
+                 config["DEFAULT"]["host directory to read or write to"] +
+                 ":" + config["DEFAULT"]["read/write directory in container"],
                  "--volume",
-                 config["DEFAULT"]["host directory to read from"] + ":" + config["DEFAULT"]["read directory in container"] + ":ro",
+                 config["DEFAULT"]["host directory to read from"] + ":" +
+                 config["DEFAULT"]["read directory in container"] + ":ro",
                  "--workdir",
                  config["DEFAULT"]["working directory"],
                  "-p",
                  config["DEFAULT"]["port"],
-    ]
-    
+                 ]
 
     if config.getboolean("DEFAULT", "enable display") == True:
         args_list.append("--env")
         args_list.append(config["DEFAULT"]["display"])
 
-    
     args_list.append(config["DEFAULT"]["image"])
     args_list.append("bash")
 
@@ -117,26 +122,26 @@ def get_OS_config_dict():
                            "enable display": "False"}
 
     mac_config_dict = {"image": "afni/afni",
-                           "name": "afni",
-                           "host directory to read OR write to": "/",
-                           "read/write directory in container": "/write_host/",
-                           "host directory to read from": "/",
-                           "read directory in container": "/read_host/",
-                           "working directory": "/write_host/",
-                           "port": "8889",
-                           "display": "",
-                           "enable display": "False"}
+                       "name": "afni",
+                       "host directory to read OR write to": "/",
+                       "read/write directory in container": "/write_host/",
+                       "host directory to read from": "/",
+                       "read directory in container": "/read_host/",
+                       "working directory": "/write_host/",
+                       "port": "8889",
+                       "display": "",
+                       "enable display": "False"}
 
     linux_config_dict = {"image": "afni/afni",
-                           "name": "afni",
-                           "host directory to read OR write to": "/",
-                           "read/write directory in container": "/write_host/",
-                           "host directory to read from": "/",
-                           "read directory in container": "/read_host/",
-                           "working directory": "/write_host/",
-                           "port": "8889",
-                           "display": "",
-                           "enable display": "False"}
+                         "name": "afni",
+                         "host directory to read OR write to": "/",
+                         "read/write directory in container": "/write_host/",
+                         "host directory to read from": "/",
+                         "read directory in container": "/read_host/",
+                         "working directory": "/write_host/",
+                         "port": "8889",
+                         "display": "",
+                         "enable display": "False"}
 
     if "Windows" in platform.platform():
         return windows_config_dict
