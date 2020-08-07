@@ -26,7 +26,7 @@ def main():
 
     launch_container()
 
-# Functions to edit the config file
+# Functions to initialize the config file
 def initialize_config_file():
     """
     Initialize a config file.
@@ -107,13 +107,12 @@ def set_if_empty(config_obj, option: str, value: str, section="DEFAULT"):
     else:
         config_obj.set(section, option, value)
 
-# Functions to launch an X Server
+# Functions to launch X Server
 def launch_xserver():
     """
     Launch X Server if it isn't already running.
     """
     print(xserver_running())
-
 def xserver_running():
     """
     Returns True if X Server is running.
@@ -127,7 +126,6 @@ def xserver_running():
     elif OS == "Linux":
         pass
     return False
-
 def start_xserver_process():
     """
     Start whatever X Server you have on your OS.
