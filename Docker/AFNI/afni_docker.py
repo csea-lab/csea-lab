@@ -187,8 +187,7 @@ def get_container_args():
     """
     Reads the config file and returns a list of arguments for the container.
     """
-    config = configparser.ConfigParser()
-    config.read(CONFIG_NAME)
+    config_dict = read_config()
 
     args_list = ["docker",
                  "run",
@@ -196,24 +195,23 @@ def get_container_args():
                  "--tty",
                  "--rm",
                  "--name",
-                 config["DEFAULT"]["name"],
+                 config_dict["name"],
                  "--volume",
-                 config["DEFAULT"]["host directory to read or write to"] +
-                 ":" + config["DEFAULT"]["read/write directory in container"],
+                 config_dict["host directory to read or write to"] + ":" + config_dict["read/write directory in container"],
                  "--volume",
-                 config["DEFAULT"]["host directory to read from"] + ":" +
-                 config["DEFAULT"]["read directory in container"] + ":ro",
+                 config_dict["host directory to read from"] + ":" +
+                 config_dict["read directory in container"] + ":ro",
                  "--workdir",
-                 config["DEFAULT"]["working directory"],
+                 config_dict["working directory"],
                  "-p",
-                 config["DEFAULT"]["port"],
+                 config_dict["port"],
                  ]
 
-    if config.getboolean("DEFAULT", "enable display") == True:
+    if config_dict["enable display"] == "True":
         args_list.append("--env")
-        args_list.append(config["DEFAULT"]["display"])
+        args_list.append(config_dict["display"])
 
-    args_list.append(config["DEFAULT"]["image"])
+    args_list.append(config_dict["image"])
     args_list.append("bash")
 
     return args_list
