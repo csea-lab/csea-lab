@@ -4,32 +4,43 @@ import os
 import platform
 from time import sleep
 
+
 CONFIG_NAME = "config.ini"
+
 DOCKER_PATH_WINDOWS = "C:/Program Files/Docker/Docker/Docker Desktop.exe"
 DOCKER_PATH_MAC = ""
 DOCKER_PATH_LINUX = ""
+
 XSERVER_PATH_WINDOWS = "C:/Program Files/VcXsrv/vcxsrv.exe"
 XSERVER_PATH_MAC = ""
 XSERVER_PATH_MAC = ""
+
 
 def main():
 
     initialize_config_file()
 
-    launch_docker()
-
     launch_xserver()
+
+    launch_docker()
 
     launch_container()
 
 # Functions to launch an X Server
 def launch_xserver():
-    OS = get_OS()
-    if OS == "Windows":
-        subprocess.Popen([XSERVER_PATH_WINDOWS, ":0", "-multiwindow", "-clipboard", "-wgl"])
+    start_xserver_process()
 
 def xserver_running():
     pass
+
+def start_xserver_process():
+    OS = get_OS()
+    if OS == "Windows":
+        subprocess.Popen([XSERVER_PATH_WINDOWS, ":0", "-multiwindow", "-clipboard", "-wgl"])
+    elif OS == "Mac":
+        pass
+    elif OS == "Linux":
+        pass
 
 def set_display_var():
     pass
