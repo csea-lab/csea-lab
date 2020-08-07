@@ -2,6 +2,7 @@ import configparser
 import subprocess
 import os
 import platform
+from time import sleep
 
 CONFIG_NAME = "config.ini"
 DOCKER_PATH_WINDOWS = "C:/Program Files/Docker/Docker/Docker Desktop.exe"
@@ -20,14 +21,29 @@ def main():
 
 # Functions to launch the container
 def launch_docker():
+    """
+    Launches Docker then waits until it's running.
+    """
+    if not docker_running():
+        print("Starting Docker")
+        while not docker_running():
+            start_docker_process()
+            sleep(5)
+    print("Docker is running")
+def start_docker_process():
+    """
+    Starts the Docker process.
+    """
     OS = get_OS()
     if OS == "Windows":
         subprocess.Popen(DOCKER_PATH_WINDOWS)
+    #TODO
     elif OS == "Mac":
         pass
+    #TODO
     elif OS == "Linux":
         pass
-def check_docker_running():
+def docker_running():
     """
     Returns true if docker is running.
     """
