@@ -82,16 +82,20 @@ def OS_default_config():
         "x server path": ""}
         }
 
-    linux_default_config = {"DEFAILT": {"image": "afni/afni",
-                         "name": "afni",
-                         "host directory to read OR write to": "/",
-                         "read/write directory in container": "/write_host/",
-                         "host directory to read from": "/",
-                         "read directory in container": "/read_host/",
-                         "working directory": "/write_host/",
-                         "port": "8889",
-                         "display": "",
-                         "enable display": "False"}}
+    linux_default_config = {"DEFAULT":
+        {"image": "afni/afni",
+        "name": "afni",
+        "host directory to read OR write to": "/",
+        "read/write directory in container": "/write_host/",
+        "host directory to read from": "/",
+        "read directory in container": "/read_host/",
+        "working directory": "/write_host/",
+        "port": "8889",
+        "display": "",
+        "enable display": "False",
+        "docker path": "",
+        "x server path": ""}
+        }
     
     OS = get_OS()
     if OS == "Windows":
