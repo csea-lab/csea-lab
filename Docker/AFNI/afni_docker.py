@@ -229,6 +229,13 @@ def get_OS():
         return "Mac"
     else:
         return "Linux"
+def read_config():
+    """
+    Returns the config file as a dictionary.
+    """
+    config = configparser.ConfigParser()
+    config.read(CONFIG_NAME)
+    return {key: config["DEFAULT"][key] for key in config["DEFAULT"]}
 
 if __name__ == "__main__":
     main()
