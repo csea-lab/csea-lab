@@ -62,7 +62,9 @@ def OS_default_config():
         "working directory": "/write_host/",
         "port": "8889",
         "display": "DISPLAY=host.docker.internal:0",
-        "enable display": "False"}
+        "enable display": "False",
+        "docker path": "C:/Program Files/Docker/Docker/Docker Desktop.exe",
+        "x server path": "C:/Program Files/VcXsrv/vcxsrv.exe"}
         }
 
     mac_default_config = {"DEFAULT":
@@ -75,7 +77,9 @@ def OS_default_config():
         "working directory": "/write_host/",
         "port": "8889",
         "display": "",
-        "enable display": "False"}
+        "enable display": "False",
+        "docker path": "",
+        "x server path": ""}
         }
 
     linux_default_config = {"DEFAILT": {"image": "afni/afni",
