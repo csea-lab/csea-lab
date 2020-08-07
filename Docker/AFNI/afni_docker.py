@@ -37,9 +37,12 @@ def initialize_config_file():
         with open(CONFIG_NAME, "w") as config_file:
             pass
 
-    # Read the config file.
     config = configparser.ConfigParser()
+
+    # Get default config.
     config.read_dict(get_OS_config_dict())
+
+    # Overwrite default config with config file.
     config.read(CONFIG_NAME)
 
     # Save our changes to the config file.
