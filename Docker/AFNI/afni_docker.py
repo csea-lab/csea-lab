@@ -104,7 +104,13 @@ def launch_xserver():
     """
     Launch X Server if it isn't already running.
     """
-    if(xserver_running()):
+    enable_display = read_config()["enable display"]
+    if enable_display == "True" and not xserver_running():
+        print("Starting X Server")
+        while not xserver_running():
+            start_xserver_process()
+            sleep(2)
+    if xserver_running():
         print("X Server is running")
 def xserver_running():
     """
