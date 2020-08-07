@@ -16,7 +16,7 @@ def main():
 
     launch_container()
 
-
+# Functions to launch the container
 def get_docker_args():
     """
     Reads the config file and returns a list of arguments for Docker.
@@ -51,8 +51,6 @@ def get_docker_args():
     args_list.append("bash")
 
     return args_list
-
-
 def launch_container():
     """
     Launches the docker container.
@@ -63,7 +61,7 @@ def launch_container():
     process = subprocess.Popen(docker_args)
     process.communicate()
 
-
+# Functions to edit the config file
 def initialize_config_file():
     """
     Initialize a config file.
@@ -83,8 +81,6 @@ def initialize_config_file():
     # Save our changes to the config file.
     with open('config.ini', 'w') as config_file:
         config.write(config_file)
-
-
 def fill_in_config(config_obj):
     """
     Fills missing values in our config object.
@@ -92,20 +88,6 @@ def fill_in_config(config_obj):
     default_config_dict = get_OS_config_dict()
     for key, value in default_config_dict.items():
         set_if_empty(config_obj, key, value)
-
-
-def get_OS():
-    """
-    Returns the operating system.
-    """
-    if "Windows" in platform.platform():
-        return "Windows"
-    elif "Mac" in platform.platform():
-        return "Mac"
-    else:
-        return "Linux"
-
-
 def get_OS_config_dict():
     """
     Returns the config dictionary for the current operating system.
@@ -149,8 +131,6 @@ def get_OS_config_dict():
         return mac_config_dict
     else:
         return linux_config_dict
-
-
 def set_if_empty(config_obj, option: str, value: str, section="DEFAULT"):
     """
     Sets an option to the specified value if it doesn't exist.
@@ -162,6 +142,17 @@ def set_if_empty(config_obj, option: str, value: str, section="DEFAULT"):
     else:
         config_obj.set(section, option, value)
 
+# Other functions
+def get_OS():
+    """
+    Returns the operating system.
+    """
+    if "Windows" in platform.platform():
+        return "Windows"
+    elif "Mac" in platform.platform():
+        return "Mac"
+    else:
+        return "Linux"
 
 if __name__ == "__main__":
     main()
