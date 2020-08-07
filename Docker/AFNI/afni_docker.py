@@ -4,19 +4,29 @@ import os
 import platform
 
 CONFIG_NAME = "config.ini"
-
+DOCKER_PATH_WINDOWS = "C:/Program Files/Docker/Docker/Docker Desktop.exe"
+DOCKER_PATH_MAC = ""
+DOCKER_PATH_LINUX = ""
 
 def main():
 
     initialize_config_file()
 
-    # TODO: start_docker()
+    launch_docker()
 
     # TODO: start_xserver()
 
     launch_container()
 
 # Functions to launch the container
+def launch_docker():
+    OS = get_OS()
+    if OS == "Windows":
+        subprocess.Popen(DOCKER_PATH_WINDOWS)
+    elif OS == "Mac":
+        pass
+    elif OS == "Linux":
+        pass
 def check_docker_running():
     """
     Returns true if docker is running.
