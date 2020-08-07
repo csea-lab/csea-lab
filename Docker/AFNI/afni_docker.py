@@ -17,6 +17,15 @@ def main():
     launch_container()
 
 # Functions to launch the container
+def check_docker_running():
+    """
+    Returns true if docker is running.
+    """
+    process = subprocess.run(["docker", "ps"], capture_output=True)
+    if process.returncode != 0:
+        return False
+    else:
+        return True
 def get_docker_args():
     """
     Reads the config file and returns a list of arguments for Docker.
