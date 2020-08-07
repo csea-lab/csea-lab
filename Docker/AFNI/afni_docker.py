@@ -110,7 +110,8 @@ def launch_xserver():
     """
     Launch X Server if it isn't already running.
     """
-    print(xserver_running())
+    if(xserver_running()):
+        print("X Server is running")
 def xserver_running():
     """
     Returns True if X Server is running.
@@ -151,15 +152,8 @@ def start_docker_process():
     """
     Starts the Docker process.
     """
-    OS = get_OS()
-    if OS == "Windows":
-        subprocess.Popen(DOCKER_PATH_WINDOWS)
-    #TODO
-    elif OS == "Mac":
-        pass
-    #TODO
-    elif OS == "Linux":
-        pass
+    docker_path = read_config()["docker path"]
+    subprocess.Popen(docker_path)
 def docker_running():
     """
     Returns true if docker is running.
