@@ -107,22 +107,19 @@ def xserver_running():
     """
     Returns True if X Server is running.
     """
-    OS = get_OS()
-    if OS == "Windows":
-        if XSERVER_PATH_WINDOWS in (process.name() for process in psutil.process_iter()):
-            return True
-    elif OS == "Mac":
-        pass
-    elif OS == "Linux":
-        pass
-    return False
+    xserver_path = read_config()["x server path"]
+    if xserver_path in (process.name() for process in psutil.process_iter()):
+        return True
+    else:
+        return False
 def start_xserver_process():
     """
     Start whatever X Server you have on your OS.
     """
+    xserver_path = read_config()["x server path"]
     OS = get_OS()
     if OS == "Windows":
-        subprocess.Popen([XSERVER_PATH_WINDOWS, ":0", "-multiwindow", "-clipboard", "-wgl"])
+        subprocess.Popen([xserver_path, ":0", "-multiwindow", "-clipboard", "-wgl"])
     elif OS == "Mac":
         pass
     elif OS == "Linux":
