@@ -8,15 +8,6 @@ from time import sleep
 
 CONFIG_NAME = "config.ini"
 
-DOCKER_PATH_WINDOWS = "C:/Program Files/Docker/Docker/Docker Desktop.exe"
-DOCKER_PATH_MAC = ""
-DOCKER_PATH_LINUX = ""
-
-XSERVER_PATH_WINDOWS = "C:/Program Files/VcXsrv/vcxsrv.exe"
-XSERVER_PATH_MAC = ""
-XSERVER_PATH_MAC = ""
-
-
 def main():
 
     initialize_config_file()
