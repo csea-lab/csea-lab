@@ -39,26 +39,17 @@ def initialize_config_file():
 
     # Read the config file.
     config = configparser.ConfigParser()
+    config.read_dict(get_OS_config_dict())
     config.read(CONFIG_NAME)
-
-    # If any config values aren't already set, set them.
-    set_unset_values(config)
 
     # Save our changes to the config file.
     with open('config.ini', 'w') as config_file:
         config.write(config_file)
-def set_unset_values(config_obj):
-    """
-    Fills missing values in our config object.
-    """
-    default_config_dict = get_OS_config_dict()
-    for key, value in default_config_dict.items():
-        set_if_empty(config_obj, key, value)
 def get_OS_config_dict():
     """
     Returns the config dictionary for the current operating system.
     """
-    windows_config_dict = {"image": "afni/afni",
+    windows_config_dict = {"DEFAULT" : {"image": "afni/afni",
                            "name": "afni",
                            "host directory to read OR write to": "/c/Volumes/volume/",
                            "read/write directory in container": "/write_host/",
@@ -67,9 +58,9 @@ def get_OS_config_dict():
                            "working directory": "/write_host/",
                            "port": "8889",
                            "display": "DISPLAY=host.docker.internal:0",
-                           "enable display": "False"}
+                           "enable display": "False"}}
 
-    mac_config_dict = {"image": "afni/afni",
+    mac_config_dict = {"DEFAULT": {"image": "afni/afni",
                        "name": "afni",
                        "host directory to read OR write to": "/",
                        "read/write directory in container": "/write_host/",
@@ -78,9 +69,9 @@ def get_OS_config_dict():
                        "working directory": "/write_host/",
                        "port": "8889",
                        "display": "",
-                       "enable display": "False"}
+                       "enable display": "False"}}
 
-    linux_config_dict = {"image": "afni/afni",
+    linux_config_dict = {"DEFAILT": {"image": "afni/afni",
                          "name": "afni",
                          "host directory to read OR write to": "/",
                          "read/write directory in container": "/write_host/",
@@ -89,7 +80,7 @@ def get_OS_config_dict():
                          "working directory": "/write_host/",
                          "port": "8889",
                          "display": "",
-                         "enable display": "False"}
+                         "enable display": "False"}}
 
     if "Windows" in platform.platform():
         return windows_config_dict
