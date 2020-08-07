@@ -23,11 +23,6 @@ def initialize_config_file():
     """
     Initialize a config file.
     """
-    # If a config file doesn't exist, make one.
-    if not os.path.exists(CONFIG_NAME):
-        with open(CONFIG_NAME, "w") as config_file:
-            pass
-
     config = configparser.ConfigParser()
 
     # Get default config.
