@@ -91,16 +91,6 @@ def get_OS_config_dict():
         return mac_config_dict
     else:
         return linux_config_dict
-def set_if_empty(config_obj, option: str, value: str, section="DEFAULT"):
-    """
-    Sets an option to the specified value if it doesn't exist.
-
-    Can optionally specify the section of the configparser to search.
-    """
-    if config_obj.has_option(section, option):
-        return
-    else:
-        config_obj.set(section, option, value)
 
 # Functions to launch X Server
 def launch_xserver():
