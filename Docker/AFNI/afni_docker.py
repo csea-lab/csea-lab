@@ -52,29 +52,33 @@ def OS_default_config():
     """
     Returns the config dictionary for the current operating system.
     """
-    windows_config_dict = {"DEFAULT" : {"image": "afni/afni",
-                           "name": "afni",
-                           "host directory to read OR write to": "/c/Volumes/volume/",
-                           "read/write directory in container": "/write_host/",
-                           "host directory to read from": "/c/",
-                           "read directory in container": "/read_host/",
-                           "working directory": "/write_host/",
-                           "port": "8889",
-                           "display": "DISPLAY=host.docker.internal:0",
-                           "enable display": "False"}}
+    windows_default_config = {"DEFAULT":
+        {"image": "afni/afni",
+        "name": "afni",
+        "host directory to read OR write to": "/c/Volumes/volume/",
+        "read/write directory in container": "/write_host/",
+        "host directory to read from": "/c/",
+        "read directory in container": "/read_host/",
+        "working directory": "/write_host/",
+        "port": "8889",
+        "display": "DISPLAY=host.docker.internal:0",
+        "enable display": "False"}
+        }
 
-    mac_config_dict = {"DEFAULT": {"image": "afni/afni",
-                       "name": "afni",
-                       "host directory to read OR write to": "/",
-                       "read/write directory in container": "/write_host/",
-                       "host directory to read from": "/",
-                       "read directory in container": "/read_host/",
-                       "working directory": "/write_host/",
-                       "port": "8889",
-                       "display": "",
-                       "enable display": "False"}}
+    mac_default_config = {"DEFAULT":
+        {"image": "afni/afni",
+        "name": "afni",
+        "host directory to read OR write to": "/",
+        "read/write directory in container": "/write_host/",
+        "host directory to read from": "/",
+        "read directory in container": "/read_host/",
+        "working directory": "/write_host/",
+        "port": "8889",
+        "display": "",
+        "enable display": "False"}
+        }
 
-    linux_config_dict = {"DEFAILT": {"image": "afni/afni",
+    linux_default_config = {"DEFAILT": {"image": "afni/afni",
                          "name": "afni",
                          "host directory to read OR write to": "/",
                          "read/write directory in container": "/write_host/",
@@ -84,14 +88,15 @@ def OS_default_config():
                          "port": "8889",
                          "display": "",
                          "enable display": "False"}}
-
-    if "Windows" in platform.platform():
-        return windows_config_dict
-    elif "Mac" in platform.platform():
-        return mac_config_dict
-    else:
-        return linux_config_dict
-
+    
+    OS = get_OS()
+    if OS == "Windows":
+        return windows_default_config
+    elif OS == "Mac":
+        return mac_default_config
+    elif OS == "Linux":
+        return linux_default_config
+    
 # Functions to launch X Server
 def launch_xserver():
     """
