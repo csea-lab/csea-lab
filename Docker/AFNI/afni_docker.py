@@ -40,7 +40,7 @@ def initialize_config_file():
     config = configparser.ConfigParser()
 
     # Get default config.
-    config.read_dict(get_OS_config_dict())
+    config.read_dict(OS_default_config())
 
     # Overwrite default config with config file.
     config.read(CONFIG_NAME)
@@ -48,7 +48,7 @@ def initialize_config_file():
     # Save our changes to the config file.
     with open('config.ini', 'w') as config_file:
         config.write(config_file)
-def get_OS_config_dict():
+def OS_default_config():
     """
     Returns the config dictionary for the current operating system.
     """
