@@ -42,12 +42,12 @@ def initialize_config_file():
     config.read(CONFIG_NAME)
 
     # If any config values aren't already set, set them.
-    fill_in_config(config)
+    set_unset_values(config)
 
     # Save our changes to the config file.
     with open('config.ini', 'w') as config_file:
         config.write(config_file)
-def fill_in_config(config_obj):
+def set_unset_values(config_obj):
     """
     Fills missing values in our config object.
     """
