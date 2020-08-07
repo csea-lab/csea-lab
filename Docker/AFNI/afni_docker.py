@@ -26,6 +26,87 @@ def main():
 
     launch_container()
 
+# Functions to edit the config file
+def initialize_config_file():
+    """
+    Initialize a config file.
+    """
+    # If a config file doesn't exist, make one.
+    if not os.path.exists(CONFIG_NAME):
+        with open(CONFIG_NAME, "w") as config_file:
+            pass
+
+    # Read the config file.
+    config = configparser.ConfigParser()
+    config.read(CONFIG_NAME)
+
+    # If any config values aren't already set, set them.
+    fill_in_config(config)
+
+    # Save our changes to the config file.
+    with open('config.ini', 'w') as config_file:
+        config.write(config_file)
+def fill_in_config(config_obj):
+    """
+    Fills missing values in our config object.
+    """
+    default_config_dict = get_OS_config_dict()
+    for key, value in default_config_dict.items():
+        set_if_empty(config_obj, key, value)
+def get_OS_config_dict():
+    """
+    Returns the config dictionary for the current operating system.
+    """
+    windows_config_dict = {"image": "afni/afni",
+                           "name": "afni",
+                           "host directory to read OR write to": "/c/Volumes/volume/",
+                           "read/write directory in container": "/write_host/",
+                           "host directory to read from": "/c/",
+                           "read directory in container": "/read_host/",
+                           "working directory": "/write_host/",
+                           "port": "8889",
+                           "display": "DISPLAY=host.docker.internal:0",
+                           "enable display": "False"}
+
+    mac_config_dict = {"image": "afni/afni",
+                       "name": "afni",
+                       "host directory to read OR write to": "/",
+                       "read/write directory in container": "/write_host/",
+                       "host directory to read from": "/",
+                       "read directory in container": "/read_host/",
+                       "working directory": "/write_host/",
+                       "port": "8889",
+                       "display": "",
+                       "enable display": "False"}
+
+    linux_config_dict = {"image": "afni/afni",
+                         "name": "afni",
+                         "host directory to read OR write to": "/",
+                         "read/write directory in container": "/write_host/",
+                         "host directory to read from": "/",
+                         "read directory in container": "/read_host/",
+                         "working directory": "/write_host/",
+                         "port": "8889",
+                         "display": "",
+                         "enable display": "False"}
+
+    if "Windows" in platform.platform():
+        return windows_config_dict
+    elif "Mac" in platform.platform():
+        return mac_config_dict
+    else:
+        return linux_config_dict
+def set_if_empty(config_obj, option: str, value: str, section="DEFAULT"):
+    """
+    Sets an option to the specified value if it doesn't exist.
+
+    Can optionally specify the section of the configparser to search.
+    """
+    if config_obj.has_option(section, option):
+        return
+    else:
+        config_obj.set(section, option, value)
+
 # Functions to launch an X Server
 def launch_xserver():
     """
@@ -137,87 +218,6 @@ def get_container_args():
     args_list.append("bash")
 
     return args_list
-
-# Functions to edit the config file
-def initialize_config_file():
-    """
-    Initialize a config file.
-    """
-    # If a config file doesn't exist, make one.
-    if not os.path.exists(CONFIG_NAME):
-        with open(CONFIG_NAME, "w") as config_file:
-            pass
-
-    # Read the config file.
-    config = configparser.ConfigParser()
-    config.read(CONFIG_NAME)
-
-    # If any config values aren't already set, set them.
-    fill_in_config(config)
-
-    # Save our changes to the config file.
-    with open('config.ini', 'w') as config_file:
-        config.write(config_file)
-def fill_in_config(config_obj):
-    """
-    Fills missing values in our config object.
-    """
-    default_config_dict = get_OS_config_dict()
-    for key, value in default_config_dict.items():
-        set_if_empty(config_obj, key, value)
-def get_OS_config_dict():
-    """
-    Returns the config dictionary for the current operating system.
-    """
-    windows_config_dict = {"image": "afni/afni",
-                           "name": "afni",
-                           "host directory to read OR write to": "/c/Volumes/volume/",
-                           "read/write directory in container": "/write_host/",
-                           "host directory to read from": "/c/",
-                           "read directory in container": "/read_host/",
-                           "working directory": "/write_host/",
-                           "port": "8889",
-                           "display": "DISPLAY=host.docker.internal:0",
-                           "enable display": "False"}
-
-    mac_config_dict = {"image": "afni/afni",
-                       "name": "afni",
-                       "host directory to read OR write to": "/",
-                       "read/write directory in container": "/write_host/",
-                       "host directory to read from": "/",
-                       "read directory in container": "/read_host/",
-                       "working directory": "/write_host/",
-                       "port": "8889",
-                       "display": "",
-                       "enable display": "False"}
-
-    linux_config_dict = {"image": "afni/afni",
-                         "name": "afni",
-                         "host directory to read OR write to": "/",
-                         "read/write directory in container": "/write_host/",
-                         "host directory to read from": "/",
-                         "read directory in container": "/read_host/",
-                         "working directory": "/write_host/",
-                         "port": "8889",
-                         "display": "",
-                         "enable display": "False"}
-
-    if "Windows" in platform.platform():
-        return windows_config_dict
-    elif "Mac" in platform.platform():
-        return mac_config_dict
-    else:
-        return linux_config_dict
-def set_if_empty(config_obj, option: str, value: str, section="DEFAULT"):
-    """
-    Sets an option to the specified value if it doesn't exist.
-
-    Can optionally specify the section of the configparser to search.
-    """
-    if config_obj.has_option(section, option):
-        return
-    else:
-        config_obj.set(section, option, value)
 
 # Other functions
 def get_OS():
