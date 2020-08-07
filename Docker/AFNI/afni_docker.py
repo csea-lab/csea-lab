@@ -31,13 +31,21 @@ def launch_xserver():
     """
     Launch X Server if it isn't already running.
     """
-    start_xserver_process()
+    print(xserver_running())
 
 def xserver_running():
     """
     Returns True if X Server is running.
     """
-    pass
+    OS = get_OS()
+    if OS == "Windows":
+        if XSERVER_PATH_WINDOWS in (process.name() for process in psutil.process_iter()):
+            return True
+    elif OS == "Mac":
+        pass
+    elif OS == "Linux":
+        pass
+    return False
 
 def start_xserver_process():
     """
@@ -51,7 +59,7 @@ def start_xserver_process():
     elif OS == "Linux":
         pass
 
-# Functions to launch the container
+# Functions to launch Docker
 def launch_docker():
     """
     Launches Docker then waits until it's running.
@@ -84,9 +92,20 @@ def docker_running():
         return False
     else:
         return True
-def get_docker_args():
+
+# Functions to launch the container
+def launch_container():
     """
-    Reads the config file and returns a list of arguments for Docker.
+    Launches the docker container.
+    """
+    docker_args = get_docker_args()
+    print("Executing the following command:")
+    print(docker_args)
+    process = subprocess.Popen(docker_args)
+    process.communicate()
+def get_container_args():
+    """
+    Reads the config file and returns a list of arguments for the container.
     """
     config = configparser.ConfigParser()
     config.read(CONFIG_NAME)
@@ -118,15 +137,6 @@ def get_docker_args():
     args_list.append("bash")
 
     return args_list
-def launch_container():
-    """
-    Launches the docker container.
-    """
-    docker_args = get_docker_args()
-    print("Executing the following command:")
-    print(docker_args)
-    process = subprocess.Popen(docker_args)
-    process.communicate()
 
 # Functions to edit the config file
 def initialize_config_file():
