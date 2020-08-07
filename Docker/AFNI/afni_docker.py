@@ -55,7 +55,8 @@ def OS_default_config():
         "display": "DISPLAY=host.docker.internal:0",
         "enable display": "False",
         "docker path": "C:/Program Files/Docker/Docker/Docker Desktop.exe",
-        "x server path": "C:/Program Files/VcXsrv/vcxsrv.exe"}
+        "x server path": "C:/Program Files/VcXsrv/vcxsrv.exe",
+        "name of x server process": "vcxsrv.exe"}
         }
 
     mac_default_config = {"DEFAULT":
@@ -70,7 +71,8 @@ def OS_default_config():
         "display": "",
         "enable display": "False",
         "docker path": "",
-        "x server path": ""}
+        "x server path": "",
+        "name of x server process": ""}
         }
 
     linux_default_config = {"DEFAULT":
@@ -85,7 +87,8 @@ def OS_default_config():
         "display": "",
         "enable display": "False",
         "docker path": "",
-        "x server path": ""}
+        "x server path": "",
+        "name of x server process": ""}
         }
     
     OS = get_OS()
@@ -107,8 +110,8 @@ def xserver_running():
     """
     Returns True if X Server is running.
     """
-    xserver_path = read_config()["x server path"]
-    if xserver_path in (process.name() for process in psutil.process_iter()):
+    xprocess = read_config()["name of x server process"]
+    if xprocess in (process.name() for process in psutil.process_iter()):
         return True
     else:
         return False
