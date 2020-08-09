@@ -65,7 +65,7 @@ def OS_default_config():
     mac_overwrite = {"host directory to read OR write to": "/Users/`id -un`/Docker",
         "host directory to read from": "/",
         "docker path": "/Applications/Docker.app",
-        "x server path": "X11.app",
+        "x server path": "/Applications/Utilities/XQuartz.app",
         "name of x server process": "X11.bin",
         "display": "DISPLAY=docker.for.mac.host.internal:0"
         }
@@ -119,8 +119,7 @@ def start_xserver_process():
     if OS == "Windows":
         subprocess.Popen([xserver_path, ":0", "-multiwindow", "-clipboard", "-wgl"])
     elif OS == "Mac":
-        subprocess.Popen("open", "-a", [xserver_path])
-        pass
+        subprocess.Popen(f"open -a {xserver_path}", shell=True)
     elif OS == "Linux":
         pass
 def xserver_running():
