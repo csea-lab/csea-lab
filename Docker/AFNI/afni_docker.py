@@ -3,6 +3,7 @@ import subprocess
 import os
 import platform
 import psutil
+from copy import deepcopy
 from time import sleep
 
 
@@ -58,7 +59,7 @@ def OS_default_config():
             }
         }
 
-    windows_config = default_config.copy()
+    windows_config = deepcopy(default_config)
 
     # Overwrite the default config with mac values.
     mac_overwrite = {"host directory to read OR write to": "/Users/`id -un`/Docker",
@@ -68,7 +69,7 @@ def OS_default_config():
         "name of x server process": "X11.bin",
         "display": "DISPLAY=docker.for.mac.host.internal:0"
         }
-    mac_config = default_config.copy()
+    mac_config = deepcopy(default_config)
     mac_config["DEFAULT"].update(mac_overwrite)
 
     # Overwrite the default config with linux values.
@@ -79,7 +80,7 @@ def OS_default_config():
         "name of x server process": "",
         "display": "DISPLAY=:0"
         }
-    linux_config = default_config.copy()
+    linux_config = deepcopy(default_config)
     linux_config["DEFAULT"].update(linux_overwrite)
     
     OS = get_OS()
