@@ -39,48 +39,50 @@ def OS_default_config():
     Returns the default config dictionary for the current operating system.
     """
 
-    default_config = {"DEFAULT":
-        {"image": "afni/afni",
-        "name": "afni",
-        "program to run within container": "bash",
-        "port": "8889",
-        "host directory to read OR write to": "/c/Volumes/volume/",
-        "read/write directory in container": "/write_mount/",
-        "host directory to read from": "/c/",
-        "read directory in container": "/read_mount/",
-        "working directory": "/write_mount/",
-        "docker path": "C:/Program Files/Docker/Docker/Docker Desktop.exe",
-        "x server path": "C:/Program Files/VcXsrv/vcxsrv.exe",
-        "name of x server process": "vcxsrv.exe",
-        "display": "DISPLAY=host.docker.internal:0",
-        "enable display": "False"}
+    default_config = {
+        "DEFAULT": {
+            "image": "afni/afni",
+            "name": "afni",
+            "program to run within container": "bash",
+            "port": "8889",
+            "host directory to read OR write to": "/c/Volumes/volume/",
+            "read/write directory in container": "/write_mount/",
+            "host directory to read from": "/c/",
+            "read directory in container": "/read_mount/",
+            "working directory": "/write_mount/",
+            "docker path": "C:/Program Files/Docker/Docker/Docker Desktop.exe",
+            "x server path": "C:/Program Files/VcXsrv/vcxsrv.exe",
+            "name of x server process": "vcxsrv.exe",
+            "display": "DISPLAY=host.docker.internal:0",
+            "enable display": "False"
+            }
         }
 
     windows_config = default_config.copy()
 
     # Overwrite the default config with mac values.
-    mac_overwrite = {"DEFAULT": 
-        {"host directory to read OR write to": "/Users/`id -un`/Docker",
+    mac_overwrite = {
+        "host directory to read OR write to": "/Users/`id -un`/Docker",
         "host directory to read from": "/",
         "docker path": "/Applications/Docker.app",
         "x server path": "X11.app",
         "name of x server process": "X11.bin",
-        "display": "DISPLAY=docker.for.mac.host.internal:0"}
+        "display": "DISPLAY=docker.for.mac.host.internal:0"
         }
     mac_config = default_config.copy()
-    mac_config.update(mac_overwrite)
+    mac_config["DEFAULT"].update(mac_overwrite)
 
     # Overwrite the default config with linux values.
-    linux_overwrite = {"DEFAULT": 
-        {"host directory to read OR write to": "/Users/`id -un`/Docker",
+    linux_overwrite = {
+        "host directory to read OR write to": "/Users/`id -un`/Docker",
         "host directory to read from": "/",
         "docker path": "",
         "x server path": "",
         "name of x server process": "",
-        "display": "DISPLAY=:0"}
+        "display": "DISPLAY=:0"
         }
     linux_config = default_config.copy()
-    linux_config.update(linux_overwrite)
+    linux_config["DEFAULT"].update(linux_overwrite)
     
     OS = get_OS()
     print(f"Using {OS} template for {CONFIG_NAME}")
