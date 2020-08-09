@@ -44,10 +44,10 @@ def OS_default_config():
         "program to run within container": "bash",
         "port": "8889",
         "host directory to read OR write to": "/c/Volumes/volume/",
-        "read/write directory in container": "/write_host/",
+        "read/write directory in container": "/write_mount/",
         "host directory to read from": "/c/",
-        "read directory in container": "/read_host/",
-        "working directory": "/write_host/",
+        "read directory in container": "/read_mount/",
+        "working directory": "/write_mount/",
         "docker path": "C:/Program Files/Docker/Docker/Docker Desktop.exe",
         "x server path": "C:/Program Files/VcXsrv/vcxsrv.exe",
         "name of x server process": "vcxsrv.exe",
@@ -58,33 +58,35 @@ def OS_default_config():
     mac_default_config = {"DEFAULT":
         {"image": "afni/afni",
         "name": "afni",
-        "host directory to read OR write to": "/",
-        "read/write directory in container": "/write_host/",
-        "host directory to read from": "/",
-        "read directory in container": "/read_host/",
-        "working directory": "/write_host/",
+        "program to run within container": "bash",
         "port": "8889",
-        "display": "",
-        "enable display": "False",
+        "host directory to read OR write to": "/",
+        "read/write directory in container": "/write_mount/",
+        "host directory to read from": "/",
+        "read directory in container": "/read_mount/",
+        "working directory": "/write_mount/",
         "docker path": "",
         "x server path": "",
-        "name of x server process": ""}
+        "name of x server process": "",
+        "display": "",
+        "enable display": "False"}
         }
 
     linux_default_config = {"DEFAULT":
         {"image": "afni/afni",
         "name": "afni",
-        "host directory to read OR write to": "/",
-        "read/write directory in container": "/write_host/",
-        "host directory to read from": "/",
-        "read directory in container": "/read_host/",
-        "working directory": "/write_host/",
+        "program to run within container": "bash",
         "port": "8889",
-        "display": "",
-        "enable display": "False",
+        "host directory to read OR write to": "/",
+        "read/write directory in container": "/write_mount/",
+        "host directory to read from": "/",
+        "read directory in container": "/read_mount/",
+        "working directory": "/write_mount/",
         "docker path": "",
         "x server path": "",
-        "name of x server process": ""}
+        "name of x server process": "",
+        "display": "",
+        "enable display": "False"}
         }
     
     OS = get_OS()
