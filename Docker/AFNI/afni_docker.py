@@ -56,10 +56,10 @@ def OS_default_config():
         "enable display": "False"}
         }
 
-    windows_config = default_config
+    windows_config = default_config.copy()
 
     # Overwrite the default config with mac values.
-    mac_override = {"DEFAULT": 
+    mac_overwrite = {"DEFAULT": 
         {"host directory to read OR write to": "/Users/`id -un`/Docker",
         "host directory to read from": "/",
         "docker path": "/Applications/Docker.app",
@@ -67,10 +67,11 @@ def OS_default_config():
         "name of x server process": "X11.bin",
         "display": "DISPLAY=docker.for.mac.host.internal:0"}
         }
-    mac_config = {**default_config, **mac_override}
+    mac_config = default_config.copy()
+    mac_config.update(mac_overwrite)
 
     # Overwrite the default config with linux values.
-    linux_override = {"DEFAULT": 
+    linux_overwrite = {"DEFAULT": 
         {"host directory to read OR write to": "/Users/`id -un`/Docker",
         "host directory to read from": "/",
         "docker path": "",
@@ -78,7 +79,8 @@ def OS_default_config():
         "name of x server process": "",
         "display": "DISPLAY=:0"}
         }
-    linux_config = {**default_config, **linux_override}
+    linux_config = default_config.copy()
+    linux_config.update(linux_overwrite)
     
     OS = get_OS()
     print(f"Using {OS} template for {CONFIG_NAME}")
