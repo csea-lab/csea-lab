@@ -81,7 +81,7 @@ def OS_default_config():
     linux_config = {**default_config, **linux_override}
     
     OS = get_OS()
-    print(f"Using {OS} config")
+    print(f"Using {OS} template for {CONFIG_NAME}")
 
     if OS == "Windows":
         return windows_config
