@@ -90,6 +90,8 @@ def OS_default_config():
         }
     
     OS = get_OS()
+    print(f"Using {OS} config")
+
     if OS == "Windows":
         return windows_default_config
     elif OS == "Mac":
@@ -102,12 +104,16 @@ def launch_xserver():
     """
     Launch X Server if it isn't already running.
     """
-    enable_display = read_config()["enable display"]
-    if enable_display == "True" and not xserver_running():
+    enable_display = read_config()["enable display"].lower()
+    
+    if not enable_display == "true":
+        print("'enable display' is disabled in the config")
+    elif not xserver_running():
         print("Starting X Server")
         while not xserver_running():
             start_xserver_process()
             sleep(2)
+
     if xserver_running():
         print("X Server is running")
 def start_xserver_process():
