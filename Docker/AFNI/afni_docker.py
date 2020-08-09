@@ -67,7 +67,7 @@ def OS_default_config():
         "docker path": "/Applications/Docker.app",
         "x server path": "/Applications/Utilities/XQuartz.app",
         "name of x server process": "X11.bin",
-        "display": "DISPLAY=docker.for.mac.host.internal:0"
+        "display": "$DISPLAY"
         }
     mac_config = deepcopy(default_config)
     mac_config["DEFAULT"].update(mac_overwrite)
@@ -78,7 +78,7 @@ def OS_default_config():
         "docker path": "",
         "x server path": "",
         "name of x server process": "",
-        "display": "DISPLAY=:0"
+        "display": "$DISPLAY"
         }
     linux_config = deepcopy(default_config)
     linux_config["DEFAULT"].update(linux_overwrite)
