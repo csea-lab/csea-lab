@@ -67,7 +67,7 @@ def OS_default_config():
         "working directory": "/write_mount/",
         "docker path": "/Applications/Docker.app",
         "x server path": "X11.app",
-        "name of x server process": "",
+        "name of x server process": "X11.bin",
         "display": "DISPLAY=docker.for.mac.host.internal:0",
         "enable display": "False"}
         }
