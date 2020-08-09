@@ -107,15 +107,6 @@ def launch_xserver():
             sleep(2)
     if xserver_running():
         print("X Server is running")
-def xserver_running():
-    """
-    Returns True if X Server is running.
-    """
-    xprocess = read_config()["name of x server process"]
-    if xprocess in (process.name() for process in psutil.process_iter()):
-        return True
-    else:
-        return False
 def start_xserver_process():
     """
     Start whatever X Server you have on your OS.
@@ -128,6 +119,15 @@ def start_xserver_process():
         pass
     elif OS == "Linux":
         pass
+def xserver_running():
+    """
+    Returns True if X Server is running.
+    """
+    xprocess = read_config()["name of x server process"]
+    if xprocess in (process.name() for process in psutil.process_iter()):
+        return True
+    else:
+        return False
 
 # Functions to launch Docker
 def launch_docker():
