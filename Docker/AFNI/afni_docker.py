@@ -148,7 +148,13 @@ def start_docker_process():
     Starts the Docker process.
     """
     docker_path = read_config()["docker path"]
-    subprocess.Popen(docker_path)
+    OS = get_OS()
+    if OS == "Windows":
+        subprocess.Popen(docker_path)
+    elif OS == "Mac":
+        subprocess.Popen(f"open -a {docker_path}", shell=True)
+    elif OS == "Linux":
+        subprocess.Popen(docker_path)
 def docker_running():
     """
     Returns true if docker is running.
