@@ -198,7 +198,7 @@ def get_container_args():
                  config_dict["port"],
                  ]
 
-    if config_dict["enable display"] == "True":
+    if config_dict["enable display"].lower() == "true":
         args_list.append("--env")
         args_list.append(config_dict["display"])
 
