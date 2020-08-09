@@ -38,7 +38,8 @@ def OS_default_config():
     """
     Returns the default config dictionary for the current operating system.
     """
-    windows_default_config = {"DEFAULT":
+
+    default_config = {"DEFAULT":
         {"image": "afni/afni",
         "name": "afni",
         "program to run within container": "bash",
@@ -55,49 +56,39 @@ def OS_default_config():
         "enable display": "False"}
         }
 
-    mac_default_config = {"DEFAULT":
-        {"image": "afni/afni",
-        "name": "afni",
-        "program to run within container": "bash",
-        "port": "8889",
-        "host directory to read OR write to": "/Users/`id -un`/Docker",
-        "read/write directory in container": "/write_mount/",
+    windows_config = default_config
+
+    # Overwrite the default config with mac values.
+    mac_override = {"DEFAULT": 
+        {"host directory to read OR write to": "/Users/`id -un`/Docker",
         "host directory to read from": "/",
-        "read directory in container": "/read_mount/",
-        "working directory": "/write_mount/",
         "docker path": "/Applications/Docker.app",
         "x server path": "X11.app",
         "name of x server process": "X11.bin",
-        "display": "DISPLAY=docker.for.mac.host.internal:0",
-        "enable display": "False"}
+        "display": "DISPLAY=docker.for.mac.host.internal:0"}
         }
+    mac_config = {**default_config, **mac_override}
 
-    linux_default_config = {"DEFAULT":
-        {"image": "afni/afni",
-        "name": "afni",
-        "program to run within container": "bash",
-        "port": "8889",
-        "host directory to read OR write to": "/Users/`id -un`/Docker",
-        "read/write directory in container": "/write_mount/",
+    # Overwrite the default config with linux values.
+    linux_override = {"DEFAULT": 
+        {"host directory to read OR write to": "/Users/`id -un`/Docker",
         "host directory to read from": "/",
-        "read directory in container": "/read_mount/",
-        "working directory": "/write_mount/",
         "docker path": "",
         "x server path": "",
         "name of x server process": "",
-        "display": "DISPLAY=:0",
-        "enable display": "False"}
+        "display": "DISPLAY=:0"}
         }
+    linux_config = {**default_config, **linux_override}
     
     OS = get_OS()
     print(f"Using {OS} config")
 
     if OS == "Windows":
-        return windows_default_config
+        return windows_config
     elif OS == "Mac":
-        return mac_default_config
+        return mac_config
     elif OS == "Linux":
-        return linux_default_config
+        return linux_config
     
 # Functions to launch X Server
 def launch_xserver():
