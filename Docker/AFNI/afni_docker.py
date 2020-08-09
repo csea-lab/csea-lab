@@ -62,7 +62,7 @@ def OS_default_config():
     windows_config = deepcopy(default_config)
 
     # Overwrite the default config with mac values.
-    mac_overwrite = {"host directory to read OR write to": "/Users/`id -un`/Docker",
+    mac_overwrite = {"host directory to read OR write to": "$HOME/Docker",
         "host directory to read from": "/",
         "docker path": "/Applications/Docker.app",
         "x server path": "/Applications/Utilities/XQuartz.app",
@@ -73,7 +73,7 @@ def OS_default_config():
     mac_config["DEFAULT"].update(mac_overwrite)
 
     # Overwrite the default config with linux values.
-    linux_overwrite = {"host directory to read OR write to": "/Users/`id -un`/Docker",
+    linux_overwrite = {"host directory to read OR write to": "$HOME/Docker",
         "host directory to read from": "/",
         "docker path": "",
         "x server path": "",
