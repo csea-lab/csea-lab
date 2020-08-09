@@ -174,19 +174,18 @@ def get_container_args():
 
     args_list = ["docker",
                  "run",
-                 "--interactive",
-                 "--tty",
-                 "--rm",
-                 "--name",
+                 "--interactive", # Allow interaction with the container.
+                 "--tty", # Connect the local shell to the container.
+                 "--rm", # Remove the container when it's closed.
+                 "--name", # Set the name of the container.
                  config_dict["name"],
-                 "--volume",
+                 "--volume", # Set the directory to read/write to.
                  config_dict["host directory to read or write to"] + ":" + config_dict["read/write directory in container"],
-                 "--volume",
-                 config_dict["host directory to read from"] + ":" +
-                 config_dict["read directory in container"] + ":ro",
-                 "--workdir",
+                 "--volume", # Set the directory to read from.
+                 config_dict["host directory to read from"] + ":" + config_dict["read directory in container"] + ":ro",
+                 "--workdir", # Set the working directory in the container.
                  config_dict["working directory"],
-                 "-p",
+                 "-p", # Set the port.
                  config_dict["port"],
                  ]
 
@@ -194,8 +193,8 @@ def get_container_args():
         args_list.append("--env")
         args_list.append(config_dict["display"])
 
-    args_list.append(config_dict["image"])
-    args_list.append("bash")
+    args_list.append(config_dict["image"]) # Set the image to run within the container.
+    args_list.append("bash") # Set the program to run within the container.
 
     return args_list
 
