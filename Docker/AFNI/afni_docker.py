@@ -215,7 +215,7 @@ def get_OS():
     """
     if "Windows" in platform.platform():
         return "Windows"
-    elif "Mac" in platform.platform():
+    elif "macOS" in platform.platform():
         return "Mac"
     else:
         return "Linux"
