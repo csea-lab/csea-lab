@@ -41,17 +41,18 @@ def OS_default_config():
     windows_default_config = {"DEFAULT":
         {"image": "afni/afni",
         "name": "afni",
+        "program to run within container": "bash",
+        "port": "8889",
         "host directory to read OR write to": "/c/Volumes/volume/",
         "read/write directory in container": "/write_host/",
         "host directory to read from": "/c/",
         "read directory in container": "/read_host/",
         "working directory": "/write_host/",
-        "port": "8889",
-        "display": "DISPLAY=host.docker.internal:0",
-        "enable display": "False",
         "docker path": "C:/Program Files/Docker/Docker/Docker Desktop.exe",
         "x server path": "C:/Program Files/VcXsrv/vcxsrv.exe",
-        "name of x server process": "vcxsrv.exe"}
+        "name of x server process": "vcxsrv.exe",
+        "display": "DISPLAY=host.docker.internal:0",
+        "enable display": "False"}
         }
 
     mac_default_config = {"DEFAULT":
@@ -194,7 +195,7 @@ def get_container_args():
         args_list.append(config_dict["display"])
 
     args_list.append(config_dict["image"]) # Set the image to run within the container.
-    args_list.append("bash") # Set the program to run within the container.
+    args_list.append(config_dict["program to run within container"]) # Set the program to run within the container.
 
     return args_list
 
