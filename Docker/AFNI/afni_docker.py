@@ -36,7 +36,7 @@ def initialize_config_file():
         config.write(config_file)
 def OS_default_config():
     """
-    Returns the config dictionary for the current operating system.
+    Returns the default config dictionary for the current operating system.
     """
     windows_default_config = {"DEFAULT":
         {"image": "afni/afni",
@@ -65,10 +65,10 @@ def OS_default_config():
         "host directory to read from": "/",
         "read directory in container": "/read_mount/",
         "working directory": "/write_mount/",
-        "docker path": "",
-        "x server path": "",
+        "docker path": "/Applications/Docker.app",
+        "x server path": "X11.app",
         "name of x server process": "",
-        "display": "",
+        "display": "DISPLAY=docker.for.mac.host.internal:0",
         "enable display": "False"}
         }
 
@@ -85,7 +85,7 @@ def OS_default_config():
         "docker path": "",
         "x server path": "",
         "name of x server process": "",
-        "display": "",
+        "display": "DISPLAY=:0",
         "enable display": "False"}
         }
     
@@ -125,6 +125,7 @@ def start_xserver_process():
     if OS == "Windows":
         subprocess.Popen([xserver_path, ":0", "-multiwindow", "-clipboard", "-wgl"])
     elif OS == "Mac":
+        subprocess.Popen("open", "-a", [xserver_path])
         pass
     elif OS == "Linux":
         pass
