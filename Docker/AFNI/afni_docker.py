@@ -44,15 +44,15 @@ def OS_default_config():
         "DEFAULT": {
             "image": "afni/afni",
             "name": "afni",
-            "program to run within container": "bash",
+            "program to run inside container": "bash",
             "port": "8889",
-            "host directory to read OR write to": "C:/Volumes/volume/",
-            "read/write directory in container": "/write_mount/",
-            "host directory to read from": "C:/",
-            "read directory in container": "/read_mount/",
-            "working directory": "/write_mount/",
-            "docker path": "C:/Program Files/Docker/Docker/Docker Desktop.exe",
-            "x server path": "C:/Program Files/VcXsrv/vcxsrv.exe",
+            "read/write directory": "C:/Volumes/volume/",
+            "where to mount read/write directory inside container": "/read-write/",
+            "read-only directory": "C:/",
+            "where to mount read-only directory inside container": "/read-only/",
+            "working directory inside container": "/read-write/",
+            "path to docker": "C:/Program Files/Docker/Docker/Docker Desktop.exe",
+            "path to x server": "C:/Program Files/VcXsrv/vcxsrv.exe",
             "name of x server process": "vcxsrv.exe",
             "display": "DISPLAY=host.docker.internal:0",
             "enable display": "False"
@@ -62,23 +62,23 @@ def OS_default_config():
     windows_config = deepcopy(default_config)
 
     # Overwrite the default config with mac values.
-    mac_overwrite = {"host directory to read OR write to": "$HOME/Docker",
-        "host directory to read from": "/",
-        "docker path": "/Applications/Docker.app",
-        "x server path": "/Applications/Utilities/XQuartz.app",
+    mac_overwrite = {"read/write directory": "$HOME/Docker",
+        "read-only directory": "/",
+        "path to docker": "/Applications/Docker.app",
+        "path to x server": "/Applications/Utilities/XQuartz.app",
         "name of x server process": "X11.bin",
-        "display": "$DISPLAY"
+        "display": "DISPLAY=$DISPLAY"
         }
     mac_config = deepcopy(default_config)
     mac_config["DEFAULT"].update(mac_overwrite)
 
     # Overwrite the default config with linux values.
-    linux_overwrite = {"host directory to read OR write to": "$HOME/Docker",
-        "host directory to read from": "/",
-        "docker path": "",
-        "x server path": "",
+    linux_overwrite = {"read/write directory": "$HOME/Docker",
+        "read-only directory": "/",
+        "path to docker": "",
+        "path to x server": "",
         "name of x server process": "",
-        "display": "$DISPLAY"
+        "display": "DISPLAY=$DISPLAY"
         }
     linux_config = deepcopy(default_config)
     linux_config["DEFAULT"].update(linux_overwrite)
@@ -189,11 +189,11 @@ def get_container_args():
                  "--name", # Set the name of the container.
                  config_dict["name"],
                  "--volume", # Set the directory to read/write to.
-                 config_dict["host directory to read or write to"] + ":" + config_dict["read/write directory in container"],
+                 config_dict["read/write directory"] + ":" + config_dict["where to mount read/write directory inside container"],
                  "--volume", # Set the directory to read from.
-                 config_dict["host directory to read from"] + ":" + config_dict["read directory in container"] + ":ro",
+                 config_dict["read-only directory"] + ":" + config_dict["where to mount read-only directory inside container"] + ":ro",
                  "--workdir", # Set the working directory in the container.
-                 config_dict["working directory"],
+                 config_dict["working directory inside container"],
                  "-p", # Set the port.
                  config_dict["port"],
                  ]
@@ -203,7 +203,7 @@ def get_container_args():
         args_list.append(config_dict["display"])
 
     args_list.append(config_dict["image"]) # Set the image to run within the container.
-    args_list.append(config_dict["program to run within container"]) # Set the program to run within the container.
+    args_list.append(config_dict["program to run inside container"]) # Set the program to run within the container.
 
     return args_list
 
