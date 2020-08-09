@@ -100,7 +100,7 @@ def launch_xserver():
     enable_display = read_config()["enable display"].lower()
     
     if not enable_display == "true":
-        print(f"'enable display' is not 'True' in {CONFIG_NAME}")
+        print(f"'enable display' is not set equal to 'True' in {CONFIG_NAME}")
     elif not xserver_running():
         print("Starting X Server")
         while not xserver_running():
