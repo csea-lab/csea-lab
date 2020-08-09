@@ -3,6 +3,7 @@ import subprocess
 import os
 import platform
 import psutil
+from copy import deepcopy
 from time import sleep
 
 
@@ -38,66 +39,59 @@ def OS_default_config():
     """
     Returns the default config dictionary for the current operating system.
     """
-    windows_default_config = {"DEFAULT":
-        {"image": "afni/afni",
-        "name": "afni",
-        "program to run within container": "bash",
-        "port": "8889",
-        "host directory to read OR write to": "/c/Volumes/volume/",
-        "read/write directory in container": "/write_mount/",
-        "host directory to read from": "/c/",
-        "read directory in container": "/read_mount/",
-        "working directory": "/write_mount/",
-        "docker path": "C:/Program Files/Docker/Docker/Docker Desktop.exe",
-        "x server path": "C:/Program Files/VcXsrv/vcxsrv.exe",
-        "name of x server process": "vcxsrv.exe",
-        "display": "DISPLAY=host.docker.internal:0",
-        "enable display": "False"}
+
+    default_config = {
+        "DEFAULT": {
+            "image": "afni/afni",
+            "name": "afni",
+            "program to run inside container": "bash",
+            "port": "8889",
+            "read/write directory": "C:/Volumes/volume/",
+            "where to mount read/write directory inside container": "/read-write/",
+            "read-only directory": "C:/",
+            "where to mount read-only directory inside container": "/read-only/",
+            "working directory inside container": "/read-write/",
+            "path to docker": "C:/Program Files/Docker/Docker/Docker Desktop.exe",
+            "path to x server": "C:/Program Files/VcXsrv/vcxsrv.exe",
+            "name of x server process": "vcxsrv.exe",
+            "display": "DISPLAY=host.docker.internal:0",
+            "enable display": "False"
+            }
         }
 
-    mac_default_config = {"DEFAULT":
-        {"image": "afni/afni",
-        "name": "afni",
-        "program to run within container": "bash",
-        "port": "8889",
-        "host directory to read OR write to": "/",
-        "read/write directory in container": "/write_mount/",
-        "host directory to read from": "/",
-        "read directory in container": "/read_mount/",
-        "working directory": "/write_mount/",
-        "docker path": "/Applications/Docker.app",
-        "x server path": "X11.app",
-        "name of x server process": "",
-        "display": "DISPLAY=docker.for.mac.host.internal:0",
-        "enable display": "False"}
-        }
+    windows_config = deepcopy(default_config)
 
-    linux_default_config = {"DEFAULT":
-        {"image": "afni/afni",
-        "name": "afni",
-        "program to run within container": "bash",
-        "port": "8889",
-        "host directory to read OR write to": "/",
-        "read/write directory in container": "/write_mount/",
-        "host directory to read from": "/",
-        "read directory in container": "/read_mount/",
-        "working directory": "/write_mount/",
-        "docker path": "",
-        "x server path": "",
-        "name of x server process": "",
-        "display": "DISPLAY=:0",
-        "enable display": "False"}
+    # Overwrite the default config with mac values.
+    mac_overwrite = {"read/write directory": "$HOME/Docker",
+        "read-only directory": "/",
+        "path to docker": "/Applications/Docker.app",
+        "path to x server": "/Applications/Utilities/XQuartz.app",
+        "name of x server process": "X11.bin",
+        "display": "DISPLAY=$DISPLAY"
         }
+    mac_config = deepcopy(default_config)
+    mac_config["DEFAULT"].update(mac_overwrite)
+
+    # Overwrite the default config with linux values.
+    linux_overwrite = {"read/write directory": "$HOME/Docker",
+        "read-only directory": "/",
+        "path to docker": "",
+        "path to x server": "",
+        "name of x server process": "",
+        "display": "DISPLAY=$DISPLAY"
+        }
+    linux_config = deepcopy(default_config)
+    linux_config["DEFAULT"].update(linux_overwrite)
     
     OS = get_OS()
-    print(f"Using {OS} config")
+    print(f"Using {OS} template for {CONFIG_NAME}")
 
     if OS == "Windows":
-        return windows_default_config
+        return windows_config
     elif OS == "Mac":
-        return mac_default_config
+        return mac_config
     elif OS == "Linux":
-        return linux_default_config
+        return linux_config
     
 # Functions to launch X Server
 def launch_xserver():
@@ -107,7 +101,7 @@ def launch_xserver():
     enable_display = read_config()["enable display"].lower()
     
     if not enable_display == "true":
-        print("'enable display' isn't set to 'True' in the config")
+        print(f"'enable display' is not set equal to 'True' in {CONFIG_NAME}")
     elif not xserver_running():
         print("Starting X Server")
         while not xserver_running():
@@ -125,8 +119,7 @@ def start_xserver_process():
     if OS == "Windows":
         subprocess.Popen([xserver_path, ":0", "-multiwindow", "-clipboard", "-wgl"])
     elif OS == "Mac":
-        subprocess.Popen("open", "-a", [xserver_path])
-        pass
+        subprocess.Popen(f"open -a {xserver_path}", shell=True)
     elif OS == "Linux":
         pass
 def xserver_running():
@@ -155,7 +148,13 @@ def start_docker_process():
     Starts the Docker process.
     """
     docker_path = read_config()["docker path"]
-    subprocess.Popen(docker_path)
+    OS = get_OS()
+    if OS == "Windows":
+        subprocess.Popen(docker_path)
+    elif OS == "Mac":
+        subprocess.Popen(f"open -a {docker_path}", shell=True)
+    elif OS == "Linux":
+        subprocess.Popen(docker_path)
 def docker_running():
     """
     Returns true if docker is running.
@@ -190,11 +189,11 @@ def get_container_args():
                  "--name", # Set the name of the container.
                  config_dict["name"],
                  "--volume", # Set the directory to read/write to.
-                 config_dict["host directory to read or write to"] + ":" + config_dict["read/write directory in container"],
+                 config_dict["read/write directory"] + ":" + config_dict["where to mount read/write directory inside container"],
                  "--volume", # Set the directory to read from.
-                 config_dict["host directory to read from"] + ":" + config_dict["read directory in container"] + ":ro",
+                 config_dict["read-only directory"] + ":" + config_dict["where to mount read-only directory inside container"] + ":ro",
                  "--workdir", # Set the working directory in the container.
-                 config_dict["working directory"],
+                 config_dict["working directory inside container"],
                  "-p", # Set the port.
                  config_dict["port"],
                  ]
@@ -204,7 +203,7 @@ def get_container_args():
         args_list.append(config_dict["display"])
 
     args_list.append(config_dict["image"]) # Set the image to run within the container.
-    args_list.append(config_dict["program to run within container"]) # Set the program to run within the container.
+    args_list.append(config_dict["program to run inside container"]) # Set the program to run within the container.
 
     return args_list
 
@@ -215,7 +214,7 @@ def get_OS():
     """
     if "Windows" in platform.platform():
         return "Windows"
-    elif "Mac" in platform.platform():
+    elif "macOS" in platform.platform():
         return "Mac"
     else:
         return "Linux"
