@@ -171,7 +171,7 @@ def launch_container():
     Launches the docker container.
     """
     docker_args = get_container_args()
-    print("Executing the following command:")
+    print("Executing the following command to launch the container:")
     print(docker_args)
     process = subprocess.Popen(docker_args)
     process.communicate()
