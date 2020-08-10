@@ -150,7 +150,7 @@ def start_docker_process():
     """
     Starts the Docker process.
     """
-    docker_path = read_config()["docker path"]
+    docker_path = read_config()["path to docker"]
     OS = get_OS()
     if OS == "Windows":
         subprocess.Popen(docker_path)
