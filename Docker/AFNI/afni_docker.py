@@ -5,6 +5,7 @@ import platform
 import psutil
 from copy import deepcopy
 from time import sleep
+from pathlib import Path
 
 
 CONFIG_NAME = "config.ini"
@@ -40,13 +41,15 @@ def OS_default_config():
     Returns the default config dictionary for the current operating system.
     """
 
+    home_dir = str(Path.home())
+
     default_config = {
         "DEFAULT": {
             "image": "afni/afni",
             "name": "afni",
             "program to run inside container": "bash",
             "port": "8889",
-            "read/write directory": "C:/Docker",
+            "read/write directory": f"{home_dir}/Docker",
             "where to mount read/write directory inside container": "/read-write/",
             "read-only directory": "C:/",
             "where to mount read-only directory inside container": "/read-only/",
