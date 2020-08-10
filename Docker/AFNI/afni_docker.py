@@ -64,7 +64,7 @@ def OS_default_config():
     windows_config = deepcopy(default_config)
 
     # Overwrite the default config with mac values.
-    mac_overwrite = {
+    mac_overwrite = { "read/write directory": "$HOME/Docker",
         "read-only directory": "/",
         "path to docker": "/Applications/Docker.app",
         "path to x server": "/Applications/Utilities/XQuartz.app",
@@ -75,7 +75,7 @@ def OS_default_config():
     mac_config["DEFAULT"].update(mac_overwrite)
 
     # Overwrite the default config with linux values.
-    linux_overwrite = {
+    linux_overwrite = { "read/write directory": "$HOME/Docker",
         "read-only directory": "/",
         "path to docker": "",
         "path to x server": "",
