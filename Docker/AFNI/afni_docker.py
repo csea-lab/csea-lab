@@ -5,7 +5,6 @@ import platform
 import psutil
 from copy import deepcopy
 from time import sleep
-from pathlib import Path
 
 
 CONFIG_NAME = "config.ini"
@@ -41,7 +40,7 @@ def OS_default_config():
     Returns the default config dictionary for the current operating system.
     """
 
-    home_dir = str(Path.home())
+    home_directory = os.getenv('USERPROFILE')
 
     default_config = {
         "DEFAULT": {
@@ -49,7 +48,7 @@ def OS_default_config():
             "name": "afni",
             "program to run inside container": "bash",
             "port": "8889",
-            "read/write directory": f"{home_dir}/Docker",
+            "read/write directory": f"{home_directory}/Docker",
             "where to mount read/write directory inside container": "/read-write/",
             "read-only directory": "C:/",
             "where to mount read-only directory inside container": "/read-only/",
@@ -65,7 +64,7 @@ def OS_default_config():
     windows_config = deepcopy(default_config)
 
     # Overwrite the default config with mac values.
-    mac_overwrite = {"read/write directory": "$HOME/Docker",
+    mac_overwrite = {
         "read-only directory": "/",
         "path to docker": "/Applications/Docker.app",
         "path to x server": "/Applications/Utilities/XQuartz.app",
@@ -76,7 +75,7 @@ def OS_default_config():
     mac_config["DEFAULT"].update(mac_overwrite)
 
     # Overwrite the default config with linux values.
-    linux_overwrite = {"read/write directory": "$HOME/Docker",
+    linux_overwrite = {
         "read-only directory": "/",
         "path to docker": "",
         "path to x server": "",
