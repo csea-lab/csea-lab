@@ -114,7 +114,7 @@ def start_xserver_process():
     """
     Start whatever X Server you have on your OS.
     """
-    xserver_path = read_config()["x server path"]
+    xserver_path = read_config()["path to x server"]
     OS = get_OS()
     if OS == "Windows":
         subprocess.Popen([xserver_path, ":0", "-multiwindow", "-clipboard", "-wgl"])
