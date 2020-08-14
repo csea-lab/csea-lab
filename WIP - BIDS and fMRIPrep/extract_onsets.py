@@ -1,6 +1,8 @@
 """
 Processes all .vmrk files within a directory and outputs lists of their stimulus onsets into .txt files.
 
+Text files will have the same name as their .vmrk files, but with ".vmrk" replaced with "_onsets.txt".
+
 Created by Ben Velie on 8/5/2020.
 veliebm@gmail.com
 """
@@ -14,7 +16,9 @@ FMRI_CODE = "R128"
 
 def main(input_dir, output_dir):
     """
-    Outputs stimulus onsets from all .vmrk files in the input directory to the output directory.
+    Outputs stimulus onsets from all .vmrk files in the input directory to text files in the output directory.
+
+    Text files will have the same name as their .vmrk files, but with ".vmrk" replaced with "_onsets.txt".
     """
 
     # Force our parameters to become path objects
