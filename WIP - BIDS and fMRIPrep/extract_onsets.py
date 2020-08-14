@@ -123,7 +123,7 @@ def get_start_time(path) -> float:
 
 def get_timing(line: str) -> str:
     """
-    Returns the stimulus timing from the line of text.
+    Returns the stimulus timing from a line of text.
     """
 
     return line.split(",")[2]
