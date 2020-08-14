@@ -18,13 +18,13 @@ def main(input_dir):
     # Force input dir to become a path object.
     input_dir_path = pathlib.Path(input_dir)
 
-    # Gather all file paths into a list.
-    path_list = input_dir_path.rglob("*")
+    # Gather all file paths in the input directory and recursively into subdirectories.
+    path_list = [path for path in input_dir_path.rglob("*") if path.is_file()]
 
     # Iterate through the list of file paths and extract metadata from each file into a dictionary.
     metadata_dict = extract_metadata_from_files(path_list)
     
-    #[print(f"{key}  :  {value}") for key, value in metadata_dict.items()]
+    # [print(f"{key}  :  {value}") for key, value in metadata_dict.items()]
     
     # Use dictionary of metadata to bidsify the dataset.
 
