@@ -15,9 +15,9 @@ veliebm@gmail.com
 """
 
 import pathlib
-import os
 import re
 import nibabel
+
 import extract_onsets
 import extract_durations
 import extract_fmri_settings
