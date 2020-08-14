@@ -94,7 +94,7 @@ def get_line_list(path) -> list:
 
 def output_txt(output_path, vmrk_path, timings: list):
     """
-    Outputs a txt file into the specified directory.
+    Outputs a txt file of timings into the specified directory.
     """
 
     txt_path = output_path / f"{vmrk_path.stem}_onsets.txt"
