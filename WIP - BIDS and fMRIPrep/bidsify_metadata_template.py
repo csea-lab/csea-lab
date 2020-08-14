@@ -86,7 +86,7 @@ def dat_metadata_extraction_template(path):
     """
 
     return {
-        "subject": get_subject_id,
+        "subject": get_subject_id(path),
         "duration": extract_durations.get_final_duration(path)
     }
 
@@ -114,7 +114,7 @@ def get_tasks(path) -> list:
     Returns a list of tasks found in the target path name.
     """
 
-    return re.findall(r"task-(.+)_", path)
+    return re.findall(r"task-(.+)_", path.stem)
 
 
 def get_subject_id(path) -> str:
@@ -124,7 +124,7 @@ def get_subject_id(path) -> str:
     Returns "None" if no subject ID found.
     """
     
-    potential_subject_ids = re.findall(r"sub-(\d+)", path)
+    potential_subject_ids = re.findall(r"sub-(\d+)", str(path))
 
     try:
         subject_id = potential_subject_ids[0]
