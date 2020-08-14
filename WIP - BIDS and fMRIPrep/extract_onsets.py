@@ -86,7 +86,7 @@ def _get_raw_timings(vmrk_path) -> list:
 
 def get_line_list(path) -> list:
     """
-    Returns the selected file as a list of lines.
+    Returns a file as a list of lines.
     """
 
     return path.read_text().splitlines()
@@ -111,7 +111,7 @@ def output_txt(output_path, vmrk_path, timings: list):
 
 def get_start_time(path) -> float:
     """
-    Returns the time at which the fMRI began scanning.
+    Returns the time at which the fMRI began scanning in a .vmrk file.
     """
 
     lines = get_line_list(path)
@@ -123,7 +123,7 @@ def get_start_time(path) -> float:
 
 def get_timing(line: str) -> str:
     """
-    Returns the stimulus timing from a line of text.
+    Returns the stimulus timing from a line of text grabbed from a .vmrk file.
     """
 
     return line.split(",")[2]
