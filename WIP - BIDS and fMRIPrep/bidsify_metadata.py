@@ -42,7 +42,7 @@ def extract_metadata_from_files(path_list) -> dict:
     return metadata_dict
 
 
-def extract_metadata(path) -> dict:
+def extract_metadata(path):
     """
     Extracts metadata from a file.
 
