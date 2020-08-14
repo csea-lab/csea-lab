@@ -5,16 +5,21 @@ Created 8/13/2020 by Benjamin Velie.
 veliebm@gmail.com
 """
 
+import pathlib
+
 # Can be any string that will never appear in the settings file naturally
 SUBSETTING_FLAG = "@@SUBSETTING@@"
 
 
-def get_settings_dict(path: str) -> dict:
+def get_settings_dict(input_path) -> dict:
     """
     Returns a dictionary of each setting in the file and its value. Subsettings are stored in sub-dictionaries.
     """
 
-    raw_keys_and_values = get_lines(path)
+    # Convert input path into a path object
+    input_path = pathlib.Path(input_path)
+
+    raw_keys_and_values = get_lines(input_path)
     depunctuated_raw_keys_and_values = remove_unwanted_punctuation(raw_keys_and_values)
 
     raw_settings_raw_subsettings_dict = combine_subsettings(depunctuated_raw_keys_and_values)
@@ -54,13 +59,12 @@ def make_dict(lines: list) -> dict:
     return dict(zip(keys, values))
 
 
-def get_lines(path: str) -> list:
+def get_lines(input_path) -> list:
     """
     Returns a list of raw key:value pairs from the target file.
     """
 
-    with open(path, "r") as file:
-        return file.read().splitlines()
+    return input_path.read_text().splitlines()
 
 
 def combine_subsettings(lines: str) -> dict:
