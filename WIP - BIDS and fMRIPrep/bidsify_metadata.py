@@ -18,7 +18,7 @@ def main(input_dir):
     # Force input dir to become a path object.
     input_dir_path = pathlib.Path(input_dir)
 
-    # Gather all file paths in the input directory and recursively into subdirectories.
+    # Gather into path_list all file paths in the input directory and recursively its subdirectories.
     path_list = [path for path in input_dir_path.rglob("*") if path.is_file()]
 
     # Iterate through the list of file paths and extract metadata from each file into a dictionary.
