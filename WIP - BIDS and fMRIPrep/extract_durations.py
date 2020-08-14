@@ -57,18 +57,24 @@ def _get_raw_durations(path) -> list:
     return raw_durations
 
 
-def get_line_list(path) -> list:
+def get_line_list(input_path) -> list:
     """
     Returns the selected file as a list of lines.
     """
 
-    return path.read_text().splitlines()
+    # Force input path to become a path object
+    input_path = pathlib.Path(input_path)
+
+    return input_path.read_text().splitlines()
 
 
 def get_average_duration(dat_path) -> float:
     """
     Returns the average stimulus duration recorded in a .dat file.
     """
+
+    # Force input path to become a path object
+    dat_path = pathlib.Path(dat_path)
 
     durations = get_durations(dat_path)
     
@@ -80,4 +86,7 @@ def get_final_duration(dat_path) -> float:
     Returns the final duration recorded in a .dat file.
     """
     
+    # Force input path to become a path object
+    dat_path = pathlib.Path(dat_path)
+
     return get_durations(dat_path)[-1]
