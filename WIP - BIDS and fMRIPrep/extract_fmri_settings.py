@@ -20,13 +20,16 @@ def get_settings_dict(input_path) -> dict:
     input_path = pathlib.Path(input_path)
 
     raw_keys_and_values = get_lines(input_path)
+
+    
+
     depunctuated_raw_keys_and_values = remove_unwanted_punctuation(raw_keys_and_values)
 
     raw_settings_raw_subsettings_dict = combine_subsettings(depunctuated_raw_keys_and_values)
 
-    clean_raw_settings_raw_subsettings_dict(raw_settings_raw_subsettings_dict)
+    #clean_raw_settings_raw_subsettings_dict(raw_settings_raw_subsettings_dict)
     
-    return(dict())
+    return(raw_settings_raw_subsettings_dict)
 
 
 def clean_raw_settings_raw_subsettings_dict(dict) -> dict:
@@ -103,10 +106,10 @@ def is_subsetting(line: str) -> bool:
     """
     Returns true if a line is a subsetting.
 
-    A line is a subsetting if the beginning of it is whitespace.
+    A line is a subsetting if the beginning of it is an empty space.
     """
 
-    return line[0:1].isspace()
+    return line[0:1] == " "
 
 
 def remove_extra_whitespace(strings: list) -> list:
