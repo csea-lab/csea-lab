@@ -24,7 +24,7 @@ def main(input_dir):
     # Iterate through the list of file paths and extract metadata from each file into a dictionary.
     metadata_dict = extract_metadata_from_files(path_list)
     
-    [print(f"{key}  :  {value}") for key, value in metadata_dict.items()]
+    # [print(f"{key}  :  {value}") for key, value in metadata_dict.items()]
     
     # Use dictionary of metadata to bidsify the dataset.
 
