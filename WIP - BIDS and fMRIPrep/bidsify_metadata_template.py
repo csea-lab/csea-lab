@@ -1,10 +1,12 @@
 """
-Provides templates for bidsify_paths.py.
+Provides templates for bidsify_metadata.py.
 
-bidsify_paths.py automatically grabs the file types defined in this script. Then, it formats those files
-according to the functions defined in this script. To add a new file type, just add it to FILETYPES along with
-strings the filename must contain to match the new file type. Then, define a new function named
-NEWTYPEGOESHERE_template(filename: str, output_dir: str) to tell the program what to do with files matching that file type.
+bidsify_metadata.py recursively scans through a directory tree. When it finds a file matching the template FILETYPES,
+ it extracts metadata from it. All metadata is stored in a master dictionary. Each key in the master dictionary is the name of a file, 
+ and each value is the file's metadata. You can define what metadata is extracted from a file by adding a new function to this
+ template file. Just name it FILETYPEHERE_metadata_extraction_template(path). You can also add new file types to extract.
+ Just add them to FILETYPES. Each key in FILETYPES is a type of file, and each value is a string within the file type's name
+ that is unique to that file type.
 
 Note that "unsorted" MUST be at the bottom of FILETYPES!
 
