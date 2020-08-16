@@ -13,7 +13,7 @@ from copy import deepcopy
 _SUBSETTING_FLAG = "!@#SUBSETTING#@!"
 
 
-def get_settings_dict(input_path):
+def get_settings_dict(input_path) -> dict:
     """
     Returns a dictionary of each setting in the file and its value. Subvalues are stored in sub-dictionaries.
 
@@ -35,7 +35,7 @@ def get_settings_dict(input_path):
     return _dictify(flagged_keys_and_values)
 
 
-def _dictify(flagged_keys_and_values):
+def _dictify(flagged_keys_and_values) -> dict:
     """
     Returns a properly formatted dict from a list of flagged keys and values.
     """
