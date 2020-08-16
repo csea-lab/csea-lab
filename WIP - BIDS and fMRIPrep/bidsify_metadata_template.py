@@ -103,7 +103,7 @@ def settings_metadata_extraction_template(path):
 
 def unsorted_metadata_extraction_template(path):
     """
-    Leave unsorted paths untouched.
+    Do not extract metadata from unsorted paths.
     """
 
     return None
