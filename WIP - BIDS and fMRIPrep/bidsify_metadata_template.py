@@ -96,8 +96,6 @@ def settings_metadata_extraction_template(path):
     Template to extract metadata from an fMRI settings file.
     """
     
-    [print(f"'{key}' : '{value}'") for key, value in extract_fmri_settings.get_settings_dict(path).items()]
-
     return extract_fmri_settings.get_settings_dict(path)
 
 
