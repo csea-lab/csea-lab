@@ -38,6 +38,8 @@ FILETYPES = {
 def anat_metadata_extraction_template(path):
     """
     Template to extract metadata from an anatomy file.
+    
+    Returns dict containing subject ID and all key:value pairs found in the fMRI file header.
     """
 
     anatomy_file = nibabel.load(path.absolute)
@@ -55,6 +57,9 @@ def anat_metadata_extraction_template(path):
 def func_metadata_extraction_template(path):
     """
     Template to extract metadata from a functional file.
+
+    Returns dict containing subject ID, list of all tasks in the filename, and all key:value pairs
+    found in the fMRI file header.
     """
 
     functional_file = nibabel.load(path.absolute())
@@ -73,6 +78,8 @@ def func_metadata_extraction_template(path):
 def vmrk_metadata_extraction_template(path):
     """
     Template to extract metadata from an eeg file.
+
+    Returns dict containing the subject ID, a list of tasks found in the filename, and a list of stimulus onsets.
     """
     
     return {
@@ -85,6 +92,8 @@ def vmrk_metadata_extraction_template(path):
 def dat_metadata_extraction_template(path):
     """
     Template to extract metadata from a .dat file.
+
+    Returns dict containing subject ID and the final stimulus duration recorded in the file.
     """
 
     return {
@@ -96,6 +105,12 @@ def dat_metadata_extraction_template(path):
 def settings_metadata_extraction_template(path):
     """
     Template to extract metadata from an fMRI settings file.
+
+    Returns a dictionary of each setting in the file and its value. Subvalues are stored in sub-dictionaries.
+
+    Suppose you wanted to access setting X. It'll be equal to DICTNAME["X"]["value"].
+    Suppose you wanted to access subvalue Y for setting X. It'll be equal to
+    DICTNAME["X"]["subvalues"]["Y"]
     """
     
     return extract_fmri_settings.get_settings_dict(path)
@@ -103,7 +118,9 @@ def settings_metadata_extraction_template(path):
 
 def unsorted_metadata_extraction_template(path):
     """
-    Do not extract metadata from unsorted paths.
+    Extract no metadata from unsorted files.
+
+    Returns None.
     """
 
     return None
