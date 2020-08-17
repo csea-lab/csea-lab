@@ -22,24 +22,11 @@ def main(input_dir):
     path_list = [path for path in input_dir_path.rglob("*") if path.is_file()]
 
     # Iterate through the list of file paths and extract metadata from each file into a dictionary.
-    metadata_dict = extract_metadata_from_files(path_list)
+    metadata_dict = {path: extract_metadata(path) for path in path_list}
     
     # [print(f"{key}  :  {value}") for key, value in metadata_dict.items()]
     
     # Use dictionary of metadata to bidsify the dataset.
-
-
-def extract_metadata_from_files(path_list) -> dict:
-    """
-    Extracts metadata from each file in a list of files.
-    """
-
-    metadata_dict = {}
-
-    for path in path_list:
-        metadata_dict[path] = extract_metadata(path)
-
-    return metadata_dict
 
 
 def extract_metadata(path):
