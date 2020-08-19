@@ -40,13 +40,15 @@ def OS_default_config():
     Returns the default config dictionary for the current operating system.
     """
 
+    home_directory = os.getenv('USERPROFILE')
+
     default_config = {
         "DEFAULT": {
             "image": "afni/afni",
             "name": "afni",
             "program to run inside container": "bash",
             "port": "8889",
-            "read/write directory": "C:/Volumes/volume/",
+            "read/write directory": f"{home_directory}/Docker",
             "where to mount read/write directory inside container": "/read-write/",
             "read-only directory": "C:/",
             "where to mount read-only directory inside container": "/read-only/",
@@ -62,7 +64,7 @@ def OS_default_config():
     windows_config = deepcopy(default_config)
 
     # Overwrite the default config with mac values.
-    mac_overwrite = {"read/write directory": "$HOME/Docker",
+    mac_overwrite = { "read/write directory": "$HOME/Docker",
         "read-only directory": "/",
         "path to docker": "/Applications/Docker.app",
         "path to x server": "/Applications/Utilities/XQuartz.app",
@@ -73,7 +75,7 @@ def OS_default_config():
     mac_config["DEFAULT"].update(mac_overwrite)
 
     # Overwrite the default config with linux values.
-    linux_overwrite = {"read/write directory": "$HOME/Docker",
+    linux_overwrite = { "read/write directory": "$HOME/Docker",
         "read-only directory": "/",
         "path to docker": "",
         "path to x server": "",
@@ -114,7 +116,7 @@ def start_xserver_process():
     """
     Start whatever X Server you have on your OS.
     """
-    xserver_path = read_config()["x server path"]
+    xserver_path = read_config()["path to x server"]
     OS = get_OS()
     if OS == "Windows":
         subprocess.Popen([xserver_path, ":0", "-multiwindow", "-clipboard", "-wgl"])
@@ -147,7 +149,7 @@ def start_docker_process():
     """
     Starts the Docker process.
     """
-    docker_path = read_config()["docker path"]
+    docker_path = read_config()["path to docker"]
     OS = get_OS()
     if OS == "Windows":
         subprocess.Popen(docker_path)
