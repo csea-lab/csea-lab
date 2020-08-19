@@ -1,10 +1,12 @@
 """
-Provides templates for bidsify_paths.py.
+Provides templates for bidsify_metadata.py.
 
-bidsify_paths.py automatically grabs the file types defined in this script. Then, it formats those files
-according to the functions defined in this script. To add a new file type, just add it to FILETYPES along with
-strings the filename must contain to match the new file type. Then, define a new function named
-NEWTYPEGOESHERE_template(filename: str, output_dir: str) to tell the program what to do with files matching that file type.
+bidsify_metadata.py recursively scans through a directory tree. When it finds a file matching the template FILETYPES,
+ it extracts metadata from it. All metadata is stored in a master dictionary. Each key in the master dictionary is the name of a file, 
+ and each value is the file's metadata. You can define what metadata is extracted from a file by adding a new function to this
+ template file. Just name it FILETYPEHERE_metadata_extraction_template(path). You can also add new file types to extract.
+ Just add them to FILETYPES. Each key in FILETYPES is a type of file, and each value is a string within the file type's name
+ that is unique to that file type.
 
 Note that "unsorted" MUST be at the bottom of FILETYPES!
 
@@ -15,9 +17,9 @@ veliebm@gmail.com
 """
 
 import pathlib
-import os
 import re
 import nibabel
+
 import extract_onsets
 import extract_durations
 import extract_fmri_settings
@@ -36,6 +38,8 @@ FILETYPES = {
 def anat_metadata_extraction_template(path):
     """
     Template to extract metadata from an anatomy file.
+    
+    Returns dict containing subject ID and all key:value pairs found in the fMRI file header.
     """
 
     anatomy_file = nibabel.load(path.absolute)
@@ -53,6 +57,9 @@ def anat_metadata_extraction_template(path):
 def func_metadata_extraction_template(path):
     """
     Template to extract metadata from a functional file.
+
+    Returns dict containing subject ID, list of all tasks in the filename, and all key:value pairs
+    found in the fMRI file header.
     """
 
     functional_file = nibabel.load(path.absolute())
@@ -71,6 +78,8 @@ def func_metadata_extraction_template(path):
 def vmrk_metadata_extraction_template(path):
     """
     Template to extract metadata from an eeg file.
+
+    Returns dict containing the subject ID, a list of tasks found in the filename, and a list of stimulus onsets.
     """
     
     return {
@@ -83,10 +92,12 @@ def vmrk_metadata_extraction_template(path):
 def dat_metadata_extraction_template(path):
     """
     Template to extract metadata from a .dat file.
+
+    Returns dict containing subject ID and the final stimulus duration recorded in the file.
     """
 
     return {
-        "subject": get_subject_id,
+        "subject": get_subject_id(path),
         "duration": extract_durations.get_final_duration(path)
     }
 
@@ -94,16 +105,22 @@ def dat_metadata_extraction_template(path):
 def settings_metadata_extraction_template(path):
     """
     Template to extract metadata from an fMRI settings file.
+
+    Returns a dictionary of each setting in the file and its value. Subvalues are stored in sub-dictionaries.
+
+    Suppose you wanted to access setting X. It'll be equal to DICTNAME["X"]["value"].
+    Suppose you wanted to access subvalue Y for setting X. It'll be equal to
+    DICTNAME["X"]["subvalues"]["Y"]
     """
     
-    [print(f"'{key}' : '{value}'") for key, value in extract_fmri_settings.get_settings_dict(path).items()]
-
     return extract_fmri_settings.get_settings_dict(path)
 
 
 def unsorted_metadata_extraction_template(path):
     """
-    Leave unsorted paths untouched.
+    Extract no metadata from unsorted files.
+
+    Returns None.
     """
 
     return None
@@ -114,7 +131,7 @@ def get_tasks(path) -> list:
     Returns a list of tasks found in the target path name.
     """
 
-    return re.findall(r"task-(.+)_", path)
+    return re.findall(r"task-(.+)_", path.stem)
 
 
 def get_subject_id(path) -> str:
@@ -124,7 +141,7 @@ def get_subject_id(path) -> str:
     Returns "None" if no subject ID found.
     """
     
-    potential_subject_ids = re.findall(r"sub-(\d+)", path)
+    potential_subject_ids = re.findall(r"sub-(\d+)", str(path))
 
     try:
         subject_id = potential_subject_ids[0]

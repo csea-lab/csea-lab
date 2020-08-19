@@ -5,129 +5,78 @@ Created 8/13/2020 by Benjamin Velie.
 veliebm@gmail.com
 """
 
-# Can be any string that will never appear in the settings file naturally
-SUBSETTING_FLAG = "@@SUBSETTING@@"
+import pathlib
+from copy import deepcopy
 
 
-def get_settings_dict(path: str) -> dict:
+# Can be any string not naturally found in the fMRI settings file
+_SUBSETTING_FLAG = "!@#SUBSETTING#@!"
+
+
+def get_settings_dict(input_path) -> dict:
     """
-    Returns a dictionary of each setting in the file and its value. Subsettings are stored in sub-dictionaries.
+    Returns a dictionary of each setting in the file and its value. Subvalues are stored in sub-dictionaries.
+
+    Suppose you wanted to access setting X. It'll be equal to DICTNAME["X"]["value"].
+    Suppose you wanted to access subvalue Y for setting X. It'll be equal to
+    DICTNAME["X"]["subvalues"]["Y"].
     """
 
-    raw_keys_and_values = get_lines(path)
-    depunctuated_raw_keys_and_values = remove_unwanted_punctuation(raw_keys_and_values)
+    # Convert input path into a path object.
+    input_path = pathlib.Path(input_path)
 
-    raw_settings_raw_subsettings_dict = combine_subsettings(depunctuated_raw_keys_and_values)
+    # Get the target file as a raw list of tuples.
+    raw_keys_and_values = _get_raw_keys_and_values(input_path)
 
-    clean_raw_settings_raw_subsettings_dict(raw_settings_raw_subsettings_dict)
+    # Clean raw keys and values but append a subsetting flag to each subsetting tuple.
+    flagged_keys_and_values = _clean_raw_keys_and_values(raw_keys_and_values)
     
-    return(dict())
+    # Get a dict from our keys and values list
+    return _dictify(flagged_keys_and_values)
 
 
-def clean_raw_settings_raw_subsettings_dict(dict) -> dict:
+def _dictify(flagged_keys_and_values) -> dict:
     """
-    Returns a cleaned up version of the dictionary.
-    """
-
-    # Turns each subsetting list into a clean dictionary
-    dict = {setting: make_dict(subsetting_list) for setting, subsetting_list in dict.items()}
-
-    # Turns the setting list into a clean dictionary
-    clean_settings_dict = make_dict(dict.keys())
-
-    for i, key in enumerate(dict.keys()):
-        key = clean_settings_dict.keys()[i]
-
-    return dict
-
-
-def make_dict(lines: list) -> dict:
-    """
-    Breaks a list of lines into a list of settings and their values.
-    """ 
-
-    raw_keys, raw_values = split(lines)
-
-    keys = remove_extra_whitespace(raw_keys)
-    values = remove_extra_whitespace(raw_values)
-
-    return dict(zip(keys, values))
-
-
-def get_lines(path: str) -> list:
-    """
-    Returns a list of raw key:value pairs from the target file.
+    Returns a properly formatted dict from a list of flagged keys and values.
     """
 
-    with open(path, "r") as file:
-        return file.read().splitlines()
+    # Get all our not subsettings settings into a dict.
+    settings_dict = {key: {"value": value, "subvalues": {}} for (key, value) in flagged_keys_and_values if not is_subsetting(key)}
 
+    for i, tuple in enumerate(flagged_keys_and_values):
+        if is_subsetting(tuple[0]):
 
-def combine_subsettings(lines: str) -> dict:
-    """
-    Returns a dictionary with all subsettings placed in lists attached to their main settings.
-    """
-
-    combined_dict = {}
-
-    for i, target_line in enumerate(lines):
-        if not is_subsetting(target_line):
-            combined_dict[target_line] = []
-        else:
-            for line in reversed(lines[0:i]):
-                if not is_subsetting(line):
-                    combined_dict[line].append(target_line)
+            # Find corresponding setting.
+            setting_key = ""
+            for setting_tuple in reversed(flagged_keys_and_values[0:i]):
+                if not is_subsetting(setting_tuple[0]):
+                    setting_key = setting_tuple[0]
                     break
 
-    return combined_dict
+            # Remove flags from subsetting.
+            deflagged_key = tuple[0].replace(_SUBSETTING_FLAG, "")
+            deflagged_value = tuple[1].replace(_SUBSETTING_FLAG, "")
+
+            # Update subsettings dict for the setting
+            settings_dict[setting_key]["subvalues"][deflagged_key] = [deflagged_value]
+
+    return settings_dict
 
 
-def flag_subsettings(lines: list) -> list:
+def _get_raw_keys_and_values(input_path) -> list:
     """
-    Flags any setting containing whitespace at the beginning as a subsetting.
-    """
-
-    # This will flag both the keys and the values.
-    for i, line in enumerate(lines):
-        if line[0:1].isspace():
-            lines[i] = SUBSETTING_FLAG + line + SUBSETTING_FLAG
-
-    return lines
-
-
-def is_subsetting(line: str) -> bool:
-    """
-    Returns true if a line is a subsetting.
-
-    A line is a subsetting if the beginning of it is whitespace.
+    Returns a list of raw key:value pairs stored in tuples.
     """
 
-    return line[0:1].isspace()
+    lines = input_path.read_text().splitlines()
+
+    raw_keys, raw_tuples = _split_keys_and_values(lines)
+
+    return merge(raw_keys,raw_tuples)
 
 
-def remove_extra_whitespace(strings: list) -> list:
-    """
-    Removes all whitespace from the ends of each string in a list of strings.
-    """
+def _split_keys_and_values(raw_keys_and_values: list) -> tuple: 
 
-    return [string.strip() for string in strings]
-
-
-def remove_unwanted_punctuation(strings: list) -> list:
-    """
-    Removes unwanted punctuation from all strings in a list.
-    """
-    
-    unwanted_punctuation = '";'
-
-    for punctuation in unwanted_punctuation:
-        for i, string in enumerate(strings):
-            strings[i] = string.replace(punctuation, "")
-
-    return strings
-
-
-def split(raw_keys_and_values: list) -> tuple: 
     """
     Splits a list of raw keys and values into a raw keys list and a raw values list.
     """
@@ -141,3 +90,70 @@ def split(raw_keys_and_values: list) -> tuple:
         raw_values.append(split_pair[1])
 
     return raw_keys, raw_values
+
+
+def _clean_raw_keys_and_values(raw_keys_and_values: list) -> list:
+    """
+    Returns a list of cleaned keys and values that are flagged as settings or subsettings.
+    """
+
+    depunctuated_raw_keys_and_values = _remove_unwanted_punctuation(raw_keys_and_values)
+
+    flagged_keys_and_values = _flag_and_dewhitespace(depunctuated_raw_keys_and_values)
+
+    return flagged_keys_and_values
+
+
+def is_subsetting(string: str) -> bool:
+    """
+    Returns true if a string is a subsetting.
+
+    A string is a subsetting if it begins with an empty space OR it
+    contains the subsetting flag.
+    """
+
+    return string[0:1] == " " or _SUBSETTING_FLAG in string
+
+
+def _remove_unwanted_punctuation(raw_keys_and_values) -> list:
+    """
+    Removes unwanted punctuation from a list of key-value tuples.
+    """
+    
+    keys_and_values = deepcopy(raw_keys_and_values)
+
+    unwanted_punctuation = '";'
+
+    for character in unwanted_punctuation:
+        keys_and_values = [(key.replace(character, ""), value.replace(character, "")) for (key, value) in keys_and_values]
+
+    return keys_and_values
+
+
+def _flag_and_dewhitespace(raw_keys_and_values) -> list:
+    """
+    Returns a list of settings tuples with extra whitespace removed and labelled subsettings.
+    """
+    
+    keys_and_values = deepcopy(raw_keys_and_values)
+
+    # Remove all whitespace from right side of keys and values
+    right_dewhitespaced_keys_and_values = [(key.rstrip(), value.rstrip()) for (key, value) in keys_and_values]
+
+    # Add the subsetting flag to the end of each key and value where the value is a subsetting
+    flagged_keys_and_values = [(key + _SUBSETTING_FLAG, value + _SUBSETTING_FLAG) if is_subsetting(key) else (key, value) for (key, value) in right_dewhitespaced_keys_and_values]
+
+    # Strip all whitespace from left side of keys and values now
+    finished_keys_and_values = [(key.lstrip(), value.lstrip()) for (key, value) in flagged_keys_and_values]
+
+    return finished_keys_and_values
+
+
+def merge(list1, list2): 
+    """
+    Merges two lists into a list of tuples.
+    """
+
+    merged_list = tuple(zip(list1, list2))  
+
+    return merged_list 

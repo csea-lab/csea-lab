@@ -13,51 +13,23 @@ import os
 import pathlib
 
 
-def main(target_dir):
+def main(input_dir):
 
-    target_path = pathlib.Path(target_dir)
+    # Force input dir to become a path object.
+    input_dir_path = pathlib.Path(input_dir)
 
-    # Gather all file paths into a list.
-    path_list = target_path.rglob("*")
+    # Gather into path_list all file paths in the input directory and recursively its subdirectories.
+    path_list = [path for path in input_dir_path.rglob("*") if path.is_file()]
 
     # Iterate through the list of file paths and extract metadata from each file into a dictionary.
-    metadata_dict = extract_metadata_from_files(path_list)
+    metadata_dict = {path: extract_metadata(path) for path in path_list}
     
-    #[print(f"{key}  :  {value}") for key, value in metadata_dict.items()]
+    # [print(f"{key}  :  {value}") for key, value in metadata_dict.items()]
     
     # Use dictionary of metadata to bidsify the dataset.
 
 
-def list_all_paths(input_dir: str) -> list:
-    """
-    Returns a list of all paths in a directory and subdirectories.
-
-    Accesses all files in input dir AND recursively into subdirectories.
-    """
-
-    paths = []
-
-    for folder_name, __, filenames in os.walk(input_dir):
-        for filename in filenames:
-            paths.append(os.path.abspath(os.path.join(folder_name, filename)))
-        
-    return paths
-
-
-def extract_metadata_from_files(path_list) -> dict:
-    """
-    Extracts metadata from each file in a list of files.
-    """
-
-    metadata_dict = {}
-
-    for path in path_list:
-        metadata_dict[path] = extract_metadata(path)
-
-    return metadata_dict
-
-
-def extract_metadata(path) -> dict:
+def extract_metadata(path):
     """
     Extracts metadata from a file.
 

@@ -1,6 +1,8 @@
 """
 Processes all .vmrk files within a directory and outputs lists of their stimulus onsets into .txt files.
 
+Text files will have the same name as their .vmrk files, but with ".vmrk" replaced with "_onsets.txt".
+
 Created by Ben Velie on 8/5/2020.
 veliebm@gmail.com
 """
@@ -14,7 +16,9 @@ FMRI_CODE = "R128"
 
 def main(input_dir, output_dir):
     """
-    Outputs stimulus onsets from all .vmrk files in the input directory to the output directory.
+    Outputs stimulus onsets from all .vmrk files in the input directory to text files in the output directory.
+
+    Text files will have the same name as their .vmrk files, but with ".vmrk" replaced with "_onsets.txt".
     """
 
     # Force our parameters to become path objects
@@ -86,7 +90,7 @@ def _get_raw_timings(vmrk_path) -> list:
 
 def get_line_list(path) -> list:
     """
-    Returns the selected file as a list of lines.
+    Returns a file as a list of lines.
     """
 
     return path.read_text().splitlines()
@@ -94,7 +98,7 @@ def get_line_list(path) -> list:
 
 def output_txt(output_path, vmrk_path, timings: list):
     """
-    Outputs a txt file into the specified directory.
+    Outputs a txt file of timings into the specified directory.
     """
 
     txt_path = output_path / f"{vmrk_path.stem}_onsets.txt"
@@ -111,7 +115,7 @@ def output_txt(output_path, vmrk_path, timings: list):
 
 def get_start_time(path) -> float:
     """
-    Returns the time at which the fMRI began scanning.
+    Returns the time at which the fMRI began scanning in a .vmrk file.
     """
 
     lines = get_line_list(path)
@@ -123,7 +127,7 @@ def get_start_time(path) -> float:
 
 def get_timing(line: str) -> str:
     """
-    Returns the stimulus timing from the line of text.
+    Returns the stimulus timing from a line of text grabbed from a .vmrk file.
     """
 
     return line.split(",")[2]
