@@ -1,3 +1,4 @@
 Docker/AFNI/config.ini
 **/__pycache__
 **/.DS_Store
+**/.vscode
