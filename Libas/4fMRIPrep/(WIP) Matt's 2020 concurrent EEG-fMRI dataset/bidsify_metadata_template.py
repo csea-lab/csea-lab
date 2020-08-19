@@ -42,7 +42,7 @@ def anat_metadata_extraction_template(path):
     Returns dict containing subject ID and all key:value pairs found in the fMRI file header.
     """
 
-    anatomy_file = nibabel.load(path.absolute)
+    anatomy_file = nibabel.load(str(path))
     header_metadata = dict(anatomy_file.header)
     
     other_metadata = {
@@ -62,7 +62,7 @@ def func_metadata_extraction_template(path):
     found in the fMRI file header.
     """
 
-    functional_file = nibabel.load(path.absolute())
+    functional_file = nibabel.load(str(path))
     header_metadata = dict(functional_file.header)
     
     other_metadata = {
