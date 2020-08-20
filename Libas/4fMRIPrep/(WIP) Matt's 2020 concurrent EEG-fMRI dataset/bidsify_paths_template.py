@@ -22,12 +22,13 @@ import pathlib
 # Task name to use when naming fMRI and EEG files
 TASK = "gabor"
 
-# Keys to use to sort the files. For example, a filename containing "sT1w" will be sorted as "anat".
+# Keys to use to sort the files. For example, a filename containing "T1w" will be sorted as "anat".
 FILETYPES = {
-            "anat": ["sT1W"],
+            "anat": ["T1W"],
             "func": ["EPI"],
             "eeg": [".eeg", ".vmrk", ".vhdr"],
             "dat": [".dat"],
+            "settings": ["fMRI settings.txt"],
             "unsorted": [""]
             }
 
@@ -39,7 +40,7 @@ def anat_template(input_path, output_dir_path):
 
     subject_id = get_subject_id(input_path)
 
-    new_name = f"sub-{subject_id}_sT1w{input_path.suffix}"
+    new_name = f"sub-{subject_id}_T1w{input_path.suffix}"
     
     return output_dir_path / f"sub-{subject_id}" / "anat" / new_name
 
@@ -80,6 +81,18 @@ def dat_template(input_path, output_dir_path):
     return output_dir_path / "sourcedata" / new_name
 
 
+def settings_template(input_path, output_dir_path):
+    """
+    Template to bidsify fMRI settings files paths.
+    """
+
+    subject_id = get_subject_id(input_path)
+
+    new_name = f"sub-{subject_id}_settings.txt"
+
+    return output_dir_path / "sourcedata" / new_name
+
+
 def unsorted_template(input_path, output_dir_path):
     """
     Leave unsorted paths untouched.
@@ -92,7 +105,8 @@ def get_subject_id(input_path) -> str:
     """
     Returns the subject ID found in the input file name.
 
-    Specifically, if the filename contains 3 numerals in a row, returns it as the subject ID
+    Specifically, if the filename contains 3 numerals in a row, returns it as the subject ID.
+    Returns None if no match found.
     """
 
-    return re.search("[0-9][0-9][0-9]", input_path.stem)[0]
+    return re.search("[0-9][0-9][0-9]", str(input_path.absolute()))[0]
