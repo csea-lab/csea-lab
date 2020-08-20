@@ -1,5 +1,5 @@
 """
-Class to organize and extract data from an fMRI setttings file.
+Class to organize and extract data from an fMRI settings file.
 
 Created 8/20/2020 by Benjamin Velie.
 veliebm@gmail.com
