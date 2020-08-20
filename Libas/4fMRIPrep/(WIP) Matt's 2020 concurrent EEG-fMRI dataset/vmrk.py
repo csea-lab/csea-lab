@@ -99,7 +99,7 @@ class Vmrk():
 
         for raw_time in raw_timings:
             time = raw_time / 5000 - self.start_time()
-            clean_timings.append(time)
+            clean_timings.append(round(time, 4))
 
         return clean_timings
 
