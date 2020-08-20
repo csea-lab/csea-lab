@@ -1,5 +1,5 @@
 """
-A class to help organize and extract data from NIFTI files.
+Class to organize and extract data from a NIFTI file.
 
 Created 8/20/2020 by Benjamin Velie.
 veliebm@gmail.com
@@ -10,7 +10,7 @@ import nibabel
 
 class Nifti():
     """
-    Class to organize data obtained from NIFTI files.
+    Class to organize and extract data from a NIFTI file.
 
     Parameters
     ----------
