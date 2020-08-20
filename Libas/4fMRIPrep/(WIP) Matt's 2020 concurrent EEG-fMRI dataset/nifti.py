@@ -15,6 +15,7 @@ class Nifti():
     Parameters
     ----------
     input_path : str or Path
+        Path to the NIFTI file to be processed.
 
     ...
 
