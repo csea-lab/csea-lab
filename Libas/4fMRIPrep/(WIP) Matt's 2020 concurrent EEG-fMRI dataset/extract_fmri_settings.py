@@ -156,4 +156,18 @@ def merge(list1, list2):
 
     merged_list = tuple(zip(list1, list2))  
 
-    return merged_list 
+    return merged_list
+
+
+def get_repetition_time(input_path):
+    """
+    Returns the repetition time (in seconds) extracted from the target settings file.
+    """
+
+    settings = get_settings_dict(input_path)
+
+    TR_in_ms = settings["TR"]["subvalues"]["(ms)"]
+
+    TR = float(TR_in_ms[0]) / 1000
+
+    return TR
