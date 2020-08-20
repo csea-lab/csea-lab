@@ -48,7 +48,7 @@ class Nifti():
         return nibabel.load(self.path).header
 
 
-    def count_volumes(self):
+    def count_volumes(self) -> int:
         """
         Returns the number of volumes in the NIFTI file.
         """
@@ -56,7 +56,7 @@ class Nifti():
         return self.header()["slice_end"] - self.header()["slice_start"] + 1
 
 
-    def tasks(self):
+    def tasks(self) -> list:
         """
         Returns a list of all tasks found in the filename.
 
