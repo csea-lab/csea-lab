@@ -33,7 +33,6 @@ class Vmrk():
     def __init__(self, input_path):
 
         self.path = pathlib.Path(input_path)
-        self.raw_text = self.path.read_text()
 
 
     def timings(self) -> list:
@@ -68,19 +67,26 @@ class Vmrk():
         return self.path.read_text().splitlines()
     
 
-    def output_timings(self, output_path):
+    def output_timings(self, output_dir_path):
         """
         Outputs a txt file of timings into the specified directory.
         """
 
-        txt_path = output_path / f"{self.path.stem}_onsets.txt"
-
-        print(f"Writing {txt_path.absolute()}")
+        output_dir_path = pathlib.Path(output_dir_path)
+        txt_path = output_dir_path / f"{self.path.stem}_onsets.txt"
 
         formatted_timings = (f"{str(timing)}\n" for timing in self.timings())
 
         with txt_path.open(mode='w') as txt_file:
             txt_file.writelines(formatted_timings)
+
+
+    def raw_text(self):
+        """
+        Returns the raw text extracted from the file.
+        """
+
+        return self.path.read_text()
 
 
     def _clean_timings(self, raw_timings: list) -> list:
