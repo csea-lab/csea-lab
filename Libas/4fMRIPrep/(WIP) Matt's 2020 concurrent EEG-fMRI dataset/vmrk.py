@@ -23,8 +23,6 @@ class Vmrk():
     ----------
     path : Path
         Path to the .vmrk file.
-    raw_text : str
-        Raw text extracted from the .vmrk file.
     """
 
     ONSET_CODE = "S  2"
