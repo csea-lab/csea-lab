@@ -25,10 +25,6 @@ class Settings():
     ----------
     path : Path
         The path of the NIFTI file.
-    raw : str
-        The raw text extracted from the file.
-    dict : dict
-        A dictionary of clean info extracted from the file.
     """
 
     _SUBSETTING_FLAG = "!@#SUBSETTING#@!"
@@ -36,11 +32,9 @@ class Settings():
     def __init__(self, input_path):
         
         self.path = pathlib.Path(input_path)
-        self.raw_text = self.path.read_text()
-        self.dict = self.get_settings_dict()
 
 
-    def get_settings_dict(self) -> dict:
+    def dict(self) -> dict:
         """
         Returns a dictionary of each setting in the file and its value. Subvalues are stored in sub-dictionaries.
 
@@ -59,16 +53,24 @@ class Settings():
         return self._dictify(flagged_keys_and_values)
 
 
-    def get_repetition_time(self):
+    def repetition_time(self):
         """
         Returns the repetition time (in seconds) extracted from the target settings file.
         """
 
-        TR_in_ms = self.dict["TR"]["subvalues"]["(ms)"]
+        TR_in_ms = self.dict()["TR"]["subvalues"]["(ms)"]
 
         TR = float(TR_in_ms[0]) / 1000
 
         return TR
+
+
+    def raw_text(self):
+        """
+        Returns the raw text in the settings file.
+        """
+
+        return self.path.read_text()
 
 
     def _dictify(self, flagged_keys_and_values) -> dict:
