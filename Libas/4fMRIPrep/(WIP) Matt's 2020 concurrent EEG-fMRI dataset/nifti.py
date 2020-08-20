@@ -65,3 +65,20 @@ class Nifti():
         """
 
         return re.findall(r"task-(.+)_", self.path.stem)
+
+
+    def subject(self) -> list:
+        """
+        If the file is named according to BIDS, returns the subject's name.
+
+        Returns "None" if no subject ID found.
+        """
+        
+        potential_subject_ids = re.findall(r"sub-(\d+)", str(self.path))
+
+        try:
+            subject_id = potential_subject_ids[-1]
+        except IndexError:
+            subject_id = None
+
+        return subject_id
