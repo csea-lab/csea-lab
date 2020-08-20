@@ -23,17 +23,30 @@ class Nifti():
     ----------
     path : Path
         The path of the NIFTI file.
-    file : nibabel Nifti1Image
-        The NIFTI file loaded with nibabel.
-    header : nibabel Nifti1Header
-        The header of the NIFTI file.
-    volume_count : int
-        The number of volumes in the NIFTI file.
     """
 
     def __init__(self, input_path):
         
         self.path = pathlib.Path(input_path)
-        self.file = nibabel.load(input_path)
-        self.header = self.file.header
-        self.volume_count = self.header["slice_end"] - self.header["slice_start"] + 1
+
+    
+    def load(self):
+        """
+        Returns the complete NIFTI file.
+        """
+
+        return nibabel.load(self.path)
+
+    def header(self):
+        """
+        Returns the header of the NIFTI file.
+        """
+
+        return nibabel.load(self.path).header
+
+    def count_volumes(self):
+        """
+        Returns the number of volumes in the NIFTI file.
+        """
+
+        return self.header()["slice_end"] - self.header()["slice_start"] + 1
