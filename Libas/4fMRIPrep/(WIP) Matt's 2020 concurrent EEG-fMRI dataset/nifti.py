@@ -58,9 +58,8 @@ class Nifti():
 
     def tasks(self) -> list:
         """
-        Returns a list of all tasks found in the filename.
+        If the file is named according to BIDS, returns a list of all tasks in the filename.
 
-        Note that this only works if the file is named in BIDS convention.
         Returns None if no tasks found.
         """
 
