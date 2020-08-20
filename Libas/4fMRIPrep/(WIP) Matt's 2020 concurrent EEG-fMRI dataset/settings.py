@@ -36,7 +36,7 @@ class Settings():
     def __init__(self, input_path):
         
         self.path = pathlib.Path(input_path)
-        self.raw = self.path.read_text()
+        self.raw_text = self.path.read_text()
         self.dict = self.get_settings_dict()
 
 
