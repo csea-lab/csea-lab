@@ -61,17 +61,22 @@ class Nifti():
         Returns a list of all tasks found in the filename.
 
         Note that this only works if the file is named in BIDS convention.
-        Returns [] if no tasks found.
+        Returns None if no tasks found.
         """
 
-        return re.findall(r"task-(.+)_", self.path.stem)
+        tasks = re.findall(r"task-(.+)_", self.path.stem)
+
+        if tasks == []:
+            return None
+        else:
+            return tasks
 
 
     def subject(self) -> list:
         """
         If the file is named according to BIDS, returns the subject's name.
 
-        Returns "None" if no subject ID found.
+        Returns None if no subject ID found.
         """
         
         potential_subject_ids = re.findall(r"sub-(\d+)", str(self.path))
