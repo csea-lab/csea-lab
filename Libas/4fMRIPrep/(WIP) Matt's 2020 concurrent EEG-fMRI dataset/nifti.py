@@ -7,6 +7,8 @@ veliebm@gmail.com
 
 import pathlib
 import nibabel
+import re
+
 
 class Nifti():
     """
@@ -37,6 +39,7 @@ class Nifti():
 
         return nibabel.load(self.path)
 
+
     def header(self):
         """
         Returns the header of the NIFTI file.
@@ -44,9 +47,21 @@ class Nifti():
 
         return nibabel.load(self.path).header
 
+
     def count_volumes(self):
         """
         Returns the number of volumes in the NIFTI file.
         """
 
         return self.header()["slice_end"] - self.header()["slice_start"] + 1
+
+
+    def tasks(self):
+        """
+        Returns a list of all tasks found in the filename.
+
+        Note that this only works if the file is named in BIDS convention.
+        Returns [] if no tasks found.
+        """
+
+        return re.findall(r"task-(.+)_", self.path.stem)
