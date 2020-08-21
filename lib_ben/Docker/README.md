@@ -52,6 +52,9 @@ Upgrading Windows was the hard part. It's easy to install the other software you
 2) Your download should start automatically.
 3) Install with default settings.
 
+# MacOS
+TODO
+
 # Running AFNI
 
 So you want to run AFNI in a slick container, eh? Easy! Just launch [docker.py](docker.py) using Python! It'll generate a config file for you pre-configured to launch the container with desirable settings. Feel free to edit the config to your heart's content. Notice that the display is disabled by default in the config. If you'd like to use the GUI, you must first install an X Server. (See directions above.) Also, because of some quirks with Docker, enabling the GUI might cause some bugs for you with AFNI. *Might*. Keep an eye out for them if you continue down this path.
