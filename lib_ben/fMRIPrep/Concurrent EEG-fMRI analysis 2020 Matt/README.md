@@ -1,4 +1,4 @@
-### Introduction
+### Introduction:
 -----------------
 
 These are the scripts I used to transform Matt's concurrent EEG/fMRI dataset (not included here) into BIDS format in the summer of 2020. After I BIDSified it, I preprocessed it using [fMRIPrep running in a Docker container.](https://fmriprep.org/en/stable/docker.html)
