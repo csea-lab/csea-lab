@@ -1,22 +1,21 @@
 # Introduction
 
-WIP!
+This document teaches you how to easily use Docker containers on your computer.
 
-This document teaches you how to get the software you need to use our Docker containers on your computer. Please install everything here before you try to use the docker projects located in our repository.
-
-Please contact me on slack or email if you need help. I'm here anytime you need me 🙂
+Please contact me on slack (preferably) or via email if you need help. I'm here anytime you need me 🙂
 
 Created July 20, 2020  
 Ben Velie  
-veliebm@ufl.edu
+veliebm@gmail.com
+
 
 # Windows
 
 Most people have Windows 10 Home Edition. Unfortunately, the version of Docker we use can't run on Home Edition. Instead, you need Windows Professional Edition or Education Edition. Luckily, Microsoft provides Windows Education Edition for free to UF students. I'll show you how to get it. Don't worry, Education Edition is strictly better than Home Edition. Also, you won't lose any of your files or settings, and you won't lose access to Windows after you're no longer a student.
 
-Upgrading Windows was the hard part. It's easy to install the other software you'll need. First you'll download and install Docker, then you'll download and install X Server for Windows. X Server allows us to have GUI's for applications running in Docker containers. You'll need it if you want to use AFNI's snazzy neuroimaging viewer.
+Upgrading Windows was the hard part. It's easy to install the other software you'll need. First you'll install Docker, then you'll install Anaconda, then you'll install X Server. Anaconda is a bundle of Python and Python-related things. You need Python to start the script I'll provide you that launches Docker easily. Of course, if you wanna skip that step, you can always use Docker the old-fashioned way. It'll just be less convenient. X Server is a program that can allow you to view graphical interfaces for programs inside your containers. You'll want it if you plan on using the AFNI container to view neuroimaging files.
 
-*In summary, to use Docker you must (A) upgrade to Windows 10 Education Edition, (B) install Docker, and (C) install X Server.*
+*In summary, please (A) upgrade to Windows 10 Education Edition (IF you don't have Windows 10 Professional Edition), (B) install Docker, (C) install Anaconda (IF you don't already have Python), and (D) install X Server (IF you want to use a GUI for certain programs).
 
 ### Upgrading Windows 10 Home Edition to Windows 10 Education Edition.
 
@@ -42,19 +41,26 @@ Upgrading Windows was the hard part. It's easy to install the other software you
 3) Click "Get Stable".
 4) Install with default settings.
 
+### Installing Anaconda.
+1) [Go to this website.](https://www.anaconda.com/products/individual)
+2) Download the Windows installer. Choose 32 bit or 64 bit depending on your computer.
+3) Install with default settings except for one thing - make sure to check the box to add Anaconda stuff to your PATH variable.
+
 ### Installing X Server.
 
 1) [Go to this website.](https://sourceforge.net/projects/vcxsrv/files/latest/download) 
 2) Your download should start automatically.
 3) Install with default settings.
 
+
 # Mac
 
-It's way easier to use OS X for this stuff. All you need to do is install Docker and install XQuartz. XQuartz lets you use a GUI within your containers.
+It's way easier to use macOS for this stuff. All you need to do is install Docker, install Anaconda (if you dont have Python), and install XQuartz (if you want a GUI for your containers). XQuartz is the Mac implementation of X Server. It lets you use a GUI within your containers.
 
-1) [Install Docker.](
-https://docs.docker.com/docker-for-mac/install/)
-2) [Install XQuartz.](https://www.xquartz.org/)
+1) [Install Docker.](https://docs.docker.com/docker-for-mac/install/)
+2) [Install Anaconda.](https://www.anaconda.com/products/individual) (Install with default settings except for one thing - make sure to check the box to add Anaconda stuff to your PATH variable.)
+3) [Install XQuartz.](https://www.xquartz.org/)
+
 
 # More help
 
