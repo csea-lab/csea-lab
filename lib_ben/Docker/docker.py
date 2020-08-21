@@ -1,3 +1,13 @@
+"""
+Starts Docker, then starts the Docker image specified in config.ini.
+
+This process can be configured further by editing config.ini. For example, you can enable a GUI
+for your container by setting enable display = True.
+
+Created 08/20 by Ben Velie.
+veliebm@gmail.com
+"""
+
 import configparser
 import subprocess
 import os
