@@ -53,15 +53,6 @@ Upgrading Windows was the hard part. It's easy to install the other software you
 3) Install with default settings.
 
 
-# Mac
-
-It's way easier to use macOS for this stuff. All you need to do is install Docker, install Anaconda (if you dont have Python), and install XQuartz (if you want a GUI for your containers). XQuartz is the Mac implementation of X Server. It lets you use a GUI within your containers.
-
-1) [Install Docker.](https://docs.docker.com/docker-for-mac/install/)
-2) [Install Anaconda.](https://www.anaconda.com/products/individual) (Install with default settings except for one thing - make sure to check the box to add Anaconda stuff to your PATH variable.)
-3) [Install XQuartz.](https://www.xquartz.org/)
-
-
 # More help
 
 - (ANY OS) If you only have 8 GB of RAM on your computer, you might need to buy more RAM to use Docker. Yeah, I know it's annoying. Not everyone has to get more RAM, but I did.
