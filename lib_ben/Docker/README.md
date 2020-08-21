@@ -9,7 +9,7 @@ Ben Velie
 veliebm@gmail.com
 
 
-# Windows
+# Using Docker on Windows
 
 Most people have Windows 10 Home Edition. Unfortunately, the version of Docker we use can't run on Home Edition. Instead, you need Windows Professional Edition or Education Edition. Luckily, Microsoft provides Windows Education Edition for free to UF students. I'll show you how to get it. Don't worry, Education Edition is strictly better than Home Edition. Also, you won't lose any of your files or settings, and you won't lose access to Windows after you're no longer a student.
 
@@ -52,7 +52,7 @@ Upgrading Windows was the hard part. It's easy to install the other software you
 2) Your download should start automatically.
 3) Install with default settings.
 
-# MacOS
+# Using Docker on MacOS
 TODO
 
 # Running AFNI
