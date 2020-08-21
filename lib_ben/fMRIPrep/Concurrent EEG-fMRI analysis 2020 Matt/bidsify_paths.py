@@ -10,7 +10,7 @@ veliebm@ufl.edu
 """
 
 import argparse
-import bidsify_paths_template_eeg_fmri_one
+import bidsify_paths_template
 import pathlib
 import shutil
 
@@ -38,7 +38,7 @@ def get_file_type(path) -> str:
     Returns any file type in FILETYPES.
     """
 
-    for file_type, keyword_list in bidsify_paths_template_eeg_fmri_one.FILETYPES.items():
+    for file_type, keyword_list in bidsify_paths_template.FILETYPES.items():
         for keyword in keyword_list:
             if keyword in path.name:
                 return file_type
@@ -63,7 +63,7 @@ def bidsify_path(input_path, output_dir_path) -> str:
     """
 
     file_type = get_file_type(input_path)
-    template_to_access = getattr(bidsify_paths_template_eeg_fmri_one, f"{file_type}_template")
+    template_to_access = getattr(bidsify_paths_template, f"{file_type}_template")
 
     return template_to_access(input_path, output_dir_path)
 
