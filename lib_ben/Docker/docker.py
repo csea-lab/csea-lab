@@ -57,7 +57,7 @@ def OS_default_config():
             "image": "afni/afni",
             "name": "afni",
             "program to run inside container": "bash",
-            "port": "8889",
+            "port": "8888:8888",
             "read/write directory": f"{home_directory}/Docker",
             "where to mount read/write directory inside container": "/read-write/",
             "read-only directory": "C:/",
