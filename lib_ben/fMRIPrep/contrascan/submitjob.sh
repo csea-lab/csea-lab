@@ -4,7 +4,7 @@
 # then further edited by Benjamin Velie.
 # veliebm@gmail.com
 #
-#SBATCH -J $USER-fmriprep                   # The name of the job.    
+#SBATCH -J fmriprep                         # The name of the job.    
 #SBATCH --time=48:00:00                     # Time limit on the job.
 #SBATCH -n 1                                # Number of tasks.
 #SBATCH --cpus-per-task=2
@@ -13,7 +13,7 @@
 # Outputs ----------------------------------
 #SBATCH -o Logs/%x-%A-%a.out
 #SBATCH -e Logs/%x-%A-%a.err
-#SBATCH --mail-user=$USER@ufl.edu           # Your UF email address so you can get updates about the job. You shouldn't need to change this line.
+#SBATCH --mail-user=veliebm@ufl.edu         # Your UF email address so you can get updates about the job.
 #SBATCH --mail-type=ALL                     # What notifications to send to your email.
 # ------------------------------------------
 
