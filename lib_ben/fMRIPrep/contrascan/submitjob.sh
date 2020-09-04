@@ -34,6 +34,7 @@ mkdir -p "${FMRIPREP_HOST_CACHE}"
 
 # Prepare derivatives folder
 mkdir -p "${BIDS_DIR}"/${DERIVS_DIR}
+mkdir -p "${LOCAL_FREESURFER_DIR}"
 
 # Designate a templateflow bind-mount point
 export SINGULARITYENV_TEMPLATEFLOW_HOME="/templateflow"
