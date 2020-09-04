@@ -55,7 +55,7 @@ eval "$cmd"
 exitcode=$?
 
 # Output results to a table
-echo "sub-$subject   ${SLURM_ARRAY_TASK_ID}    $exitcode" \
+echo "sub-$subject	${SLURM_ARRAY_TASK_ID}	$exitcode" \
       >> "${SLURM_JOB_NAME}"."${SLURM_ARRAY_JOB_ID}".tsv
 echo Finished tasks "${SLURM_ARRAY_TASK_ID}" with exit code $exitcode
 exit $exitcode
