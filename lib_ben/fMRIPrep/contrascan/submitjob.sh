@@ -1,20 +1,22 @@
 #! /bin/bash
+
 # Script to submit contrascan to HiPerGator to process with fMRIPrep in a Singularity container.
 # Shamelessly stolen from https://fmriprep.org/en/stable/singularity.html on 9/3/2020
 # then further edited by Benjamin Velie.
 # veliebm@gmail.com
-#
-#SBATCH -J fmriprep                         # The name of the job.    
-#SBATCH --time=48:00:00                     # Time limit on the job.
-#SBATCH -n 1                                # Number of tasks.
-#SBATCH --cpus-per-task=2
-#SBATCH --mem-per-cpu=4G
-#SBATCH --qos akeil                         # Here we name which quality of service level we want to use. akeil is the low resources one we can use easily, akeil-b is our high-performance one you'll probably need to wait a while in line to use.
+
+#SBATCH --job-name=fmriprep				# Job name
+#SBATCH --nodes=1						# Run all processes on a single node	
+#SBATCH --ntasks=1						# Run a single task		
+#SBATCH --cpus-per-task=2				# Number of CPU cores per task
+#SBATCH --mem=8gb						# Job memory request
+#SBATCH --time=2-00:00:00				# Walltime in hh:mm:ss or d-hh:mm:ss
 # Outputs ----------------------------------
-#SBATCH -o Logs/%x-%A-%a.out
-#SBATCH -e Logs/%x-%A-%a.err
-#SBATCH --mail-user=veliebm@ufl.edu         # Your UF email address so you can get updates about the job.
-#SBATCH --mail-type=ALL                     # What notifications to send to your email.
+#SBATCH --mail-type=ALL					# Mail events (NONE, BEGIN, END, FAIL, ALL)
+#SBATCH --mail-user=veliebm@ufl.edu		# Where to send mail	
+#SBATCH --output=%x-%A-%a.log			# Standard output log
+#SBATCH --error=%x-%A-%a.err			# Standard error log
+pwd; hostname; date						# Useful things we'll want to see in the log
 # ------------------------------------------
 
 BIDS_DIR="$STUDY"
