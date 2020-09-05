@@ -43,7 +43,7 @@ def initialize_config_file():
     config.read(CONFIG_NAME)
 
     # Save our changes to the config file.
-    with open('config.ini', 'w') as config_file:
+    with open(CONFIG_NAME, 'w') as config_file:
         config.write(config_file)
 def OS_default_config():
     """
@@ -67,7 +67,6 @@ def OS_default_config():
             "path to x server": "C:/Program Files/VcXsrv/vcxsrv.exe",
             "name of x server process": "vcxsrv.exe",
             "display": "DISPLAY=host.docker.internal:0",
-            "enable display": "False"
             }
         }
 
@@ -110,11 +109,8 @@ def launch_xserver():
     """
     Launch X Server if it isn't already running.
     """
-    enable_display = read_config()["enable display"].lower()
     
-    if not enable_display == "true":
-        print(f"'enable display' is not set equal to 'True' in {CONFIG_NAME}")
-    elif not xserver_running():
+    if not xserver_running():
         print("Starting X Server")
         while not xserver_running():
             start_xserver_process()
@@ -209,10 +205,6 @@ def get_container_args():
                  "-p", # Set the port.
                  config_dict["port"],
                  ]
-
-    if config_dict["enable display"].lower() == "true":
-        args_list.append("--env")
-        args_list.append(config_dict["display"])
 
     args_list.append(config_dict["image"]) # Set the image to run within the container.
     args_list.append(config_dict["program to run inside container"]) # Set the program to run within the container.
