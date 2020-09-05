@@ -1,1 +1,1 @@
-These are the scripts I'm using to process Kiersten's study in Fall 2020.
+These are the scripts I'm using to process Kiersten's study in fall 2020.
