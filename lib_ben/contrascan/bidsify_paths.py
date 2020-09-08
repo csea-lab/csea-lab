@@ -10,7 +10,7 @@ veliebm@ufl.edu
 """
 
 import argparse
-from lib_ben.contrascan import bidsify_paths_template
+import bidsify_paths_template
 import pathlib
 import shutil
 
