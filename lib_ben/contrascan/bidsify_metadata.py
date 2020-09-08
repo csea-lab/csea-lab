@@ -15,10 +15,7 @@ import pandas
 import json
 
 # Python modules I wrote for CSEA
-import nifti
-import settings
-import vmrk
-import dat
+from lib_ben.contrascan import dat, vmrk, settings, nifti
 
 
 FILETYPES = {
