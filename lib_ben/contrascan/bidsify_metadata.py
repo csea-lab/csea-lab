@@ -82,9 +82,9 @@ def write_func_tsvs(file_dataframe):
         duration = file_dataframe[subject]["dat"].average_duration()
 
         # Prep a dataframe to write to .tsv.
-        tsv_tuples = [ ("onset", "duration") ]
+        tsv_tuples = [ ("onset", "duration", "trial_type") ]
         for onset in onsets:
-            tsv_tuples.append( (onset, duration) )
+            tsv_tuples.append( (onset, duration, "gabor") )
         tsv_dataframe = pandas.DataFrame(tsv_tuples)
 
         # Get .tsv path.
