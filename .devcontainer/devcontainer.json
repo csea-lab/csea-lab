@@ -1,0 +1,22 @@
+// For format details, see https://aka.ms/vscode-remote/devcontainer.json or this file's README at:
+// https://github.com/microsoft/vscode-dev-containers/tree/v0.134.1/containers/docker-existing-dockerfile
+
+{
+	"image": "nipype/nipype",
+	"name": "nipype",
+	"postStartCommand": "export DISPLAY=host.docker.internal:0",
+
+	// Folder outside the container to read
+	"mounts": ["source=C:\\,target=/readonly,type=bind,readonly"],
+
+	// Sets the run context to one level up instead of the .devcontainer folder.
+	"context": "..",
+
+	// Set *default* container specific settings.json values on container create.
+	"settings": { 
+		"terminal.integrated.shell.linux": null
+	},
+
+	// Add the IDs of extensions you want installed when the container is created.
+	"extensions": ["ms-python.python"],
+}
