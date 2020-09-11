@@ -56,6 +56,7 @@ class FirstLevel():
         self.Level1Design_result = self.Level1Design(self.SpecifySPMModel_result)
         self.EstimateModel_result = self.EstimateModel(self.Level1Design_result)
         self.EstimateContrast_result = self.EstimateContrast(self.EstimateModel_result)
+        self.write_report(self.EstimateContrast_result)
 
 
     def SUSAN(self):
@@ -140,6 +141,30 @@ class FirstLevel():
         )
 
 
+    def write_report(self, EstimateContrast_result):
+        """
+        Writes some files to subject folder to check the quality of the analysis.
+
+        """
+
+        contrast_path = pathlib.Path(EstimateContrast_result.outputs.spmT_images)
+        hash_id = contrast_path.parent.stem
+        output_path = self.output_dir / f"{contrast_path.stem}_{hash_id}.png"
+
+        print(f"Writing {output_path}")
+
+        plot_stat_map(
+            str(contrast_path),
+            output_file=str(output_path),
+            title=contrast_path.stem,
+            bg_img=str(self.anat_path),
+            threshold=3,
+            display_mode="y",
+            cut_coords=(-5, 0, 5, 10, 15),
+            dim=-1
+        )
+
+
     def time_repetition(self):
         """
         Returns the time repetition. To run SpecifySPMModel(), we need this.
@@ -209,27 +234,6 @@ class FirstLevel():
         return [cont01]
 
 
-    def write_report(self):
-        """
-        Writes some files to subject folder to check the quality of the analysis.
-
-        """
-
-        for contrast_path in self.output_dir.rglob("nipype-interfaces-spm-model-EstimateContrast/**/spmT*.nii"):
-            output_path = self.output_dir / f"{contrast_path.stem}.png"
-            print(f"Writing {output_path}")
-            plot_stat_map(
-                str(contrast_path),
-                output_file=str(output_path),
-                title=contrast_path.stem,
-                bg_img=str(self.anat_path),
-                threshold=3,
-                display_mode="y",
-                cut_coords=(-5, 0, 5, 10, 15),
-                dim=-1
-            )
-
-
 def _get_subject_id(path) -> str:
     """
     Returns the subject ID found in the input file name.
@@ -288,7 +292,7 @@ if __name__ == "__main__":
         for subject_dir in bids_dir.glob("sub-*"):
             subject_id = _get_subject_id(subject_dir)
             print(f"Processing subject {subject_id}")
-            FirstLevel(bids_dir, subject_id).write_report()
+            FirstLevel(bids_dir, subject_id)
 
     else:
-        FirstLevel(args.bids_dir, args.subject).write_report()
+        FirstLevel(args.bids_dir, args.subject)
