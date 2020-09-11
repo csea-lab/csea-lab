@@ -1,12 +1,13 @@
 """
-A script to run a 1st-level analysis the old-fashioned way.
+A script to run a 1st-level analysis the way it was meant to be done.
 
-That is, with a python script! Yay!
+That is, without any of these darn jupyter notebooks. Yuck.
 
 Created 9/9/2020 by Benjamin Velie.
 veliebm@gmail.com
 
 """
+
 
 import argparse
 import re
@@ -234,6 +235,7 @@ def _get_subject_id(path) -> str:
     Returns the subject ID found in the input file name.
 
     Returns "None" if no subject ID found.
+
     """
     
     potential_subject_ids = re.findall(r"sub-(\d+)", str(path))
