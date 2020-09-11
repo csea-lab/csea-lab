@@ -1,7 +1,7 @@
 """
 A script to run a 1st-level analysis the way it was meant to be done.
 
-That is, without any of these darn jupyter notebooks. Yuck.
+That is, without any of these darn jupyter notebooks or nipype nodes.
 
 Created 9/9/2020 by Benjamin Velie.
 veliebm@gmail.com
