@@ -12,6 +12,7 @@ import subprocess
 import os
 import platform
 import psutil
+import pathlib
 from copy import deepcopy
 from time import sleep
 
@@ -50,6 +51,7 @@ def OS_default_config():
     """
 
     home_directory = os.getenv('USERPROFILE')
+    repository_directory = pathlib.Path().absolute().parent.parent
 
     default_config = {
         "DEFAULT": {
@@ -62,6 +64,7 @@ def OS_default_config():
             "read-only directory": "C:/",
             "where to mount read-only directory inside container": "/readonly/",
             "working directory inside container": "/read-write/",
+            "path to repository": str(repository_directory),
             "path to docker": "C:/Program Files/Docker/Docker/Docker Desktop.exe",
             "path to x server": "C:/Program Files/VcXsrv/vcxsrv.exe",
             "name of x server process": "vcxsrv.exe",
@@ -199,6 +202,8 @@ def get_container_args():
                  config_dict["read/write directory"] + ":" + config_dict["where to mount read/write directory inside container"],
                  "--volume", # Set the directory to read from.
                  config_dict["read-only directory"] + ":" + config_dict["where to mount read-only directory inside container"] + ":ro",
+                 "--volume", # Mount the csea-lab repository.
+                 config_dict["path to repository"] + ":" + "/csea-lab/",
                  "--workdir", # Set the working directory in the container.
                  config_dict["working directory inside container"],
                  "-p", # Set the port.
