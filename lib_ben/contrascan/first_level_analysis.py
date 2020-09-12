@@ -8,7 +8,7 @@ veliebm@gmail.com
 
 """
 
-
+import pytz
 from datetime import datetime
 import argparse
 import re
@@ -34,6 +34,7 @@ class FirstLevel():
 
     def __init__(self, bids_dir, subject_id, regressor_names):
 
+        self.timezone = pytz.timezone("US/Eastern")
         self.start_time = datetime.now()
         
         self.subject_id = subject_id
@@ -155,7 +156,7 @@ class FirstLevel():
         """
 
         # Make output dir.
-        formatted_start_time = self.start_time.strftime("%m-%d-%Y_%Ih%M%p")
+        formatted_start_time = self.start_time.astimezone(self.timezone).strftime("%m-%d-%Y_%Ih%M%p")
         output_dir = self.subject_dir / formatted_start_time
         output_dir.mkdir(exist_ok=True)
 
