@@ -13,6 +13,7 @@ from datetime import datetime
 import argparse
 import re
 import pathlib
+import shutil
 import json
 import pandas
 
@@ -32,7 +33,7 @@ class FirstLevel():
 
     """
 
-    def __init__(self, bids_dir, subject_id, regressor_names):
+    def __init__(self, bids_dir, subject_id, regressor_names, clear_cache):
 
         self.start_time = datetime.now()
         self.timezone = pytz.timezone("US/Eastern")
@@ -40,6 +41,7 @@ class FirstLevel():
         self.subject_id = subject_id
         self.bids_dir = pathlib.Path(bids_dir)
         self.regressor_names = regressor_names
+        self.clear_cache = clear_cache
 
         # Prepare subject directory.
         self.subject_dir = self.bids_dir / "derivatives" / "first_level_analysis" / f"sub-{subject_id}"
@@ -54,6 +56,10 @@ class FirstLevel():
 
         # Create nipype Memory object to manage nipype outputs.
         self.memory = Memory(str(self.subject_dir))
+        if self.clear_cache:
+            print("Clearing cache")
+            cache_path = self.subject_dir / "nipype_mem"
+            shutil.rmtree(cache_path)
 
         # Run necessary interfaces.
         self.SUSAN_result = self.SUSAN()
@@ -156,7 +162,7 @@ class FirstLevel():
         """
 
         # Make output dir.
-        formatted_start_time = self.start_time.astimezone(self.timezone).strftime("%m-%d-%Y_%Ih%M%p")
+        formatted_start_time = self.start_time.astimezone(self.timezone).strftime("%m-%d-%Y_%Ih%Mm%Ss_%p")
         output_dir = self.subject_dir / formatted_start_time
         output_dir.mkdir(exist_ok=True)
 
@@ -181,6 +187,7 @@ class FirstLevel():
         workflow_info = {
             "Time to complete workflow" : str(self.end_time - self.start_time),
             "Regressors included": self.regressor_names,
+            "Cache cleared before analysis": self.clear_cache,
             "Subject ID": self.subject_id
         }
 
@@ -294,6 +301,13 @@ if __name__ == "__main__":
                         help="List of regressors to use from fMRIPrep."
     )
 
+    parser.add_argument(
+        "-c",
+        "--clear-cache",
+        action='store_true',
+        help="Clears cache before running each subject. Use if you're testing processing times."
+    )
+
     group = parser.add_mutually_exclusive_group(required=True)
     group.add_argument("-s",
                         "--subject",
@@ -317,8 +331,8 @@ if __name__ == "__main__":
         for subject_dir in bids_dir.glob("sub-*"):
             subject_id = _get_subject_id(subject_dir)
             print(f"Processing subject {subject_id}")
-            FirstLevel(bids_dir, subject_id, args.regressors)
+            FirstLevel(bids_dir, subject_id, args.regressors, args.clear_cache)
 
     # Option 2: Process a single subject.
     else:
-        FirstLevel(args.bids_dir, args.subject, args.regressors)
+        FirstLevel(args.bids_dir, args.subject, args.regressors, args.clear_cache)
