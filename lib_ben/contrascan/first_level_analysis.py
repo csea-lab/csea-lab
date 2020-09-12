@@ -211,7 +211,7 @@ class FirstLevel():
                                       sep="\t",
                                       na_values="n/a")
         
-        regressors = [list(regressorinfo[regressor_name]) for regressor_name in self.regressor_names]
+        regressors = [list(regressorinfo[regressor_name].fillna(0)) for regressor_name in self.regressor_names]
 
         return [Bunch(conditions=conditions,
                     onsets=onsets,
