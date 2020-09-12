@@ -179,12 +179,13 @@ class FirstLevel():
         # Write info about the workflow into a json file.
         workflow_info = {
             "Time to complete workflow" : str(self.end_time - self.start_time),
+            "Regressors included": self.regressor_names
         }
 
         output_json_path = output_dir / f"workflow_info.json"
         print(f"Writing {output_json_path}")
         with open(output_json_path, "w") as json_file:
-            json.dump(workflow_info, json_file)
+            json.dump(workflow_info, json_file, indent="\t")
 
 
     def time_repetition(self):
