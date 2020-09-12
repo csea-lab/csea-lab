@@ -34,8 +34,8 @@ class FirstLevel():
 
     def __init__(self, bids_dir, subject_id, regressor_names):
 
-        self.timezone = pytz.timezone("US/Eastern")
         self.start_time = datetime.now()
+        self.timezone = pytz.timezone("US/Eastern")
         
         self.subject_id = subject_id
         self.bids_dir = pathlib.Path(bids_dir)
