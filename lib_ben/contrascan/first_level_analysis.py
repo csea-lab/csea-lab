@@ -60,9 +60,10 @@ class FirstLevel():
         self.Level1Design_result = self.Level1Design(self.SpecifySPMModel_result)
         self.EstimateModel_result = self.EstimateModel(self.Level1Design_result)
         self.EstimateContrast_result = self.EstimateContrast(self.EstimateModel_result)
-        self.write_report(self.EstimateContrast_result)
 
         self.end_time = datetime.now()
+
+        self.write_report()
 
 
     def SUSAN(self):
@@ -147,7 +148,7 @@ class FirstLevel():
         )
 
 
-    def write_report(self, EstimateContrast_result):
+    def write_report(self):
         """
         Writes some files to subject folder to check the quality of the analysis.
 
@@ -159,7 +160,7 @@ class FirstLevel():
         output_dir.mkdir(exist_ok=True)
 
         # Write the contrast image we generated.
-        input_contrast_path = pathlib.Path(EstimateContrast_result.outputs.spmT_images)
+        input_contrast_path = pathlib.Path(self.EstimateContrast_result.outputs.spmT_images)
         output_contrast_path = output_dir / f"{input_contrast_path.stem}.png"
 
         print(f"Writing {output_contrast_path}")
@@ -176,13 +177,14 @@ class FirstLevel():
         )
 
         # Write info about the workflow into a json file.
-        run_info = {
-            "Time to complete workflow" : 1
+        workflow_info = {
+            "Time to complete workflow" : str(self.end_time - self.start_time),
         }
+
         output_json_path = output_dir / f"workflow_info.json"
         print(f"Writing {output_json_path}")
         with open(output_json_path, "w") as json_file:
-            json.dump(run_info, json_file)
+            json.dump(workflow_info, json_file)
 
 
     def time_repetition(self):
