@@ -9,6 +9,7 @@ veliebm@gmail.com
 """
 
 
+from datetime import datetime
 import argparse
 import re
 import pathlib
@@ -31,14 +32,17 @@ class FirstLevel():
 
     """
 
-    def __init__(self, bids_dir, subject_id):
+    def __init__(self, bids_dir, subject_id, regressor_names):
 
+        self.start_time = datetime.now()
+        
         self.subject_id = subject_id
         self.bids_dir = pathlib.Path(bids_dir)
+        self.regressor_names = regressor_names
 
-        # Prepare output directory.
-        self.output_dir = self.bids_dir / "derivatives" / "first_level_analysis" / f"sub-{subject_id}"
-        self.output_dir.mkdir(exist_ok=True)
+        # Prepare subject directory.
+        self.subject_dir = self.bids_dir / "derivatives" / "first_level_analysis" / f"sub-{subject_id}"
+        self.subject_dir.mkdir(exist_ok=True)
 
         # Get paths to all files necessary for the analysis.
         self.bold_json_path = list(self.bids_dir.rglob(f"func/sub-{subject_id}*_task-*_bold.json"))[0]
@@ -48,7 +52,7 @@ class FirstLevel():
         self.regressors_path = list(self.bids_dir.rglob(f"func/sub-{subject_id}*_desc-confounds_regressors.tsv"))[0]
 
         # Create nipype Memory object to manage nipype outputs.
-        self.memory = Memory(str(self.output_dir))
+        self.memory = Memory(str(self.subject_dir))
 
         # Run necessary interfaces.
         self.SUSAN_result = self.SUSAN()
@@ -57,6 +61,8 @@ class FirstLevel():
         self.EstimateModel_result = self.EstimateModel(self.Level1Design_result)
         self.EstimateContrast_result = self.EstimateContrast(self.EstimateModel_result)
         self.write_report(self.EstimateContrast_result)
+
+        self.end_time = datetime.now()
 
 
     def SUSAN(self):
@@ -147,22 +153,29 @@ class FirstLevel():
 
         """
 
-        contrast_path = pathlib.Path(EstimateContrast_result.outputs.spmT_images)
-        hash_id = contrast_path.parent.stem
-        output_path = self.output_dir / f"{contrast_path.stem}_{hash_id}.png"
+        # Make output dir.
+        formatted_start_time = self.start_time.strftime("%m-%d-%y_%Ih%M%p")
+        output_dir = self.subject_dir / formatted_start_time
+        output_dir.mkdir(exist_ok=True)
 
-        print(f"Writing {output_path}")
+        # Write the contrast image we generated.
+        input_contrast_path = pathlib.Path(EstimateContrast_result.outputs.spmT_images)
+        output_contrast_path = output_dir / f"{input_contrast_path.stem}.png"
+
+        print(f"Writing {output_contrast_path}")
 
         plot_stat_map(
-            str(contrast_path),
-            output_file=str(output_path),
-            title=contrast_path.stem,
+            str(input_contrast_path),
+            output_file=str(output_contrast_path),
+            title=f"{input_contrast_path.stem}",
             bg_img=str(self.anat_path),
             threshold=3,
             display_mode="y",
             cut_coords=(-5, 0, 5, 10, 15),
             dim=-1
         )
+
+        # Write info about the workflow.
 
 
     def time_repetition(self):
@@ -197,16 +210,8 @@ class FirstLevel():
         regressorinfo = pandas.read_table(self.regressors_path,
                                       sep="\t",
                                       na_values="n/a")
-        regressors=[]
-        regressor_names=[]
-
-        for column_name in regressorinfo:
-
-            # Grab motion regressors
-            if "trans" in column_name or "rot" in column_name:
-                regressor_names.append(column_name)
-                regressors.append(list(regressorinfo[column_name].fillna(0)))
-
+        
+        regressors = [list(regressorinfo[regressor_name]) for regressor_name in self.regressor_names]
 
         return [Bunch(conditions=conditions,
                     onsets=onsets,
@@ -214,7 +219,7 @@ class FirstLevel():
                     #amplitudes=None,
                     #tmod=None,
                     #pmod=None,
-                    regressor_names=regressor_names,
+                    regressor_names=self.regressor_names,
                     regressors=regressors
                     )]
 
@@ -269,6 +274,14 @@ if __name__ == "__main__":
                         help="Root of the BIDS directory."
     )
 
+    parser.add_argument("-r",
+                        "--regressors",
+                        type=str,
+                        nargs='+',
+                        required=True,
+                        help="List of regressors to use from fMRIPrep."
+    )
+
     group = parser.add_mutually_exclusive_group(required=True)
     group.add_argument("-s",
                         "--subject",
@@ -284,7 +297,7 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-
+    # Process all subjects
     if args.all:
         bids_dir = pathlib.Path(args.bids_dir)
 
@@ -292,7 +305,8 @@ if __name__ == "__main__":
         for subject_dir in bids_dir.glob("sub-*"):
             subject_id = _get_subject_id(subject_dir)
             print(f"Processing subject {subject_id}")
-            FirstLevel(bids_dir, subject_id)
+            FirstLevel(bids_dir, subject_id, args.regressors)
 
+    # Process a single subject
     else:
-        FirstLevel(args.bids_dir, args.subject)
+        FirstLevel(args.bids_dir, args.subject, args.regressors)
