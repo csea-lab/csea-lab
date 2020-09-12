@@ -180,7 +180,8 @@ class FirstLevel():
         # Write info about the workflow into a json file.
         workflow_info = {
             "Time to complete workflow" : str(self.end_time - self.start_time),
-            "Regressors included": self.regressor_names
+            "Regressors included": self.regressor_names,
+            "Subject ID": self.subject_id
         }
 
         output_json_path = output_dir / f"workflow_info.json"
