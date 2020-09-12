@@ -285,20 +285,24 @@ if __name__ == "__main__":
 
     """
 
-    parser = argparse.ArgumentParser(description="Runs a first-level analysis on a subject from the fMRIPrepped contrascan dataset.",
-                                    epilog="The user must specify the location of the BIDS directory fMRIPrep was used on. They must also specify EITHER a specific subject OR all subjects. Cool stuff!")
-
-    parser.add_argument("bids_dir",
-                        type=str,
-                        help="Root of the BIDS directory."
+    parser = argparse.ArgumentParser(
+        description="Runs a first-level analysis on a subject from the fMRIPrepped contrascan dataset.",
+        epilog="The user must specify the location of the BIDS directory fMRIPrep was used on. They must also specify EITHER a specific subject OR all subjects. Cool stuff!"
     )
 
-    parser.add_argument("-r",
-                        "--regressors",
-                        type=str,
-                        nargs='+',
-                        required=True,
-                        help="List of regressors to use from fMRIPrep."
+    parser.add_argument(
+        "bids_dir",
+        type=str,
+        help="Root of the BIDS directory."
+    )
+
+    parser.add_argument(
+        "-r",
+        "--regressors",
+        type=str,
+        nargs='+',
+        required=True,
+        help="List of regressors to use from fMRIPrep."
     )
 
     parser.add_argument(
@@ -309,16 +313,20 @@ if __name__ == "__main__":
     )
 
     group = parser.add_mutually_exclusive_group(required=True)
-    group.add_argument("-s",
-                        "--subject",
-                        type=str,
-                        metavar="subject_id",
-                        help="Analyze a specific subject.")
+    group.add_argument(
+        "-s",
+        "--subject",
+        type=str,
+        metavar="subject_id",
+        help="Analyze a specific subject."
+    )
 
-    group.add_argument('-a',
-                        '--all',
-                        action='store_true',
-                        help="Analyze all subjects.")
+    group.add_argument(
+        '-a',
+        '--all',
+        action='store_true',
+        help="Analyze all subjects."
+    )
 
 
     args = parser.parse_args()
