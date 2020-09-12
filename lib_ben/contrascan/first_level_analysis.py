@@ -297,7 +297,7 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    # Process all subjects
+    # Option 1: Process all subjects.
     if args.all:
         bids_dir = pathlib.Path(args.bids_dir)
 
@@ -307,6 +307,6 @@ if __name__ == "__main__":
             print(f"Processing subject {subject_id}")
             FirstLevel(bids_dir, subject_id, args.regressors)
 
-    # Process a single subject
+    # Option 2: Process a single subject.
     else:
         FirstLevel(args.bids_dir, args.subject, args.regressors)
