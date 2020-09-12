@@ -155,7 +155,7 @@ class FirstLevel():
         """
 
         # Make output dir.
-        formatted_start_time = self.start_time.strftime("%m-%d-%y_%Ih%M%p")
+        formatted_start_time = self.start_time.strftime("%m-%d-%Y_%Ih%M%p")
         output_dir = self.subject_dir / formatted_start_time
         output_dir.mkdir(exist_ok=True)
 
