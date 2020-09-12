@@ -175,7 +175,14 @@ class FirstLevel():
             dim=-1
         )
 
-        # Write info about the workflow.
+        # Write info about the workflow into a json file.
+        run_info = {
+            "Time to complete workflow" : 1
+        }
+        output_json_path = output_dir / f"workflow_info.json"
+        print(f"Writing {output_json_path}")
+        with open(output_json_path, "w") as json_file:
+            json.dump(run_info, json_file)
 
 
     def time_repetition(self):
