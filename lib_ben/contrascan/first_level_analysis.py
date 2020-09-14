@@ -162,7 +162,7 @@ class FirstLevel():
         """
 
         # Make output dir.
-        formatted_start_time = self.start_time.astimezone(self.timezone).strftime("%m-%d-%Y_%Ih%Mm%Ss_%p")
+        formatted_start_time = self.start_time.astimezone(self.timezone).strftime("%Hh%Mm%Ss_%m-%d-%Y")
         output_dir = self.subject_dir / formatted_start_time
         output_dir.mkdir(exist_ok=True)
 
