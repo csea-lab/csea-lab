@@ -45,7 +45,7 @@ class FirstLevel():
 
         # Prepare subject directory.
         self.subject_dir = self.bids_dir / "derivatives" / "first_level_analysis" / f"sub-{subject_id}"
-        self.subject_dir.mkdir(exist_ok=True)
+        self.subject_dir.mkdir(exist_ok=True, parents=True)
 
         # Get paths to all files necessary for the analysis.
         self.bold_json_path = list(self.bids_dir.rglob(f"func/sub-{subject_id}*_task-*_bold.json"))[0]
