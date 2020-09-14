@@ -317,8 +317,7 @@ if __name__ == "__main__":
         "-s",
         "--subject",
         type=str,
-        metavar="subject_id",
-        help="Analyze a specific subject."
+        help="Analyze a specific subject ID."
     )
 
     group.add_argument(
