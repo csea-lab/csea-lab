@@ -33,7 +33,7 @@ class FirstLevel():
 
     """
 
-    def __init__(self, bids_dir, subject_id, regressor_names, clear_cache):
+    def __init__(self, bids_dir, subject_id, regressor_names, clear_cache=False):
 
         self.start_time = datetime.now()
         self.timezone = pytz.timezone("US/Eastern")
