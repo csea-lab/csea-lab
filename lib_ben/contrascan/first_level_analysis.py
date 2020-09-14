@@ -198,6 +198,10 @@ class FirstLevel():
 
         # Copy interface outputs to subject_dir
         self._copy_result(self.SUSAN_result, ignore_pattern="*_desc-preproc_bold_smooth.nii")
+        self._copy_result(self.SpecifySPMModel_result, ignore_pattern="*_desc-preproc_bold_smooth.nii")
+        self._copy_result(self.Level1Design_result)
+        self._copy_result(self.EstimateModel_result)
+        self._copy_result(self.EstimateContrast_result)
 
 
     def time_repetition(self):
@@ -274,15 +278,7 @@ class FirstLevel():
 
         """
 
-        interface_result_dir = None
-        # Use an output of the interface to find which directory it's in.
-        output_names = list(interface_result.outputs.visible_traits())
-        for output_name in output_names:
-            output = getattr(interface_result.outputs, output_name)
-            # Make sure output isn't undefined.
-            if type(output) == str:
-                interface_result_dir = pathlib.Path(output).parent
-                break
+        interface_result_dir = pathlib.Path(interface_result.runtime.cwd)
 
         interface_name = interface_result_dir.parent.stem
 
