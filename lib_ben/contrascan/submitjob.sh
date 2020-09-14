@@ -6,7 +6,6 @@
 # veliebm@gmail.com
 
 #SBATCH --job-name=fmriprep				# Job name
-#SBATCH --nodes=1						# Run all processes on a single node	
 #SBATCH --ntasks=1						# Run a single task		
 #SBATCH --cpus-per-task=2				# Number of CPU cores per task
 #SBATCH --mem=8gb						# Job memory request

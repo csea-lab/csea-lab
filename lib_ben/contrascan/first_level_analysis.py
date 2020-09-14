@@ -43,9 +43,14 @@ class FirstLevel():
         self.regressor_names = regressor_names
         self.clear_cache = clear_cache
 
-        # Prepare subject directory.
+        # Make subject directory.
         self.subject_dir = self.bids_dir / "derivatives" / "first_level_analysis" / f"sub-{subject_id}"
         self.subject_dir.mkdir(exist_ok=True, parents=True)
+
+        # Make output directory.
+        formatted_start_time = self.start_time.astimezone(self.timezone).strftime("%Hh%Mm%Ss_%m-%d-%Y")
+        self.output_dir = self.subject_dir / formatted_start_time
+        self.output_dir.mkdir(exist_ok=True)
 
         # Get paths to all files necessary for the analysis.
         self.bold_json_path = list(self.bids_dir.rglob(f"func/sub-{subject_id}*_task-*_bold.json"))[0]
@@ -161,14 +166,9 @@ class FirstLevel():
 
         """
 
-        # Make output dir.
-        formatted_start_time = self.start_time.astimezone(self.timezone).strftime("%Hh%Mm%Ss_%m-%d-%Y")
-        output_dir = self.subject_dir / formatted_start_time
-        output_dir.mkdir(exist_ok=True)
-
         # Write the contrast image we generated.
         input_contrast_path = pathlib.Path(self.EstimateContrast_result.outputs.spmT_images)
-        output_contrast_path = output_dir / f"{input_contrast_path.stem}.png"
+        output_contrast_path = self.output_dir / f"{input_contrast_path.stem}.png"
 
         print(f"Writing {output_contrast_path}")
 
@@ -191,10 +191,13 @@ class FirstLevel():
             "Subject ID": self.subject_id
         }
 
-        output_json_path = output_dir / f"workflow_info.json"
+        output_json_path = self.output_dir / f"workflow_info.json"
         print(f"Writing {output_json_path}")
         with open(output_json_path, "w") as json_file:
             json.dump(workflow_info, json_file, indent="\t")
+
+        # Copy interface outputs to subject_dir
+        self._copy_result(self.SUSAN_result, ignore_pattern="*_desc-preproc_bold_smooth.nii")
 
 
     def time_repetition(self):
@@ -256,6 +259,42 @@ class FirstLevel():
         cont01 = ['gabor', 'T', condition_names, [1]]
 
         return [cont01]
+
+
+    def _copy_result(self, interface_result, ignore_pattern="nothing at all"):
+        """
+        Copies interface results from the cache to the subject directory.
+
+        Parameters
+        ----------
+        interface_result : nipype interface result
+            Copies files created by this interface.
+        ignore_pattern : str
+            Ignore Unix-style file pattern when copying.
+
+        """
+
+        interface_result_dir = None
+        # Use an output of the interface to find which directory it's in.
+        output_names = list(interface_result.outputs.visible_traits())
+        for output_name in output_names:
+            output = getattr(interface_result.outputs, output_name)
+            # Make sure output isn't undefined.
+            if type(output) == str:
+                interface_result_dir = pathlib.Path(output).parent
+                break
+
+        interface_name = interface_result_dir.parent.stem
+
+        new_interface_result_dir = self.output_dir / interface_name
+
+        print(f"Copying {interface_name} and ignoring {ignore_pattern}")
+
+        shutil.copytree(
+            src=interface_result_dir,
+            dst=new_interface_result_dir,
+            ignore=shutil.ignore_patterns(ignore_pattern)
+        )
 
 
 def _get_subject_id(path) -> str:
