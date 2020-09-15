@@ -9,7 +9,7 @@
 #SBATCH --ntasks=1					# Run a single task		
 #SBATCH --cpus-per-task=2				# Number of CPU cores per task
 #SBATCH --mem=8gb						# Job memory request
-#SBATCH --time=2-00:00:00				# Walltime in hh:mm:ss or d-hh:mm:ss
+#SBATCH --time=0-00:05:00				# Walltime in hh:mm:ss or d-hh:mm:ss
 # Outputs ----------------------------------
 #SBATCH --mail-type=ALL					# Mail events (NONE, BEGIN, END, FAIL, ALL)
 #SBATCH --mail-user=veliebm@ufl.edu		      # Where to send mail	
@@ -23,7 +23,7 @@ DERIVS_DIR="derivatives/fmriprep"
 LOCAL_FREESURFER_DIR="$STUDY/derivatives/freesurfer"
 
 # Make sure FS_LICENSE is defined in the container.
-export SINGULARITYENV_FS_LICENSE=/blue/akeil/veliebm/Files/Licenses/freesurfer.txt
+export SINGULARITYENV_FS_LICENSE=/home/veliebm/.licenses/freesurfer.txt
 
 # Prepare some writeable bind-mount points.
 TEMPLATEFLOW_HOST_HOME=$HOME/.cache/templateflow
