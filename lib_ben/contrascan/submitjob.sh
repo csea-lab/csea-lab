@@ -40,7 +40,7 @@ SINGULARITY_CMD="singularity run --home $HOME --cleanenv $HOME/Files/Images/fmri
 find "${LOCAL_FREESURFER_DIR}/sub-$subject"/ -name "*IsRunning*" -type f -delete
 
 # Compose the command line.
-cmd="${SINGULARITY_CMD} $BIDS_DIR $DERIVS_DIR participant --participant-label $subject -vv --write-graph --resource-monitor --n-cpus 2 --mem 8"
+cmd="${SINGULARITY_CMD} $BIDS_DIR $DERIVS_DIR participant --participant-label $subject -vv --resource-monitor"
 
 # Setup done, run the command.
 echo Running task "${SLURM_ARRAY_TASK_ID}"
