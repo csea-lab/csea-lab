@@ -6,16 +6,16 @@
 # veliebm@gmail.com
 
 #SBATCH --job-name=fmriprep				# Job name
-#SBATCH --ntasks=1						# Run a single task		
+#SBATCH --ntasks=1					# Run a single task		
 #SBATCH --cpus-per-task=2				# Number of CPU cores per task
 #SBATCH --mem=8gb						# Job memory request
 #SBATCH --time=2-00:00:00				# Walltime in hh:mm:ss or d-hh:mm:ss
 # Outputs ----------------------------------
 #SBATCH --mail-type=ALL					# Mail events (NONE, BEGIN, END, FAIL, ALL)
-#SBATCH --mail-user=veliebm@ufl.edu		# Where to send mail	
-#SBATCH --output=%x-%A-%a.log			# Standard output log
-#SBATCH --error=%x-%A-%a.err			# Standard error log
-pwd; hostname; date						# Useful things we'll want to see in the log
+#SBATCH --mail-user=veliebm@ufl.edu		      # Where to send mail	
+#SBATCH --output=%x-%A-%a.log			      # Standard output log
+#SBATCH --error=%x-%A-%a.err			      # Standard error log
+pwd; hostname; date					# Useful things we'll want to see in the log
 # ------------------------------------------
 
 BIDS_DIR="$STUDY"
