@@ -15,6 +15,7 @@ import re
 import pathlib
 import shutil
 import json
+import pandas
 
 from nipype.interfaces.fsl import SUSAN
 from nipype.interfaces.afni import Deconvolve
@@ -43,6 +44,10 @@ class FirstLevel():
         # Make subject directory.
         self.subject_dir = self.bids_dir / "derivatives" / "first_level_analysis" / f"sub-{subject_id}"
         self.subject_dir.mkdir(exist_ok=True, parents=True)
+
+        # Make directory to store regressor files.
+        self.regressor_dir = self.subject_dir / "regressors"
+        self.regressor_dir.mkdir(exist_ok=True)
 
         # Make output directory.
         formatted_start_time = self.start_time.astimezone(self.timezone).strftime("%Hh%Mm%Ss_%m-%d-%Y")
@@ -96,6 +101,9 @@ class FirstLevel():
 
         """
 
+        # Prepare regressor text files to scan into the interface.
+        self._textify_regressors()
+
         return self.memory.cache(Deconvolve)(
             in_files=SUSAN_result.outputs.smoothed_file,
             stim_times=[
@@ -129,6 +137,26 @@ class FirstLevel():
         print(f"Writing {output_json_path}")
         with open(output_json_path, "w") as json_file:
             json.dump(workflow_info, json_file, indent="\t")
+
+
+    def _textify_regressors(self):
+        """
+        Converts a tsv file of regressors into a collection of text files.
+
+        Each column name becomes the name of a text file. Each value in that column is then
+        placed into the text file.
+
+        """
+
+        print("Textifying fmriprep regressors")
+
+        regressorinfo = pandas.read_table(self.regressors_path,
+                                      sep="\t",
+                                      na_values="n/a")
+
+        for column_name in regressorinfo:
+            column_path = self.regressor_dir / f"{column_name}.txt"
+            regressorinfo[column_name].to_csv(column_path, sep=' ', index=False, header=False)
 
 
     def _copy_result(self, interface_result, ignore_pattern="nothing at all"):
