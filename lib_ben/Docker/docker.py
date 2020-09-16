@@ -127,7 +127,7 @@ def start_xserver_process():
     xserver_path = read_config()["path to x server"]
     OS = get_OS()
     if OS == "Windows":
-        subprocess.Popen([xserver_path, ":0", "-multiwindow", "-clipboard", "-wgl"])
+        subprocess.Popen([xserver_path, ":0", "-multiwindow", "-clipboard", "-wgl", "-ac"])
     elif OS == "Mac":
         subprocess.Popen(f"open -a {xserver_path}", shell=True)
     elif OS == "Linux":
