@@ -1,6 +1,6 @@
 #! /bin/bash
 
-# Script to submit a contrascan subject to HiPerGator to process with fMRIPrep in a Singularity container.
+# Script to submit a subject from a BIDS dataset to HiPerGator to process with fMRIPrep in a Singularity container.
 # The easiest way to use this script is to launch it with start_submitjob.py
 
 # Shamelessly stolen from https://fmriprep.org/en/stable/singularity.html on 9/3/2020
