@@ -1,6 +1,7 @@
 #! /bin/bash
 
-# Script to submit contrascan to HiPerGator to process with fMRIPrep in a Singularity container.
+# Script to submit a contrascan subject to HiPerGator to process with fMRIPrep in a Singularity container.
+
 # Shamelessly stolen from https://fmriprep.org/en/stable/singularity.html on 9/3/2020
 # then further edited by Benjamin Velie.
 # veliebm@gmail.com
