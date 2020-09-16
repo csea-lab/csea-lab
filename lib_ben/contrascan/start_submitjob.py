@@ -1,6 +1,9 @@
 """
 Wrapper to start submit_job.sh for every subject in the target BIDS-valid dataset.
 
+Note that you MUST run this script with Python 3, not Python 2. Thus, to activate this script in
+HiPerGator, type "python3 start_submitjob.py" into the command line.
+
 Created 9/16/2020 by Ben Velie.
 veliebm@gmail.com
 
@@ -32,8 +35,6 @@ def _get_subject_id(path) -> str:
 
 if __name__ == "__main__":
     """
-    Enables usage of the program from a shell.
-
     The user must specify the location of the BIDS directory.
     They can also specify EITHER a specific subject OR all subjects. Cool stuff!
 
@@ -41,8 +42,8 @@ if __name__ == "__main__":
 
 
     parser = argparse.ArgumentParser(
-        description="Runs a first-level analysis on a subject from the fMRIPrepped contrascan dataset.",
-        epilog="The user may specify EITHER a specific subject OR all subjects. Cool stuff!"
+        description="Wraps submitjob.sh to run fMRIPrep on a BIDS-valid dataset by submitting it to HiPerGator.",
+        epilog="The user may specify EITHER a specific subject OR all subjects. All outputs will be placed in bids_dir/derivatives/"
     )
 
     parser.add_argument(
@@ -83,9 +84,9 @@ if __name__ == "__main__":
         for subject_dir in bids_dir.glob("sub-*"):
             subject_id = _get_subject_id(subject_dir)
             print(f"Submitting subject {subject_id}")
-            subprocess.Popen(["sbatch", args.path, subject_id])
+            subprocess.Popen(["sbatch", args.path, args.bids_dir, subject_id])
 
     # Option 2: Process a single subject.
     else:
         print(f"Submitting subject {args.subject}")
-        subprocess.Popen(["sbatch", args.path, args.subject])
+        subprocess.Popen(["sbatch", args.path, args.bids_dir, args.subject])
