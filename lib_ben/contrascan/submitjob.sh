@@ -1,6 +1,7 @@
 #! /bin/bash
 
 # Script to submit a contrascan subject to HiPerGator to process with fMRIPrep in a Singularity container.
+# The easiest way to use this script is to launch it with start_submitjob.py
 
 # Shamelessly stolen from https://fmriprep.org/en/stable/singularity.html on 9/3/2020
 # then further edited by Benjamin Velie.
@@ -19,13 +20,13 @@
 pwd; hostname; date					# Useful things we'll want to see in the log
 # ------------------------------------------
 
+# Set bids_dir equal to first command-line parameter and subject equal to the second
+BIDS_DIR="$1"
+subject="$2"
+
 export HOME="/blue/akeil/veliebm"
-BIDS_DIR="$HOME/Files/contrascan/BIDS3"
 DERIVS_DIR="$BIDS_DIR/derivatives"
 LOCAL_FREESURFER_DIR="$DERIVS_DIR/freesurfer"
-
-# Set subject equal to first argument after this script on the command line.
-subject=$1
 
 # Make sure FS_LICENSE is defined in the container.
 export SINGULARITYENV_FS_LICENSE="$HOME/Files/.licenses/freesurfer.txt"
