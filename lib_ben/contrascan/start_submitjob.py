@@ -12,25 +12,7 @@ veliebm@gmail.com
 import argparse
 import pathlib
 import subprocess
-import re
-
-
-def _get_subject_id(path) -> str:
-    """
-    Returns the subject ID found in the input file name.
-
-    Returns "None" if no subject ID found.
-
-    """
-    
-    potential_subject_ids = re.findall(r"sub-(\d+)", str(path))
-
-    try:
-        subject_id = potential_subject_ids[-1]
-    except IndexError:
-        subject_id = None
-
-    return subject_id
+import bids
 
 
 if __name__ == "__main__":
@@ -78,12 +60,10 @@ if __name__ == "__main__":
 
     # Option 1: Process all subjects.
     if args.all:
-        bids_dir = pathlib.Path(args.bids_dir)
+        bids_dataset = bids.layout.BIDSLayout(args.bids_dir)
+        subject_ids = bids_dataset.get_subjects()
 
-        # Extract subject id's from the folder names in bids_dir and run them through the program.
-        for subject_dir in bids_dir.glob("sub-*"):
-            subject_id = _get_subject_id(subject_dir)
-            print(f"Submitting subject {subject_id}")
+        for subject_id in subject_ids:
             subprocess.Popen(["sbatch", args.path, args.bids_dir, subject_id])
 
     # Option 2: Process a single subject.
