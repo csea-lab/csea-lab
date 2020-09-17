@@ -9,8 +9,6 @@ veliebm@gmail.com
 
 """
 
-import nipype.interfaces.afni as afni
-
 import pytz
 from datetime import datetime
 import argparse
@@ -21,6 +19,8 @@ import json
 import pandas
 
 from nipype.caching.memory import Memory
+import nipype.interfaces.afni as afni
+import bids
 
 
 class Preprocess():
@@ -33,18 +33,26 @@ class Preprocess():
 
     def __init__(self, bids_dir, subject_id, clear_cache=False):
 
+        print(f"Preprocessing subject {subject_id}")
+
         # Track time information.
         self.start_time = datetime.now()
         self._timezone = pytz.timezone("US/Eastern")
         
         # Store basic info.
         self.subject_id = subject_id
-        self.bids_dir = pathlib.Path(bids_dir)
+        self.bids = bids.layout.BIDSLayout(bids_dir)
+        self.bids_dir = pathlib.Path(self.bids.root)
         self.clear_cache = clear_cache
 
         # Make subject directory.
         self.subject_dir = self.bids_dir / "derivatives" / "preprocessing" / f"sub-{subject_id}"
         self.subject_dir.mkdir(exist_ok=True, parents=True)
+
+        # Load files of interest as BIDSFile objects.
+        self.anat = self.bids.get(subject=107, datatype="anat", suffix="T1w", extensions=".nii")[0]
+        self.func = self.bids.get(subject=107, datatype="func", suffix="bold", extensions=".nii")[0]
+        self.events = self.bids.get(subject=107, datatype="func", suffix="events", extensions=".tsv")[0]
 
         # Make output directory.
         formatted_start_time = self.start_time.astimezone(self._timezone).strftime("time-%H.%M.%S_date-%m.%d.%Y")
@@ -78,6 +86,7 @@ class Preprocess():
         print(f"Writing {output_json_path}")
         with open(output_json_path, "w") as json_file:
             json.dump(workflow_info, json_file, indent="\t")
+
 
     def _clear_cache(self):
         """
@@ -117,36 +126,6 @@ class Preprocess():
             dst=new_interface_result_dir,
             ignore=shutil.ignore_patterns(ignore_pattern)
         )
-
-
-def _get_subject_id(path) -> str:
-    """
-    Returns the subject ID found in the input file name.
-
-    
-    Parameters
-    ----------
-    path: str or pathlib.Path
-        String to search or path to the target file.
-
-
-    Returns
-    -------
-    str
-        Subject ID detected closest to the end of the filename.
-
-
-    Raises
-    ------
-    LookupError
-        If no subject ID found.
-
-    """
-    
-    try:
-        return re.findall(r"sub-(\d+)", str(path))[-1]
-    except IndexError:
-        raise LookupError("No subject ID found in path.")
 
 
 if __name__ == "__main__":
@@ -196,13 +175,11 @@ if __name__ == "__main__":
 
     # Option 1: Process all subjects.
     if args.all:
-        bids_dir = pathlib.Path(args.bids_dir)
+        bids_dataset = bids.layout.BIDSLayout(args.bids_dir)
+        subject_ids = bids_dataset.get_subjects()
 
-        # Extract subject id's from the folder names in bids_dir and run them through the program.
-        for subject_dir in bids_dir.glob("sub-*"):
-            subject_id = _get_subject_id(subject_dir)
-            print(f"Processing subject {subject_id}")
-            Preprocess(bids_dir, subject_id, args.clear_cache)
+        for subject_id in subject_ids:
+            Preprocess(args.bids_dir, subject_id, args.clear_cache)
 
     # Option 2: Process a single subject.
     else:
