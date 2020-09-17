@@ -150,9 +150,11 @@ class FirstLevel():
 
         print("Textifying fmriprep regressors")
 
-        regressorinfo = pandas.read_table(self.regressors_path,
-                                      sep="\t",
-                                      na_values="n/a")
+        regressorinfo = pandas.read_table(
+            self.regressors_path,
+            sep="\t",
+            na_values="n/a"
+        )
 
         for column_name in regressorinfo:
             column_path = self.regressor_dir / f"{column_name}.txt"
