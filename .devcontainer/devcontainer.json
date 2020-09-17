@@ -6,11 +6,9 @@
 	"name": "nipype",
 	"runArgs": ["--name=nipype"],
 
-	"postStartCommand": "export DISPLAY=host.docker.internal:0",
-
 	// Folder outside the container to read
 	"mounts": ["source=C:\\,target=/readonly,type=bind,readonly",
-	           "source=C:\\Users\\Ben\\Files\\Development\\Docker,target=/readwrite,type=bind"],
+	           "source=C:\\Users\\Ben\\Files\\Development\\CSEA,target=/readwrite,type=bind"],
 
 	// Sets the run context to one level up instead of the .devcontainer folder.
 	"context": "..",
