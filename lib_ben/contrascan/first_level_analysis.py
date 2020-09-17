@@ -105,6 +105,7 @@ class FirstLevel():
         self._textify_regressors()
 
         return self.memory.cache(Deconvolve)(
+            polort=6,
             in_files=SUSAN_result.outputs.smoothed_file,
             stim_times=[
                 (1, "/readwrite/misc_resources/sub-107_task-gabor_onsets.txt", "CSPLINzero(0,18,10)")
