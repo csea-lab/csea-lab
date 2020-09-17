@@ -50,7 +50,7 @@ class FirstLevel():
         self.regressor_dir.mkdir(exist_ok=True)
 
         # Make output directory.
-        formatted_start_time = self.start_time.astimezone(self.timezone).strftime("%Hh%Mm%Ss_%m-%d-%Y")
+        formatted_start_time = self.start_time.astimezone(self.timezone).strftime("time-%H.%M.%S_date-%m.%d.%Y")
         self.output_dir = self.subject_dir / formatted_start_time
         self.output_dir.mkdir(exist_ok=True)
 
