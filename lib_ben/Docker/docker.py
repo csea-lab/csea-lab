@@ -1,8 +1,18 @@
+"""
+Starts Docker, then starts the Docker image specified in config.ini.
+
+This process can be configured further by editing config.ini.
+
+Created 08/20 by Ben Velie.
+veliebm@gmail.com
+"""
+
 import configparser
 import subprocess
 import os
 import platform
 import psutil
+import pathlib
 from copy import deepcopy
 from time import sleep
 
@@ -33,36 +43,39 @@ def initialize_config_file():
     config.read(CONFIG_NAME)
 
     # Save our changes to the config file.
-    with open('config.ini', 'w') as config_file:
+    with open(CONFIG_NAME, 'w') as config_file:
         config.write(config_file)
 def OS_default_config():
     """
     Returns the default config dictionary for the current operating system.
     """
 
+    home_directory = os.getenv('USERPROFILE')
+    repository_directory = pathlib.Path().absolute().parent.parent
+
     default_config = {
         "DEFAULT": {
             "image": "afni/afni",
             "name": "afni",
             "program to run inside container": "bash",
-            "port": "8889",
-            "read/write directory": "C:/Volumes/volume/",
-            "where to mount read/write directory inside container": "/read-write/",
+            "port": "8888:8888",
+            "read/write directory": f"{home_directory}/Files/Development/Docker",
+            "where to mount read/write directory inside container": "/readwrite/",
             "read-only directory": "C:/",
-            "where to mount read-only directory inside container": "/read-only/",
-            "working directory inside container": "/read-write/",
+            "where to mount read-only directory inside container": "/readonly/",
+            "working directory inside container": "/readwrite/",
+            "path to repository": str(repository_directory),
             "path to docker": "C:/Program Files/Docker/Docker/Docker Desktop.exe",
             "path to x server": "C:/Program Files/VcXsrv/vcxsrv.exe",
             "name of x server process": "vcxsrv.exe",
             "display": "DISPLAY=host.docker.internal:0",
-            "enable display": "False"
             }
         }
 
     windows_config = deepcopy(default_config)
 
     # Overwrite the default config with mac values.
-    mac_overwrite = {"read/write directory": "$HOME/Docker",
+    mac_overwrite = { "read/write directory": "$HOME/Docker",
         "read-only directory": "/",
         "path to docker": "/Applications/Docker.app",
         "path to x server": "/Applications/Utilities/XQuartz.app",
@@ -73,7 +86,7 @@ def OS_default_config():
     mac_config["DEFAULT"].update(mac_overwrite)
 
     # Overwrite the default config with linux values.
-    linux_overwrite = {"read/write directory": "$HOME/Docker",
+    linux_overwrite = { "read/write directory": "$HOME/Docker",
         "read-only directory": "/",
         "path to docker": "",
         "path to x server": "",
@@ -98,11 +111,8 @@ def launch_xserver():
     """
     Launch X Server if it isn't already running.
     """
-    enable_display = read_config()["enable display"].lower()
     
-    if not enable_display == "true":
-        print(f"'enable display' is not set equal to 'True' in {CONFIG_NAME}")
-    elif not xserver_running():
+    if not xserver_running():
         print("Starting X Server")
         while not xserver_running():
             start_xserver_process()
@@ -114,10 +124,10 @@ def start_xserver_process():
     """
     Start whatever X Server you have on your OS.
     """
-    xserver_path = read_config()["x server path"]
+    xserver_path = read_config()["path to x server"]
     OS = get_OS()
     if OS == "Windows":
-        subprocess.Popen([xserver_path, ":0", "-multiwindow", "-clipboard", "-wgl"])
+        subprocess.Popen([xserver_path, ":0", "-multiwindow", "-clipboard", "-wgl", "-ac"])
     elif OS == "Mac":
         subprocess.Popen(f"open -a {xserver_path}", shell=True)
     elif OS == "Linux":
@@ -147,7 +157,7 @@ def start_docker_process():
     """
     Starts the Docker process.
     """
-    docker_path = read_config()["docker path"]
+    docker_path = read_config()["path to docker"]
     OS = get_OS()
     if OS == "Windows":
         subprocess.Popen(docker_path)
@@ -192,15 +202,13 @@ def get_container_args():
                  config_dict["read/write directory"] + ":" + config_dict["where to mount read/write directory inside container"],
                  "--volume", # Set the directory to read from.
                  config_dict["read-only directory"] + ":" + config_dict["where to mount read-only directory inside container"] + ":ro",
+                 "--volume", # Mount the csea-lab repository.
+                 config_dict["path to repository"] + ":" + "/csea-lab/",
                  "--workdir", # Set the working directory in the container.
                  config_dict["working directory inside container"],
                  "-p", # Set the port.
                  config_dict["port"],
                  ]
-
-    if config_dict["enable display"].lower() == "true":
-        args_list.append("--env")
-        args_list.append(config_dict["display"])
 
     args_list.append(config_dict["image"]) # Set the image to run within the container.
     args_list.append(config_dict["program to run inside container"]) # Set the program to run within the container.
