@@ -54,11 +54,8 @@ class Preprocess():
         # Create nipype Memory object to manage nipype outputs.
         self.memory = Memory(str(self.subject_dir))
         if self.clear_cache:
-            print("Clearing cache")
-            cache_path = self.subject_dir / "nipype_mem"
-            shutil.rmtree(cache_path)
+            self._clear_cache()
 
-        
         self.end_time = datetime.now()
 
         self.write_report()
@@ -81,6 +78,16 @@ class Preprocess():
         print(f"Writing {output_json_path}")
         with open(output_json_path, "w") as json_file:
             json.dump(workflow_info, json_file, indent="\t")
+
+    def _clear_cache(self):
+        """
+        Deletes the nipype cache.
+
+        """
+
+        print("Clearing cache")
+        cache_path = self.subject_dir / "nipype_mem"
+        shutil.rmtree(cache_path)
 
 
     def _copy_result(self, interface_result, ignore_pattern="nothing at all"):
