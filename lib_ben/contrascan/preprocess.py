@@ -131,6 +131,13 @@ class Preprocess():
         with open(output_json_path, "w") as json_file:
             json.dump(workflow_info, json_file, indent="\t")
 
+        # Store most of our results from each interface.
+        for result in self.results.values():
+            self._copy_result(result, ignore_patterns=(
+                "*_copy+orig.BRIK",
+                "*_bold.nii"
+                ))
+
 
     def _clear_cache(self):
         """
@@ -143,7 +150,7 @@ class Preprocess():
         shutil.rmtree(cache_path)
 
 
-    def _copy_result(self, interface_result, ignore_pattern="nothing at all"):
+    def _copy_result(self, interface_result, ignore_patterns=("nothing at all")):
         """
         Copies interface results from the cache to the subject directory.
 
@@ -152,8 +159,8 @@ class Preprocess():
         ----------
         interface_result : nipype interface result
             Copies files created by this interface.
-        ignore_pattern : str
-            Ignore Unix-style file pattern when copying.
+        ignore_patterns : iterable
+            Ignore Unix-style file patterns when copying.
 
         """
 
@@ -163,12 +170,12 @@ class Preprocess():
 
         new_interface_result_dir = self.output_dir / interface_name
 
-        print(f"Copying {interface_name} and ignoring {ignore_pattern}")
+        print(f"Copying {interface_name} and ignoring {ignore_patterns}")
 
         shutil.copytree(
             src=interface_result_dir,
             dst=new_interface_result_dir,
-            ignore=shutil.ignore_patterns(ignore_pattern)
+            ignore=shutil.ignore_patterns(*ignore_patterns)
         )
 
 
