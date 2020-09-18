@@ -661,18 +661,18 @@ contourf(taxis, faxis, meanaccuracy), colorbar
 
 
 %%
-% 8) do training AND test to averaged topographies, December 2019
+% 8) do training AND test to averaged topographies, July 2020
 % uses matlab k-fold crossvalidation
 % this one works focuses on alpha
 % load 4 d files. these come from here: 
 % [WaPower4d] = wavelet_app_matfiles_singtrials(filemat, 500, 10, 104, 5);
 % 
-% this for spp1 and app2
+% this for app1 and app2
 % i.e. this is about what happened in the past
  
-clear
-filemat3 = getfilesindir(pwd, '*001.mat.pow4*');
-filemat6 = getfilesindir(pwd, '*002.mat.pow4*');
+% clear
+filemat3 = getfilesindir(pwd, '*001.mat.pow4.mat.1oFout.mat'); %these have the 1/f taken out
+filemat6 = getfilesindir(pwd, '*002.mat.pow4.mat.1oFout.mat');
 
 mat3d3 = [];
 mat3d6 = [];
@@ -690,12 +690,12 @@ faxis = faxisfull(10:5:104);
  
 % now make a matrix for alpha frequency
 
-%for freq = 1:1
+% for freq = 1:17
         
 mat3d3 = [];
 mat3d6 = [];
     
-    disp('loading ... ')
+    disp('loading ... '), disp(freq); 
 
     
     %load that freq into workspace
@@ -703,12 +703,121 @@ mat3d6 = [];
          a3 = load(filemat3(x,:)); 
         temp = a3.WaPower4d; 
        %mat3d3 = cat(3, mat3d3, squeeze(mean(temp(:, :, 8:13, :), 3))); %alpha only
-       mat3d3 = cat(3, mat3d3, squeeze(mean(temp(:, :, 10:12, :), 3))); 
+      % mat3d3 = cat(3, mat3d3, squeeze(mean(temp(:, :, freq:freq+2, :), 3))); 
+      mat3d3 = cat(3, mat3d3, squeeze(mean(temp(:, :, 10, :), 3)));
         a6 = load(filemat6(x,:)); 
         temp = a6.WaPower4d; 
        %mat3d6 = cat(3, mat3d6, squeeze(mean(temp(:, :, 8:13, :), 3))); %alpha only
-       mat3d6 = cat(3, mat3d6, squeeze(mean(temp(:, :, 10:12, :), 3)));
+       %mat3d6 = cat(3, mat3d6, squeeze(mean(temp(:, :, freq:freq+2, :), 3)));
+       mat3d6 = cat(3, mat3d6, squeeze(mean(temp(:, :, 10, :), 3)));
         fprintf('-_'), if x/10 == round(x/10), disp(x), end
+    end
+    
+    % now average some trials before classifier
+    for x = 1:stepsize
+    mat3d3avg(:, :, x) = mean(mat3d3(:, :, x:stepsize:end), 3); 
+    mat3d6avg(:, :, x) = mean(mat3d6(:, :, x:stepsize:end), 3);     
+    end
+  
+    
+    labelvectorfull = [ones(size(mat3d3avg,3),1).*3;  ones(size(mat3d6avg,3),1).*6];
+
+
+disp('... done! starting classification.')
+
+timepointindex = 1; 
+
+Y = labelvectorfull'; 
+
+for timepoint = 1:size(mat3d3avg,2)
+
+         trainmatfull = z_norm([squeeze((mat3d3avg(channels, timepoint, : )))'; squeeze((mat3d6avg(channels, timepoint, :)))']); % 1st dim are channels  
+         
+         objforweights = fitclinear(trainmatfull(:,:)',labelvectorfull, 'Solver','sparsa', 'ObservationsIn','columns');    
+         Weight_topo(freq, timepoint, :) = objforweights.Beta;     
+        
+         Ynoise =  labelvectorfull(randperm(length(labelvectorfull)))'; 
+         
+         obj = fitclinear(trainmatfull(:,:)',labelvectorfull, 'Kfold',20, 'Solver','sparsa', 'ObservationsIn','columns');         
+         %version control: this used to be 'Solver','sparsa','Regularization','lasso',
+         
+         Yhat = kfoldPredict(obj);
+  
+         aha = confusionmat(Y,Yhat); 
+         
+         ahanoise = confusionmat(Ynoise,Yhat); 
+        
+         meanaccuracy(freq, timepoint) = sum(diag(aha))./(sum(sum(aha))); 
+     
+         erroraccuracy(freq, timepoint) =  sum(diag(ahanoise))./(sum(sum(ahanoise))); % error for error bars. the eror stats needs more iterations
+
+    fprintf('.'); 
+    
+    timepointindex = timepointindex+1; 
+
+    if timepoint/50 == round(timepoint/50), disp(num2str(timepoint)), end
+
+end % timepoint
+% 
+ meanaccuracy(freq,:) = movmean(meanaccuracy(freq,:), 50); 
+ erroraccuracy(freq,:) = movmean(abs(erroraccuracy(freq,:)-0.5),50);
+
+figure
+shadedErrorBar(taxis, meanaccuracy(freq,:), erroraccuracy(freq,:))
+title(freq)
+pause(.5)
+
+% end % frequencies
+disp('Done done')
+
+%%
+% 9) do training AND test to averaged topographies, july 2020
+% uses matlab k-fold crossvalidation
+% this one  focuses on alpha
+% load 4 d files. these come from here: 
+% [WaPower4d] = wavelet_app_matfiles_singtrials(filemat, 500, 10, 104, 5);
+% 
+% this for app3 and app6
+% i.e. this is about expectancy
+ 
+clear
+filemat3 = getfilesindir(pwd, '*3.mat.pow4.mat');
+filemat6 = getfilesindir(pwd, '*6.mat.pow4.mat');
+
+mat3d3 = [];
+mat3d6 = [];
+
+channels =  [1:129];
+%channels =  [55 54 53 52 58 79 86 92 96 72 71 76 75 70 83 69 89 95 64 50 101 30 105 46 102 ];
+
+stepsize = 30; 
+
+taxis = -3600:10:1500;
+faxisfull = 0:0.1960:250; 
+faxis = faxisfull(10:5:104);
+ 
+% now make a matrix for alpha frequency
+
+for freq = 1:19-2
+        
+mat3d3 = [];
+mat3d6 = [];
+    
+    disp('loading ... '), disp(freq)
+
+    
+    %load that freq into workspace
+    for x = 1:size(filemat3,1)
+        a3 = load(filemat3(x,:)); 
+        temp = a3.WaPower4d; 
+       %mat3d3 = cat(3, mat3d3, squeeze(mean(temp(:, :, 8:13, :), 3))); %alpha only
+       mat3d3 = cat(3, mat3d3, squeeze(mean(temp(:, :, freq:freq+2, :), 3))); 
+        a6 = load(filemat6(x,:)); 
+        temp = a6.WaPower4d; 
+       %mat3d6 = cat(3, mat3d6, squeeze(mean(temp(:, :, 8:13, :), 3))); %alpha only
+       mat3d6 = cat(3, mat3d6, squeeze(mean(temp(:, :, freq:freq+2, :), 3)));
+        fprintf('-_'), if x/10 == round(x/10), disp(x), end
+        
     end
     
     % now average some trials before classifier
@@ -765,119 +874,20 @@ figure
 shadedErrorBar(taxis, meanaccuracy(freq,:), erroraccuracy(freq,:))
 pause(.5)
 
-%end % frequencies
-
-%%
-% 9) do training AND test to averaged topographies, December 2019
-% uses matlab k-fold crossvalidation
-% this one  focuses on alpha
-% load 4 d files. these come from here: 
-% [WaPower4d] = wavelet_app_matfiles_singtrials(filemat, 500, 10, 104, 5);
-% 
-% this for spp3 and app6
-% i.e. this is about expectancy
- 
-clear
-filemat3 = getfilesindir(pwd, '*3.mat.pow4*');
-filemat6 = getfilesindir(pwd, '*6.mat.pow4*');
-
-mat3d3 = [];
-mat3d6 = [];
-
-channels =  [1:129];
-%channels =  [55 54 53 52 58 79 86 92 96 72 71 76 75 70 83 69 89 95 64 50 101 30 105 46 102 ];
-
-stepsize = 30; 
-
-taxis = -3600:10:1500;
-faxisfull = 0:0.1960:250; 
-faxis = faxisfull(10:5:104);
- 
-% now make a matrix for alpha frequency
-
-freq = 10
-%for freq = 1:1
-        
-mat3d3 = [];
-mat3d6 = [];
-    
-    disp('loading ... ')
-
-    
-    %load that freq into workspace
-    for x = 1:size(filemat3,1)
-        a3 = load(filemat3(x,:)); 
-        temp = a3.WaPower4d; 
-       %mat3d3 = cat(3, mat3d3, squeeze(mean(temp(:, :, 8:13, :), 3))); %alpha only
-       mat3d3 = cat(3, mat3d3, squeeze(mean(temp(:, :, 10, :), 3))); 
-        a6 = load(filemat6(x,:)); 
-        temp = a6.WaPower4d; 
-       %mat3d6 = cat(3, mat3d6, squeeze(mean(temp(:, :, 8:13, :), 3))); %alpha only
-       mat3d6 = cat(3, mat3d6, squeeze(mean(temp(:, :, 10, :), 3)));
-        fprintf('-_'), if x/10 == round(x/10), disp(x), end
-        
-    end
-    
-    % now average some trials before classifier
-    for x = 1:stepsize
-    mat3d3avg(:, :, x) = mean(mat3d3(:, :, x:stepsize:end), 3); 
-    mat3d6avg(:, :, x) = mean(mat3d6(:, :, x:stepsize:end), 3);     
-    end
-  
-    
-    labelvectorfull = [ones(size(mat3d3avg,3),1).*3;  ones(size(mat3d6avg,3),1).*6];
+end % frequencies
+disp('Done done')
 
 
-disp('... done! starting classification.')
 
-timepointindex = 1; 
 
-Y = labelvectorfull'; 
 
-for timepoint = 1:size(mat3d3avg,2)
-
-         trainmatfull = z_norm([squeeze((mat3d3avg(channels, timepoint, : )))'; squeeze((mat3d6avg(channels, timepoint, :)))']); % 1st dim are channels  
-         
-         objforweights = fitclinear(trainmatfull(:,:)',labelvectorfull, 'Solver','sparsa', 'ObservationsIn','columns');    
-         Weight_topo(freq, timepoint, :) = objforweights.Beta;     
-        
-         Ynoise =  labelvectorfull(randperm(length(labelvectorfull)))'; 
-         
-         obj = fitclinear(trainmatfull(:,:)',labelvectorfull, 'Kfold',20, 'Solver','sparsa', 'ObservationsIn','columns');         
-         %version control: this used to be 'Solver','sparsa','Regularization','lasso',
-         
-         Yhat = kfoldPredict(obj);
-  
-         aha = confusionmat(Y,Yhat); 
-         
-         ahanoise = confusionmat(Ynoise,Yhat); 
-        
-         meanaccuracy(freq, timepoint) = sum(diag(aha))./(sum(sum(aha))); 
-     
-         erroraccuracy(freq, timepoint) =  sum(diag(ahanoise))./(sum(sum(ahanoise))); % error for error bars. the eror stats needs more iterations
-
-    fprintf('.'); 
-    
-    timepointindex = timepointindex+1; 
-
-    if timepoint/50 == round(timepoint/50), disp(num2str(timepoint)), end
-
-end % timepoint
-% 
-meanaccuracy(freq,:) = movmean(meanaccuracy(freq,:), 20); 
- erroraccuracy(freq,:) = movmean(abs(erroraccuracy(freq,:)-0.5),20);
-
-pause(.5)
-figure
+for freq = 1:15
+subplot(5,3,freq)
 shadedErrorBar(taxis, meanaccuracy(freq,:), erroraccuracy(freq,:))
-pause(.5)
-
-%end % frequencies
-
-
-
-
-
+ylim([.3 .9])
+horzmark(.5)
+title(freq)
+end
 
 
 
