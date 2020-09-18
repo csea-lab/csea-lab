@@ -4,10 +4,19 @@ Script to preprocess subjects in Nipype using an AFNI-based pipeline.
 Subjects must be organized in BIDS-format. Also, this script was written to preprocess
 the contrascan dataset, so I don't know how useful it'll be for a different dataset.
 
+!!!WARNINGS!!!
+    - If you don't have an X Server properly configured and running AND you're running this script
+    in a container, the Align step will fail. This seems to be built into AFNI for some reason.
+
+
 Created 9/17/2020 by Benjamin Velie.
 veliebm@gmail.com
 
 """
+
+
+from nipype import config
+config.enable_debug_mode()
 
 import pytz
 from datetime import datetime
@@ -55,7 +64,7 @@ class Preprocess():
         self.events = self.bids.get(subject=107, datatype="func", suffix="events", extensions=".tsv")[0]
 
         # Make output directory.
-        formatted_start_time = self.start_time.astimezone(self._timezone).strftime("time-%H.%M.%S_date-%m.%d.%Y")
+        formatted_start_time = self.start_time.astimezone(self._timezone).strftime("date-%m.%d.%Y_time-%H.%M.%S")
         self.output_dir = self.subject_dir / formatted_start_time
         self.output_dir.mkdir(exist_ok=True)
 
@@ -64,9 +73,44 @@ class Preprocess():
         if self.clear_cache:
             self._clear_cache()
 
+        # Run our interfaces of interest. Store outputs in a dict.
+        self.results = {
+            "AlignEpiAnatPy" : self.AlignEpiAnatPy(func=self.func.path, anat=self.anat.path),
+        }
+
         self.end_time = datetime.now()
 
         self.write_report()
+
+
+    def AlignEpiAnatPy(self, anat, func):
+        """
+        Aligns our anatomical image to our functional image.
+
+        Wraps align_epi_anat.py. For help with the AFNI command refer to https://afni.nimh.nih.gov/pub/dist/doc/program_help/align_epi_anat.py.html
+        For help with the nipype interface refer to https://nipype.readthedocs.io/en/latest/api/generated/nipype.interfaces.afni.preprocess.html
+
+
+        Parameters
+        ----------
+        anat : str or pathlib.Path
+            Path to an anatomy file.
+        func : str or pathlib.Path
+            Path to a functional file.
+
+
+        Returns
+        -------
+        nipype InterfaceResult
+            An object to access the outputs of the interface.
+
+        """
+
+        return self.memory.cache(afni.preprocess.AlignEpiAnatPy)(
+            anat=str(anat),
+            in_file=str(func),
+            epi_base=10
+        )
 
 
     def write_report(self):
