@@ -76,6 +76,7 @@ class Preprocess():
         # Run our interfaces of interest. Store outputs in a dict.
         self.results = {
             "AlignEpiAnatPy" : self.AlignEpiAnatPy(func=self.func.path, anat=self.anat.path),
+
         }
 
         self.end_time = datetime.now()
@@ -87,8 +88,10 @@ class Preprocess():
         """
         Aligns our anatomical image to our functional image.
 
-        Wraps align_epi_anat.py. For help with the AFNI command refer to https://afni.nimh.nih.gov/pub/dist/doc/program_help/align_epi_anat.py.html
-        For help with the nipype interface refer to https://nipype.readthedocs.io/en/latest/api/generated/nipype.interfaces.afni.preprocess.html
+        Wraps align_epi_anat.py.
+        
+        AFNI command info: https://afni.nimh.nih.gov/pub/dist/doc/program_help/align_epi_anat.py.html
+        Nipype interface info: https://nipype.readthedocs.io/en/latest/api/generated/nipype.interfaces.afni.preprocess.html
 
 
         Parameters
