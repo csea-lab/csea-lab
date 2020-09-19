@@ -97,7 +97,22 @@ class FirstLevel():
         """
         Runs the first level regression on the smoothed functional image.
 
-        Returns a nipype InterfaceResult object.
+        Wraps 3dDeconvolve.
+        
+        AFNI command info: TODO
+        Nipype interface info: https://nipype.readthedocs.io/en/latest/api/generated/nipype.interfaces.afni.model.html#Deconvolve
+
+
+        Parameters
+        ----------
+        SUSAN_result : nipype InterfaceResult
+            Information about the outputs of the SUSAN step.
+
+
+        Returns
+        -------
+        nipype InterfaceResult
+            Information about the outputs of Deconvolve.
 
         """
 
@@ -107,12 +122,8 @@ class FirstLevel():
         return self.memory.cache(Deconvolve)(
             polort=6,
             in_files=SUSAN_result.outputs.smoothed_file,
-            stim_times=[
-                (1, "/readwrite/misc_resources/sub-107_task-gabor_onsets.txt", "CSPLINzero(0,18,10)")
-            ],
-            stim_label=[
-                (1, "all")
-            ]
+            stim_times=[(1, "/readwrite/misc_resources/sub-107_task-gabor_onsets.txt", "CSPLINzero(0,18,10)")],
+            stim_label=[(1, "all")]
         )
 
 
