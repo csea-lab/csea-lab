@@ -50,7 +50,7 @@ class FirstLevel():
         self.regressor_dir.mkdir(exist_ok=True)
 
         # Make output directory.
-        formatted_start_time = self.start_time.astimezone(self.timezone).strftime("time-%H.%M.%S_date-%m.%d.%Y")
+        formatted_start_time = self.start_time.astimezone(self.timezone).strftime("date-%m.%d.%Y_time-%H.%M.%S")
         self.output_dir = self.subject_dir / formatted_start_time
         self.output_dir.mkdir(exist_ok=True)
 
@@ -120,10 +120,20 @@ class FirstLevel():
         self._textify_regressors()
 
         return self.memory.cache(Deconvolve)(
-            polort=6,
-            in_files=SUSAN_result.outputs.smoothed_file,
-            stim_times=[(1, "/readwrite/misc_resources/sub-107_task-gabor_onsets.txt", "CSPLINzero(0,18,10)")],
-            stim_label=[(1, "all")]
+            args=' '.join(f"""
+                -input {SUSAN_result.outputs.smoothed_file}
+                -polort A
+                -num_stimts 7
+                -stim_times 1 /readwrite/contrascan/Resources/sub-107_task-gabor_onsets.txt 'CSPLINzero(0,18,10)'
+                -stim_label 1 all
+                -stim_file 2 {self.regressor_dir/'trans_x.txt'} -stim_base 2 -stim_label 2 trans_x
+                -stim_file 3 {self.regressor_dir/'trans_y.txt'} -stim_base 3 -stim_label 3 trans_y
+                -stim_file 4 {self.regressor_dir/'trans_z.txt'} -stim_base 4 -stim_label 4 trans_z
+                -stim_file 5 {self.regressor_dir/'rot_x.txt'} -stim_base 5 -stim_label 5 rot_x
+                -stim_file 6 {self.regressor_dir/'rot_y.txt'} -stim_base 6 -stim_label 6 rot_y
+                -stim_file 7 {self.regressor_dir/'rot_z.txt'} -stim_base 7 -stim_label 7 rot_z
+                -fout
+                """.replace("\n", " ").split())
         )
 
 
