@@ -49,6 +49,10 @@ class FirstLevel():
         self.regressor_dir = self.subject_dir / "regressors"
         self.regressor_dir.mkdir(exist_ok=True)
 
+        # Make directory to store subject info.
+        self.subject_info_dir = self.subject_dir / "subject_info"
+        self.subject_info_dir.mkdir(exist_ok=True)
+
         # Make output directory.
         formatted_start_time = self.start_time.astimezone(self.timezone).strftime("date-%m.%d.%Y_time-%H.%M.%S")
         self.output_dir = self.subject_dir / formatted_start_time
@@ -59,7 +63,7 @@ class FirstLevel():
         self.bold_tsv_path = list(self.bids_dir.rglob(f"func/sub-{subject_id}*_task-*_events.tsv"))[0]
         self.anat_path = list(self.bids_dir.rglob(f"anat/sub-{subject_id}*_desc-preproc_T1w.nii.gz"))[0]
         self.func_path = list(self.bids_dir.rglob(f"func/sub-{subject_id}*_desc-preproc_bold.nii.gz"))[0]
-        self.regressors_path = list(self.bids_dir.rglob(f"func/sub-{subject_id}*_desc-confounds_regressors.tsv"))[0]
+        self.regressors_tsv_path = list(self.bids_dir.rglob(f"func/sub-{subject_id}*_desc-confounds_regressors.tsv"))[0]
 
         # Create nipype Memory object to manage nipype outputs.
         self.memory = Memory(str(self.subject_dir))
@@ -126,7 +130,8 @@ class FirstLevel():
         """
 
         # Prepare regressor text files to scan into the interface.
-        self._break_tsv(self.bold_tsv_path, self.regressor_dir)
+        self._break_tsv(self.bold_tsv_path, self.subject_info_dir)
+        self._break_tsv(self.regressors_tsv_path, self.regressor_dir)
         
         amount_of_regressors = 1 + len(self.regressor_names)
 
@@ -136,7 +141,7 @@ class FirstLevel():
             -input {SUSAN_result.outputs.smoothed_file}
             -polort A
             -num_stimts {amount_of_regressors}
-            -stim_times 1 /readwrite/contrascan/Resources/sub-107_task-gabor_onsets.txt 'CSPLINzero(0,18,10)'
+            -stim_times 1 {self.subject_info_dir/'onset'}.txt 'CSPLINzero(0,18,10)'
             -stim_label 1 all
             -fout
 
