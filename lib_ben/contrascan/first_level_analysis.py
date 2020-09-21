@@ -127,22 +127,33 @@ class FirstLevel():
 
         # Prepare regressor text files to scan into the interface.
         self._textify_regressors()
+        
+        amount_of_regressors = 1 + len(self.regressor_names)
+
+        # Create string to pass to interface. Remove all unnecessary whitespace by default.
+        arg_string = ' '.join(f"""
+
+            -input {SUSAN_result.outputs.smoothed_file}
+            -polort A
+            -num_stimts {amount_of_regressors}
+            -stim_times 1 /readwrite/contrascan/Resources/sub-107_task-gabor_onsets.txt 'CSPLINzero(0,18,10)'
+            -stim_label 1 all
+            -fout
+
+        """.replace("\n", " ").split())
+
+        # Add individual stim files to the string.
+        for i, regressor_name in enumerate(self.regressor_names):
+            stim_number = i + 2
+
+            stim_file_info = f"-stim_file {stim_number} {self.regressor_dir/regressor_name}.txt -stim_base {stim_number}"
+            stim_label_info = f"-stim_label {stim_number} {regressor_name}"
+
+            arg_string += f" {stim_file_info} {stim_label_info}"
+
 
         return self.memory.cache(Deconvolve)(
-            args=' '.join(f"""
-                -input {SUSAN_result.outputs.smoothed_file}
-                -polort A
-                -num_stimts 7
-                -stim_times 1 /readwrite/contrascan/Resources/sub-107_task-gabor_onsets.txt 'CSPLINzero(0,18,10)'
-                -stim_label 1 all
-                -stim_file 2 {self.regressor_dir/'trans_x.txt'} -stim_base 2 -stim_label 2 trans_x
-                -stim_file 3 {self.regressor_dir/'trans_y.txt'} -stim_base 3 -stim_label 3 trans_y
-                -stim_file 4 {self.regressor_dir/'trans_z.txt'} -stim_base 4 -stim_label 4 trans_z
-                -stim_file 5 {self.regressor_dir/'rot_x.txt'} -stim_base 5 -stim_label 5 rot_x
-                -stim_file 6 {self.regressor_dir/'rot_y.txt'} -stim_base 6 -stim_label 6 rot_y
-                -stim_file 7 {self.regressor_dir/'rot_z.txt'} -stim_base 7 -stim_label 7 rot_z
-                -fout
-                """.replace("\n", " ").split())
+            args=arg_string
         )
 
 
