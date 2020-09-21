@@ -99,7 +99,7 @@ class FirstLevel():
 
         Wraps 3dDeconvolve.
         
-        AFNI command info: TODO
+        AFNI command info: https://afni.nimh.nih.gov/pub/dist/doc/program_help/3dDeconvolve.html
         Nipype interface info: https://nipype.readthedocs.io/en/latest/api/generated/nipype.interfaces.afni.model.html#Deconvolve
 
 
