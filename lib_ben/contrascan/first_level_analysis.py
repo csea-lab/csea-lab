@@ -81,7 +81,16 @@ class FirstLevel():
         """
         Smooths the functional image.
 
-        Returns a nipype InterfaceResult object.
+        Wraps FSL's SUSAN.
+
+        FSL command info: https://fsl.fmrib.ox.ac.uk/fsl/fslwiki/SUSAN
+        Nipype interface info: https://nipype.readthedocs.io/en/0.12.0/interfaces/generated/nipype.interfaces.fsl.preprocess.html#susan
+
+
+        Returns
+        -------
+        nipype InterfaceResult
+            Information about the outputs of SUSAN.
 
         """
 
@@ -97,7 +106,7 @@ class FirstLevel():
         """
         Runs the first level regression on the smoothed functional image.
 
-        Wraps 3dDeconvolve.
+        Wraps AFNI's 3dDeconvolve.
         
         AFNI command info: https://afni.nimh.nih.gov/pub/dist/doc/program_help/3dDeconvolve.html
         Nipype interface info: https://nipype.readthedocs.io/en/latest/api/generated/nipype.interfaces.afni.model.html#Deconvolve
