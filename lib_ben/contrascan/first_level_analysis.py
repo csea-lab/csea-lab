@@ -126,7 +126,7 @@ class FirstLevel():
         """
 
         # Prepare regressor text files to scan into the interface.
-        self._textify_regressors()
+        self._break_tsv(self.bold_tsv_path, self.regressor_dir)
         
         amount_of_regressors = 1 + len(self.regressor_names)
 
@@ -181,26 +181,29 @@ class FirstLevel():
             json.dump(workflow_info, json_file, indent="\t")
 
 
-    def _textify_regressors(self):
+    def _break_tsv(self, tsv_path, output_dir):
         """
-        Converts a tsv file of regressors into a collection of text files.
+        Converts a tsv file into a collection of text files.
 
         Each column name becomes the name of a text file. Each value in that column is then
         placed into the text file.
 
         """
 
-        print("Textifying fmriprep regressors")
+        tsv_path = pathlib.Path(tsv_path)
+        output_dir = pathlib.Path(output_dir)
 
-        regressorinfo = pandas.read_table(
-            self.regressors_path,
+        print(f"Breaking up {tsv_path.name} and storing columns in {output_dir}")
+
+        tsv_info = pandas.read_table(
+            tsv_path,
             sep="\t",
             na_values="n/a"
         )
 
-        for column_name in regressorinfo:
-            column_path = self.regressor_dir / f"{column_name}.txt"
-            regressorinfo[column_name].to_csv(column_path, sep=' ', index=False, header=False)
+        for column_name in tsv_info:
+            column_path = output_dir / f"{column_name}.txt"
+            tsv_info[column_name].to_csv(column_path, sep=' ', index=False, header=False)
 
 
     def _copy_result(self, interface_result, ignore_pattern="nothing at all"):
