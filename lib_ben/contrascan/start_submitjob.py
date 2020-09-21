@@ -1,5 +1,5 @@
 """
-Wrapper to start submit_job.sh for every subject in the target BIDS-valid dataset.
+Process subjects from a BIDS-valid dataset via Singularity containers in the cluster.
 
 Note that you MUST run this script with Python 3, not Python 2. Thus, to activate this script in
 HiPerGator, type "python3 start_submitjob.py" into the command line.
@@ -21,6 +21,7 @@ SLURM_SCRIPT_NAME = "submitjob.sh"
 def write_script(time_requested, email_address):
     """
     Writes the SLURM script to the current working directory.
+    
 
     Parameters
     ----------
@@ -92,7 +93,7 @@ def _get_subject_id(path) -> str:
     Returns the subject ID found in the input file name.
 
     Returns "None" if no subject ID found.
-    
+
     """
     
     potential_subject_ids = re.findall(r"sub-(\d+)", str(path))
