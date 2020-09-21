@@ -15,7 +15,7 @@ import subprocess
 import re
 
 
-SLURM_SCRIPT_NAME = "submitjob.sh"
+SLURM_SCRIPT_NAME = "tmp_submitjob.sh"
 
 
 def write_script(time_requested, email_address):
