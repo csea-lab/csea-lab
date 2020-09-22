@@ -76,7 +76,7 @@ class Preprocess():
         # Run our interfaces of interest. Store outputs in a dict.
         self.results = {
             "AlignEpiAnatPy" : self.AlignEpiAnatPy(func=self.func.path, anat=self.anat.path),
-
+            #"AutoTLRC" : self.AutoTLRC(anat=self.results["AlignEpiAnatPy"].outputs.)
         }
 
         self.end_time = datetime.now()
@@ -112,7 +112,31 @@ class Preprocess():
         return self.memory.cache(afni.preprocess.AlignEpiAnatPy)(
             anat=str(anat),
             in_file=str(func),
-            epi_base=10
+            epi_base=10,
+            epi2anat=True
+        )
+
+
+    def AutoTLRC(self, anat):
+        """
+        Transforms our anatomical dataset to align with a standard space template.
+
+        Wraps @auto_tlrc.
+        
+        AFNI command info: https://afni.nimh.nih.gov/pub/dist/doc/program_help/@auto_tlrc.html
+        Nipype interface info: https://nipype.readthedocs.io/en/latest/api/generated/nipype.interfaces.afni.preprocess.html#AutoTLRC
+
+
+        Parameters
+        ----------
+        anat : str or pathlib.Path
+            Path to an an anatomy file.
+
+        """
+
+        return self.memory.cache(afni.preprocess.AutoTLRC)(
+            base="MNI152NLin6Asym",
+            in_file=str(anat)
         )
 
 
