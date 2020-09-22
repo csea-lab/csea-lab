@@ -179,7 +179,7 @@ class FirstLevel():
             "Regressors included": self.regressor_names,
             "Cache cleared before analysis": self.clear_cache,
             "Subject ID": self.subject_id,
-            "Inputs": "fMRIPrep"
+            "Preprocessing source": "fMRIPrep"
         }
 
         output_json_path = self.output_dir / f"workflow_info.json"
