@@ -2,7 +2,7 @@
 Process subjects from a BIDS-valid dataset via Singularity containers in the cluster.
 
 Note that you MUST run this script with Python 3, not Python 2. Thus, to activate this script in
-HiPerGator, type "python3 start_submitjob.py" into the command line.
+HiPerGator, type "python3 submitjob_fmriprep.py" into the command line.
 
 Created 9/16/2020 by Ben Velie.
 veliebm@gmail.com
