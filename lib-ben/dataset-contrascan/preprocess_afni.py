@@ -6,7 +6,7 @@ the contrascan dataset, so I don't know how useful it'll be for a different data
 
 !!!WARNINGS!!!
     - If you don't have an X Server properly configured and running AND you're running this script
-    in a container, the Align step will fail. This seems to be built into AFNI for some reason.
+    in a container, the Align step will fail.
 
 
 Created 9/17/2020 by Benjamin Velie.
@@ -26,6 +26,7 @@ import pathlib
 import shutil
 import json
 import pandas
+from contextlib import suppress
 
 from nipype.caching.memory import Memory
 import nipype.interfaces.afni as afni
@@ -74,10 +75,9 @@ class Preprocess():
             self._clear_cache()
 
         # Run our interfaces of interest. Store outputs in a dict.
-        self.results = {
-            "AlignEpiAnatPy" : self.AlignEpiAnatPy(func=self.func.path, anat=self.anat.path),
-            #"AutoTLRC" : self.AutoTLRC(anat=self.results["AlignEpiAnatPy"].outputs.)
-        }
+        self.results = dict()
+        self.results["AlignEpiAnatPy"] = self.AlignEpiAnatPy(func=self.func.path, anat=self.anat.path)
+        #self.results["AutoTLRC"] = self.AutoTLRC(anat=self.results["AlignEpiAnatPy"].outputs.anat_al_orig)
 
         self.end_time = datetime.now()
 
@@ -199,10 +199,13 @@ class Preprocess():
 
         print(f"Copying {interface_name} and ignoring {ignore_patterns}")
 
-        shutil.copytree(
-            src=interface_result_dir,
-            dst=new_interface_result_dir,
-            ignore=shutil.ignore_patterns(*ignore_patterns)
+        # Supress error because shutil successfully copies the files even if it throws an exception.
+        with suppress(OSError):
+            shutil.copytree(
+                src=interface_result_dir,
+                dst=new_interface_result_dir,
+                ignore=shutil.ignore_patterns(*ignore_patterns),
+                copy_function=shutil.copyfile
         )
 
 
