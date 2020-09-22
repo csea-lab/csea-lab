@@ -139,6 +139,7 @@ class FirstLevel():
         arg_string = ' '.join(f"""
 
             -input {SUSAN_result.outputs.smoothed_file}
+            -GOFORIT 4
             -polort A
             -num_stimts {amount_of_regressors}
             -stim_times 1 {self.subject_info_dir/'onset'}.txt 'CSPLINzero(0,18,10)'
@@ -174,10 +175,11 @@ class FirstLevel():
 
         # Write info about the workflow into a json file.
         workflow_info = {
-            "Time to complete workflow" : str(self.end_time - self.start_time),
+            "Time to complete workflow": str(self.end_time - self.start_time),
             "Regressors included": self.regressor_names,
             "Cache cleared before analysis": self.clear_cache,
-            "Subject ID": self.subject_id
+            "Subject ID": self.subject_id,
+            "Inputs": "fMRIPrep"
         }
 
         output_json_path = self.output_dir / f"workflow_info.json"
