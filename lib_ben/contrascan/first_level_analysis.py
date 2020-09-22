@@ -200,11 +200,12 @@ class FirstLevel():
 
         print(f"Breaking up {tsv_path.name} and storing columns in {output_dir}")
 
+        # Read the .tsv file into a dataframe and fill n/a values with zero.
         tsv_info = pandas.read_table(
             tsv_path,
             sep="\t",
             na_values="n/a"
-        )
+        ).fillna(value=0)
 
         for column_name in tsv_info:
             column_path = output_dir / f"{column_name}.txt"
