@@ -237,17 +237,18 @@ class FirstLevel():
 
         """
 
+        # Get name of interface and paths to old dir and new dir.
         old_result_dir = pathlib.Path(interface_result.runtime.cwd)
-
         interface_name = old_result_dir.parent.stem
-
         new_result_dir = self.dirs["output"] / interface_name
 
         print(f"Copying {interface_name} and ignoring {ignore_patterns}")
 
+        # Delete result dir if it already exists.
         if new_result_dir.exists():
             shutil.rmtree(new_result_dir)
 
+        # Recursively copy old result dir to new location.
         shutil.copytree(
             src=old_result_dir,
             dst=new_result_dir,
