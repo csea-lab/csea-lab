@@ -29,7 +29,7 @@ class FirstLevel():
 
     """
 
-    def __init__(self, bids_dir, subject_id, regressor_names, clear_cache=False):
+    def __init__(self, bids_dir, subject_id, regressor_names, output_dir=None, clear_cache=False):
 
         # Track time information.
         self.start_time = datetime.now()
@@ -54,8 +54,11 @@ class FirstLevel():
         self.subject_info_dir.mkdir(exist_ok=True)
 
         # Make output directory.
-        formatted_start_time = self.start_time.astimezone(self.timezone).strftime("date-%m.%d.%Y_time-%H.%M.%S")
-        self.output_dir = self.subject_dir / formatted_start_time
+        if not output_dir:
+            formatted_start_time = self.start_time.astimezone(self.timezone).strftime("date-%m.%d.%Y_time-%H.%M.%S")
+            self.output_dir = self.subject_dir / formatted_start_time
+        else:
+            self.output_dir = self.subject_dir / output_dir
         self.output_dir.mkdir(exist_ok=True)
 
         # Get paths to all files necessary for the analysis.
@@ -296,6 +299,13 @@ if __name__ == "__main__":
         help="Clears cache before running each subject. Use if you're testing processing times."
     )
 
+    parser.add_argument(
+        "-o",
+        "--output_dir",
+        type=str,
+        help="Directory to store outputs in. Defaults to current date/time. Automaticall placed in subject directory."
+    )
+
     group = parser.add_mutually_exclusive_group(required=True)
     group.add_argument(
         "-s",
@@ -322,8 +332,8 @@ if __name__ == "__main__":
         for subject_dir in bids_dir.glob("sub-*"):
             subject_id = _get_subject_id(subject_dir)
             print(f"Processing subject {subject_id}")
-            FirstLevel(bids_dir, subject_id, args.regressors, args.clear_cache)
+            FirstLevel(bids_dir, subject_id, args.regressors, output_dir=args.output_dir, clear_cache=args.clear_cache)
 
     # Option 2: Process a single subject.
     else:
-        FirstLevel(args.bids_dir, args.subject, args.regressors, args.clear_cache)
+        FirstLevel(args.bids_dir, args.subject, args.regressors, output_dir=args.output_dir, clear_cache=args.clear_cache)
