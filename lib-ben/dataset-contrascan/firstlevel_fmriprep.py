@@ -260,16 +260,29 @@ def _get_subject_id(path) -> str:
     """
     Returns the subject ID found in the input file name.
 
-    Returns "None" if no subject ID found.
+
+    Inputs
+    ------
+    path : str or pathlib.Path
+        String or path containing the subject ID.
+
+
+    Returns
+    -------
+    str
+        Subject ID found in the filename
+
+
+    Raises
+    ------
+    IndexError
+        If no subject ID found in input filename.
 
     """
     
     potential_subject_ids = re.findall(r"sub-(\d+)", str(path))
 
-    try:
-        subject_id = potential_subject_ids[-1]
-    except IndexError:
-        subject_id = None
+    subject_id = potential_subject_ids[-1]
 
     return subject_id
 
