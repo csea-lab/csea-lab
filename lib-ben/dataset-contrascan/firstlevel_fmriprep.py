@@ -163,12 +163,17 @@ class FirstLevel():
 
         """
 
-        # Copy most of our results from each interface. Ignore some massive files.
+        # Copy our preprocessed anat file into our deconvolve directory to view with AFNI.
+        shutil.copyfile(
+            src=self.paths["anat"],
+            dst=pathlib.Path(self.results["Deconvolve"].runtime.cwd) / self.paths["anat"].name
+        )
+
+        # Copy most of our results from each interface. Ignore certain massive files.
         for result in self.results.values():
-            self._copy_result(result, ignore_patterns=(
-                "*_copy+orig.BRIK",
-                "*_bold.nii"
-                ))
+            self._copy_result(result, ignore_patterns=([
+                "*_desc-preproc_bold_smooth.nii",
+                ]))
 
         # Store workflow info into a dict.
         workflow_info = {
@@ -234,7 +239,7 @@ class FirstLevel():
             tsv_info[column_name].to_csv(column_path, sep=' ', index=False, header=False)
 
 
-    def _copy_result(self, interface_result, ignore_patterns=("nothing at all")):
+    def _copy_result(self, interface_result, ignore_patterns=["nothing at all"]):
         """
         Copies interface results from the cache to the subject directory.
 
@@ -243,7 +248,7 @@ class FirstLevel():
         ----------
         interface_result : nipype interface result
             Copies files created by this interface.
-        ignore_patterns : iterable
+        ignore_patterns : list
             Ignore Unix-style file patterns when copying.
 
         """
