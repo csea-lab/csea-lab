@@ -204,8 +204,17 @@ class FirstLevel():
         Each column name becomes the name of a text file. Each value in that column is then
         placed into the text file.
 
+
+        Parameters
+        ----------
+        tsv_path : str or pathlib.Path
+            Path to the .tsv file to read.
+        output_dir : str or pathlib.Path
+            Directory to write columns of the .tsv file to.
+
         """
 
+        # Get paths to the tsv and output dir.
         tsv_path = pathlib.Path(tsv_path)
         output_dir = pathlib.Path(output_dir)
 
@@ -218,6 +227,7 @@ class FirstLevel():
             na_values="n/a"
         ).fillna(value=0)
 
+        # Write each column of the dataframe.
         for column_name in tsv_info:
             column_path = output_dir / f"{column_name}.txt"
             tsv_info[column_name].to_csv(column_path, sep=' ', index=False, header=False)
