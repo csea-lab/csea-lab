@@ -75,9 +75,10 @@ class FirstLevel():
             cache_path = self.subject_dir / "nipype_mem"
             shutil.rmtree(cache_path)
 
-        # Run necessary interfaces.
-        self.SUSAN_result = self.SUSAN()
-        self.Deconvolve_result = self.Deconvolve(self.SUSAN_result)
+        # Run our interfaces of interest. Store outputs in a dict.
+        self.results = dict()
+        self.results["SUSAN"] = self.SUSAN()
+        self.results["Deconvolve"] = self.Deconvolve(self.results["SUSAN"])
         
         self.end_time = datetime.now()
 
@@ -173,8 +174,12 @@ class FirstLevel():
         """
 
         # Copy results of each interface to its own dir.
-        self._copy_result(self.SUSAN_result, ignore_pattern="*_desc-preproc_bold_smooth.nii")
-        self._copy_result(self.Deconvolve_result)
+        # Store most of our results from each interface.
+        for result in self.results.values():
+            self._copy_result(result, ignore_patterns=(
+                "*_copy+orig.BRIK",
+                "*_bold.nii"
+                ))
 
         # Write info about the workflow into a json file.
         workflow_info = {
@@ -217,16 +222,17 @@ class FirstLevel():
             tsv_info[column_name].to_csv(column_path, sep=' ', index=False, header=False)
 
 
-    def _copy_result(self, interface_result, ignore_pattern="nothing at all"):
+    def _copy_result(self, interface_result, ignore_patterns=("nothing at all")):
         """
         Copies interface results from the cache to the subject directory.
+
 
         Parameters
         ----------
         interface_result : nipype interface result
             Copies files created by this interface.
-        ignore_pattern : str
-            Ignore Unix-style file pattern when copying.
+        ignore_patterns : iterable
+            Ignore Unix-style file patterns when copying.
 
         """
 
@@ -236,12 +242,16 @@ class FirstLevel():
 
         new_interface_result_dir = self.output_dir / interface_name
 
-        print(f"Copying {interface_name} and ignoring {ignore_pattern}")
+        print(f"Copying {interface_name} and ignoring {ignore_patterns}")
+
+        if new_interface_result_dir.exists():
+            shutil.rmtree(new_interface_result_dir)
 
         shutil.copytree(
             src=interface_result_dir,
             dst=new_interface_result_dir,
-            ignore=shutil.ignore_patterns(ignore_pattern)
+            ignore=shutil.ignore_patterns(*ignore_patterns),
+            copy_function=shutil.copyfile
         )
 
 
