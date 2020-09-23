@@ -170,7 +170,7 @@ class FirstLevel():
                 "*_bold.nii"
                 ))
 
-        # Write info about the workflow into a json file.
+        # Store workflow info into a dict.
         workflow_info = {
             "Time to complete workflow": str(self.end_time - self.start_time),
             "Regressors included": self.regressor_names,
@@ -180,6 +180,7 @@ class FirstLevel():
             "Original source of regressors": str(self.paths["regressors_tsv"])
         }
 
+        # Write the workflow dict to a json file.
         output_json_path = self.dirs["output"] / f"workflow_info.json"
         print(f"Writing {output_json_path}")
         with open(output_json_path, "w") as json_file:
