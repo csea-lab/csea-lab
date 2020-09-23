@@ -8,7 +8,6 @@ veliebm@gmail.com
 
 """
 
-import pytz
 from datetime import datetime
 import argparse
 import re
