@@ -29,59 +29,49 @@ class FirstLevel():
 
     """
 
-    def __init__(self, bids_dir, subject_id, regressor_names, output_dir=None, clear_cache=False):
+    def __init__(self, bids_dir, subject_id, regressor_names, output_dir, clear_cache=False):
 
         # Track time information.
         self.start_time = datetime.now()
-        self.timezone = pytz.timezone("US/Eastern")
         
         # Store basic info.
         self.subject_id = subject_id
-        self.bids_dir = pathlib.Path(bids_dir)
         self.regressor_names = regressor_names
         self.clear_cache = clear_cache
 
-        # Make subject directory.
-        self.subject_dir = self.bids_dir / "derivatives" / "first_level_analysis" / f"sub-{subject_id}"
-        self.subject_dir.mkdir(exist_ok=True, parents=True)
+        # Store paths to directories we need in self.dirs.
+        self.dirs = dict()
+        self.dirs["bids_root"] = pathlib.Path(bids_dir)
+        self.dirs["fmriprep_root"] = self.dirs["bids_root"] / "derivatives" / "fmriprep"
+        self.dirs["subject_root"] = self.dirs["bids_root"] / "derivatives" / "first_level_analysis" / f"sub-{subject_id}"
+        self.dirs["regressors"] = self.dirs["subject_root"] / "regressors"
+        self.dirs["subject_info"] = self.dirs["subject_root"] / "subject_info"
+        self.dirs["output"] = self.dirs["subject_root"] / output_dir
 
-        # Make directory to store regressor files.
-        self.regressor_dir = self.subject_dir / "regressors"
-        self.regressor_dir.mkdir(exist_ok=True)
+        # Get paths to all files necessary for the analysis. Store in self.paths dict.
+        self.paths = dict()
+        self.paths["bold_json"] = list(self.dirs["bids_root"].rglob(f"func/sub-{subject_id}*_task-*_bold.json"))[0]
+        self.paths["events_tsv"] = list(self.dirs["bids_root"].rglob(f"func/sub-{subject_id}*_task-*_events.tsv"))[0]
+        self.paths["anat"] = list(self.dirs["fmriprep_root"].rglob(f"anat/sub-{subject_id}*_desc-preproc_T1w.nii.gz"))[0]
+        self.paths["func"] = list(self.dirs["fmriprep_root"].rglob(f"func/sub-{subject_id}*_desc-preproc_bold.nii.gz"))[0]
+        self.paths["regressors_tsv"] = list(self.dirs["fmriprep_root"].rglob(f"func/sub-{subject_id}*_desc-confounds_regressors.tsv"))[0]
 
-        # Make directory to store subject info.
-        self.subject_info_dir = self.subject_dir / "subject_info"
-        self.subject_info_dir.mkdir(exist_ok=True)
-
-        # Make output directory.
-        if not output_dir:
-            formatted_start_time = self.start_time.astimezone(self.timezone).strftime("date-%m.%d.%Y_time-%H.%M.%S")
-            self.output_dir = self.subject_dir / formatted_start_time
-        else:
-            self.output_dir = self.subject_dir / output_dir
-        self.output_dir.mkdir(exist_ok=True)
-
-        # Get paths to all files necessary for the analysis.
-        self.bold_json_path = list(self.bids_dir.rglob(f"func/sub-{subject_id}*_task-*_bold.json"))[0]
-        self.bold_tsv_path = list(self.bids_dir.rglob(f"func/sub-{subject_id}*_task-*_events.tsv"))[0]
-        self.anat_path = list(self.bids_dir.rglob(f"anat/sub-{subject_id}*_desc-preproc_T1w.nii.gz"))[0]
-        self.func_path = list(self.bids_dir.rglob(f"func/sub-{subject_id}*_desc-preproc_bold.nii.gz"))[0]
-        self.regressors_tsv_path = list(self.bids_dir.rglob(f"func/sub-{subject_id}*_desc-confounds_regressors.tsv"))[0]
+        # Create any directory that doesn't exist.
+        for directory in self.dirs.values():
+            directory.mkdir(exist_ok=True, parents=True)
 
         # Create nipype Memory object to manage nipype outputs.
-        self.memory = Memory(str(self.subject_dir))
+        self.memory = Memory(str(self.dirs["subject_root"]))
         if self.clear_cache:
-            print("Clearing cache")
-            cache_path = self.subject_dir / "nipype_mem"
-            shutil.rmtree(cache_path)
+            self._clear_cache()
 
         # Run our interfaces of interest. Store outputs in a dict.
         self.results = dict()
         self.results["SUSAN"] = self.SUSAN()
         self.results["Deconvolve"] = self.Deconvolve(self.results["SUSAN"])
         
+        # Record end time and write our report.
         self.end_time = datetime.now()
-
         self.write_report()
 
 
@@ -103,7 +93,7 @@ class FirstLevel():
         """
 
         return self.memory.cache(SUSAN)(
-            in_file=str(self.func_path),
+            in_file=str(self.paths["func"]),
             brightness_threshold=2000.0,
             fwhm=5.0,
             output_type="NIFTI"
@@ -134,8 +124,8 @@ class FirstLevel():
         """
 
         # Prepare regressor text files to scan into the interface.
-        self._break_tsv(self.bold_tsv_path, self.subject_info_dir)
-        self._break_tsv(self.regressors_tsv_path, self.regressor_dir)
+        self._break_tsv(self.paths["events_tsv"], self.dirs["subject_info"])
+        self._break_tsv(self.paths["regressors_tsv"], self.dirs["regressors"])
         
         amount_of_regressors = 1 + len(self.regressor_names)
 
@@ -146,7 +136,7 @@ class FirstLevel():
             -GOFORIT 4
             -polort A
             -num_stimts {amount_of_regressors}
-            -stim_times 1 {self.subject_info_dir/'onset'}.txt 'CSPLINzero(0,18,10)'
+            -stim_times 1 {self.dirs["subject_info"]/'onset'}.txt 'CSPLINzero(0,18,10)'
             -stim_label 1 all
             -fout
 
@@ -156,7 +146,7 @@ class FirstLevel():
         for i, regressor_name in enumerate(self.regressor_names):
             stim_number = i + 2
 
-            stim_file_info = f"-stim_file {stim_number} {self.regressor_dir/regressor_name}.txt -stim_base {stim_number}"
+            stim_file_info = f"-stim_file {stim_number} {self.dirs['regressors']/regressor_name}.txt -stim_base {stim_number}"
             stim_label_info = f"-stim_label {stim_number} {regressor_name}"
 
             arg_string += f" {stim_file_info} {stim_label_info}"
@@ -173,8 +163,7 @@ class FirstLevel():
 
         """
 
-        # Copy results of each interface to its own dir.
-        # Store most of our results from each interface.
+        # Copy most of our results from each interface. Ignore some massive files.
         for result in self.results.values():
             self._copy_result(result, ignore_patterns=(
                 "*_copy+orig.BRIK",
@@ -187,13 +176,25 @@ class FirstLevel():
             "Regressors included": self.regressor_names,
             "Cache cleared before analysis": self.clear_cache,
             "Subject ID": self.subject_id,
-            "Preprocessing source": "fMRIPrep"
+            "Interfaces used": [interface for interface in self.results],
+            "Original source of regressors": str(self.paths["regressors_tsv"])
         }
 
-        output_json_path = self.output_dir / f"workflow_info.json"
+        output_json_path = self.dirs["output"] / f"workflow_info.json"
         print(f"Writing {output_json_path}")
         with open(output_json_path, "w") as json_file:
             json.dump(workflow_info, json_file, indent="\t")
+
+
+    def _clear_cache(self):
+        """
+        Deletes the nipype cache.
+
+        """
+
+        print("Clearing cache")
+        cache_path = self.dirs["subject_root"] / "nipype_mem"
+        shutil.rmtree(cache_path)
 
 
     def _break_tsv(self, tsv_path, output_dir):
@@ -236,20 +237,20 @@ class FirstLevel():
 
         """
 
-        interface_result_dir = pathlib.Path(interface_result.runtime.cwd)
+        old_result_dir = pathlib.Path(interface_result.runtime.cwd)
 
-        interface_name = interface_result_dir.parent.stem
+        interface_name = old_result_dir.parent.stem
 
-        new_interface_result_dir = self.output_dir / interface_name
+        new_result_dir = self.dirs["output"] / interface_name
 
         print(f"Copying {interface_name} and ignoring {ignore_patterns}")
 
-        if new_interface_result_dir.exists():
-            shutil.rmtree(new_interface_result_dir)
+        if new_result_dir.exists():
+            shutil.rmtree(new_result_dir)
 
         shutil.copytree(
-            src=interface_result_dir,
-            dst=new_interface_result_dir,
+            src=old_result_dir,
+            dst=new_result_dir,
             ignore=shutil.ignore_patterns(*ignore_patterns),
             copy_function=shutil.copyfile
         )
@@ -283,14 +284,20 @@ if __name__ == "__main__":
     """
 
     parser = argparse.ArgumentParser(
-        description="Runs a first-level analysis on a subject from the fMRIPrepped contrascan dataset.",
+        description="Runs a first-level analysis on a subject from an fMRIPrepped dataset.",
         epilog="The user must specify the location of the BIDS directory fMRIPrep was used on. They must also specify EITHER a specific subject OR all subjects. Cool stuff!"
     )
 
     parser.add_argument(
-        "bids_dir",
+        "bids_root",
         type=str,
-        help="Root of the BIDS directory."
+        help="<Required> Path to the root of the BIDS directory."
+    )
+
+    parser.add_argument(
+        "output_dir",
+        type=str,
+        help="<Required> Directory to store outputs in. Overwrites anything already there. Automatically placed in subject directory."
     )
 
     parser.add_argument(
@@ -299,7 +306,7 @@ if __name__ == "__main__":
         type=str,
         nargs='+',
         required=True,
-        help="List of regressors to use from fMRIPrep."
+        help="<Required> List of regressors to use from fMRIPrep."
     )
 
     parser.add_argument(
@@ -309,26 +316,19 @@ if __name__ == "__main__":
         help="Clears cache before running each subject. Use if you're testing processing times."
     )
 
-    parser.add_argument(
-        "-o",
-        "--output_dir",
-        type=str,
-        help="Directory to store outputs in. Defaults to current date/time. Automaticall placed in subject directory."
-    )
-
     group = parser.add_mutually_exclusive_group(required=True)
     group.add_argument(
         "-s",
         "--subject",
         type=str,
-        help="Analyze a specific subject ID."
+        help="Analyze a specific subject ID. Mutually exclusive with --all."
     )
 
     group.add_argument(
         '-a',
         '--all',
         action='store_true',
-        help="Analyze all subjects."
+        help="Analyze all subjects. Mutually exclusive with --subject."
     )
 
 
@@ -336,14 +336,14 @@ if __name__ == "__main__":
 
     # Option 1: Process all subjects.
     if args.all:
-        bids_dir = pathlib.Path(args.bids_dir)
+        bids_root = pathlib.Path(args.bids_root)
 
         # Extract subject id's from the folder names in bids_dir and run them through the program.
-        for subject_dir in bids_dir.glob("sub-*"):
+        for subject_dir in bids_root.glob("sub-*"):
             subject_id = _get_subject_id(subject_dir)
             print(f"Processing subject {subject_id}")
-            FirstLevel(bids_dir, subject_id, args.regressors, output_dir=args.output_dir, clear_cache=args.clear_cache)
+            FirstLevel(bids_root, subject_id, args.regressors, output_dir=args.output_dir, clear_cache=args.clear_cache)
 
     # Option 2: Process a single subject.
     else:
-        FirstLevel(args.bids_dir, args.subject, args.regressors, output_dir=args.output_dir, clear_cache=args.clear_cache)
+        FirstLevel(args.bids_root, args.subject, args.regressors, output_dir=args.output_dir, clear_cache=args.clear_cache)
