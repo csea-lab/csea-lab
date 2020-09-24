@@ -18,7 +18,7 @@ import re
 SLURM_SCRIPT_NAME = "submitjob_tmp.sh"
 
 
-def write_script(time_requested, email_address, number_of_processors, ram_requested):
+def write_script(time_requested, email_address, number_of_processors, ram_requested, qos):
     """
     Writes the SLURM script to the current working directory.
 
@@ -46,6 +46,7 @@ def write_script(time_requested, email_address, number_of_processors, ram_reques
 #SBATCH --cpus-per-task={number_of_processors}				# Number of CPU cores per task
 #SBATCH --mem={ram_requested}mb						# Job memory request
 #SBATCH --time={time_requested}				# Walltime in hh:mm:ss or d-hh:mm:ss
+#SBATCH --qos={qos}
 # Outputs ----------------------------------
 #SBATCH --mail-type=ALL					# Mail events (NONE, BEGIN, END, FAIL, ALL)
 #SBATCH --mail-user={email_address}		      # Where to send mail	
@@ -162,6 +163,14 @@ if __name__ == "__main__":
         metavar="MEMORY_IN_MB",
         help="Defaults to 8000 MB. Amount of memory to allocate for each subject."
     )
+
+    parser.add_argument(
+        "--qos",
+        "-q",
+        default="akeil",
+        choices=["akeil", "akeil-b"],
+        help="Defaults to regular QOS. Use akeil-b for burst QOS."
+    )
     
     group = parser.add_mutually_exclusive_group(required=True)
     group.add_argument(
@@ -185,7 +194,8 @@ if __name__ == "__main__":
         time_requested=args.time,
         email_address=args.email,
         number_of_processors=args.n_procs,
-        ram_requested=args.mem
+        ram_requested=args.mem,
+        qos=args.qos
     )
 
     # Option 1: Process all subjects.
