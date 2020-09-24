@@ -142,7 +142,7 @@ class Preprocess():
 
         """
 
-        # Write info about the workflow into a json file.
+        # Store info about the workflow in a dict.
         workflow_info = {
             "Time to complete workflow" : str(self.end_time - self.start_time),
             "Cache cleared before analysis": self.clear_cache,
@@ -150,12 +150,13 @@ class Preprocess():
             "Interfaces used": [interface for interface in self.results]
         }
 
+        # Write the dict to a json file.
         output_json_path = self.dirs["output"] / f"workflow_info.json"
         print(f"Writing {output_json_path}")
         with open(output_json_path, "w") as json_file:
             json.dump(workflow_info, json_file, indent="\t")
 
-        # Store most of our results from each interface.
+        # Copy over most of our results from each interface.
         for result in self.results.values():
             self._copy_result(result, ignore_patterns=(
                 "*_copy+orig.BRIK",
