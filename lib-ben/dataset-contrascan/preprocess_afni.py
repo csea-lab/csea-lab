@@ -78,8 +78,8 @@ class Preprocess():
         self.results["AlignEpiAnatPy"] = self.AlignEpiAnatPy()
         self.results["AutoTLRC"] = self.AutoTLRC()
 
+        # Write everything interesting to the computer.
         self.end_time = datetime.now()
-
         self.write_report()
 
 
