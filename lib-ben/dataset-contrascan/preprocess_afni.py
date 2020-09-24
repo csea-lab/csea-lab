@@ -200,13 +200,14 @@ class Preprocess():
         if new_result_dir.exists():
             shutil.rmtree(new_result_dir)
 
-        # Recursively copy old result dir to new location.
-        shutil.copytree(
-            src=old_result_dir,
-            dst=new_result_dir,
-            ignore=shutil.ignore_patterns(*ignore_patterns),
-            copy_function=shutil.copyfile
-        )
+        # Recursively copy old result dir to new location. Suppress OSError because the copying works even if an OSError is thrown.
+        with suppress(OSError):
+            shutil.copytree(
+                src=old_result_dir,
+                dst=new_result_dir,
+                ignore=shutil.ignore_patterns(*ignore_patterns),
+                copy_function=shutil.copyfile
+            )
 
 
 if __name__ == "__main__":
