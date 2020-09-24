@@ -14,10 +14,10 @@ veliebm@gmail.com
 
 """
 
-
 from nipype import config
 config.enable_debug_mode()
 
+import os
 import pytz
 from datetime import datetime
 import argparse
@@ -74,17 +74,17 @@ class Preprocess():
         if self.clear_cache:
             self._clear_cache()
 
-        # Run our interfaces of interest. Store outputs in a dict.
+        # Run our interfaces of interest. Store outputs in a dict. The order in which the interfaces run matters.
         self.results = dict()
-        self.results["AlignEpiAnatPy"] = self.AlignEpiAnatPy(func=self.func.path, anat=self.anat.path)
-        #self.results["AutoTLRC"] = self.AutoTLRC(anat=self.results["AlignEpiAnatPy"].outputs.anat_al_orig)
+        self.results["AlignEpiAnatPy"] = self.AlignEpiAnatPy()
+        self.results["AutoTLRC"] = self.AutoTLRC()
 
         self.end_time = datetime.now()
 
         self.write_report()
 
 
-    def AlignEpiAnatPy(self, anat, func):
+    def AlignEpiAnatPy(self):
         """
         Aligns our anatomical image to our functional image.
 
@@ -94,14 +94,6 @@ class Preprocess():
         Nipype interface info: https://nipype.readthedocs.io/en/latest/api/generated/nipype.interfaces.afni.preprocess.html
 
 
-        Parameters
-        ----------
-        anat : str or pathlib.Path
-            Path to an anatomy file.
-        func : str or pathlib.Path
-            Path to a functional file.
-
-
         Returns
         -------
         nipype InterfaceResult
@@ -109,15 +101,18 @@ class Preprocess():
 
         """
 
+        # Setup our X Server. Otherwise the interface won't work.
+        os.environ["DISPLAY"] = "host.docker.internal:0"
+
         return self.memory.cache(afni.preprocess.AlignEpiAnatPy)(
-            anat=str(anat),
-            in_file=str(func),
+            anat=self.anat.path,
+            in_file=self.func.path,
             epi_base=10,
-            epi2anat=True
+            epi2anat=False
         )
 
 
-    def AutoTLRC(self, anat):
+    def AutoTLRC(self):
         """
         Transforms our anatomical dataset to align with a standard space template.
 
@@ -127,16 +122,18 @@ class Preprocess():
         Nipype interface info: https://nipype.readthedocs.io/en/latest/api/generated/nipype.interfaces.afni.preprocess.html#AutoTLRC
 
 
-        Parameters
-        ----------
-        anat : str or pathlib.Path
-            Path to an an anatomy file.
+        Returns
+        -------
+        nipype InterfaceResult
+            An object to access the outputs of the interface.
 
         """
 
+        aligned_anat_path = next(pathlib.Path(self.results["AlignEpiAnatPy"].runtime.cwd).glob("*_T1w_al+orig.BRIK"))
+
         return self.memory.cache(afni.preprocess.AutoTLRC)(
-            base="MNI152NLin6Asym",
-            in_file=str(anat)
+            base="TT_avg152T1+tlrc",
+            in_file=aligned_anat_path
         )
 
 
@@ -214,54 +211,61 @@ if __name__ == "__main__":
     Enables usage of the program from a shell.
 
     The user must specify the location of the BIDS directory.
-    They can also specify EITHER a specific subject OR all subjects. Cool stuff!
+    They can also specify EITHER a specific subject OR all subjects.
 
     """
 
     parser = argparse.ArgumentParser(
-        description="Preprocesses a subject from the contrascan dataset.",
-        epilog="The user must specify the location of the target BIDS directory. They must also specify EITHER a specific subject OR all subjects. Cool stuff!"
+        description="Preprocesses a subject from the contrascan dataset. You can use a config file by appending @ to the config file name.",
+        epilog="The user must specify the location of the target BIDS directory. They must also specify EITHER a specific subject OR all subjects.",
+        fromfile_prefix_chars="@"
     )
 
     parser.add_argument(
-        "bids_dir",
+        "--bids_dir",
+        "-b",
         type=str,
-        help="Root of the BIDS directory."
-    )
-
-    parser.add_argument(
-        "-c",
-        "--clear-cache",
-        action='store_true',
-        help="Clears cache before running each subject. Use if you're testing processing times."
+        required=True,
+        help="<Mandatory> Path to the root of the BIDS directory."
     )
 
     group = parser.add_mutually_exclusive_group(required=True)
     group.add_argument(
+        "--subjects",
         "-s",
-        "--subject",
+        metavar="SUBJECT_ID",
         type=str,
-        help="Analyze a specific subject ID."
+        nargs="+",
+        help="<Mandatory> Preprocess a list of specific subject IDs. Mutually exclusive with --all."
     )
 
     group.add_argument(
-        '-a',
         '--all',
+        '-a',
         action='store_true',
-        help="Analyze all subjects."
+        help="<Mandatory> Analyze all subjects. Mutually exclusive with --subjects."
+    )
+
+    parser.add_argument(
+        "--clear-cache",
+        "-c",
+        action='store_true',
+        help="Clears cache before running each subject. Use if you're testing processing times."
     )
 
 
     args = parser.parse_args()
 
+    subject_ids = list()
+    bids_dataset = bids.layout.BIDSLayout(args.bids_dir)
+
     # Option 1: Process all subjects.
     if args.all:
-        bids_dataset = bids.layout.BIDSLayout(args.bids_dir)
         subject_ids = bids_dataset.get_subjects()
-
-        for subject_id in subject_ids:
-            Preprocess(args.bids_dir, subject_id, args.clear_cache)
-
-    # Option 2: Process a single subject.
+    
+    # Option 2: Process subjects selected by user.
     else:
-        Preprocess(args.bids_dir, args.subject, args.clear_cache)
+        subject_ids = args.subjects
+
+for subject_id in subject_ids:
+    Preprocess(args.bids_dir, subject_id, args.clear_cache)
