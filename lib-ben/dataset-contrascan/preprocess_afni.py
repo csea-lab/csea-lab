@@ -219,8 +219,7 @@ if __name__ == "__main__":
     """
 
     parser = argparse.ArgumentParser(
-        description="Preprocesses a subject from the contrascan dataset. You can use a config file by appending @ to the config file name.",
-        epilog="The user must specify the location of the target BIDS directory. They must also specify EITHER a specific subject OR all subjects.",
+        description=f"Preprocess a subject from the contrascan dataset. You must specify the path to the target BIDS directory. You also need to tell the program what you'd like the output directory to be named. Regarding which subjects to preprocess, you can specify EITHER a specific subject OR all subjects. Finally, you can use a config file by appending @ to the config file name and passing it as a positional argument to this program. (i.e. 'python {__file__} @config.txt [args...]')",
         fromfile_prefix_chars="@"
     )
 
