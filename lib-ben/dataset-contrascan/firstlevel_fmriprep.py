@@ -29,6 +29,8 @@ class FirstLevel():
     """
 
     def __init__(self, bids_dir, subject_id, regressor_names, output_dir, clear_cache=False):
+    
+        print(f"Processing subject {subject_id}")
 
         # Track time information.
         self.start_time = datetime.now()
@@ -313,66 +315,79 @@ if __name__ == "__main__":
     """
 
     parser = argparse.ArgumentParser(
-        description="Runs a first-level analysis on a subject from an fMRIPrepped dataset.",
-        epilog="The user must specify the location of the BIDS directory fMRIPrep was used on. They must also specify EITHER a specific subject OR all subjects. Cool stuff!"
+        description="Runs a first-level analysis on subjects from an fMRIPrepped dataset. The user must specify the path to the root of the raw BIDS directory fMRIPrep was run on. You must also specify EITHER a list of specific subjects OR all subjects. Finally, you can use a config file by appending @ to the config file name and passing it as a positional argument to this program. (i.e. 'python {__file__} @config.txt [args...]')",
+        fromfile_prefix_chars="@"
     )
 
     parser.add_argument(
-        "bids_root",
+        "--bids_dir",
+        "-b",
         type=str,
-        help="<Required> Path to the root of the BIDS directory."
+        required=True,
+        help="<Mandatory> Path to the root of the BIDS directory."
     )
 
     parser.add_argument(
-        "output_dir",
+        "--output_dir",
+        "-o",
         type=str,
-        help="<Required> Directory to store outputs in. Overwrites anything already there. Automatically placed in subject directory."
+        required=True,
+        help="<Mandatory> Name of output directory to use within subject directory."
     )
 
     parser.add_argument(
-        "-r",
         "--regressors",
+        "-r",
         type=str,
         nargs='+',
         required=True,
-        help="<Required> List of regressors to use from fMRIPrep."
-    )
-
-    parser.add_argument(
-        "-c",
-        "--clear-cache",
-        action='store_true',
-        help="Clears cache before running each subject. Use if you're testing processing times."
+        help="<Mandatory> List of regressors to use from fMRIPrep."
     )
 
     group = parser.add_mutually_exclusive_group(required=True)
     group.add_argument(
+        "--subjects",
         "-s",
-        "--subject",
+        metavar="SUBJECT_ID",
         type=str,
-        help="Analyze a specific subject ID. Mutually exclusive with --all."
+        nargs="+",
+        help="<Mandatory> Preprocess a list of specific subject IDs. Mutually exclusive with --all."
     )
 
     group.add_argument(
-        '-a',
         '--all',
+        '-a',
         action='store_true',
-        help="Analyze all subjects. Mutually exclusive with --subject."
+        help="<Mandatory> Analyze all subjects. Mutually exclusive with --subjects."
+    )
+
+    parser.add_argument(
+        "--clear-cache",
+        "-c",
+        action='store_true',
+        help="Clears cache before running each subject. Use if you're testing processing times."
     )
 
 
     args = parser.parse_args()
+    
+    subject_ids = list()
 
     # Option 1: Process all subjects.
     if args.all:
-        bids_root = pathlib.Path(args.bids_root)
-
-        # Extract subject id's from the folder names in bids_dir and run them through the program.
+        bids_root = pathlib.Path(args.bids_dir)
         for subject_dir in bids_root.glob("sub-*"):
-            subject_id = _get_subject_id(subject_dir)
-            print(f"Processing subject {subject_id}")
-            FirstLevel(bids_root, subject_id, args.regressors, output_dir=args.output_dir, clear_cache=args.clear_cache)
+            subject_ids.append(_get_subject_id(subject_dir))
 
-    # Option 2: Process a single subject.
+    # Option 2: Process specific subjects.
     else:
-        FirstLevel(args.bids_root, args.subject, args.regressors, output_dir=args.output_dir, clear_cache=args.clear_cache)
+        subject_ids = args.subjects
+
+    for subject_id in subject_ids:
+        FirstLevel(
+            bids_dir=args.bids_dir,
+            subject_id=subject_id,
+            regressor_names=args.regressors,
+            output_dir=args.output_dir,
+            clear_cache=args.clear_cache
+        )
