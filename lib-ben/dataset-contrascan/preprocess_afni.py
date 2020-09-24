@@ -100,7 +100,7 @@ class Preprocess():
 
         """
 
-        # Setup our X Server. Otherwise the interface won't work.
+        # Setup our X Server. Otherwise the interface won't work. Note that you still probably must manually start an X Server on your external computer.
         os.environ["DISPLAY"] = "host.docker.internal:0"
 
         return self.memory.cache(afni.preprocess.AlignEpiAnatPy)(
