@@ -18,7 +18,6 @@ from nipype import config
 config.enable_debug_mode()
 
 import os
-import pytz
 from datetime import datetime
 import argparse
 import re
@@ -41,36 +40,36 @@ class Preprocess():
 
     """
 
-    def __init__(self, bids_dir, subject_id, clear_cache=False):
+    def __init__(self, bids_dir, subject_id, output_dir, clear_cache=False):
 
         print(f"Preprocessing subject {subject_id}")
 
         # Track time information.
         self.start_time = datetime.now()
-        self._timezone = pytz.timezone("US/Eastern")
         
         # Store basic info.
         self.subject_id = subject_id
         self.bids = bids.layout.BIDSLayout(bids_dir)
-        self.bids_dir = pathlib.Path(self.bids.root)
         self.clear_cache = clear_cache
 
-        # Make subject directory.
-        self.subject_dir = self.bids_dir / "derivatives" / "preprocessing" / f"sub-{subject_id}"
-        self.subject_dir.mkdir(exist_ok=True, parents=True)
+        # Store all our dirs in one dict.
+        self.dirs = dict()
+        self.dirs["bids_root"] = pathlib.Path(bids_dir)     # Root of the raw BIDS dataset.
+        self.dirs["subject_root"] = self.dirs["bids_root"] / "derivatives" / "preprocessing_afni" / f"sub-{subject_id}"   # Root of where we'll output info for the subject.
+        self.dirs["output"] = self.dirs["subject_root"] / output_dir    # Where we'll output the results of this particular preprocessing run.
 
         # Load files of interest as BIDSFile objects.
-        self.anat = self.bids.get(subject=107, datatype="anat", suffix="T1w", extensions=".nii")[0]
-        self.func = self.bids.get(subject=107, datatype="func", suffix="bold", extensions=".nii")[0]
-        self.events = self.bids.get(subject=107, datatype="func", suffix="events", extensions=".tsv")[0]
+        self.files = dict()
+        self.files["anat"] = self.bids.get(subject=107, datatype="anat", suffix="T1w", extensions=".nii")[0]
+        self.files["func"] = self.bids.get(subject=107, datatype="func", suffix="bold", extensions=".nii")[0]
+        self.files["events"] = self.bids.get(subject=107, datatype="func", suffix="events", extensions=".tsv")[0]
 
-        # Make output directory.
-        formatted_start_time = self.start_time.astimezone(self._timezone).strftime("date-%m.%d.%Y_time-%H.%M.%S")
-        self.output_dir = self.subject_dir / formatted_start_time
-        self.output_dir.mkdir(exist_ok=True)
+        # Create any directory that doesn't exist.
+        for directory in self.dirs.values():
+            directory.mkdir(exist_ok=True, parents=True)
 
         # Create nipype Memory object to manage nipype outputs.
-        self.memory = Memory(str(self.subject_dir))
+        self.memory = Memory(str(self.dirs["subject_root"]))
         if self.clear_cache:
             self._clear_cache()
 
@@ -105,8 +104,8 @@ class Preprocess():
         os.environ["DISPLAY"] = "host.docker.internal:0"
 
         return self.memory.cache(afni.preprocess.AlignEpiAnatPy)(
-            anat=self.anat.path,
-            in_file=self.func.path,
+            anat=self.files["anat"].path,
+            in_file=self.files["func"].path,
             epi_base=10,
             epi2anat=False
         )
@@ -147,10 +146,11 @@ class Preprocess():
         workflow_info = {
             "Time to complete workflow" : str(self.end_time - self.start_time),
             "Cache cleared before analysis": self.clear_cache,
-            "Subject ID": self.subject_id
+            "Subject ID": self.subject_id,
+            "Interfaces used": [interface for interface in self.results]
         }
 
-        output_json_path = self.output_dir / f"workflow_info.json"
+        output_json_path = self.dirs["output"] / f"workflow_info.json"
         print(f"Writing {output_json_path}")
         with open(output_json_path, "w") as json_file:
             json.dump(workflow_info, json_file, indent="\t")
@@ -170,11 +170,11 @@ class Preprocess():
         """
 
         print("Clearing cache")
-        cache_path = self.subject_dir / "nipype_mem"
+        cache_path = self.dirs["subject_root"] / "nipype_mem"
         shutil.rmtree(cache_path)
 
 
-    def _copy_result(self, interface_result, ignore_patterns=("nothing at all")):
+    def _copy_result(self, interface_result, ignore_patterns=["nothing at all"]):
         """
         Copies interface results from the cache to the subject directory.
 
@@ -183,26 +183,28 @@ class Preprocess():
         ----------
         interface_result : nipype interface result
             Copies files created by this interface.
-        ignore_patterns : iterable
+        ignore_patterns : list
             Ignore Unix-style file patterns when copying.
 
         """
 
-        interface_result_dir = pathlib.Path(interface_result.runtime.cwd)
-
-        interface_name = interface_result_dir.parent.stem
-
-        new_interface_result_dir = self.output_dir / interface_name
+        # Get name of interface and paths to old dir and new dir.
+        old_result_dir = pathlib.Path(interface_result.runtime.cwd)
+        interface_name = old_result_dir.parent.stem
+        new_result_dir = self.dirs["output"] / interface_name
 
         print(f"Copying {interface_name} and ignoring {ignore_patterns}")
 
-        # Supress error because shutil successfully copies the files even if it throws an exception.
-        with suppress(OSError):
-            shutil.copytree(
-                src=interface_result_dir,
-                dst=new_interface_result_dir,
-                ignore=shutil.ignore_patterns(*ignore_patterns),
-                copy_function=shutil.copyfile
+        # Delete result dir if it already exists.
+        if new_result_dir.exists():
+            shutil.rmtree(new_result_dir)
+
+        # Recursively copy old result dir to new location.
+        shutil.copytree(
+            src=old_result_dir,
+            dst=new_result_dir,
+            ignore=shutil.ignore_patterns(*ignore_patterns),
+            copy_function=shutil.copyfile
         )
 
 
@@ -227,6 +229,14 @@ if __name__ == "__main__":
         type=str,
         required=True,
         help="<Mandatory> Path to the root of the BIDS directory."
+    )
+
+    parser.add_argument(
+        "--output_dir",
+        "-o",
+        type=str,
+        required=True,
+        help="<Mandatory> Name of output directory to use within subject directory."
     )
 
     group = parser.add_mutually_exclusive_group(required=True)
@@ -268,4 +278,9 @@ if __name__ == "__main__":
         subject_ids = args.subjects
 
 for subject_id in subject_ids:
-    Preprocess(args.bids_dir, subject_id, args.clear_cache)
+    Preprocess(
+        bids_dir=args.bids_dir,
+        subject_id=subject_id,
+        output_dir=args.output_dir,
+        clear_cache=args.clear_cache,
+    )
