@@ -15,13 +15,13 @@ import subprocess
 import re
 
 
-SLURM_SCRIPT_NAME = "tmp_submitjob.sh"
+SLURM_SCRIPT_NAME = "submitjob_tmp.sh"
 
 
-def write_script(time_requested, email_address):
+def write_script(time_requested, email_address, number_of_processors, ram_requested):
     """
     Writes the SLURM script to the current working directory.
-    
+
 
     Parameters
     ----------
@@ -29,6 +29,10 @@ def write_script(time_requested, email_address):
         Amount of time to request for job. Format as d-hh:mm:ss.
     email_address : str
         Email address to send job updates to.
+    number_of_processors : str
+        Amount of processors to use in the job.
+    ram_requested : str
+        Amount of RAM to request in MB.
 
     """
 
@@ -39,8 +43,8 @@ def write_script(time_requested, email_address):
 
 #SBATCH --job-name=fmriprep				# Job name
 #SBATCH --ntasks=1					# Run a single task		
-#SBATCH --cpus-per-task=4				# Number of CPU cores per task
-#SBATCH --mem=8gb						# Job memory request
+#SBATCH --cpus-per-task={number_of_processors}				# Number of CPU cores per task
+#SBATCH --mem={ram_requested}mb						# Job memory request
 #SBATCH --time={time_requested}				# Walltime in hh:mm:ss or d-hh:mm:ss
 # Outputs ----------------------------------
 #SBATCH --mail-type=ALL					# Mail events (NONE, BEGIN, END, FAIL, ALL)
@@ -59,20 +63,20 @@ DERIVS_DIR="$BIDS_DIR/derivatives"
 LOCAL_FREESURFER_DIR="$DERIVS_DIR/freesurfer"
 
 # Make sure FS_LICENSE is defined in the container.
-export SINGULARITYENV_FS_LICENSE="$HOME/Files/.licenses/freesurfer.txt"
+export SINGULARITYENV_FS_LICENSE="$HOME/files/.licenses/freesurfer.txt"
 
 # Prepare derivatives folder.
 mkdir -p "$BIDS_DIR/$DERIVS_DIR"
 mkdir -p "$LOCAL_FREESURFER_DIR"
 
 # Compose command to start singularity.
-SINGULARITY_CMD="singularity run --home $HOME --cleanenv $HOME/Files/Images/fmriprep-20.1.2.simg"
+SINGULARITY_CMD="singularity run --home $HOME --cleanenv $HOME/files/images/fmriprep-20.1.2.simg"
 
 # Remove IsRunning files from FreeSurfer.
 find "$LOCAL_FREESURFER_DIR/sub-$subject"/ -name "*IsRunning*" -type f -delete
 
 # Compose the command line.
-cmd="$SINGULARITY_CMD $BIDS_DIR $DERIVS_DIR participant --participant-label $subject -vv --resource-monitor --write-graph"
+cmd="$SINGULARITY_CMD $BIDS_DIR $DERIVS_DIR participant --participant-label $subject -vv --resource-monitor --write-graph --nprocs {number_of_processors} --mem_mb {ram_requested}"
 
 # Setup done, run the command.
 echo Running task "$SLURM_ARRAY_TASK_ID"
@@ -115,54 +119,74 @@ if __name__ == "__main__":
 
 
     parser = argparse.ArgumentParser(
-        description="Wraps submitjob.sh to run fMRIPrep on a BIDS-valid dataset by submitting it to HiPerGator.",
+        description="Run containerized fMRIPrep in HiPerGator on subjects from your BIDS-valid dataset!",
         epilog="The user may specify EITHER a specific subject OR all subjects. All outputs will be placed in bids_dir/derivatives/"
     )
 
 
     parser.add_argument(
         "bids_dir",
-        type=str,
         help="Root of the BIDS directory."
     )
 
     parser.add_argument(
-        "-t",
         "--time",
+        "-t",
         type=str,
         default="2-00:00:00",
         metavar="d-hh:mm:ss",
-        help="Amount of time requested for the job. Format as d-hh:mm:ss. Defaults to 2-00:00:00."
+        help="Defaults to 2-00:00:00. Amount of time requested for the job."
     )
 
     parser.add_argument(
-        "-e",
         "--email",
+        "-e",
         type=str,
         default="veliebm@ufl.edu",
         metavar="EMAIL_ADDRESS",
-        help="Email address to send job updates to."
+        help="Defaults to veliebm@ufl.edu. Email address to send job updates to."
+    )
+
+    parser.add_argument(
+        "--n_procs",
+        '-n',
+        default="2",
+        metavar="PROCESSORS",
+        help="Defaults to 2. Number of processors to use per subject."
+    )
+
+    parser.add_argument(
+        "--mem",
+        "-m",
+        default="8000",
+        metavar="MEMORY_IN_MB",
+        help="Defaults to 8000 MB. Amount of memory to allocate for each subject."
     )
     
     group = parser.add_mutually_exclusive_group(required=True)
     group.add_argument(
-        "-s",
         "--subject",
+        "-s",
         metavar="SUBJECT_ID",
-        type=str,
-        help="Analyze a specific subject ID."
+        help="Analyze a specific subject ID. Mutually exclusive with --all."
     )
     group.add_argument(
-        '-a',
         '--all',
+        '-a',
         action='store_true',
-        help="Analyze all subjects."
+        help="Analyze all subjects. Mutually exclusive with --subjects."
     )
 
 
     args = parser.parse_args()
+    print(args)
 
-    write_script(time_requested=args.time, email_address=args.email)
+    write_script(
+        time_requested=args.time,
+        email_address=args.email,
+        number_of_processors=args.n_procs,
+        ram_requested=args.mem
+    )
 
     # Option 1: Process all subjects.
     if args.all:
