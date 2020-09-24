@@ -278,10 +278,11 @@ if __name__ == "__main__":
     else:
         subject_ids = args.subjects
 
-for subject_id in subject_ids:
-    Preprocess(
-        bids_dir=args.bids_dir,
-        subject_id=subject_id,
-        output_dir=args.output_dir,
-        clear_cache=args.clear_cache,
-    )
+    # Preprocess the subjects we've selected.
+    for subject_id in subject_ids:
+        Preprocess(
+            bids_dir=args.bids_dir,
+            subject_id=subject_id,
+            output_dir=args.output_dir,
+            clear_cache=args.clear_cache,
+        )
