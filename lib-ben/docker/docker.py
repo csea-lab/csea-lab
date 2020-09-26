@@ -44,16 +44,16 @@ def initialize_config_file():
     try:
         with open(CONFIG_NAME, "r") as config_file:
             json.load(config_file)
-        print("Config file loaded.")
+        print(f"Loaded {CONFIG_NAME}")
 
     # If there's an error accessing the config file, then offer to make a new one.
     except:
-        wants_config = input("Error accessing config file. Create a fresh one? (y/n) ")
+        wants_config = input(f"Error accessing {CONFIG_NAME}. Create a fresh one? (y/n) ")
         if wants_config.lower() == "y":
             with open(CONFIG_NAME, 'w') as config_file:
                 json.dump(OS_default_config(), config_file, indent="\t")
         else:
-            raise Exception("You have chosen not to create a new config file. If this program can't read your config, check that it's written properly.")
+            raise Exception(f"You have chosen not to create a new {CONFIG_NAME}")
 def OS_default_config():
     """
     Returns the default config dictionary for the current operating system.
