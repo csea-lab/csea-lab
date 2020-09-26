@@ -127,7 +127,9 @@ def launch_xserver():
 def start_xserver_process():
     """
     Start whatever X Server you have on your OS.
+
     """
+    
     xserver_path = read_config()["path to x server"]
     OS = get_OS()
     if OS == "Windows":
@@ -139,7 +141,9 @@ def start_xserver_process():
 def xserver_running():
     """
     Returns True if X Server is running.
+
     """
+
     xprocess = read_config()["name of x server process"]
     if xprocess in (process.name() for process in psutil.process_iter()):
         return True
@@ -150,7 +154,9 @@ def xserver_running():
 def launch_docker():
     """
     Launches Docker then waits until it's running.
+
     """
+
     if not docker_running():
         print("Starting Docker")
         while not docker_running():
@@ -160,7 +166,9 @@ def launch_docker():
 def start_docker_process():
     """
     Starts the Docker process.
+
     """
+
     docker_path = read_config()["path to docker"]
     OS = get_OS()
     if OS == "Windows":
@@ -172,7 +180,9 @@ def start_docker_process():
 def docker_running():
     """
     Returns true if docker is running.
+
     """
+
     process = subprocess.run(["docker", "ps"], capture_output=True)
     if process.returncode != 0:
         return False
