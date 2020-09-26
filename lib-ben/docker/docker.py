@@ -60,7 +60,7 @@ def OS_default_config():
 
     """
 
-    home_directory = os.getenv('USERPROFILE')
+    home_directory = pathlib.Path(os.path.expanduser("~"))
     repository_directory = pathlib.Path().absolute().parent.parent
 
     default_config = {
