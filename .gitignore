@@ -1,4 +1,4 @@
-lib-ben/docker/config.ini
 **/.DS_Store
 **/__pycache__
 **/.vscode
+lib-ben/docker/config.json
