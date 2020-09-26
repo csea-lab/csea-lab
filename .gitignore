@@ -1,2 +1,4 @@
-Docker/AFNI/config.ini
-.DS_Store
+lib-ben/docker/config.ini
+**/.DS_Store
+**/__pycache__
+**/.vscode
