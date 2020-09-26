@@ -1,11 +1,13 @@
 """
-Starts Docker, then starts the Docker image specified in config.ini.
+Starts Docker, then starts the Docker image specified in config.json.
 
-This process can be configured further by editing config.ini.
+This process can be configured further by editing config.json.
 
 Created 08/20 by Ben Velie.
 veliebm@gmail.com
+
 """
+
 
 import json
 import subprocess
@@ -16,8 +18,10 @@ import pathlib
 from copy import deepcopy
 from time import sleep
 
-
 CONFIG_NAME = "config.json"
+ARGS_FLAG = "[arg]"
+SPLIT_CHAR = "|"
+
 
 def main():
 
@@ -32,24 +36,24 @@ def main():
 # Functions to initialize the config file
 def initialize_config_file():
     """
-    Initialize a config file.
+    Initialize the config file.
 
     """
-    
-    # Get default config.
-    config = OS_default_config()
 
-    # Overwrite default config with config file if config file exists.
+    # If a config file exists, use it.
     try:
         with open(CONFIG_NAME, "r") as config_file:
-            existing_config = json.load(config_file)
-            config.update(existing_config)
-    except:
-        pass
+            json.load(config_file)
+        print("Config file loaded.")
 
-    # Save our changes to the config file.
-    with open(CONFIG_NAME, 'w') as config_file:
-        json.dump(config, config_file, indent="\t")
+    # If there's an error accessing the config file, then offer to make a new one.
+    except:
+        wants_config = input("Error accessing config file. Create a fresh one? (y/n) ")
+        if wants_config.lower() == "y":
+            with open(CONFIG_NAME, 'w') as config_file:
+                json.dump(OS_default_config(), config_file, indent="\t")
+        else:
+            raise Exception("You have chosen not to create a new config file. If this program can't read your config, check that it's written properly.")
 def OS_default_config():
     """
     Returns the default config dictionary for the current operating system.
@@ -60,27 +64,25 @@ def OS_default_config():
     repository_directory = pathlib.Path().absolute().parent.parent
 
     default_config = {
-        "image": "nipype/nipype",
-        "name": "nipype",
-        "program to run inside container": "bash",
-        "port": "8888:8888",
-        "read/write directory": home_directory,
-        "where to mount read/write directory inside container": "/readwrite/",
-        "read-only directory": "C:/",
-        "where to mount read-only directory inside container": "/readonly/",
-        "working directory inside container": "/csea-lab/",
-        "path to repository": str(repository_directory),
+        "Instructions": f"For each key containing {ARGS_FLAG}, its value will be appended to the command line in order. {SPLIT_CHAR} characters can be used to split one argument into as many as you'd like. Try adding your own! A full list of args is at https://docs.docker.com/engine/reference/commandline/run/",
         "path to docker": "C:/Program Files/Docker/Docker/Docker Desktop.exe",
         "path to x server": "C:/Program Files/VcXsrv/vcxsrv.exe",
         "name of x server process": "vcxsrv.exe",
+        f"base docker command {ARGS_FLAG}": "docker|run",
+        f"name the container {ARGS_FLAG}": "--name|nipype",
+        f"make the container impermanent {ARGS_FLAG}": "--rm",
+        f"make the container interactive {ARGS_FLAG}": "-it",
+        f"mount home directory within container {ARGS_FLAG}": f"-v|{home_directory}:/readwrite/",
+        f"mount repo into container {ARGS_FLAG}": f"-v|{repository_directory}:/csea-lab/",
+        f"working directory inside container {ARGS_FLAG}": "-w=/csea-lab/",
+        f"image to run {ARGS_FLAG}": "nipype/nipype",
+        f"program to run within the container {ARGS_FLAG}": "bash",
     }
 
     windows_config = deepcopy(default_config)
 
     # Overwrite the default config with mac values.
     mac_overwrite = {
-        "read/write directory": home_directory,
-        "read-only directory": "/",
         "path to docker": "/Applications/Docker.app",
         "path to x server": "/Applications/Utilities/XQuartz.app",
         "name of x server process": "X11.bin",
@@ -90,8 +92,6 @@ def OS_default_config():
 
     # Overwrite the default config with linux values.
     linux_overwrite = {
-        "read/write directory": home_directory,
-        "read-only directory": "/",
         "path to docker": "",
         "path to x server": "",
         "name of x server process": "",
@@ -129,7 +129,7 @@ def start_xserver_process():
     Start whatever X Server you have on your OS.
 
     """
-    
+
     xserver_path = read_config()["path to x server"]
     OS = get_OS()
     if OS == "Windows":
@@ -208,28 +208,12 @@ def get_container_args():
     """
 
     config_dict = read_config()
+    args_list = list()
 
-    args_list = ["docker",
-                 "run",
-                 "--interactive", # Allow interaction with the container.
-                 "--tty", # Connect the local shell to the container.
-                 "--rm", # Remove the container when it's closed.
-                 "--name", # Set the name of the container.
-                 config_dict["name"],
-                 "--volume", # Set the directory to read/write to.
-                 config_dict["read/write directory"] + ":" + config_dict["where to mount read/write directory inside container"],
-                 "--volume", # Set the directory to read from.
-                 config_dict["read-only directory"] + ":" + config_dict["where to mount read-only directory inside container"] + ":ro",
-                 "--volume", # Mount the csea-lab repository.
-                 config_dict["path to repository"] + ":" + "/csea-lab/",
-                 "--workdir", # Set the working directory in the container.
-                 config_dict["working directory inside container"],
-                 "-p", # Set the port.
-                 config_dict["port"],
-                 ]
-
-    args_list.append(config_dict["image"]) # Set the image to run within the container.
-    args_list.append(config_dict["program to run inside container"]) # Set the program to run within the container.
+    for key, value in config_dict.items():
+        if ARGS_FLAG in key:
+            next_args = value.split(SPLIT_CHAR)
+            args_list += next_args
 
     return args_list
 
