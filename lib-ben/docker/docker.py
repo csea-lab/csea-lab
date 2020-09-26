@@ -7,7 +7,7 @@ Created 08/20 by Ben Velie.
 veliebm@gmail.com
 """
 
-import configparser
+import json
 import subprocess
 import os
 import platform
@@ -17,7 +17,7 @@ from copy import deepcopy
 from time import sleep
 
 
-CONFIG_NAME = "config.ini"
+CONFIG_NAME = "config.json"
 
 def main():
 
@@ -33,68 +33,71 @@ def main():
 def initialize_config_file():
     """
     Initialize a config file.
+
     """
-    config = configparser.ConfigParser()
-
+    
     # Get default config.
-    config.read_dict(OS_default_config())
+    config = OS_default_config()
 
-    # Overwrite default config with config file.
-    config.read(CONFIG_NAME)
+    # Overwrite default config with config file if config file exists.
+    try:
+        with open(CONFIG_NAME, "r") as config_file:
+            existing_config = json.load(config_file)
+            config.update(existing_config)
+    except:
+        pass
 
     # Save our changes to the config file.
     with open(CONFIG_NAME, 'w') as config_file:
-        config.write(config_file)
+        json.dump(config, config_file, indent="\t")
 def OS_default_config():
     """
     Returns the default config dictionary for the current operating system.
+
     """
 
     home_directory = os.getenv('USERPROFILE')
     repository_directory = pathlib.Path().absolute().parent.parent
 
     default_config = {
-        "DEFAULT": {
-            "image": "afni/afni",
-            "name": "afni",
-            "program to run inside container": "bash",
-            "port": "8888:8888",
-            "read/write directory": f"{home_directory}/Files/Development/Docker",
-            "where to mount read/write directory inside container": "/readwrite/",
-            "read-only directory": "C:/",
-            "where to mount read-only directory inside container": "/readonly/",
-            "working directory inside container": "/readwrite/",
-            "path to repository": str(repository_directory),
-            "path to docker": "C:/Program Files/Docker/Docker/Docker Desktop.exe",
-            "path to x server": "C:/Program Files/VcXsrv/vcxsrv.exe",
-            "name of x server process": "vcxsrv.exe",
-            "display": "DISPLAY=host.docker.internal:0",
-            }
-        }
+        "image": "nipype/nipype",
+        "name": "nipype",
+        "program to run inside container": "bash",
+        "port": "8888:8888",
+        "read/write directory": home_directory,
+        "where to mount read/write directory inside container": "/readwrite/",
+        "read-only directory": "C:/",
+        "where to mount read-only directory inside container": "/readonly/",
+        "working directory inside container": "/csea-lab/",
+        "path to repository": str(repository_directory),
+        "path to docker": "C:/Program Files/Docker/Docker/Docker Desktop.exe",
+        "path to x server": "C:/Program Files/VcXsrv/vcxsrv.exe",
+        "name of x server process": "vcxsrv.exe",
+    }
 
     windows_config = deepcopy(default_config)
 
     # Overwrite the default config with mac values.
-    mac_overwrite = { "read/write directory": "$HOME/Docker",
+    mac_overwrite = {
+        "read/write directory": home_directory,
         "read-only directory": "/",
         "path to docker": "/Applications/Docker.app",
         "path to x server": "/Applications/Utilities/XQuartz.app",
         "name of x server process": "X11.bin",
-        "display": "DISPLAY=$DISPLAY"
         }
     mac_config = deepcopy(default_config)
-    mac_config["DEFAULT"].update(mac_overwrite)
+    mac_config.update(mac_overwrite)
 
     # Overwrite the default config with linux values.
-    linux_overwrite = { "read/write directory": "$HOME/Docker",
+    linux_overwrite = {
+        "read/write directory": home_directory,
         "read-only directory": "/",
         "path to docker": "",
         "path to x server": "",
         "name of x server process": "",
-        "display": "DISPLAY=$DISPLAY"
         }
     linux_config = deepcopy(default_config)
-    linux_config["DEFAULT"].update(linux_overwrite)
+    linux_config.update(linux_overwrite)
     
     OS = get_OS()
     print(f"Using {OS} template for {CONFIG_NAME}")
@@ -110,6 +113,7 @@ def OS_default_config():
 def launch_xserver():
     """
     Launch X Server if it isn't already running.
+    
     """
     
     if not xserver_running():
@@ -179,7 +183,9 @@ def docker_running():
 def launch_container():
     """
     Launches the docker container.
+
     """
+
     docker_args = get_container_args()
     print("Executing the following command to launch the container:")
     print(docker_args)
@@ -188,7 +194,9 @@ def launch_container():
 def get_container_args():
     """
     Reads the config file and returns a list of arguments for the container.
+
     """
+
     config_dict = read_config()
 
     args_list = ["docker",
@@ -219,7 +227,9 @@ def get_container_args():
 def get_OS():
     """
     Returns the operating system.
+
     """
+
     if "Windows" in platform.platform():
         return "Windows"
     elif "macOS" in platform.platform():
@@ -229,10 +239,12 @@ def get_OS():
 def read_config():
     """
     Returns the config file as a dictionary.
+
     """
-    config = configparser.ConfigParser()
-    config.read(CONFIG_NAME)
-    return {key: config["DEFAULT"][key] for key in config["DEFAULT"]}
+
+    with open(CONFIG_NAME, "r") as config_file:
+        return json.load(config_file)
+
 
 if __name__ == "__main__":
     main()
