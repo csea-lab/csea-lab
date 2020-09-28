@@ -15,10 +15,10 @@ import subprocess
 import re
 
 
-SLURM_SCRIPT_NAME = "submitjob_tmp.sh"
+SLURM_SCRIPT_BASE_NAME = "submitjob"
 
 
-def write_script(time_requested, email_address, number_of_processors, ram_requested, qos):
+def write_script(time_requested, email_address, number_of_processors, ram_requested, qos, subject_id, bids_dir, freesurfer_license_path):
     """
     Writes the SLURM script to the current working directory.
 
@@ -33,8 +33,17 @@ def write_script(time_requested, email_address, number_of_processors, ram_reques
         Amount of processors to use in the job.
     ram_requested : str
         Amount of RAM to request in MB.
+    qos : str
+        QOS to use for the job. Can choose investment QOS (akeil) or burst QOS (akeil-b).
+    subject_id : str
+        Subject ID to target.
+    bids_dir : str or pathlib.Path
+        Path to the root of the BIDS directory.
+    freesurfer_license_path : str or pathlib.Path
+        Path to a Freesurfer license file.
 
     """
+
 
     script_contents = f"""#! /bin/bash
 
@@ -50,24 +59,25 @@ def write_script(time_requested, email_address, number_of_processors, ram_reques
 # Outputs ----------------------------------
 #SBATCH --mail-type=ALL					# Mail events (NONE, BEGIN, END, FAIL, ALL)
 #SBATCH --mail-user={email_address}		      # Where to send mail	
-#SBATCH --output=%x-%A-%a.log			      # Standard output log
-#SBATCH --error=%x-%A-%a.err			      # Standard error log
+#SBATCH --output=%x_subject-{subject_id}.log			      # Standard output log
+#SBATCH --error=%x_subject-{subject_id}.err			      # Standard error log
 pwd; hostname; date					# Useful things we'll want to see in the log
 # ------------------------------------------
 
 # Set bids_dir equal to first command-line parameter and subject equal to the second
-BIDS_DIR="$1"
-subject="$2"
+BIDS_DIR={bids_dir}
+subject={subject_id}
+username=`whoami`
 
-export HOME="/blue/akeil/veliebm"
+export HOME="/blue/akeil/$username"
 DERIVS_DIR="$BIDS_DIR/derivatives"
 LOCAL_FREESURFER_DIR="$DERIVS_DIR/freesurfer"
 
 # Make sure FS_LICENSE is defined in the container.
-export SINGULARITYENV_FS_LICENSE="$HOME/files/.licenses/freesurfer.txt"
+export SINGULARITYENV_FS_LICENSE="{freesurfer_license_path}"
 
 # Prepare derivatives folder.
-mkdir -p "$BIDS_DIR/$DERIVS_DIR"
+mkdir -p "$DERIVS_DIR"
 mkdir -p "$LOCAL_FREESURFER_DIR"
 
 # Compose command to start singularity.
@@ -89,7 +99,7 @@ echo Finished processing subject "$subject" with exit code $exitcode
 exit $exitcode
     """
 
-    with open(SLURM_SCRIPT_NAME, "w") as script:
+    with open(f"{SLURM_SCRIPT_BASE_NAME}_sub-{subject_id}.sh", "w") as script:
         script.write(script_contents)
 
 
@@ -118,17 +128,53 @@ if __name__ == "__main__":
 
     """
 
-
     parser = argparse.ArgumentParser(
-        description="Run containerized fMRIPrep in HiPerGator on subjects from your BIDS-valid dataset!",
-        epilog="The user may specify EITHER a specific subject OR all subjects. All outputs will be placed in bids_dir/derivatives/"
+        description="Run containerized fMRIPrep in HiPerGator on subjects from your BIDS-valid dataset! The user may specify EITHER specific subjects OR all subjects. All outputs will be placed in bids_dir/derivatives/",
+        fromfile_prefix_chars="@"
     )
 
 
     parser.add_argument(
-        "bids_dir",
-        help="Root of the BIDS directory."
+        "--bids_dir",
+        "-b",
+        type=str,
+        required=True,
+        help="<Mandatory> Path to the root of the BIDS directory."
     )
+
+    parser.add_argument(
+        "--fs_license",
+        "-f",
+        required=True,
+        help="<Mandatory> Path to your freesurfer license file."
+    )
+
+    parser.add_argument(
+        "--email",
+        "-e",
+        type=str,
+        required=True,
+        metavar="EMAIL_ADDRESS",
+        help="<Mandatory> Email address to send job updates to."
+    )
+    
+    group = parser.add_mutually_exclusive_group(required=True)
+    group.add_argument(
+        "--subjects",
+        "-s",
+        metavar="SUBJECT_ID",
+        type=str,
+        nargs="+",
+        help="<Mandatory> Preprocess a list of specific subject IDs. Mutually exclusive with --all."
+    )
+
+    group.add_argument(
+        '--all',
+        '-a',
+        action='store_true',
+        help="<Mandatory> Analyze all subjects. Mutually exclusive with --subjects."
+    )
+
 
     parser.add_argument(
         "--time",
@@ -137,15 +183,6 @@ if __name__ == "__main__":
         default="2-00:00:00",
         metavar="d-hh:mm:ss",
         help="Defaults to 2-00:00:00. Amount of time requested for the job."
-    )
-
-    parser.add_argument(
-        "--email",
-        "-e",
-        type=str,
-        default="veliebm@ufl.edu",
-        metavar="EMAIL_ADDRESS",
-        help="Defaults to veliebm@ufl.edu. Email address to send job updates to."
     )
 
     parser.add_argument(
@@ -171,41 +208,34 @@ if __name__ == "__main__":
         choices=["akeil", "akeil-b"],
         help="Defaults to regular QOS. Use akeil-b for burst QOS."
     )
-    
-    group = parser.add_mutually_exclusive_group(required=True)
-    group.add_argument(
-        "--subject",
-        "-s",
-        metavar="SUBJECT_ID",
-        help="Analyze a specific subject ID. Mutually exclusive with --all."
-    )
-    group.add_argument(
-        '--all',
-        '-a',
-        action='store_true',
-        help="Analyze all subjects. Mutually exclusive with --subjects."
-    )
 
 
     args = parser.parse_args()
-    print(args)
+    print(f"Args: {args}")
 
-    write_script(
-        time_requested=args.time,
-        email_address=args.email,
-        number_of_processors=args.n_procs,
-        ram_requested=args.mem,
-        qos=args.qos
-    )
+    subject_ids = list()
 
     # Option 1: Process all subjects.
     if args.all:
-        for subject_dir in args.bids_dir.glob("sub-*"):
-            subject_id = _get_subject_id(subject_dir)
-            print(f"Submitting subject {subject_id}")
-            subprocess.Popen(["sbatch", SLURM_SCRIPT_NAME, args.bids_dir, subject_id])
+        bids_root = pathlib.Path(args.bids_dir)
+        for subject_dir in bids_root.glob("sub-*"):
+            subject_ids.append(_get_subject_id(subject_dir))
 
-    # Option 2: Process a single subject.
+    # Option 2: Process specific subjects.
     else:
-        print(f"Submitting subject {args.subject}")
-        subprocess.Popen(["sbatch", SLURM_SCRIPT_NAME, args.bids_dir, args.subject])
+        subject_ids = args.subjects
+
+
+    for subject_id in subject_ids:
+        write_script(
+            time_requested=args.time,
+            email_address=args.email,
+            number_of_processors=args.n_procs,
+            ram_requested=args.mem,
+            qos=args.qos,
+            subject_id=subject_id,
+            bids_dir=args.bids_dir,
+            freesurfer_license_path=args.fs_license
+        )
+        print(f"Submitting {SLURM_SCRIPT_BASE_NAME}_sub-{subject_id}.sh")
+        subprocess.Popen(["sbatch", f"{SLURM_SCRIPT_BASE_NAME}_sub-{subject_id}.sh"])
