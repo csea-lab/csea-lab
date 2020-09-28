@@ -22,7 +22,7 @@ START_TIME = f"{now.tm_hour}.{now.tm_min}.{now.tm_sec}"
 START_DATE = f"{now.tm_mon}.{now.tm_mday}.{now.tm_year}"
 
 
-def write_script(time_requested, email_address, script_name, number_of_processors, ram_requested, qos, subject_id, bids_dir, freesurfer_license_path):
+def write_script(time_requested, email_address, script_name, number_of_processors, ram_requested, qos, subject_id, bids_dir, freesurfer_license_path, singularity_image_path):
     """
     Writes the SLURM script to the current working directory.
 
@@ -85,7 +85,7 @@ mkdir -p "$DERIVS_DIR"
 mkdir -p "$LOCAL_FREESURFER_DIR"
 
 # Compose command to start singularity.
-SINGULARITY_CMD="singularity run --home $HOME --cleanenv $HOME/files/images/fmriprep-20.1.2.simg"
+SINGULARITY_CMD="singularity run --home $HOME --cleanenv {singularity_image_path}"
 
 # Remove IsRunning files from FreeSurfer.
 find "$LOCAL_FREESURFER_DIR/sub-$subject"/ -name "*IsRunning*" -type f -delete
@@ -144,6 +144,14 @@ if __name__ == "__main__":
         type=str,
         required=True,
         help="<Mandatory> Path to the root of the BIDS directory."
+    )
+
+    parser.add_argument(
+        "--image",
+        "-i",
+        type=str,
+        required=True,
+        help="<Mandatory> Path to an fMRIPrep singularity container. This script was orginally written to use fmriprep-20.1.2."
     )
 
     parser.add_argument(
@@ -241,7 +249,8 @@ if __name__ == "__main__":
             qos=args.qos,
             subject_id=subject_id,
             bids_dir=args.bids_dir,
-            freesurfer_license_path=args.fs_license
+            freesurfer_license_path=args.fs_license,
+            singularity_image_path=args.image
         )
         print(f"Submitting {script_name}.sh")
         subprocess.Popen(["sbatch", f"{script_name}.sh"])
