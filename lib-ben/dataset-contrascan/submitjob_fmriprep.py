@@ -69,9 +69,8 @@ def write_script(time_requested, email_address, script_name, number_of_processor
 pwd; hostname; date				                    # Useful things we'll want to see in the log
 # ------------------------------------------
 
-# Set bids_dir equal to first command-line parameter and subject equal to the second
-BIDS_DIR={bids_dir}
-subject={subject_id}
+BIDS_DIR="{bids_dir}"
+subject="{subject_id}"
 username=`whoami`
 
 export HOME="/blue/akeil/$username"
