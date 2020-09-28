@@ -13,12 +13,16 @@ import argparse
 import pathlib
 import subprocess
 import re
+import time
 
 
-SLURM_SCRIPT_BASE_NAME = "submitjob"
+# Track start datetime so we can use it to name the log files.
+now = time.localtime()
+START_TIME = f"{now.tm_hour}.{now.tm_min}.{now.tm_sec}"
+START_DATE = f"{now.tm_mon}.{now.tm_mday}.{now.tm_year}"
 
 
-def write_script(time_requested, email_address, number_of_processors, ram_requested, qos, subject_id, bids_dir, freesurfer_license_path):
+def write_script(time_requested, email_address, script_name, number_of_processors, ram_requested, qos, subject_id, bids_dir, freesurfer_license_path):
     """
     Writes the SLURM script to the current working directory.
 
@@ -41,9 +45,10 @@ def write_script(time_requested, email_address, number_of_processors, ram_reques
         Path to the root of the BIDS directory.
     freesurfer_license_path : str or pathlib.Path
         Path to a Freesurfer license file.
+    script_name : str
+        Base name to use for the script and its logs.
 
     """
-
 
     script_contents = f"""#! /bin/bash
 
@@ -59,9 +64,9 @@ def write_script(time_requested, email_address, number_of_processors, ram_reques
 # Outputs ----------------------------------
 #SBATCH --mail-type=ALL					            # Mail events (NONE, BEGIN, END, FAIL, ALL)
 #SBATCH --mail-user={email_address}		            # Where to send mail	
-#SBATCH --output=%x_subject-{subject_id}.log	    # Standard output log
-#SBATCH --error=%x_subject-{subject_id}.err	        # Standard error log
-pwd; hostname; date				                	# Useful things we'll want to see in the log
+#SBATCH --output={script_name}.log                  # Standard output log
+#SBATCH --error={script_name}.err           	    # Standard error log
+pwd; hostname; date				                    # Useful things we'll want to see in the log
 # ------------------------------------------
 
 # Set bids_dir equal to first command-line parameter and subject equal to the second
@@ -99,7 +104,7 @@ echo Finished processing subject "$subject" with exit code $exitcode
 exit $exitcode
     """
 
-    with open(f"{SLURM_SCRIPT_BASE_NAME}_sub-{subject_id}.sh", "w") as script:
+    with open(f"{script_name}.sh", "w") as script:
         script.write(script_contents)
 
 
@@ -227,8 +232,10 @@ if __name__ == "__main__":
 
 
     for subject_id in subject_ids:
+        script_name = f"fmriprep_subject-{subject_id}_date-{START_DATE}_time-{START_TIME}"
         write_script(
             time_requested=args.time,
+            script_name=script_name,
             email_address=args.email,
             number_of_processors=args.n_procs,
             ram_requested=args.mem,
@@ -237,5 +244,5 @@ if __name__ == "__main__":
             bids_dir=args.bids_dir,
             freesurfer_license_path=args.fs_license
         )
-        print(f"Submitting {SLURM_SCRIPT_BASE_NAME}_sub-{subject_id}.sh")
-        subprocess.Popen(["sbatch", f"{SLURM_SCRIPT_BASE_NAME}_sub-{subject_id}.sh"])
+        print(f"Submitting {script_name}.sh")
+        subprocess.Popen(["sbatch", f"{script_name}.sh"])
