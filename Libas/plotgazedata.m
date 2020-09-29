@@ -41,11 +41,11 @@ figure(101)
 imagesc(Xbins(1:end-1), Ybins(1:end-1), histdata'), hold on, plot(positions(CSlocation,1), positions(CSlocation,2), 'r*'), hold off
 
 for con_index = 1:5
-data_hab(:, :, :, con_index) = data(:, :, conditions(conditions==condivec(con_index))); 
+data_hab(:, :, :, con_index) = data(:, :, conditions==condivec(con_index)); 
 end
 
 for con_index = 6:10
-data_acq(:, :, :, con_index) = data(:, :, conditions(conditions==condivec(con_index))); 
+data_acq(:, :, :, con_index) = data(:, :, conditions==condivec(con_index)); 
 end
 
 % calculate density for conditions and plot across whole screen:
