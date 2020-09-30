@@ -26,8 +26,8 @@ def main(input_dir, output_dir):
     output_path = pathlib.Path(output_dir)
 
     # Get the .vmrk files to access
-    print(f"Accessing {input_path.absolute()}")
-    vmrk_paths = input_path.glob("*.vmrk")
+    print(f"Accessing {input_path.absolute()} and its children.")
+    vmrk_paths = input_path.rglob("*.vmrk")
     
     # Extract timings from the files
     for vmrk_path in vmrk_paths:
