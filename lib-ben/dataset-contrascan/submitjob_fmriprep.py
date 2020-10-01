@@ -16,6 +16,7 @@ import pathlib
 import subprocess
 import re
 import time
+import os
 
 
 # Track start datetime so we can use it to name the log files.
@@ -142,7 +143,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--bids_dir",
         "-b",
-        type=str,
+        type=pathlib.Path,
         required=True,
         help="<Mandatory> Path to the root of the BIDS directory."
     )
@@ -150,7 +151,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--image",
         "-i",
-        type=str,
+        type=pathlib.Path,
         required=True,
         help="<Mandatory> Path to an fMRIPrep singularity container. This script was orginally written to use fmriprep-20.1.2."
     )
@@ -158,6 +159,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--fs_license",
         "-f",
+        type=pathlib.Path,
         required=True,
         help="<Mandatory> Path to your freesurfer license file."
     )
@@ -165,10 +167,9 @@ if __name__ == "__main__":
     parser.add_argument(
         "--email",
         "-e",
-        type=str,
-        required=True,
         metavar="EMAIL_ADDRESS",
-        help="<Mandatory> Email address to send job updates to."
+        default=f"{os.getlogin()}@ufl.edu",
+        help=f"Defaults to {os.getlogin()}@ufl.edu. Email address to send job updates to."
     )
     
     group = parser.add_mutually_exclusive_group(required=True)
@@ -176,7 +177,6 @@ if __name__ == "__main__":
         "--subjects",
         "-s",
         metavar="SUBJECT_ID",
-        type=str,
         nargs="+",
         help="<Mandatory> Preprocess a list of specific subject IDs. Mutually exclusive with --all."
     )
@@ -192,7 +192,6 @@ if __name__ == "__main__":
     parser.add_argument(
         "--time",
         "-t",
-        type=str,
         default="2-00:00:00",
         metavar="d-hh:mm:ss",
         help="Defaults to 2-00:00:00. Amount of time requested for the job."
@@ -222,13 +221,17 @@ if __name__ == "__main__":
         help="Defaults to regular QOS. Use akeil-b for burst QOS."
     )
 
-
+    # Gather arguments from the command line.
     args = parser.parse_args()
     print(f"Args: {args}")
 
-    subject_ids = list()
+    # Change to logs directory so the program will spit out our logs there.
+    logs_dir = pathlib.Path(args.bids_dir) / "derivatives/hipergator_logs"
+    logs_dir.mkdir(parents=True, exist_ok=True)
+    os.chdir(logs_dir)
 
     # Option 1: Process all subjects.
+    subject_ids = list()
     if args.all:
         bids_root = pathlib.Path(args.bids_dir)
         for subject_dir in bids_root.glob("sub-*"):
@@ -249,9 +252,9 @@ if __name__ == "__main__":
             ram_requested=args.mem,
             qos=args.qos,
             subject_id=subject_id,
-            bids_dir=args.bids_dir,
-            freesurfer_license_path=args.fs_license,
-            singularity_image_path=args.image
+            bids_dir=args.bids_dir.absolute(),
+            freesurfer_license_path=args.fs_license.absolute(),
+            singularity_image_path=args.image.absolute()
         )
         print(f"Submitting {script_name}.sh")
         subprocess.Popen(["sbatch", f"{script_name}.sh"])
