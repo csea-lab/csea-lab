@@ -225,12 +225,6 @@ if __name__ == "__main__":
     args = parser.parse_args()
     print(f"Args: {args}")
 
-    # Change to logs directory so the program will spit out our logs there.
-    logs_dir = pathlib.Path(args.bids_dir) / "derivatives/hipergator_logs"
-    logs_dir.mkdir(parents=True, exist_ok=True)
-    os.chdir(logs_dir)
-    print(f"Writing logs to {logs_dir}")
-
     # Option 1: Process all subjects.
     subject_ids = list()
     if args.all:
