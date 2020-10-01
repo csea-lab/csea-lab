@@ -330,7 +330,7 @@ if __name__ == "__main__":
     )
 
     parser.add_argument(
-        "--output_dir",
+        "--output_dir_name",
         "-o",
         type=str,
         required=True,
@@ -390,6 +390,6 @@ if __name__ == "__main__":
             bids_dir=args.bids_dir,
             subject_id=subject_id,
             regressor_names=args.regressors,
-            output_dir=args.output_dir,
+            output_dir=args.output_dir_name,
             clear_cache=args.clear_cache
         )
