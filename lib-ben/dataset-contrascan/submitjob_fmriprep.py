@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 """
 Process subjects from a BIDS-valid dataset via Singularity containers in the cluster.
 
