@@ -73,7 +73,6 @@ BIDS_DIR="{bids_dir}"
 subject="{subject_id}"
 username=`whoami`
 
-export HOME="/blue/akeil/$username"
 DERIVS_DIR="$BIDS_DIR/derivatives"
 LOCAL_FREESURFER_DIR="$DERIVS_DIR/freesurfer"
 
@@ -85,7 +84,7 @@ mkdir -p "$DERIVS_DIR"
 mkdir -p "$LOCAL_FREESURFER_DIR"
 
 # Compose command to start singularity.
-SINGULARITY_CMD="singularity run --home $HOME --cleanenv {singularity_image_path}"
+SINGULARITY_CMD="singularity run --cleanenv {singularity_image_path}"
 
 # Remove IsRunning files from FreeSurfer.
 find "$LOCAL_FREESURFER_DIR/sub-$subject"/ -name "*IsRunning*" -type f -delete
