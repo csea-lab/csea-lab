@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
 
 """
-Process subjects from a BIDS-valid dataset via Singularity containers in the cluster.
+Process subjects from a BIDS-valid dataset via Singularity containers on HiPerGator.
 
 Note that you MUST run this script with Python 3, not Python 2. Thus, to activate this script in
-HiPerGator, type "python3 submitjob_fmriprep.py" into the command line.
+HiPerGator, either type "python3 submitjob_fmriprep.py" into the command line OR call the script directly
+by typing "./submitjob_fmriprep.py".
 
 Created 9/16/2020 by Ben Velie.
 veliebm@gmail.com
@@ -12,7 +13,7 @@ veliebm@gmail.com
 """
 
 import argparse
-import pathlib
+from pathlib import Path
 import subprocess
 import re
 import time
@@ -36,6 +37,8 @@ def write_script(time_requested, email_address, script_name, number_of_processor
         Amount of time to request for job. Format as d-hh:mm:ss.
     email_address : str
         Email address to send job updates to.
+    script_name : str
+        Base name to use for the script and its logs.
     number_of_processors : str
         Amount of processors to use in the job.
     ram_requested : str
@@ -44,15 +47,16 @@ def write_script(time_requested, email_address, script_name, number_of_processor
         QOS to use for the job. Can choose investment QOS (akeil) or burst QOS (akeil-b).
     subject_id : str
         Subject ID to target.
-    bids_dir : str or pathlib.Path
+    bids_dir : str or Path
         Path to the root of the BIDS directory.
-    freesurfer_license_path : str or pathlib.Path
+    freesurfer_license_path : str or Path
         Path to a Freesurfer license file.
-    script_name : str
-        Base name to use for the script and its logs.
-
+    singularity_image_path : str or Path
+        Path to an fMRIPrep Singularity image.
+        
     """
 
+    # Get the contents of the SLURM script into a nice big string.
     script_contents = f"""#! /bin/bash
 
 # Script to submit a subject from a BIDS dataset to HiPerGator to process with fMRIPrep in a Singularity container.
@@ -105,6 +109,7 @@ echo Finished processing subject "$subject" with exit code $exitcode
 exit $exitcode
     """
 
+    # Write the SLURM script.
     with open(f"{script_name}.sh", "w") as script:
         script.write(script_contents)
 
@@ -140,7 +145,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--bids_dir",
         "-b",
-        type=pathlib.Path,
+        type=Path,
         required=True,
         help="<Mandatory> Path to the root of the BIDS directory. Example: '--bids_dir /blue/akeil/veliebm/files/contrascan/bids_attempt-3'"
     )
@@ -148,7 +153,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--image",
         "-i",
-        type=pathlib.Path,
+        type=Path,
         required=True,
         help="<Mandatory> Path to an fMRIPrep singularity image. Example: '--image /blue/akeil/veliebm/files/images/fmriprep_version-20.2.0.sig'"
     )
@@ -156,7 +161,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--fs_license",
         "-f",
-        type=pathlib.Path,
+        type=Path,
         required=True,
         help="<Mandatory> Path to your freesurfer license file. Example: '--fs_license /blue/akeil/veliebm/files/.licenses/freesurfer.txt'"
     )
@@ -226,7 +231,7 @@ if __name__ == "__main__":
     # Option 1: Process all subjects.
     subject_ids = list()
     if args.all:
-        bids_root = pathlib.Path(args.bids_dir)
+        bids_root = Path(args.bids_dir)
         for subject_dir in bids_root.glob("sub-*"):
             subject_ids.append(_get_subject_id(subject_dir))
 
@@ -234,8 +239,9 @@ if __name__ == "__main__":
     else:
         subject_ids = args.subjects
 
-
     for subject_id in subject_ids:
+
+        # Write SLURM script.
         script_name = f"fmriprep_sub-{subject_id}_date-{START_DATE}_time-{START_TIME}"
         write_script(
             time_requested=args.time,
@@ -249,5 +255,7 @@ if __name__ == "__main__":
             freesurfer_license_path=args.fs_license.absolute(),
             singularity_image_path=args.image.absolute()
         )
+
+        # Run SLURM script.
         print(f"Submitting {script_name}.sh")
         subprocess.Popen(["sbatch", f"{script_name}.sh"])
