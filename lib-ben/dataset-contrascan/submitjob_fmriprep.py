@@ -132,7 +132,7 @@ if __name__ == "__main__":
     """
 
     parser = argparse.ArgumentParser(
-        description="Run containerized fMRIPrep in HiPerGator on subjects from your BIDS-valid dataset! The user may specify EITHER specific subjects OR all subjects. All outputs will be placed in bids_dir/derivatives/",
+        description=f"Launch this script on HiPerGator to run fMRIPrep on your BIDS-valid dataset! Each subject receives their own container. You may specify EITHER specific subjects OR all subjects. All outputs are placed in bids_dir/derivatives/preprocessing/. Remember to do your work in /blue/akeil/{os.getlogin()}!",
         fromfile_prefix_chars="@"
     )
 
@@ -142,7 +142,7 @@ if __name__ == "__main__":
         "-b",
         type=pathlib.Path,
         required=True,
-        help="<Mandatory> Path to the root of the BIDS directory."
+        help="<Mandatory> Path to the root of the BIDS directory. Example: '--bids_dir /blue/akeil/veliebm/files/contrascan/bids_attempt-3'"
     )
 
     parser.add_argument(
@@ -150,7 +150,7 @@ if __name__ == "__main__":
         "-i",
         type=pathlib.Path,
         required=True,
-        help="<Mandatory> Path to an fMRIPrep singularity container. This script was orginally written to use fmriprep-20.1.2."
+        help="<Mandatory> Path to an fMRIPrep singularity image. Example: '--image /blue/akeil/veliebm/files/images/fmriprep_version-20.2.0.sig'"
     )
 
     parser.add_argument(
@@ -158,7 +158,7 @@ if __name__ == "__main__":
         "-f",
         type=pathlib.Path,
         required=True,
-        help="<Mandatory> Path to your freesurfer license file."
+        help="<Mandatory> Path to your freesurfer license file. Example: '--fs_license /blue/akeil/veliebm/files/.licenses/freesurfer.txt'"
     )
 
     
@@ -168,23 +168,23 @@ if __name__ == "__main__":
         "-s",
         metavar="SUBJECT_ID",
         nargs="+",
-        help="<Mandatory> Preprocess a list of specific subject IDs. Mutually exclusive with --all."
+        help="<Mandatory> Preprocess a list of specific subject IDs. Mutually exclusive with '--all'. Example: '--subjects 107 110 123'"
     )
 
     group.add_argument(
         '--all',
         '-a',
         action='store_true',
-        help="<Mandatory> Analyze all subjects. Mutually exclusive with --subjects."
+        help="<Mandatory> Analyze all subjects. Mutually exclusive with '--subjects'. Example: '--all'"
     )
 
 
     parser.add_argument(
         "--time",
         "-t",
-        default="2-00:00:00",
+        default="3-00:00:00",
         metavar="d-hh:mm:ss",
-        help="Defaults to 2-00:00:00. Amount of time requested for the job."
+        help="Default: 3-00:00:00. Maximum time the job can run. Example (3.5 days): '--time 3-12:00:00'"
     )
 
     parser.add_argument(
@@ -192,7 +192,7 @@ if __name__ == "__main__":
         '-n',
         default="2",
         metavar="PROCESSORS",
-        help="Defaults to 2. Number of processors to use per subject."
+        help="Default: 2. Number of processors to use per subject. Example: '--n_procs 4'"
     )
 
     parser.add_argument(
@@ -200,7 +200,7 @@ if __name__ == "__main__":
         "-m",
         default="8000",
         metavar="MEMORY_IN_MB",
-        help="Defaults to 8000 MB. Amount of memory to allocate for each subject."
+        help="Default: 8000 MB. Amount of memory to allocate per subject. Do not use below 8000 MB - fMRIPrep may hang. Example: '--mem 11000'"
     )
 
     parser.add_argument(
@@ -208,7 +208,7 @@ if __name__ == "__main__":
         "-q",
         default="akeil",
         choices=["akeil", "akeil-b"],
-        help="Defaults to regular QOS. Use akeil-b for burst QOS."
+        help="Default: akeil. QOS level to use. Example (burst QOS): '--qos akeil-b'"
     )
     
     parser.add_argument(
@@ -216,7 +216,7 @@ if __name__ == "__main__":
         "-e",
         metavar="EMAIL_ADDRESS",
         default=f"{os.getlogin()}@ufl.edu",
-        help=f"Defaults to {os.getlogin()}@ufl.edu. Email address to send job updates to."
+        help=f"Default: {os.getlogin()}@ufl.edu. Email address to send job updates to. Example: '--email veliebm@gmail.com'"
     )
 
     # Gather arguments from the command line.
