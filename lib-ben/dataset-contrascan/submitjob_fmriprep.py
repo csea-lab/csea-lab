@@ -127,10 +127,7 @@ def _get_subject_id(path) -> str:
 
 if __name__ == "__main__":
     """
-    Enables use of the script from the command line.
-
-    The user must specify the location of the BIDS directory.
-    They can also specify EITHER a specific subject OR all subjects. Cool stuff!
+    This section of the script only runs when you run the script directly from the shell.
 
     """
 
@@ -164,13 +161,6 @@ if __name__ == "__main__":
         help="<Mandatory> Path to your freesurfer license file."
     )
 
-    parser.add_argument(
-        "--email",
-        "-e",
-        metavar="EMAIL_ADDRESS",
-        default=f"{os.getlogin()}@ufl.edu",
-        help=f"Defaults to {os.getlogin()}@ufl.edu. Email address to send job updates to."
-    )
     
     group = parser.add_mutually_exclusive_group(required=True)
     group.add_argument(
@@ -219,6 +209,14 @@ if __name__ == "__main__":
         default="akeil",
         choices=["akeil", "akeil-b"],
         help="Defaults to regular QOS. Use akeil-b for burst QOS."
+    )
+    
+    parser.add_argument(
+        "--email",
+        "-e",
+        metavar="EMAIL_ADDRESS",
+        default=f"{os.getlogin()}@ufl.edu",
+        help=f"Defaults to {os.getlogin()}@ufl.edu. Email address to send job updates to."
     )
 
     # Gather arguments from the command line.
