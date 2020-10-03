@@ -76,7 +76,7 @@ BIDS_DIR="{bids_dir}"
 subject="{subject_id}"
 username=`whoami`
 
-DERIVS_DIR="$BIDS_DIR/derivatives"
+DERIVS_DIR="$BIDS_DIR/derivatives/preprocessing/sub-{subject_id}"
 LOCAL_FREESURFER_DIR="$DERIVS_DIR/freesurfer"
 
 # Make sure FS_LICENSE is defined in the container.
