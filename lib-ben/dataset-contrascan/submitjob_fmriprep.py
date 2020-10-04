@@ -134,6 +134,7 @@ if __name__ == "__main__":
 
     """
 
+
     parser = argparse.ArgumentParser(
         description=f"Launch this script on HiPerGator to run fMRIPrep on your BIDS-valid dataset! Each subject receives their own container. You may specify EITHER specific subjects OR all subjects. All outputs are placed in bids_dir/derivatives/preprocessing/. Remember to do your work in /blue/akeil/{os.getlogin()}!",
         fromfile_prefix_chars="@"
@@ -193,9 +194,9 @@ if __name__ == "__main__":
     parser.add_argument(
         "--n_procs",
         '-n',
-        default="2",
+        default="4",
         metavar="PROCESSORS",
-        help="Default: 2. Number of processors to use per subject. Example: '--n_procs 4'"
+        help="Default: 4. Number of processors to use per subject. Example: '--n_procs 2'"
     )
 
     parser.add_argument(
