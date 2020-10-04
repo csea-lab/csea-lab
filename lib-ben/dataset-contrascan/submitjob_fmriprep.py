@@ -186,9 +186,9 @@ if __name__ == "__main__":
     parser.add_argument(
         "--time",
         "-t",
-        default="3-00:00:00",
+        default="4-00:00:00",
         metavar="d-hh:mm:ss",
-        help="Default: 3-00:00:00. Maximum time the job can run. Example (3.5 days): '--time 3-12:00:00'"
+        help="Default: 4-00:00:00. Maximum time the job can run. Burst QOS max allowed: 4 days. Investment QOS max allowed: 31 days. Example (3.5 days): '--time 3-12:00:00'"
     )
 
     parser.add_argument(
@@ -202,9 +202,9 @@ if __name__ == "__main__":
     parser.add_argument(
         "--qos",
         "-q",
-        default="akeil",
+        default="akeil-b",
         choices=["akeil", "akeil-b"],
-        help="Default: akeil. QOS level to use. Example (burst QOS): '--qos akeil-b'"
+        help="Default: akeil-b (burst QOS). QOS level to use. Example (investment QOS): '--qos akeil'"
     )
     
     parser.add_argument(
