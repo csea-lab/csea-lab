@@ -26,7 +26,7 @@ START_TIME = f"{now.tm_hour}.{now.tm_min}.{now.tm_sec}"
 START_DATE = f"{now.tm_mon}.{now.tm_mday}.{now.tm_year}"
 
 
-def write_script(time_requested, email_address, script_name, number_of_processors, ram_requested, qos, subject_id, bids_dir, freesurfer_license_path, singularity_image_path):
+def write_script(time_requested, email_address, script_name, number_of_processors, qos, subject_id, bids_dir, freesurfer_license_path, singularity_image_path):
     """
     Writes the SLURM script to the current working directory.
 
@@ -41,8 +41,6 @@ def write_script(time_requested, email_address, script_name, number_of_processor
         Base name to use for the script and its logs.
     number_of_processors : str
         Amount of processors to use in the job.
-    ram_requested : str
-        Amount of RAM to request in MB.
     qos : str
         QOS to use for the job. Can choose investment QOS (akeil) or burst QOS (akeil-b).
     subject_id : str
@@ -65,7 +63,7 @@ def write_script(time_requested, email_address, script_name, number_of_processor
 #SBATCH --job-name=sub-{subject_id} 				# Job name
 #SBATCH --ntasks=1					                # Run a single task		
 #SBATCH --cpus-per-task={number_of_processors}		# Number of CPU cores per task
-#SBATCH --mem={ram_requested}mb						# Job memory request
+#SBATCH --mem=8gb						            # Job memory request
 #SBATCH --time={time_requested}				        # Walltime in hh:mm:ss or d-hh:mm:ss
 #SBATCH --qos={qos}                                 # QOS level to use. Can be investment (akeil) or burst (akeil-b).
 # Outputs ----------------------------------
@@ -97,7 +95,7 @@ SINGULARITY_CMD="singularity run --cleanenv {singularity_image_path}"
 find "$LOCAL_FREESURFER_DIR/sub-$subject"/ -name "*IsRunning*" -type f -delete
 
 # Compose the command line.
-cmd="$SINGULARITY_CMD $BIDS_DIR $DERIVS_DIR participant --participant-label $subject -vv --resource-monitor --write-graph --nprocs {number_of_processors} --mem_mb {ram_requested}"
+cmd="$SINGULARITY_CMD $BIDS_DIR $DERIVS_DIR participant --participant-label $subject -vv --resource-monitor --write-graph --nprocs {number_of_processors} --mem_mb 8000"
 
 # Setup done, run the command.
 echo Running task "$SLURM_ARRAY_TASK_ID"
@@ -201,14 +199,6 @@ if __name__ == "__main__":
     )
 
     parser.add_argument(
-        "--mem",
-        "-m",
-        default="8000",
-        metavar="MEMORY_IN_MB",
-        help="Default: 8000 MB. Amount of memory to allocate per subject. Do not use below 8000 MB - fMRIPrep may hang. Example: '--mem 11000'"
-    )
-
-    parser.add_argument(
         "--qos",
         "-q",
         default="akeil",
@@ -248,7 +238,6 @@ if __name__ == "__main__":
             script_name=script_name,
             email_address=args.email,
             number_of_processors=args.n_procs,
-            ram_requested=args.mem,
             qos=args.qos,
             subject_id=subject_id,
             bids_dir=args.bids_dir.absolute(),
