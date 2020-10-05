@@ -11,7 +11,7 @@ veliebm@gmail.com
 from datetime import datetime
 import argparse
 import re
-import pathlib
+from pathlib import Path
 import shutil
 import json
 import pandas
@@ -43,7 +43,7 @@ class FirstLevel():
 
         # Store paths to directories we need in self.dirs.
         self.dirs = dict()
-        self.dirs["bids_root"] = pathlib.Path(bids_dir)     # Root of the raw BIDS dataset.
+        self.dirs["bids_root"] = Path(bids_dir)     # Root of the raw BIDS dataset.
         self.dirs["fmriprep_root"] = self.dirs["bids_root"] / "derivatives" / "fmriprep"    # Root of fmriprep outputs.
         self.dirs["subject_root"] = self.dirs["bids_root"] / "derivatives" / "analysis_level-1" / f"sub-{subject_id}"   # Root of where we'll output info for the subject.
         self.dirs["regressors"] = self.dirs["subject_root"] / "regressors"      # Where we'll store our regressor text files.
@@ -168,7 +168,7 @@ class FirstLevel():
         # Copy our preprocessed anat file into our deconvolve directory to view with AFNI.
         shutil.copyfile(
             src=self.paths["anat"],
-            dst=pathlib.Path(self.results["Deconvolve"].runtime.cwd) / self.paths["anat"].name
+            dst=Path(self.results["Deconvolve"].runtime.cwd) / self.paths["anat"].name
         )
 
         # Copy most of our results from each interface. Ignore certain massive files.
@@ -215,16 +215,16 @@ class FirstLevel():
 
         Parameters
         ----------
-        tsv_path : str or pathlib.Path
+        tsv_path : str or Path
             Path to the .tsv file to read.
-        output_dir : str or pathlib.Path
+        output_dir : str or Path
             Directory to write columns of the .tsv file to.
 
         """
 
         # Get paths to the tsv and output dir.
-        tsv_path = pathlib.Path(tsv_path)
-        output_dir = pathlib.Path(output_dir)
+        tsv_path = Path(tsv_path)
+        output_dir = Path(output_dir)
 
         print(f"Breaking up {tsv_path.name} and storing columns in {output_dir}")
 
@@ -256,7 +256,7 @@ class FirstLevel():
         """
 
         # Get name of interface and paths to old dir and new dir.
-        old_result_dir = pathlib.Path(interface_result.runtime.cwd)
+        old_result_dir = Path(interface_result.runtime.cwd)
         interface_name = old_result_dir.parent.stem
         new_result_dir = self.dirs["output"] / interface_name
 
@@ -283,7 +283,7 @@ def _get_subject_id(path) -> str:
 
     Inputs
     ------
-    path : str or pathlib.Path
+    path : str or Path
         String or path containing the subject ID.
 
 
@@ -377,7 +377,7 @@ if __name__ == "__main__":
 
     # Option 1: Process all subjects.
     if args.all:
-        bids_root = pathlib.Path(args.bids_dir)
+        bids_root = Path(args.bids_dir)
         for subject_dir in bids_root.glob("sub-*"):
             subject_ids.append(_get_subject_id(subject_dir))
 
