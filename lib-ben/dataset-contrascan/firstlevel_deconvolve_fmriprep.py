@@ -17,7 +17,7 @@ from contextlib import suppress
 import subprocess
 
 from nipype.interfaces.fsl import SUSAN
-from nipype.interfaces.afni import Deconvolve
+from nipype.interfaces.afni import Deconvolve, Warp
 
 from nipype.caching.memory import Memory
 
@@ -91,8 +91,8 @@ class FirstLevel():
 
         Returns
         -------
-        nipype InterfaceResult
-            Information about the outputs of SUSAN.
+        InterfaceResult
+            Stores information about the outputs of SUSAN.
 
         """
 
@@ -116,14 +116,14 @@ class FirstLevel():
 
         Parameters
         ----------
-        SUSAN_result : nipype InterfaceResult
-            Information about the outputs of the SUSAN step.
+        SUSAN_result : InterfaceResult
+            Stores information about the outputs of the SUSAN step.
 
 
         Returns
         -------
-        nipype InterfaceResult
-            Information about the outputs of Deconvolve.
+        InterfaceResult
+            Stores information about the outputs of Deconvolve.
 
         """
 
@@ -249,7 +249,7 @@ class FirstLevel():
 
         Parameters
         ----------
-        interface_result : nipype interface result
+        interface_result : InterfaceResult
             Copies files created by this interface.
         ignore_patterns : list
             Ignore Unix-style file patterns when copying.
