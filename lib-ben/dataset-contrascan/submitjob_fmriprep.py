@@ -229,7 +229,7 @@ if __name__ == "__main__":
     for subject_id in subject_ids:
 
         # Write SLURM script.
-        script_name = f"fmriprep_sub-{subject_id}_date-{START_DATE}_time-{START_TIME}"
+        script_name = f"sub-{subject_id}_fmriprep_date-{START_DATE}_time-{START_TIME}"
         write_script(
             time_requested=args.time,
             script_name=script_name,
