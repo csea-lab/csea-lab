@@ -128,6 +128,8 @@ if __name__ == "__main__":
     """
     This section of the script only runs when you run the script directly from the shell.
 
+    Thus, this is where we read and interpret arguments from the command line.
+
     """
 
 
