@@ -114,12 +114,6 @@ class FirstLevel():
         Nipype interface info: https://nipype.readthedocs.io/en/latest/api/generated/nipype.interfaces.afni.model.html#Deconvolve
 
 
-        Parameters
-        ----------
-        SUSAN_result : InterfaceResult
-            Stores information about the outputs of the SUSAN step.
-
-
         Returns
         -------
         InterfaceResult
