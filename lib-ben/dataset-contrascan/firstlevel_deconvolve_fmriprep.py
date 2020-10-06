@@ -17,7 +17,7 @@ from contextlib import suppress
 import subprocess
 
 from nipype.interfaces.fsl import SUSAN
-from nipype.interfaces.afni import Deconvolve, Warp
+from nipype.interfaces.afni import Deconvolve
 
 from nipype.caching.memory import Memory
 
