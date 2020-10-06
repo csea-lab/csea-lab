@@ -1,7 +1,5 @@
 """
-A script to run a 1st-level analysis the way it was meant to be done.
-
-That is, without any of these darn jupyter notebooks or nipype nodes.
+A script to run a 1st-level analysis using AFNI's wonderful Deconvolve.
 
 Created 9/9/2020 by Benjamin Velie.
 veliebm@gmail.com
@@ -16,6 +14,7 @@ import shutil
 import json
 import pandas
 from contextlib import suppress
+import subprocess
 
 from nipype.interfaces.fsl import SUSAN
 from nipype.interfaces.afni import Deconvolve
@@ -29,7 +28,7 @@ class FirstLevel():
 
     """
 
-    def __init__(self, bids_dir, subject_id, regressor_names, output_dir, clear_cache=False):
+    def __init__(self, bids_dir, subject_id, regressor_names: list, output_dir, clear_cache=False):
     
         print(f"Processing subject {subject_id}")
 
@@ -42,7 +41,7 @@ class FirstLevel():
         self.clear_cache = clear_cache
 
         # Store paths to directories we need in self.dirs.
-        self.dirs = dict()
+        self.dirs = {}
         self.dirs["bids_root"] = Path(bids_dir)     # Root of the raw BIDS dataset.
         self.dirs["fmriprep_root"] = self.dirs["bids_root"] / "derivatives" / "fmriprep"    # Root of fmriprep outputs.
         self.dirs["subject_root"] = self.dirs["bids_root"] / "derivatives" / "analysis_level-1" / f"sub-{subject_id}"   # Root of where we'll output info for the subject.
@@ -50,28 +49,31 @@ class FirstLevel():
         self.dirs["subject_info"] = self.dirs["subject_root"] / "subject_info"      # Where we'll store our subject's onsets in a text file.
         self.dirs["output"] = self.dirs["subject_root"] / output_dir    # Where we'll output the results of the first level analysis.
 
-        # Get paths to all files necessary for the analysis. Store in self.paths dict.
-        self.paths = dict()
-        self.paths["bold_json"] = list(self.dirs["bids_root"].rglob(f"func/sub-{subject_id}*_task-*_bold.json"))[0]
-        self.paths["events_tsv"] = list(self.dirs["bids_root"].rglob(f"func/sub-{subject_id}*_task-*_events.tsv"))[0]
-        self.paths["anat"] = list(self.dirs["fmriprep_root"].rglob(f"anat/sub-{subject_id}*_desc-preproc_T1w.nii.gz"))[0]
-        self.paths["func"] = list(self.dirs["fmriprep_root"].rglob(f"func/sub-{subject_id}*_desc-preproc_bold.nii.gz"))[0]
-        self.paths["regressors_tsv"] = list(self.dirs["fmriprep_root"].rglob(f"func/sub-{subject_id}*_desc-confounds_regressors.tsv"))[0]
+        # Get paths to all files necessary for the analysis. Raise an error if Python can't find a file.
+        self.paths = {}
+        try:
+            self.paths["bold_json"] = next(self.dirs["bids_root"].rglob(f"func/sub-{subject_id}*_task-*_bold.json"))
+            self.paths["events_tsv"] = next(self.dirs["bids_root"].rglob(f"func/sub-{subject_id}*_task-*_events.tsv"))
+            self.paths["anat"] = next(self.dirs["fmriprep_root"].rglob(f"anat/sub-{subject_id}*_desc-preproc_T1w.nii.gz"))
+            self.paths["func"] = next(self.dirs["fmriprep_root"].rglob(f"func/sub-{subject_id}*_desc-preproc_bold.nii.gz"))
+            self.paths["regressors_tsv"] = next(self.dirs["fmriprep_root"].rglob(f"func/sub-{subject_id}*_desc-confounds_regressors.tsv"))
+        except StopIteration:
+            raise OSError("File not found.")
 
         # Create any directory that doesn't exist.
         for directory in self.dirs.values():
             directory.mkdir(exist_ok=True, parents=True)
 
-        # Create nipype Memory object to manage nipype outputs.
+        # Create nipype Memory object we'll use to cache some Nipype outputs.
         self.memory = Memory(str(self.dirs["subject_root"]))
         if self.clear_cache:
             self._clear_cache()
 
-        # Run our interfaces of interest. Store outputs in a dict.
-        self.results = dict()
+        # Run our interfaces of interest. Must be run in the correct order.
+        self.results = {}
         self.results["SUSAN"] = self.SUSAN()
-        self.results["Deconvolve"] = self.Deconvolve(self.results["SUSAN"])
-        
+        self.results["Deconvolve"] = self.Deconvolve()
+    
         # Record end time and write our report.
         self.end_time = datetime.now()
         self.write_report()
@@ -102,13 +104,13 @@ class FirstLevel():
         )
 
 
-    def Deconvolve(self, SUSAN_result):
+    def Deconvolve(self):
         """
         Runs the 1st-level regression on the smoothed functional image.
 
         Wraps AFNI's 3dDeconvolve.
         
-        AFNI command info: https://afni.nimh.nih.gov/pub/dist/doc/program_help/3dDeconvolve.html
+        AFNI command info: https://afni.nimh.nih.gov/pub/dist/doc/htmldoc/programs/3dDeconvolve_sphx.html#ahelp-3ddeconvolve
         Nipype interface info: https://nipype.readthedocs.io/en/latest/api/generated/nipype.interfaces.afni.model.html#Deconvolve
 
 
@@ -129,32 +131,35 @@ class FirstLevel():
         self._break_tsv(self.paths["events_tsv"], self.dirs["subject_info"])
         self._break_tsv(self.paths["regressors_tsv"], self.dirs["regressors"])
         
+        # Total amount of regressors to include in the analysis
         amount_of_regressors = 1 + len(self.regressor_names)
 
         # Create string to pass to interface. Remove all unnecessary whitespace by default.
         arg_string = ' '.join(f"""
-
-            -input {SUSAN_result.outputs.smoothed_file}
+            -input {self.results["SUSAN"].outputs.smoothed_file}
             -GOFORIT 4
             -polort A
             -num_stimts {amount_of_regressors}
             -stim_times 1 {self.dirs["subject_info"]/'onset'}.txt 'CSPLINzero(0,18,10)'
             -stim_label 1 all
+            -iresp 1 sub-{self.subject_id}_IRF-all
             -fout
-
         """.replace("\n", " ").split())
 
         # Add individual stim files to the string.
         for i, regressor_name in enumerate(self.regressor_names):
             stim_number = i + 2
-
             stim_file_info = f"-stim_file {stim_number} {self.dirs['regressors']/regressor_name}.txt -stim_base {stim_number}"
             stim_label_info = f"-stim_label {stim_number} {regressor_name}"
-
             arg_string += f" {stim_file_info} {stim_label_info}"
 
+        # Create output dir for Deconvolve stuff.
+        deconvolve_dir = self.dirs["output"]/"nipype-interfaces-afni-model-Deconvolve"
+        deconvolve_dir.mkdir(exist_ok=True)
 
-        return self.memory.cache(Deconvolve)(
+        # Run the Deconvolve interface.
+        return Deconvolve().run(
+            cwd=str(deconvolve_dir),
             args=arg_string
         )
 
@@ -171,11 +176,8 @@ class FirstLevel():
             dst=Path(self.results["Deconvolve"].runtime.cwd) / self.paths["anat"].name
         )
 
-        # Copy most of our results from each interface. Ignore certain massive files.
-        for result in self.results.values():
-            self._copy_result(result, ignore_patterns=([
-                "*_desc-preproc_bold_smooth.nii",
-                ]))
+        # Copy most of our results from each CACHED interface. Ignore certain massive files.
+        self._copy_cache(self.results["SUSAN"], ignore_patterns=(["*_desc-preproc_bold_smooth.nii"]))
 
         # Store workflow info into a dict.
         workflow_info = {
@@ -201,8 +203,7 @@ class FirstLevel():
         """
 
         print("Clearing cache")
-        cache_path = self.dirs["subject_root"] / "nipype_mem"
-        shutil.rmtree(cache_path)
+        shutil.rmtree(self.memory.base_dir)
 
 
     def _break_tsv(self, tsv_path, output_dir):
@@ -222,7 +223,7 @@ class FirstLevel():
 
         """
 
-        # Get paths to the tsv and output dir.
+        # Guarantee we're working with Path objects.
         tsv_path = Path(tsv_path)
         output_dir = Path(output_dir)
 
@@ -241,9 +242,9 @@ class FirstLevel():
             tsv_info[column_name].to_csv(column_path, sep=' ', index=False, header=False)
 
 
-    def _copy_result(self, interface_result, ignore_patterns=["nothing at all"]):
+    def _copy_cache(self, interface_result, ignore_patterns=["nothing at all"]):
         """
-        Copies interface results from the cache to the subject directory.
+        Copies an interface result from the cache to the subject directory.
 
 
         Parameters
@@ -278,13 +279,13 @@ class FirstLevel():
 
 def _get_subject_id(path) -> str:
     """
-    Returns the subject ID found in the input file name.
+    Returns the subject ID closest to the end of the input string or Path.
 
 
     Inputs
     ------
     path : str or Path
-        String or path containing the subject ID.
+        String or Path containing the subject ID.
 
 
     Returns
@@ -295,24 +296,23 @@ def _get_subject_id(path) -> str:
 
     Raises
     ------
-    IndexError
+    RuntimeError
         If no subject ID found in input filename.
 
     """
-    
-    potential_subject_ids = re.findall(r"sub-(\d+)", str(path))
 
-    subject_id = potential_subject_ids[-1]
-
-    return subject_id
+    try:
+        subject_ids = re.findall(r"sub-(\d+)", str(path))
+        return subject_ids[-1]
+    except IndexError:
+        raise RuntimeError(f"No subject ID found in {path}")
 
 
 if __name__ == "__main__":
     """
-    Enables usage of the program from a shell.
+    This section of the script only runs when you run the script directly from the shell.
 
-    The user must specify the location of the BIDS directory.
-    They can also specify EITHER a specific subject OR all subjects. Cool stuff!
+    It contains the parser that parses arguments from the command line.
 
     """
 
@@ -370,10 +370,9 @@ if __name__ == "__main__":
         help="Clears cache before running each subject. Use if you're testing processing times."
     )
 
-
+    # Parse command-line args and make an empty list to store subject ids in.
     args = parser.parse_args()
-    
-    subject_ids = list()
+    subject_ids = []
 
     # Option 1: Process all subjects.
     if args.all:
@@ -386,6 +385,8 @@ if __name__ == "__main__":
         subject_ids = args.subjects
 
     for subject_id in subject_ids:
+
+        # Run a first level analysis on a subject.
         FirstLevel(
             bids_dir=args.bids_dir,
             subject_id=subject_id,
