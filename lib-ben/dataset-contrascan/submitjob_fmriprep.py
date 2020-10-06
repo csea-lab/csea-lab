@@ -190,9 +190,9 @@ if __name__ == "__main__":
     parser.add_argument(
         "--n_procs",
         '-n',
-        default="4",
+        default="2",
         metavar="PROCESSORS",
-        help="Default: 4. Number of processors to use per subject. Example: '--n_procs 2'"
+        help="Default: 2. Number of processors to use per subject. Example: '--n_procs 4'"
     )
 
     parser.add_argument(
