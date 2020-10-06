@@ -17,7 +17,7 @@ from contextlib import suppress
 import subprocess
 
 from nipype.interfaces.fsl import SUSAN
-from nipype.interfaces.afni import Deconvolve
+from nipype.interfaces.afni import Deconvolve, Remlfit
 
 from nipype.caching.memory import Memory
 
@@ -73,6 +73,7 @@ class FirstLevel():
         self.results = {}
         self.results["SUSAN"] = self.SUSAN()
         self.results["Deconvolve"] = self.Deconvolve()
+        self.results["Remlfit"] = self.Remlfit()
     
         # Record end time and write our report.
         self.end_time = datetime.now()
@@ -158,19 +159,46 @@ class FirstLevel():
         )
 
 
+    def Remlfit(self):
+        """
+        Runs a 3dREMLfit 1st-level regression on the smoothed functional image using the matrix created by 3dDeconvolve.
+
+        Wraps AFNI's 3dREMLfit.
+        
+        AFNI command info: https://afni.nimh.nih.gov/pub/dist/doc/htmldoc/programs/3dREMLfit_sphx.html#ahelp-3dremlfit
+        Nipype interface info: https://nipype.readthedocs.io/en/latest/api/generated/nipype.interfaces.afni.model.html#Remlfit
+
+
+        Returns
+        -------
+        InterfaceResult
+            Stores information about the outputs of Deconvolve.
+
+        """
+
+        # Create output dir for REML stuff.
+        reml_dir = self.dirs["output"]/"nipype-interfaces-afni-model-Remlfit"
+        reml_dir.mkdir(exist_ok=True)
+
+        return Remlfit().run(
+            cwd=reml_dir,
+            in_files=self.results["SUSAN"].outputs.smoothed_file,
+            matrix=self.results["Deconvolve"].outputs.x1D,
+            args="-fout -Rbuck Decon.nii_REML -Rvar Decon.nii_REMLvar -verb $*"
+        )
+
+
     def write_report(self):
         """
         Writes some files to subject folder to check the quality of the analysis.
 
         """
 
-        # Copy our preprocessed anat file into our deconvolve directory to view with AFNI.
-        shutil.copyfile(
-            src=self.paths["anat"],
-            dst=Path(self.results["Deconvolve"].runtime.cwd) / self.paths["anat"].name
-        )
+        # Copy our preprocessed anat file into our deconvolve and REMLfit directories to view with AFNI.
+        shutil.copyfile(src=self.paths["anat"], dst=Path(self.results["Deconvolve"].runtime.cwd) / self.paths["anat"].name)
+        shutil.copyfile(src=self.paths["anat"], dst=Path(self.results["Remlfit"].runtime.cwd) / self.paths["anat"].name)
 
-        # Copy most of our results from each CACHED interface. Ignore certain massive files.
+        # Copy most of our results from each cached interface. Ignore certain massive files.
         self._copy_cache(self.results["SUSAN"], ignore_patterns=(["*_desc-preproc_bold_smooth.nii"]))
 
         # Store workflow info into a dict.
