@@ -54,8 +54,8 @@ class FirstLevel():
         try:
             self.paths["bold_json"] = next(self.dirs["bids_root"].rglob(f"func/sub-{subject_id}*_task-*_bold.json"))
             self.paths["events_tsv"] = next(self.dirs["bids_root"].rglob(f"func/sub-{subject_id}*_task-*_events.tsv"))
-            self.paths["anat"] = next(self.dirs["fmriprep_root"].rglob(f"anat/sub-{subject_id}*_desc-preproc_T1w.nii.gz"))
-            self.paths["func"] = next(self.dirs["fmriprep_root"].rglob(f"func/sub-{subject_id}*_desc-preproc_bold.nii.gz"))
+            self.paths["anat"] = next(self.dirs["fmriprep_root"].rglob(f"anat/sub-{subject_id}*_space-MNI152NLin2009cAsym_desc-preproc_T1w.nii.gz"))
+            self.paths["func"] = next(self.dirs["fmriprep_root"].rglob(f"func/sub-{subject_id}*_space-MNI152NLin2009cAsym_desc-preproc_bold.nii.gz"))
             self.paths["regressors_tsv"] = next(self.dirs["fmriprep_root"].rglob(f"func/sub-{subject_id}*_desc-confounds_regressors.tsv"))
         except StopIteration:
             raise OSError("File not found.")
