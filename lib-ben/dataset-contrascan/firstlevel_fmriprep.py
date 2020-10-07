@@ -1,5 +1,5 @@
 """
-A script to run a 1st-level analysis using AFNI's wonderful Deconvolve.
+A script to run a 1st-level analysis using the beautiful and eternal AFNI.
 
 Created 9/9/2020 by Benjamin Velie.
 veliebm@gmail.com
