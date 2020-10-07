@@ -211,10 +211,9 @@ class Preprocess():
 
 if __name__ == "__main__":
     """
-    Enables usage of the program from a shell.
+    This section of the script only runs when you run the script directly from the shell.
 
-    The user must specify the location of the BIDS directory.
-    They can also specify EITHER a specific subject OR all subjects.
+    It contains the parser that parses arguments from the command line.
 
     """
 
