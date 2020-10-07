@@ -21,7 +21,7 @@ import os
 from datetime import datetime
 import argparse
 import re
-import pathlib
+from pathlib import Path
 import shutil
 import json
 import pandas
@@ -53,13 +53,13 @@ class Preprocess():
         self.clear_cache = clear_cache
 
         # Store all our dirs in one dict.
-        self.dirs = dict()
-        self.dirs["bids_root"] = pathlib.Path(bids_dir)     # Root of the raw BIDS dataset.
+        self.dirs = {}
+        self.dirs["bids_root"] = Path(bids_dir)     # Root of the raw BIDS dataset.
         self.dirs["subject_root"] = self.dirs["bids_root"] / "derivatives" / "preprocessing_afni" / f"sub-{subject_id}"   # Root of where we'll output info for the subject.
         self.dirs["output"] = self.dirs["subject_root"] / output_dir    # Where we'll output the results of this particular preprocessing run.
 
         # Load files of interest as BIDSFile objects.
-        self.files = dict()
+        self.files = {}
         self.files["anat"] = self.bids.get(subject=107, datatype="anat", suffix="T1w", extensions=".nii")[0]
         self.files["func"] = self.bids.get(subject=107, datatype="func", suffix="bold", extensions=".nii")[0]
         self.files["events"] = self.bids.get(subject=107, datatype="func", suffix="events", extensions=".tsv")[0]
@@ -74,7 +74,7 @@ class Preprocess():
             self._clear_cache()
 
         # Run our interfaces of interest. Store outputs in a dict. The order in which the interfaces run matters.
-        self.results = dict()
+        self.results = {}
         self.results["AlignEpiAnatPy"] = self.AlignEpiAnatPy()
         self.results["AutoTLRC"] = self.AutoTLRC()
 
@@ -128,7 +128,7 @@ class Preprocess():
 
         """
 
-        aligned_anat_path = next(pathlib.Path(self.results["AlignEpiAnatPy"].runtime.cwd).glob("*_T1w_al+orig.BRIK"))
+        aligned_anat_path = next(Path(self.results["AlignEpiAnatPy"].runtime.cwd).glob("*_T1w_al+orig.BRIK"))
 
         return self.memory.cache(afni.preprocess.AutoTLRC)(
             base="TT_avg152T1+tlrc",
@@ -147,7 +147,7 @@ class Preprocess():
             "Time to complete workflow" : str(self.end_time - self.start_time),
             "Cache cleared before analysis": self.clear_cache,
             "Subject ID": self.subject_id,
-            "Interfaces used": [interface for interface in self.results]
+            "Interfaces used": self.results.keys()
         }
 
         # Write the dict to a json file.
@@ -158,7 +158,7 @@ class Preprocess():
 
         # Copy over most of our results from each interface.
         for result in self.results.values():
-            self._copy_result(result, ignore_patterns=(
+            self._copy_cache(result, ignore_patterns=(
                 "*_copy+orig.BRIK",
                 "*_bold.nii"
                 ))
@@ -171,18 +171,17 @@ class Preprocess():
         """
 
         print("Clearing cache")
-        cache_path = self.dirs["subject_root"] / "nipype_mem"
-        shutil.rmtree(cache_path)
+        shutil.rmtree(self.memory.base_dir)
 
 
-    def _copy_result(self, interface_result, ignore_patterns=["nothing at all"]):
+    def _copy_cache(self, interface_result, ignore_patterns=["nothing at all"]):
         """
-        Copies interface results from the cache to the subject directory.
+        Copies an interface result from the cache to the subject directory.
 
 
         Parameters
         ----------
-        interface_result : nipype interface result
+        interface_result : InterfaceResult
             Copies files created by this interface.
         ignore_patterns : list
             Ignore Unix-style file patterns when copying.
@@ -190,7 +189,7 @@ class Preprocess():
         """
 
         # Get name of interface and paths to old dir and new dir.
-        old_result_dir = pathlib.Path(interface_result.runtime.cwd)
+        old_result_dir = Path(interface_result.runtime.cwd)
         interface_name = old_result_dir.parent.stem
         new_result_dir = self.dirs["output"] / interface_name
 
