@@ -265,7 +265,7 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    subject_ids = list()
+    subject_ids = []
     bids_dataset = bids.layout.BIDSLayout(args.bids_dir)
 
     # Option 1: Process all subjects.
