@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 """
 Starts Docker, then starts the Docker image specified in config.json.
 
