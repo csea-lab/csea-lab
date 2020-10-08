@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 """
 A script to run a 1st-level analysis using the beautiful and eternal AFNI.
 
