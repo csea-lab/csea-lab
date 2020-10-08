@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 """
 A script to run an AFNI 2nd level analysis... but in Python???
 
