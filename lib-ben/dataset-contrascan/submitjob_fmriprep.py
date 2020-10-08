@@ -74,7 +74,7 @@ def write_script(time_requested, email_address, script_name, number_of_processor
 pwd; hostname; date				                    # Useful things we'll want to see in the log
 # ------------------------------------------
 
-DERIVS_DIR="${bids_dir}/derivatives/preprocessing/sub-{subject_id}"
+DERIVS_DIR="{bids_dir}/derivatives/preprocessing/sub-{subject_id}"
 LOCAL_FREESURFER_DIR="$DERIVS_DIR/freesurfer"
 
 # Make sure FS_LICENSE is defined in the container.
@@ -91,7 +91,7 @@ SINGULARITY_CMD="singularity run --cleanenv {singularity_image_path}"
 find "$LOCAL_FREESURFER_DIR/sub-$subject"/ -name "*IsRunning*" -type f -delete
 
 # Compose the command line.
-cmd="$SINGULARITY_CMD ${bids_dir} $DERIVS_DIR participant --participant-label {subject_id} -vv --resource-monitor --write-graph --nprocs {number_of_processors} --mem_mb 8000"
+cmd="$SINGULARITY_CMD {bids_dir} $DERIVS_DIR participant --participant-label {subject_id} -vv --resource-monitor --write-graph --nprocs {number_of_processors} --mem_mb 8000"
 
 # Setup done, run the command.
 echo Running task "$SLURM_ARRAY_TASK_ID"
