@@ -9,9 +9,11 @@ veliebm@gmail.com
 from datetime import datetime
 import argparse
 import re
-import pathlib
+from pathlib import Path
 import json
 import subprocess
+from reference import with_whitespace_trimmed, subject_id_of
+
 
 class SecondLevel():
     """
@@ -34,15 +36,17 @@ class SecondLevel():
         print(f"Executing {self.__repr__()}")
 
         # Store in self.dirs paths to directories we need.
-        self.dirs = dict()
-        self.dirs["bids_root"] = pathlib.Path(self.bids_dir)     # Location of the raw BIDS dataset.
+        self.dirs = {}
+        self.dirs["bids_root"] = Path(self.bids_dir)     # Location of the raw BIDS dataset.
         self.dirs["firstlevel_root"] = self.dirs["bids_root"] / "derivatives" / "analysis_level-1"     # Location of all results of all our first-level analyses.
         self.dirs["secondlevel_root"] = self.dirs["bids_root"] / "derivatives" / "analysis_level-2"    # Location where we'll store all results of all second-level analyses.
         self.dirs["output"] = self.dirs["secondlevel_root"] / self.secondlevel_name     # Location where we'll store the results of this specific analysis.
 
-        # Store in self.paths paths to files we need.
-        self.paths = dict()
-        self.paths["deconvolve_outfile"] = {subject_id: self.dirs["firstlevel_root"]/f"sub-{subject_id}"/firstlevel_name/"nipype-interfaces-afni-model-Deconvolve"/"Decon.nii" for subject_id in subject_ids}
+        # Store in self.paths paths to files we need. Each key is a subject ID, and each value is a path.
+        self.paths = {}
+        self.paths["deconvolve"] = {subject_id: self.dirs["firstlevel_root"]/f"sub-{subject_id}"/firstlevel_name/"nipype-interfaces-afni-model-Deconvolve"/"Decon.nii" for subject_id in subject_ids}
+        self.paths["smoothed_image"] = {subject_id: self.dirs["firstlevel_root"]/f"sub-{subject_id}"/firstlevel_name/"nipype-interfaces-afni-model-Deconvolve"/"Decon.nii" for subject_id in subject_ids}
+        self.paths["reml"] = {subject_id: self.dirs["firstlevel_root"]/f"sub-{subject_id}"/firstlevel_name/"nipype-interfaces-afni-model-Remlfit"/"*REML+tlrc.HEAD" for subject_id in subject_ids}
 
         # Raise an error if our files don't exist.
         for category in self.paths.values():
@@ -54,8 +58,9 @@ class SecondLevel():
         for directory in self.dirs.values():
             directory.mkdir(exist_ok=True, parents=True)
 
-        # Run our regression.
-        self.ttest()
+        # Run our regressions.
+        self.ttest_runtime = self.ttest()
+        self.mema_runtime = self.mema()
 
         # Record end time and write our report.
         self.end_time = datetime.now()
@@ -82,7 +87,7 @@ class SecondLevel():
 
         Returns
         -------
-        subprocess.CompletedProcess
+        CompletedProcess
             Contains some info about the 3dttest command execution.
 
         """
@@ -91,7 +96,7 @@ class SecondLevel():
         command = "3dttest -base1 0 -set2".split()
         
         # Append our deconvolve outfiles to the command.
-        for path in self.paths["deconvolve_outfile"].values():
+        for path in self.paths["deconvolve"].values():
             command.append(path)
 
         # Execute the command and return its results.
@@ -99,6 +104,39 @@ class SecondLevel():
             command,
             cwd=self.dirs["output"]
         )
+
+
+    def mema(self):
+        """
+        Runs AFNI's 3dMEMA 2nd-level analysis on the smoothed functional image using the matrix created by 3dREMLfit.
+        
+        AFNI command info: https://afni.nimh.nih.gov/pub/dist/doc/htmldoc/programs/3dMEMA_sphx.html#ahelp-3dmema
+
+
+        Returns
+        -------
+        CompletedProcess
+            Contains some info about the 3dMEMA command execution.
+
+        """
+
+        # Create base command to pass to interface. Remove all unnecessary whitespace by default.
+        command = with_whitespace_trimmed(f"""
+            3dMEMA   -prefix mema
+            -jobs 2
+            -missing_data 0
+            """).split()
+
+        # Append our 3dREMLfit outfiles to the command.
+        command.append("-set activation-vs-0".split())
+        for path in self.paths["reml"].values():
+            command.append(f"{subject_id_of(path)} {self.paths['smoothed_image'][subject_id_of(path)]} {self.paths['reml'][subject_id_of(path)]}")
+
+        # Execute the command and return its results.
+        return subprocess.run(
+            command,
+            cwd=self.dirs["output"]
+        )        
 
 
     def write_report(self):
@@ -112,7 +150,7 @@ class SecondLevel():
             "Time to complete workflow": str(self.end_time - self.start_time),
             "First level analysis name": self.firstlevel_name,
             "Subject IDs used": self.subject_ids,
-            "Interfaces used": "3dttest",
+            "Interfaces used": "3dttest, 3dMEMA",
         }
 
         # Write the workflow dict to a json file.
@@ -120,37 +158,6 @@ class SecondLevel():
         print(f"Writing {output_json_path}")
         with open(output_json_path, "w") as json_file:
             json.dump(workflow_info, json_file, indent="\t")
-
-
-def _get_subject_id(path) -> str:
-    """
-    Returns the subject ID found in the input filename.
-
-
-    Inputs
-    ------
-    path : str or pathlib.Path
-        String or path containing the subject ID.
-
-
-    Returns
-    -------
-    str
-        Subject ID found in the filename
-
-
-    Raises
-    ------
-    IndexError
-        If no subject ID found in the filename.
-
-    """
-    
-    potential_subject_ids = re.findall(r"sub-(\d+)", str(path))
-
-    subject_id = potential_subject_ids[-1]
-
-    return subject_id
 
 
 if __name__ == "__main__":
@@ -203,22 +210,21 @@ if __name__ == "__main__":
 
     group.add_argument
 
-
+    # Parse args from the command line and create an empty list to store the subject ids we picked.
     args = parser.parse_args()
-
-    subject_ids = list()
+    subject_ids = []
 
     # Option 1: Process all subjects.
     if args.all:
-        bids_root = pathlib.Path(args.bids_dir)
+        bids_root = Path(args.bids_dir)
         for subject_dir in bids_root.glob("sub-*"):
-            subject_ids.append(_get_subject_id(subject_dir))
+            subject_ids.append(subject_id_of(subject_dir))
 
     # Option 2: Process specific subjects.
     else:
         subject_ids = args.subjects
 
-
+    # Launch the second level analysis on the subjects we picked.
     SecondLevel(
         subject_ids=subject_ids,
         bids_dir=args.bids_dir,
