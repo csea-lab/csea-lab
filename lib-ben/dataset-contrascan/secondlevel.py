@@ -23,7 +23,7 @@ class SecondLevel():
 
     """
 
-    def __init__(self, subject_ids, bids_dir, firstlevel_name, secondlevel_name):
+    def __init__(self, subject_ids, bids_dir, firstlevel_name):
 
         # Track when the program begins running.
         self.start_time = datetime.now()
@@ -32,7 +32,6 @@ class SecondLevel():
         self.subject_ids = subject_ids
         self.bids_dir = bids_dir
         self.firstlevel_name = firstlevel_name
-        self.secondlevel_name = secondlevel_name
 
         # Tell the user what this class looks like internally.
         print(f"Executing {self.__repr__()}")
@@ -42,13 +41,13 @@ class SecondLevel():
         self.dirs["bids_root"] = Path(self.bids_dir)     # Location of the raw BIDS dataset.
         self.dirs["firstlevel_root"] = self.dirs["bids_root"] / "derivatives" / "analysis_level-1"     # Location of all results of all our first-level analyses.
         self.dirs["secondlevel_root"] = self.dirs["bids_root"] / "derivatives" / "analysis_level-2"    # Location where we'll store all results of all second-level analyses.
-        self.dirs["output"] = self.dirs["secondlevel_root"] / self.secondlevel_name     # Location where we'll store the results of this specific analysis.
+        self.dirs["output"] = self.dirs["secondlevel_root"] / self.firstlevel_name     # Location where we'll store the results of this specific analysis.
 
         # Store in self.paths paths to files we need. Each key is a subject ID, and each value is a path.
         self.paths = {}
-        self.paths["deconvolve"] = {subject_id: self.dirs["firstlevel_root"]/f"sub-{subject_id}"/firstlevel_name/"nipype-interfaces-afni-model-Deconvolve"/"Decon.nii" for subject_id in subject_ids}
-        self.paths["smoothed_image"] = {subject_id: self.dirs["firstlevel_root"]/f"sub-{subject_id}"/firstlevel_name/"nipype-interfaces-afni-model-Deconvolve"/"Decon.nii" for subject_id in subject_ids}
-        self.paths["reml"] = {subject_id: self.dirs["firstlevel_root"]/f"sub-{subject_id}"/firstlevel_name/"nipype-interfaces-afni-model-Remlfit"/"*REML+tlrc.HEAD" for subject_id in subject_ids}
+        self.paths["deconvolve"] = {subject_id: self.dirs["firstlevel_root"]/f"sub-{subject_id}"/firstlevel_name/"nipype-interfaces-afni-model-Deconvolve/Decon.nii" for subject_id in subject_ids}
+        self.paths["smoothed_image"] = {subject_id: self.dirs["firstlevel_root"]/f"sub-{subject_id}"/firstlevel_name/"nipype-interfaces-afni-model-Deconvolve/Decon.nii" for subject_id in subject_ids}
+        self.paths["reml"] = {subject_id: self.dirs["firstlevel_root"]/f"sub-{subject_id}"/firstlevel_name/"nipype-interfaces-afni-model-Remlfit/Decon.nii_REML+tlrc.HEAD" for subject_id in subject_ids}
 
         # Raise an error if our files don't exist.
         for category in self.paths.values():
@@ -77,7 +76,7 @@ class SecondLevel():
         
         """
 
-        return f"SecondLevel(subject_ids={self.subject_ids}, bids_dir='{self.bids_dir}', firstlevel_name='{self.firstlevel_name}', secondlevel_name='{self.secondlevel_name}')"
+        return f"SecondLevel(subject_ids={self.subject_ids}, bids_dir='{self.bids_dir}', firstlevel_name='{self.firstlevel_name}')"
 
 
     def ttest(self):
@@ -98,8 +97,7 @@ class SecondLevel():
         command = "3dttest -base1 0 -set2".split()
         
         # Append our deconvolve outfiles to the command.
-        for path in self.paths["deconvolve"].values():
-            command.append(path)
+        command += self.paths["deconvolve"].values()
 
         # Execute the command and return its results.
         return subprocess.run(
@@ -130,9 +128,13 @@ class SecondLevel():
             """).split()
 
         # Append our 3dREMLfit outfiles to the command.
-        command.append("-set activation-vs-0".split())
-        for path in self.paths["reml"].values():
-            command.append(f"{subject_id_of(path)} {self.paths['smoothed_image'][subject_id_of(path)]} {self.paths['reml'][subject_id_of(path)]}")
+        command += "-set activation-vs-0".split()
+        for subject_id in self.subject_ids:
+            command += [
+                subject_id,
+                self.paths['smoothed_image'][subject_id],
+                self.paths['reml'][subject_id]
+            ]
 
         # Execute the command and return its results.
         return subprocess.run(
@@ -187,13 +189,6 @@ if __name__ == "__main__":
         help="<Mandatory> Name of the 1st-level analysis directory to access within the BIDS directory. Example: to access 'bidsroot/derivatives/first_level_analysis/sub-$SUBJECT_ID/analysis_regressors-csf', use '--firstlevel_name analysis_regressors-csf'"
     )
 
-    parser.add_argument(
-        "--secondlevel_name",
-        "-o",
-        required=True,
-        help="<Mandatory> What we shall name 2nd-level analysis directory. Example: '--secondlevel_name secondlevel_attempt-4'"
-    )
-
     group = parser.add_mutually_exclusive_group(required=True)
     group.add_argument(
         "--subjects",
@@ -230,6 +225,5 @@ if __name__ == "__main__":
     SecondLevel(
         subject_ids=subject_ids,
         bids_dir=args.bids_dir,
-        firstlevel_name=args.firstlevel_name,
-        secondlevel_name=args.secondlevel_name,
+        firstlevel_name=args.firstlevel_name
     )
