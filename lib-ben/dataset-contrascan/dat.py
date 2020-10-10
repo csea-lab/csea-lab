@@ -28,6 +28,8 @@ class Dat():
     ----------
     path : Path
         Path to the .dat file.
+    dataframe : DataFrame
+        DataFrame containing each value of the .dat table. Rows and columns are numbered from 0 onward.
 
     """
 
