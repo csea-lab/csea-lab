@@ -14,7 +14,7 @@ veliebm@ufl.edu
 
 import argparse
 import bidsify_paths_template
-import pathlib
+from pathlib import Path
 import shutil
 
 
@@ -33,8 +33,8 @@ def main(input_dir, output_dir):
     """
 
     # Force our parameters to become path objects.
-    input_path = pathlib.Path(input_dir)
-    output_path = pathlib.Path(output_dir)
+    input_path = Path(input_dir)
+    output_path = Path(output_dir)
 
     # Store old and new paths in a dict.
     old_and_new_paths = bidsify_paths(input_path, output_path)
