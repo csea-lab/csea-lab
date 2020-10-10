@@ -13,7 +13,7 @@ from pathlib import Path
 
 class Dat():
     """
-    Class to organize and extract data from a NIFTI file.
+    Class to organize and extract data from a .dat file.
 
 
     Parameters
