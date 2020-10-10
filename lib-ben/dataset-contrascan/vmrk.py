@@ -9,6 +9,8 @@ veliebm@gmail.com
 """
 
 from pathlib import Path
+import pandas
+import re
 
 
 class Vmrk():
@@ -26,6 +28,8 @@ class Vmrk():
     ----------
     path : Path
         Path to the .vmrk file.
+    dataframe : DataFrame
+        DataFrame containing the values of the body of the .vmrk file.
 
     """
 
@@ -35,109 +39,124 @@ class Vmrk():
 
     def __init__(self, input_path):
 
+        self._parameters = locals()
+
         self.path = Path(input_path)
+        self.dataframe = self._as_dataframe()
 
 
-    def timings(self) -> list:
+    def __repr__(self):
         """
-        Returns a list of timings from the .vmrk file.
-
-        Automatically converts times into seconds and adjusts them to the specified
-        start time.
+        Defines how the class represents itself as a string. Useful for debugging in iPython.
 
         """
 
-        raw_timings = self._raw_timings()
+        parameter_string = ""
+        for parameter, value in self._parameters.items():
+            if parameter != "self":
+                parameter_string += f"{parameter}={value}"
 
-        return self._clean_timings(raw_timings)
+        return f"{__class__.__name__}({parameter_string})"
 
-    
-    def start_time(self) -> float:
+
+    def onsets(self) -> list:
         """
-        Returns the time at which the fMRI began scanning.
-
-        """
-
-        for line in self.line_list():
-            if self.FMRI_CODE in line:
-
-                return self._get_timing(line) / 5000
-
-    
-    def line_list(self) -> list:
-        """
-        Returns the .vmrk file as a list of lines.
+        Returns a list of onsets from the .vmrk file converted to seconds and adjusted to start time.
 
         """
 
-        return self.path.read_text().splitlines()
-    
+        # Raw onsets stores our onsets unadjusted for start time or converted to seconds
+        raw_onsets = []
+        for i, code in enumerate(self.dataframe["Description"]):
+            if code == self.ONSET_CODE:
+                raw_onsets.append(float(self.dataframe["Position in data points"][i]))
 
-    def output_timings(self, output_dir_path):
+        return [self._converted_to_seconds_and_adjusted_to_start_time(timing) for timing in raw_onsets]
+
+
+    def raw_start_time(self) -> float:
         """
-        Outputs a txt file of timings into the specified directory.
-
-        """
-
-        output_dir_path = Path(output_dir_path)
-        txt_path = output_dir_path / f"{self.path.stem}_onsets.txt"
-
-        formatted_timings = (f"{str(timing)}\n" for timing in self.timings())
-
-        with txt_path.open(mode='w') as txt_file:
-            txt_file.writelines(formatted_timings)
-
-
-    def raw_text(self):
-        """
-        Returns the raw text extracted from the file.
+        Returns the raw time at which the fMRI began scanning.
 
         """
 
-        return self.path.read_text()
+        for i, code in enumerate(self.dataframe["Description"]):
+            if code == self.FMRI_CODE:
+                return float(self.dataframe["Position in data points"][i])
+
+        # Raise an error if we can't find the start time.
+        raise LookupError("No fMRI start signal found.")
 
 
-    def _clean_timings(self, raw_timings: list) -> list:
+    def write_onsets_to(self, path):
         """
-        Converts a list of raw times into clean times.
+        A file of onsets converted to seconds and adjusted to the start time outputs into the target path.
+
+        Very handy to get your stimulus onsets all in one place, lemme tell ya.
+
+        """
+
+        output_path = Path(path)
+
+        with output_path.open(mode='w') as txt_file:
+            txt_file.writelines((f"{onset}\n" for onset in self.onsets()))
+
+
+    def _converted_to_seconds_and_adjusted_to_start_time(self, timing):
+        """
+        Converts a timing value into seconds and adjusts it to the start time.
 
         Each raw time is divided by 5000 to convert it to seconds. Also, the time list is adjusted to the
         time the fMRI began scanning.
 
         """
-
-        clean_timings = []
-
-        for raw_time in raw_timings:
-            time = raw_time / 5000 - self.start_time()
-            clean_timings.append(round(time, 4))
-
-        return clean_timings
+        
+        raw_time = (timing - self.raw_start_time()) / 5000
+        return (round(raw_time, 4))
 
 
-    def _raw_timings(self) -> list:
+    def header_string(self) -> str:
         """
-        Returns a list of all raw stimulus onset timings.
-
-        Note that the times must be further cleaned.
+        Returns the header of the vmrk file as a nice, big string.
 
         """
 
-        lines = self.line_list()
-        raw_timings = []
-
-        for line in lines:
-            if self.ONSET_CODE in line:
-                raw_time = self._get_timing(line)
-                raw_timings.append(raw_time)
-
-        return raw_timings
+        line_list = self.path.read_text().splitlines()
+        header_lines = [line for line in line_list if not re.search(pattern="Mk[0-9]+=", string=line)]
+        return "\n".join(header_lines)
 
 
-    def _get_timing(self, line: str) -> str:
+    def body_string(self) -> str:
         """
-        Returns the stimulus timing from a line of text in the .vmrk file.
+        Returns the body of the vmrk file as a nice, big string without the header.
 
         """
 
-        return float(line.split(",")[2])
+        line_list = self.path.read_text().splitlines()
+        body_lines = [line for line in line_list if re.search(pattern=r"Mk[0-9]+=", string=line)]
+        return "\n".join(body_lines)
+
+
+    def column_names(self) -> list:
+        """
+        Returns the name of each column in the .vmrk file as defined in the header.
+
+        """
+
+        return re.findall(pattern=r"(?<=\<).+?(?=\>)", string=self.header_string())
+
+
+    def _as_dataframe(self) -> pandas.DataFrame:
+        """
+        Reads the .vmrk file and returns it as a fresh, clean DataFrame.
+
+        Columns are numbered in order. Rows are also numbered in order.
+
+        """
+
+        # Format our data into a clean list of lists. Ignore the final column because only a single line has an extra column.
+        line_list = [line.replace("Mk", "") for line in self.body_string().splitlines()]
+        split_line_list = [re.split(pattern="[,=]", string=line)[:-1] for line in line_list]
+
+        # From the list of lists birth a glorious DataFrame with column names extracted from the header
+        return pandas.DataFrame(split_line_list, columns=self.column_names())
