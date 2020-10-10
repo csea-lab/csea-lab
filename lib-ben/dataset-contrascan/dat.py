@@ -8,7 +8,7 @@ veliebm@gmail.com
 
 """
 
-import pathlib
+from pathlib import Path
 
 
 class Dat():
@@ -31,7 +31,7 @@ class Dat():
 
     def __init__(self, input_path):
 
-        self.path = pathlib.Path(input_path)
+        self.path = Path(input_path)
 
 
     def durations(self) -> list:
