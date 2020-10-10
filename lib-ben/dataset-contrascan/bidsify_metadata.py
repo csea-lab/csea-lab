@@ -11,7 +11,7 @@ veliebm@gmail.com
 """
 
 # Standard python modules
-import pathlib
+from pathlib import Path
 import argparse
 import re
 import pandas
@@ -43,7 +43,7 @@ def main(input_dir):
     """
     
     # Force input dir to become a path object.
-    input_dir_path = pathlib.Path(input_dir)
+    input_dir_path = Path(input_dir)
 
     # Gather into paths all file paths in the input directory and recursively its subdirectories.
     path_list = [path for path in input_dir_path.rglob("*") if path.is_file()]
@@ -122,7 +122,7 @@ def write_func_tsvs(file_dataframe):
 
         # Get .tsv path.
         func_file = file_dataframe[subject]["func"]
-        tsv_path = pathlib.Path(str(func_file.path).replace("_bold.nii", "_events.tsv"))
+        tsv_path = Path(str(func_file.path).replace("_bold.nii", "_events.tsv"))
 
         # Write the .tsv
         tsv_dataframe.to_csv(tsv_path, sep="\t", header=False, index=False)
