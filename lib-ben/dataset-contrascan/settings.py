@@ -8,7 +8,7 @@ veliebm@gmail.com
 
 """
 
-import pathlib
+from pathlib import Path
 from copy import deepcopy
 
 
@@ -35,7 +35,7 @@ class Settings():
 
     def __init__(self, input_path):
         
-        self.path = pathlib.Path(input_path)
+        self.path = Path(input_path)
 
 
     def dict(self) -> dict:
@@ -203,7 +203,7 @@ class Settings():
     def _merge(self, list1, list2): 
         """
         Merges two lists into a list of tuples.
-        
+
         """
 
         merged_list = tuple(zip(list1, list2))  
