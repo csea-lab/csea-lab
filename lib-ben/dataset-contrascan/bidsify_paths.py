@@ -5,10 +5,11 @@ Renames and copies all neuroimaging files recursively within a directory tree in
 
 You can customize which files are copied and where they go. Just edit bidsify_paths_template.py.
 
-Note this script does NOT extract and format metadata. But you can use my other scripts to do that!
+Note this script does NOT extract and format metadata. But you can use bidsify_metadata.py to do that!
 
 Created 8/11/2020 by Benjamin Velie.
 veliebm@ufl.edu
+
 """
 
 import argparse
@@ -20,6 +21,15 @@ import shutil
 def main(input_dir, output_dir):
     """
     Structure an input directory into BIDS but without any metadata included.
+
+
+    Parameters
+    ----------
+    input_dir : str or Path
+        Directory to transform into BIDS.
+    output_dir : str or Path
+        Where to create the new BIDS directory.
+
     """
 
     # Force our parameters to become path objects.
@@ -37,7 +47,20 @@ def get_file_type(path) -> str:
     """
     Returns the type of neuroimaging file the target file is.
 
-    Returns any file type in FILETYPES.
+    Returns any file type in FILETYPES, which comes from the bidsify_paths_template module.
+
+
+    Parameters
+    ----------
+    path : Path
+        Path to the file you'd like to classify.
+
+
+    Returns
+    -------
+    str
+        The type of file it is.
+
     """
 
     for file_type, keyword_list in bidsify_paths_template.FILETYPES.items():
@@ -48,7 +71,22 @@ def get_file_type(path) -> str:
 
 def bidsify_paths(input_dir_path, output_dir_path) -> dict:
     """
-    Returns a dictionary with each key equal to an old path and the key's value equal to its new path.
+    Returns a dictionary with each key equal to an old path and its value equal to a new path.
+
+    
+    Parameters
+    ----------
+    input_dir_path : Path
+        The directory to transmogrify into BIDS.
+    output_dir_path : Path
+        Where you want your BIDS directory to be.
+
+
+    Returns
+    -------
+    dict
+        Each key is a Path globbed from input_dir_path. Each value is its new location, which is also a Path object.
+
     """
 
     old_and_new_paths = {}
@@ -62,6 +100,21 @@ def bidsify_paths(input_dir_path, output_dir_path) -> dict:
 def bidsify_path(input_path, output_dir_path) -> str:
     """
     Returns a path reformatted to BIDS.
+
+
+    Parameters
+    ----------
+    input_path : Path
+        Path to a file you'd like to modify into BIDS.
+    output_dir_path : Path
+        Where you want your BIDS directory to be.
+
+
+    Returns
+    -------
+    Path
+        The file's new location.
+
     """
 
     file_type = get_file_type(input_path)
@@ -73,6 +126,13 @@ def bidsify_path(input_path, output_dir_path) -> str:
 def copy_files(old_and_new_paths: dict):
     """
     Given a dictionary containing old paths and new paths, copies the old to the new.
+
+
+    Parameters
+    ----------
+    old_and_new_paths : dict
+        Each key is an unbidsified path. Each value is its new location.
+
     """
 
     for old_path, new_path in old_and_new_paths.items():
@@ -84,6 +144,12 @@ def copy_files(old_and_new_paths: dict):
 
 
 if __name__ == "__main__":
+    """
+    This section of the script only runs when you run the script directly from the shell.
+
+    It contains the parser that parses arguments from the command line.
+
+    """
 
     parser = argparse.ArgumentParser(description="Renames and moves files into a BIDS-compliant directory structure.")
     parser.add_argument("input_dir", type=str, help="Input directory.")
