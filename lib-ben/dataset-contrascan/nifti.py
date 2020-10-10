@@ -5,6 +5,7 @@ Class to organize and extract data from a NIFTI file.
 
 Created 8/20/2020 by Benjamin Velie.
 veliebm@gmail.com
+
 """
 
 import pathlib
@@ -16,17 +17,18 @@ class Nifti():
     """
     Class to organize and extract data from a NIFTI file.
 
+
     Parameters
     ----------
     input_path : str or Path
         Path to the NIFTI file to be processed.
 
-    ...
 
     Attributes
     ----------
     path : Path
         The path of the NIFTI file.
+
     """
 
     def __init__(self, input_path):
@@ -37,6 +39,7 @@ class Nifti():
     def load(self):
         """
         Returns the complete NIFTI file.
+
         """
 
         return nibabel.load(self.path)
@@ -45,6 +48,7 @@ class Nifti():
     def header(self):
         """
         Returns the header of the NIFTI file.
+
         """
 
         return nibabel.load(self.path).header
@@ -53,6 +57,7 @@ class Nifti():
     def count_volumes(self) -> int:
         """
         Returns the number of volumes in the NIFTI file.
+
         """
 
         return self.header()["slice_end"] - self.header()["slice_start"] + 1
@@ -63,6 +68,7 @@ class Nifti():
         If the file is named according to BIDS, returns a list of all tasks in the filename.
 
         Returns None if no tasks found.
+
         """
 
         tasks = re.findall(r"task-(.+)_", self.path.stem)
@@ -78,6 +84,7 @@ class Nifti():
         If the file is named according to BIDS, returns the subject's name.
 
         Returns None if no subject ID found.
+
         """
         
         potential_subject_ids = re.findall(r"sub-(\d+)", str(self.path))
