@@ -8,7 +8,7 @@ veliebm@gmail.com
 
 """
 
-import pathlib
+from pathlib import Path
 import nibabel
 import re
 
@@ -33,7 +33,7 @@ class Nifti():
 
     def __init__(self, input_path):
         
-        self.path = pathlib.Path(input_path)
+        self.path = Path(input_path)
 
     
     def load(self):
