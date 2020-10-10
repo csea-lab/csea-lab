@@ -5,6 +5,7 @@ Class to organize and extract data from a .vmrk file.
 
 Created 8/20/2020 by Benjamin Velie.
 veliebm@gmail.com
+
 """
 
 import pathlib
@@ -14,21 +15,23 @@ class Vmrk():
     """
     Class to organize and extract data from a .vmrk file.
 
+
     Parameters
     ----------
     input_path : str or Path
         Path to the .vmrk file.
 
-    ...
 
     Attributes
     ----------
     path : Path
         Path to the .vmrk file.
+
     """
 
     ONSET_CODE = "S  2"
     FMRI_CODE = "R128"
+
 
     def __init__(self, input_path):
 
@@ -41,6 +44,7 @@ class Vmrk():
 
         Automatically converts times into seconds and adjusts them to the specified
         start time.
+
         """
 
         raw_timings = self._raw_timings()
@@ -51,6 +55,7 @@ class Vmrk():
     def start_time(self) -> float:
         """
         Returns the time at which the fMRI began scanning.
+
         """
 
         for line in self.line_list():
@@ -62,6 +67,7 @@ class Vmrk():
     def line_list(self) -> list:
         """
         Returns the .vmrk file as a list of lines.
+
         """
 
         return self.path.read_text().splitlines()
@@ -70,6 +76,7 @@ class Vmrk():
     def output_timings(self, output_dir_path):
         """
         Outputs a txt file of timings into the specified directory.
+
         """
 
         output_dir_path = pathlib.Path(output_dir_path)
@@ -84,6 +91,7 @@ class Vmrk():
     def raw_text(self):
         """
         Returns the raw text extracted from the file.
+
         """
 
         return self.path.read_text()
@@ -95,6 +103,7 @@ class Vmrk():
 
         Each raw time is divided by 5000 to convert it to seconds. Also, the time list is adjusted to the
         time the fMRI began scanning.
+
         """
 
         clean_timings = []
@@ -111,6 +120,7 @@ class Vmrk():
         Returns a list of all raw stimulus onset timings.
 
         Note that the times must be further cleaned.
+
         """
 
         lines = self.line_list()
@@ -127,6 +137,7 @@ class Vmrk():
     def _get_timing(self, line: str) -> str:
         """
         Returns the stimulus timing from a line of text in the .vmrk file.
+        
         """
 
         return float(line.split(",")[2])
