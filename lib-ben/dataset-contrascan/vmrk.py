@@ -8,7 +8,7 @@ veliebm@gmail.com
 
 """
 
-import pathlib
+from pathlib import Path
 
 
 class Vmrk():
@@ -35,7 +35,7 @@ class Vmrk():
 
     def __init__(self, input_path):
 
-        self.path = pathlib.Path(input_path)
+        self.path = Path(input_path)
 
 
     def timings(self) -> list:
@@ -79,7 +79,7 @@ class Vmrk():
 
         """
 
-        output_dir_path = pathlib.Path(output_dir_path)
+        output_dir_path = Path(output_dir_path)
         txt_path = output_dir_path / f"{self.path.stem}_onsets.txt"
 
         formatted_timings = (f"{str(timing)}\n" for timing in self.timings())
@@ -137,7 +137,7 @@ class Vmrk():
     def _get_timing(self, line: str) -> str:
         """
         Returns the stimulus timing from a line of text in the .vmrk file.
-        
+
         """
 
         return float(line.split(",")[2])
