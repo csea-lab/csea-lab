@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 """
 Renames and copies all neuroimaging files recursively within a directory tree into a BIDS-compliant directory tree.
 

@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 """
 Class to organize and extract data from an fMRI settings file.
 

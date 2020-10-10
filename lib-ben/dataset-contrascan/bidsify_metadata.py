@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 """
 Extracts the necessary metadata from a dataset to make it BIDS compliant. 
 

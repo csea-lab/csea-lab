@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 """
 This module contains functions I find myself using again and again across the entire contrascan project.
 

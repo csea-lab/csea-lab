@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 """
 Provides templates for bidsify_paths.py.
 
