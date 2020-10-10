@@ -19,7 +19,6 @@ veliebm@gmail.com
 """
 
 import re
-import pathlib
 
 
 # Task name to use when naming fMRI and EEG files
