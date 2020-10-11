@@ -26,7 +26,7 @@ START_TIME = f"{now.tm_hour}.{now.tm_min}.{now.tm_sec}"
 START_DATE = f"{now.tm_mon}.{now.tm_mday}.{now.tm_year}"
 
 
-def write_script(time_requested, email_address, script_name, number_of_processors, qos, subject_id, bids_dir, freesurfer_license_path, singularity_image_path):
+def write_script(time_requested, email_address, script_name, number_of_processors, qos, subject_id, bids_dir, freesurfer_license_path, singularity_image_path, additional_fmriprep_args):
     """
     Writes the SLURM script to the current working directory.
 
@@ -51,6 +51,8 @@ def write_script(time_requested, email_address, script_name, number_of_processor
         Path to a Freesurfer license file.
     singularity_image_path : str or Path
         Path to an fMRIPrep Singularity image.
+    additional_fmriprep_args : str
+        Args the user wants to send to fMRIPrep directly.
         
     """
 
@@ -91,7 +93,7 @@ SINGULARITY_CMD="singularity run --cleanenv {singularity_image_path}"
 find "$LOCAL_FREESURFER_DIR/sub-$subject"/ -name "*IsRunning*" -type f -delete
 
 # Compose the command line.
-cmd="$SINGULARITY_CMD {bids_dir} $DERIVS_DIR participant --participant-label {subject_id} -vv --resource-monitor --write-graph --nprocs {number_of_processors} --mem_mb 8000"
+cmd="$SINGULARITY_CMD {bids_dir} $DERIVS_DIR participant --participant-label {subject_id} -vv --resource-monitor --write-graph --nprocs {number_of_processors} --mem_mb 8000 {additional_fmriprep_args}"
 
 # Setup done, run the command.
 echo Running task "$SLURM_ARRAY_TASK_ID"
@@ -213,6 +215,12 @@ if __name__ == "__main__":
         help=f"Default: {os.getlogin()}@ufl.edu. Email address to send job updates to. Example: '--email veliebm@gmail.com'"
     )
 
+    parser.add_argument(
+        "--more_args",
+        metavar="ARGUMENTS",
+        help=f"Additional arguments you want to send directly to fMRIPrep itself. Example: '--args '--use-aroma --output-space template --debug''"
+    )
+
     # Gather arguments from the command line.
     args = parser.parse_args()
     print(f"Args: {args}")
@@ -241,7 +249,8 @@ if __name__ == "__main__":
             subject_id=subject_id,
             bids_dir=args.bids_dir.absolute(),
             freesurfer_license_path=args.fs_license.absolute(),
-            singularity_image_path=args.image.absolute()
+            singularity_image_path=args.image.absolute(),
+            additional_fmriprep_args=args.more_args
         )
 
         # Run SLURM script.
