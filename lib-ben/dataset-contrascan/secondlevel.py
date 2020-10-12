@@ -60,8 +60,9 @@ class SecondLevel():
             directory.mkdir(exist_ok=True, parents=True)
 
         # Run our regressions.
-        self.ttest_runtime = self.ttest()
-        self.mema_runtime = self.mema()
+        self.runtimes = {}
+        self.runtimes["ttest"] = self.ttest()
+        self.runtimes["mema"] = self.mema()
 
         # Record end time and write our report.
         self.end_time = datetime.now()
