@@ -81,9 +81,9 @@ class SecondLevel():
 
     def ttest(self):
         """
-        Run AFNI's 3dttest on each subject.
+        Run AFNI's 3dttest++ on each subject.
 
-        AFNI command info: https://afni.nimh.nih.gov/pub/dist/doc/program_help/3dttest.html
+        AFNI command info: https://afni.nimh.nih.gov/pub/dist/doc/htmldoc/programs/3dttest++_sphx.html#ahelp-3dttest
 
 
         Returns
@@ -94,8 +94,8 @@ class SecondLevel():
         """
 
         # Get base command as a list of parameters to be fed into the command line.
-        command = "3dttest -base1 0 -set2".split()
-        
+        command = "3dttest++ -setA".split()
+
         # Append our deconvolve outfiles to the command.
         command += self.paths["deconvolve"].values()
 
@@ -154,7 +154,7 @@ class SecondLevel():
             "Time to complete workflow": str(self.end_time - self.start_time),
             "First level analysis name": self.firstlevel_name,
             "Subject IDs used": self.subject_ids,
-            "Interfaces used": "3dttest, 3dMEMA",
+            "Interfaces used": "3dttest++, 3dMEMA",
         }
 
         # Write the workflow dict to a json file.
