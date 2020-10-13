@@ -158,8 +158,8 @@ class SecondLevel():
             "Time to complete workflow": str(self.end_time - self.start_time),
             "First level analysis used": self.firstlevel_name,
             "Subjects included": str(self.subject_ids),
-            "Programs used (abbreviated)": [runtime.args[0] for runtime in self.runtimes.values()],
-            "Programs used (complete)": [[str(arg) for arg in runtime.args] for runtime in self.runtimes.values()]
+            "Programs used": [runtime.args[0] for runtime in self.runtimes.values()],
+            "Commands executed": [[str(arg) for arg in runtime.args] for runtime in self.runtimes.values()]
         }
 
         # Write the workflow dict to a json file.
