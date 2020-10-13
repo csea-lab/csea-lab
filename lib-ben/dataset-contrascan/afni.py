@@ -18,18 +18,18 @@ class AFNI():
 
     """
 
-    def __init__(self, working_directory, program: str, args: list):
+    def __init__(self, where_to_create_working_directory, program: str, args: list):
 
         self.start_time = datetime.now()
 
         # Store parameters.
-        self.working_directory = Path(working_directory).absolute()
+        self.where_to_create_working_directory = Path(where_to_create_working_directory).absolute()
         self.program = program
         self.args = args
 
-        # Make working_directory if it doesn't exist.
+        # Make working_directory if it doesn't exist. Scan it for any files already inside it.
+        self.working_directory = self.where_to_create_working_directory/self.program
         self.working_directory.mkdir(parents=True, exist_ok=True)
-
         self.paths_in_working_directory_before_running = list(self.working_directory.rglob("*"))
 
         # Execute AFNI program.
@@ -38,6 +38,7 @@ class AFNI():
             cwd=self.working_directory
         )
 
+        # Scan for any new files we've made. Record end time. Write logs.
         self.paths_in_working_directory_after_running = list(self.working_directory.rglob("*"))
         self.end_time = datetime.now()
         self.write_logs()
