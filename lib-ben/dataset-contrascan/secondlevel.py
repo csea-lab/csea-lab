@@ -15,6 +15,7 @@ from pathlib import Path
 import json
 import subprocess
 from reference import with_whitespace_trimmed, subject_id_of
+import multiprocessing
 
 
 class SecondLevel():
@@ -110,7 +111,7 @@ class SecondLevel():
     def mema(self):
         """
         Runs AFNI's 3dMEMA 2nd-level analysis on the smoothed functional image using the matrix created by 3dREMLfit.
-        
+
         AFNI command info: https://afni.nimh.nih.gov/pub/dist/doc/htmldoc/programs/3dMEMA_sphx.html#ahelp-3dmema
 
 
@@ -123,9 +124,11 @@ class SecondLevel():
 
         # Create base command to pass to interface. Remove all unnecessary whitespace by default.
         command = with_whitespace_trimmed(f"""
-            3dMEMA   -prefix mema
-            -jobs 2
-            -missing_data 0
+            3dMEMA
+            -prefix mema
+            -jobs {multiprocessing.cpu_count()}
+            -model_outliers
+            -residual_Z
             """).split()
 
         # Append our 3dREMLfit outfiles to the command.
@@ -153,9 +156,10 @@ class SecondLevel():
         # Store workflow info into a dict.
         workflow_info = {
             "Time to complete workflow": str(self.end_time - self.start_time),
-            "First level analysis name": self.firstlevel_name,
-            "Subject IDs used": self.subject_ids,
-            "Interfaces used": "3dttest++, 3dMEMA",
+            "First level analysis used": self.firstlevel_name,
+            "Subjects included": str(self.subject_ids),
+            "Programs used (abbreviated)": [runtime.args[0] for runtime in self.runtimes.values()],
+            "Programs used (complete)": [[str(arg) for arg in runtime.args] for runtime in self.runtimes.values()]
         }
 
         # Write the workflow dict to a json file.
