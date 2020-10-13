@@ -27,10 +27,9 @@ class AFNI():
         self.program = program
         self.args = args
 
-        # Make working_directory if it doesn't exist. Scan it for any files already inside it.
+        # Make working_directory if it doesn't exist.
         self.working_directory = self.where_to_create_working_directory/self.program
         self.working_directory.mkdir(parents=True, exist_ok=True)
-        self.paths_in_working_directory_before_running = list(self.working_directory.rglob("*"))
 
         # Execute AFNI program.
         self.runtime = subprocess.run(
@@ -38,8 +37,7 @@ class AFNI():
             cwd=self.working_directory
         )
 
-        # Scan for any new files we've made. Record end time. Write logs.
-        self.paths_in_working_directory_after_running = list(self.working_directory.rglob("*"))
+        # Record end time. Write logs.
         self.end_time = datetime.now()
         self.write_logs()
 
@@ -67,8 +65,6 @@ class AFNI():
             "Working directory": str(self.working_directory),
             "Time to run program": str(self.end_time - self.start_time),
             "Complete command executed": self.runtime.args,
-            "Paths in working directory after running program": [str(path) for path in self.paths_in_working_directory_after_running],
-            "Paths in working directory before running program": [str(path) for path in self.paths_in_working_directory_before_running]
         }
 
         # Write the program info dict to a json file.
