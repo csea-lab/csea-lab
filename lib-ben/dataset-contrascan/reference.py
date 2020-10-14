@@ -64,7 +64,7 @@ def with_whitespace_trimmed(docstring: str) -> str:
     return ' '.join(docstring.replace("\n", " ").split())
 
 
-def find_path_matching(pattern: str, in_directory):
+def the_path_that_matches(pattern: str, in_directory):
     """
     Finds one and only one path matching the specified pattern. Raises an error if it finds 2+ paths or no paths.
 
