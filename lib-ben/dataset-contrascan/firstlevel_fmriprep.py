@@ -29,16 +29,18 @@ class FirstLevel():
 
     """
 
-    def __init__(self, bids_dir, subject_id, regressor_names: list, output_dir):
+    def __init__(self, bids_dir, subject_id, regressor_names: list, outputs_title):
     
         print(f"Processing subject {subject_id}")
 
         # Track time information.
         self.start_time = datetime.now()
         
-        # Store basic info.
+        # Store parameters.
+        self.bids_dir = bids_dir
         self.subject_id = subject_id
         self.regressor_names = regressor_names
+        self.outputs_title = outputs_title
 
         # Store paths to directories we need in self.dirs.
         self.dirs = {}
@@ -47,7 +49,7 @@ class FirstLevel():
         self.dirs["subject_root"] = self.dirs["bids_root"] / "derivatives" / "analysis_level-1" / f"sub-{subject_id}"   # Root of where we'll output info for the subject.
         self.dirs["regressors"] = self.dirs["subject_root"] / "regressors"      # Where we'll store our regressor text files.
         self.dirs["subject_info"] = self.dirs["subject_root"] / "subject_info"      # Where we'll store our subject's onsets in a text file.
-        self.dirs["output"] = self.dirs["subject_root"] / output_dir    # Where we'll output the results of the first level analysis.
+        self.dirs["output"] = self.dirs["subject_root"] / outputs_title    # Where we'll output the results of the first level analysis.
 
         # Get paths to all files necessary for the analysis. Raise an error if Python can't find a file.
         self.paths = {}
@@ -70,6 +72,17 @@ class FirstLevel():
         # Record end time and write our report.
         self.end_time = datetime.now()
         self.write_report()
+
+
+    def __repr__(self):
+        """
+        Defines how the class represents itself internally as a string.
+
+        To learn more, consider reading https://docs.python.org/3/reference/datamodel.html#basic-customization
+
+        """
+
+        return f"{self.__class__.__name__}(bids_dir={self.bids_dir}, subject_id='{self.subject_id}', regressor_names={self.regressor_names}, outputs_title='{self.outputs_title}')"
 
 
     def merge(self):
@@ -252,30 +265,28 @@ if __name__ == "__main__":
     """
 
     parser = argparse.ArgumentParser(
-        description="Runs a first-level analysis on subjects from an fMRIPrepped dataset. The user must specify the path to the root of the raw BIDS directory fMRIPrep was run on. You must also specify EITHER a list of specific subjects OR all subjects. Finally, you can use a config file by appending @ to the config file name and passing it as a positional argument to this program. (i.e. 'python {__file__} @config.txt [args...]')",
+        description="Runs a first-level analysis on subjects from an fMRIPrepped dataset. The user must specify the path to the root of the raw BIDS directory fMRIPrep was run on. You must also specify EITHER a list of specific subjects OR all subjects.",
         fromfile_prefix_chars="@"
     )
 
     parser.add_argument(
         "--bids_dir",
         "-b",
-        type=str,
+        type=Path,
         required=True,
         help="<Mandatory> Path to the root of the BIDS directory."
     )
 
     parser.add_argument(
-        "--output_dir_name",
+        "--outputs_title",
         "-o",
-        type=str,
         required=True,
-        help="<Mandatory> Name of output directory to use within subject directory."
+        help="<Mandatory> Title of output directory to use within subject directory."
     )
 
     parser.add_argument(
         "--regressors",
         "-r",
-        type=str,
         nargs='+',
         required=True,
         help="<Mandatory> List of regressors to use from fMRIPrep."
@@ -286,7 +297,6 @@ if __name__ == "__main__":
         "--subjects",
         "-s",
         metavar="SUBJECT_ID",
-        type=str,
         nargs="+",
         help="<Mandatory> Preprocess a list of specific subject IDs. Mutually exclusive with --all."
     )
@@ -320,5 +330,5 @@ if __name__ == "__main__":
             bids_dir=args.bids_dir,
             subject_id=subject_id,
             regressor_names=args.regressors,
-            output_dir=args.output_dir_name,
+            outputs_title=args.outputs_title,
         )
