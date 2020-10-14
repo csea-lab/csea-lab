@@ -156,12 +156,20 @@ class FirstLevel():
             args += stim_file_info.split() + stim_label_info.split()
 
         # Run the Deconvolve program.
-        return AFNI(
+        deconvolve_result = AFNI(
             where_to_create_working_directory=self.dirs["output"],
             program="3dDeconvolve",
             args=args
         )
 
+        # Copy anatomy file into working directory to use with AFNI viewer.
+        shutil.copyfile(
+            src=self.paths["anat"],
+            dst=deconvolve_result.working_directory/self.paths["anat"].name
+        )
+
+        return deconvolve_result
+    
 
     def remlfit(self):
         """
@@ -191,11 +199,19 @@ class FirstLevel():
 
         """.split()
         
-        return AFNI(
+        reml_result = AFNI(
             where_to_create_working_directory=self.dirs["output"],
             program="3dREMLfit",
             args=args
         )
+
+        # Copy anatomy file into working directory to use with AFNI viewer.
+        shutil.copyfile(
+            src=self.paths["anat"],
+            dst=reml_result.working_directory/self.paths["anat"].name
+        )
+
+        return reml_result
 
 
     def write_report(self):
