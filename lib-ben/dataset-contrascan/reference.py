@@ -62,3 +62,36 @@ def with_whitespace_trimmed(docstring: str) -> str:
     """
 
     return ' '.join(docstring.replace("\n", " ").split())
+
+
+def find_path_matching(pattern: str, in_directory):
+    """
+    Finds one and only one path matching the specified pattern. Raises an error if it finds 2+ paths or no paths.
+
+
+    Parameters
+    ----------
+    pattern : str
+        Pattern to search for.
+    in_directory : str or Path
+        Directory in which to search for the pattern.
+
+    Returns
+    -------
+    Path
+        Path found by search.
+
+    Raises
+    ------
+    IOError
+        If it finds 2+ paths or no paths.
+
+    """
+
+    matches = list(Path(in_directory).glob(pattern))
+    if(len(matches)) >= 2:
+        raise IOError(f"Found more than one path matching '{pattern}': {matches}")
+    elif(len(matches)) == 0:
+        raise IOError(f"Found no paths matching pattern '{pattern}'")
+    else:
+        return matches[0]
