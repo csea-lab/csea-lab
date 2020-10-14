@@ -52,8 +52,9 @@ class FirstLevel():
         # Get paths to all files necessary for the analysis. Raise an error if Python can't find a file.
         self.paths = {}
         self.paths["events_tsv"] = the_path_that_matches(f"**/func/sub-{subject_id}*_task-*_events.tsv", in_directory=self.dirs["bids_root"])
-        self.paths["anat"] = the_path_that_matches(f"**/anat/sub-{subject_id}*_space-MNI152NLin2009cAsym_desc-preproc_T1w.nii.gz", in_directory=self.dirs["fmriprep_root"])
-        self.paths["func"] = the_path_that_matches(f"**/func/sub-{subject_id}*_space-MNI152NLin2009cAsym_desc-preproc_bold.nii.gz", in_directory=self.dirs["fmriprep_root"])
+        self.paths["anat"] = the_path_that_matches(f"**/anat/sub-{subject_id}*_space-*_desc-preproc_T1w.nii.gz", in_directory=self.dirs["fmriprep_root"])
+        self.paths["func"] = the_path_that_matches(f"**/func/sub-{subject_id}*_space-*_desc-preproc_bold.nii.gz", in_directory=self.dirs["fmriprep_root"])
+        self.paths["mask"] = the_path_that_matches(f"**/func/sub-{subject_id}*_space-*_desc-brain_mask.nii.gz", in_directory=self.dirs["fmriprep_root"])
         self.paths["regressors_tsv"] = the_path_that_matches(f"**/func/sub-{subject_id}*_desc-confounds_regressors.tsv", in_directory=self.dirs["fmriprep_root"])
 
         # Create any directory that doesn't exist.
@@ -131,6 +132,7 @@ class FirstLevel():
             -stim_label 1 all
             -iresp 1 sub-{self.subject_id}_IRF-all
             -fout
+            -mask {self.paths["mask"]}
         """.split()
 
         # Add individual stim files to the string.
@@ -172,6 +174,7 @@ class FirstLevel():
         -matrix {deconvolve_matrix}
         -input {smoothed_image}
         -fout -Rbuck Decon_REML -Rvar Decon_REMLvar -verb
+        -mask {self.paths["mask"]}
 
         """.split()
         
