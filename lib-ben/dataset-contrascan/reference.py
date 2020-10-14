@@ -90,8 +90,8 @@ def the_path_that_matches(pattern: str, in_directory):
 
     matches = list(Path(in_directory).glob(pattern))
     if(len(matches)) >= 2:
-        raise IOError(f"Found more than one path matching '{pattern}': {matches}")
+        raise IOError(f"Found in {in_directory} more than one path that matches '{pattern}': {matches}")
     elif(len(matches)) == 0:
-        raise IOError(f"Found no paths matching pattern '{pattern}'")
+        raise IOError(f"Found in {in_directory} no paths that match pattern '{pattern}'")
     else:
         return matches[0]
