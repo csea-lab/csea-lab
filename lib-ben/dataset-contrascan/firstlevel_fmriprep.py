@@ -18,10 +18,9 @@ import pandas
 from contextlib import suppress
 import subprocess
 
-from nipype.interfaces.fsl import SUSAN
-from nipype.interfaces.afni import Deconvolve, Remlfit
-
-from nipype.caching.memory import Memory
+# Import my own custom libraries
+from reference import subject_id_of, the_path_that_matches
+from afni import AFNI
 
 
 class FirstLevel():
@@ -30,7 +29,7 @@ class FirstLevel():
 
     """
 
-    def __init__(self, bids_dir, subject_id, regressor_names: list, output_dir, clear_cache=False):
+    def __init__(self, bids_dir, subject_id, regressor_names: list, output_dir):
     
         print(f"Processing subject {subject_id}")
 
@@ -40,7 +39,6 @@ class FirstLevel():
         # Store basic info.
         self.subject_id = subject_id
         self.regressor_names = regressor_names
-        self.clear_cache = clear_cache
 
         # Store paths to directories we need in self.dirs.
         self.dirs = {}
@@ -53,73 +51,63 @@ class FirstLevel():
 
         # Get paths to all files necessary for the analysis. Raise an error if Python can't find a file.
         self.paths = {}
-        try:
-            self.paths["bold_json"] = next(self.dirs["bids_root"].rglob(f"func/sub-{subject_id}*_task-*_bold.json"))
-            self.paths["events_tsv"] = next(self.dirs["bids_root"].rglob(f"func/sub-{subject_id}*_task-*_events.tsv"))
-            self.paths["anat"] = next(self.dirs["fmriprep_root"].rglob(f"anat/sub-{subject_id}*_space-MNI152NLin2009cAsym_desc-preproc_T1w.nii.gz"))
-            self.paths["func"] = next(self.dirs["fmriprep_root"].rglob(f"func/sub-{subject_id}*_space-MNI152NLin2009cAsym_desc-preproc_bold.nii.gz"))
-            self.paths["regressors_tsv"] = next(self.dirs["fmriprep_root"].rglob(f"func/sub-{subject_id}*_desc-confounds_regressors.tsv"))
-        except StopIteration:
-            raise OSError("File not found.")
+        self.paths["events_tsv"] = the_path_that_matches(f"**/func/sub-{subject_id}*_task-*_events.tsv", in_directory=self.dirs["bids_root"])
+        self.paths["anat"] = the_path_that_matches(f"**/anat/sub-{subject_id}*_space-MNI152NLin2009cAsym_desc-preproc_T1w.nii.gz", in_directory=self.dirs["fmriprep_root"])
+        self.paths["func"] = the_path_that_matches(f"**/func/sub-{subject_id}*_space-MNI152NLin2009cAsym_desc-preproc_bold.nii.gz", in_directory=self.dirs["fmriprep_root"])
+        self.paths["regressors_tsv"] = the_path_that_matches(f"**/func/sub-{subject_id}*_desc-confounds_regressors.tsv", in_directory=self.dirs["fmriprep_root"])
 
         # Create any directory that doesn't exist.
         for directory in self.dirs.values():
             directory.mkdir(exist_ok=True, parents=True)
 
-        # Create nipype Memory object we'll use to cache some Nipype outputs.
-        self.memory = Memory(str(self.dirs["subject_root"]))
-        if self.clear_cache:
-            self._clear_cache()
-
-        # Run our interfaces of interest. Must be run in the correct order.
+        # Run our programs of interest. Must be run in the correct order.
         self.results = {}
-        self.results["SUSAN"] = self.SUSAN()
-        self.results["Deconvolve"] = self.Deconvolve()
-        self.results["Remlfit"] = self.Remlfit()
-    
+        self.results["merge"] = self.merge()
+        self.results["deconvolve"] = self.deconvolve()
+        self.results["remlfit"] = self.remlfit()
+
         # Record end time and write our report.
         self.end_time = datetime.now()
         self.write_report()
 
 
-    def SUSAN(self):
+    def merge(self):
         """
         Smooths the functional image.
 
-        Wraps FSL's SUSAN.
+        Wraps AFNI's 3dmerge.
 
-        FSL command info: https://fsl.fmrib.ox.ac.uk/fsl/fslwiki/SUSAN
-        Nipype interface info: https://nipype.readthedocs.io/en/0.12.0/interfaces/generated/nipype.interfaces.fsl.preprocess.html#susan
+        AFNI command info: https://afni.nimh.nih.gov/pub/dist/doc/htmldoc/programs/3dmerge_sphx.html#ahelp-3dmerge
 
 
         Returns
         -------
-        InterfaceResult
-            Stores information about the outputs of SUSAN.
+        AFNI object
+            Stores information about the outputs of 3dmerge.
 
         """
 
-        return self.memory.cache(SUSAN)(
-            in_file=str(self.paths["func"]),
-            brightness_threshold=2000.0,
-            fwhm=5.0,
-            output_type="NIFTI"
+        args = f"-1blur_fwhm 5.0 -doall -prefix {self.paths['func'].stem}_smoothed {self.paths['func']}".split()
+
+        return AFNI(
+            where_to_create_working_directory=self.dirs["output"],
+            program="3dmerge",
+            args=args
         )
 
 
-    def Deconvolve(self):
+    def deconvolve(self):
         """
         Runs the 1st-level regression on the smoothed functional image.
 
         Wraps AFNI's 3dDeconvolve.
         
         AFNI command info: https://afni.nimh.nih.gov/pub/dist/doc/htmldoc/programs/3dDeconvolve_sphx.html#ahelp-3ddeconvolve
-        Nipype interface info: https://nipype.readthedocs.io/en/latest/api/generated/nipype.interfaces.afni.model.html#Deconvolve
 
 
         Returns
         -------
-        InterfaceResult
+        AFNI object
             Stores information about the outputs of Deconvolve.
 
         """
@@ -128,89 +116,85 @@ class FirstLevel():
         self._break_tsv(self.paths["events_tsv"], self.dirs["subject_info"])
         self._break_tsv(self.paths["regressors_tsv"], self.dirs["regressors"])
         
-        # Total amount of regressors to include in the analysis
+        # Total amount of regressors to include in the analysis.
         amount_of_regressors = 1 + len(self.regressor_names)
 
+        smoothed_image = the_path_that_matches("*.HEAD", in_directory=self.results["merge"].working_directory)
+
         # Create string to pass to interface. Remove all unnecessary whitespace by default.
-        arg_string = ' '.join(f"""
-            -input {self.results["SUSAN"].outputs.smoothed_file}
+        args = f"""
+            -input {smoothed_image}
             -GOFORIT 4
             -polort A
             -num_stimts {amount_of_regressors}
-            -stim_times 1 {self.dirs["subject_info"]/'onset'}.txt 'CSPLINzero(0,18,10)'
+            -stim_times 1 {self.dirs["subject_info"]/'onset'}.txt CSPLINzero(0,18,10)
             -stim_label 1 all
             -iresp 1 sub-{self.subject_id}_IRF-all
             -fout
-        """.replace("\n", " ").split())
+        """.split()
 
         # Add individual stim files to the string.
         for i, regressor_name in enumerate(self.regressor_names):
             stim_number = i + 2
             stim_file_info = f"-stim_file {stim_number} {self.dirs['regressors']/regressor_name}.txt -stim_base {stim_number}"
             stim_label_info = f"-stim_label {stim_number} {regressor_name}"
-            arg_string += f" {stim_file_info} {stim_label_info}"
+            args += stim_file_info.split() + stim_label_info.split()
 
-        # Create output dir for Deconvolve stuff.
-        deconvolve_dir = self.dirs["output"]/"nipype-interfaces-afni-model-Deconvolve"
-        deconvolve_dir.mkdir(exist_ok=True)
-
-        # Run the Deconvolve interface.
-        return Deconvolve().run(
-            cwd=str(deconvolve_dir),
-            args=arg_string
+        # Run the Deconvolve program.
+        return AFNI(
+            where_to_create_working_directory=self.dirs["output"],
+            program="3dDeconvolve",
+            args=args
         )
 
 
-    def Remlfit(self):
+    def remlfit(self):
         """
         Runs a 3dREMLfit 1st-level regression on the smoothed functional image using the matrix created by 3dDeconvolve.
 
         Wraps AFNI's 3dREMLfit.
         
         AFNI command info: https://afni.nimh.nih.gov/pub/dist/doc/htmldoc/programs/3dREMLfit_sphx.html#ahelp-3dremlfit
-        Nipype interface info: https://nipype.readthedocs.io/en/latest/api/generated/nipype.interfaces.afni.model.html#Remlfit
 
 
         Returns
         -------
-        InterfaceResult
+        AFNI object
             Stores information about the outputs of Deconvolve.
 
         """
 
-        # Create output dir for REML stuff.
-        reml_dir = self.dirs["output"]/"nipype-interfaces-afni-model-Remlfit"
-        reml_dir.mkdir(exist_ok=True)
+        deconvolve_matrix = the_path_that_matches("*xmat.1D", in_directory=self.results["deconvolve"].working_directory)
+        smoothed_image = the_path_that_matches("*.HEAD", in_directory=self.results["merge"].working_directory)
 
-        return Remlfit().run(
-            cwd=reml_dir,
-            in_files=self.results["SUSAN"].outputs.smoothed_file,
-            matrix=self.results["Deconvolve"].outputs.x1D,
-            args="-fout -Rbuck Decon.nii_REML -Rvar Decon.nii_REMLvar -verb $*"
+        args = f"""
+
+        -matrix {deconvolve_matrix}
+        -input {smoothed_image}
+        -fout -Rbuck Decon_REML -Rvar Decon_REMLvar -verb
+
+        """.split()
+        
+        return AFNI(
+            where_to_create_working_directory=self.dirs["output"],
+            program="3dREMLfit",
+            args=args
         )
 
 
     def write_report(self):
         """
-        Writes some files to subject folder to check the quality of the analysis.
+        Write some files to subject folder to check the quality of the analysis.
 
         """
-
-        # Copy our preprocessed anat file into our deconvolve and REMLfit directories to view with AFNI.
-        shutil.copyfile(src=self.paths["anat"], dst=Path(self.results["Deconvolve"].runtime.cwd) / self.paths["anat"].name)
-        shutil.copyfile(src=self.paths["anat"], dst=Path(self.results["Remlfit"].runtime.cwd) / self.paths["anat"].name)
-
-        # Copy most of our results from each cached interface. Ignore certain massive files.
-        self._copy_cache(self.results["SUSAN"], ignore_patterns=(["*_desc-preproc_bold_smooth.nii"]))
 
         # Store workflow info into a dict.
         workflow_info = {
             "Time to complete workflow": str(self.end_time - self.start_time),
             "Regressors included": self.regressor_names,
-            "Cache cleared before analysis": self.clear_cache,
             "Subject ID": self.subject_id,
-            "Interfaces used": [interface for interface in self.results],
-            "Original source of regressors": str(self.paths["regressors_tsv"])
+            "Programs used": [result.program for result in self.results.values()],
+            "Commands executed": [[str(arg) for arg in result.runtime.args] for result in self.results.values()]
         }
 
         # Write the workflow dict to a json file.
@@ -218,16 +202,6 @@ class FirstLevel():
         print(f"Writing {output_json_path}")
         with open(output_json_path, "w") as json_file:
             json.dump(workflow_info, json_file, indent="\t")
-
-
-    def _clear_cache(self):
-        """
-        Deletes the nipype cache.
-
-        """
-
-        print("Clearing cache")
-        shutil.rmtree(self.memory.base_dir)
 
 
     def _break_tsv(self, tsv_path, output_dir):
@@ -264,72 +238,6 @@ class FirstLevel():
         for column_name in tsv_info:
             column_path = output_dir / f"{column_name}.txt"
             tsv_info[column_name].to_csv(column_path, sep=' ', index=False, header=False)
-
-
-    def _copy_cache(self, interface_result, ignore_patterns=["nothing at all"]):
-        """
-        Copies an interface result from the cache to the subject directory.
-
-
-        Parameters
-        ----------
-        interface_result : InterfaceResult
-            Copies files created by this interface.
-        ignore_patterns : list
-            Ignore Unix-style file patterns when copying.
-
-        """
-
-        # Get name of interface and paths to old dir and new dir.
-        old_result_dir = Path(interface_result.runtime.cwd)
-        interface_name = old_result_dir.parent.stem
-        new_result_dir = self.dirs["output"] / interface_name
-
-        print(f"Copying {interface_name} and ignoring {ignore_patterns}")
-
-        # Delete result dir if it already exists.
-        if new_result_dir.exists():
-            shutil.rmtree(new_result_dir)
-
-        # Recursively copy old result dir to new location. Suppress OSError because the copying works even if an OSError is thrown.
-        with suppress(OSError):
-            shutil.copytree(
-                src=old_result_dir,
-                dst=new_result_dir,
-                ignore=shutil.ignore_patterns(*ignore_patterns),
-                copy_function=shutil.copyfile
-            )
-
-
-def _get_subject_id(path) -> str:
-    """
-    Returns the subject ID closest to the end of the input string or Path.
-
-
-    Inputs
-    ------
-    path : str or Path
-        String or Path containing the subject ID.
-
-
-    Returns
-    -------
-    str
-        Subject ID found in the filename
-
-
-    Raises
-    ------
-    RuntimeError
-        If no subject ID found in input filename.
-
-    """
-
-    try:
-        subject_ids = re.findall(r"sub-(\d+)", str(path))
-        return subject_ids[-1]
-    except IndexError:
-        raise RuntimeError(f"No subject ID found in {path}")
 
 
 if __name__ == "__main__":
@@ -387,12 +295,6 @@ if __name__ == "__main__":
         help="<Mandatory> Analyze all subjects. Mutually exclusive with --subjects."
     )
 
-    parser.add_argument(
-        "--clear-cache",
-        "-c",
-        action='store_true',
-        help="Clears cache before running each subject. Use if you're testing processing times."
-    )
 
     # Parse command-line args and make an empty list to store subject ids in.
     args = parser.parse_args()
@@ -402,7 +304,7 @@ if __name__ == "__main__":
     if args.all:
         bids_root = Path(args.bids_dir)
         for subject_dir in bids_root.glob("sub-*"):
-            subject_ids.append(_get_subject_id(subject_dir))
+            subject_ids.append(subject_id_of(subject_dir))
 
     # Option 2: Process specific subjects.
     else:
@@ -416,5 +318,4 @@ if __name__ == "__main__":
             subject_id=subject_id,
             regressor_names=args.regressors,
             output_dir=args.output_dir_name,
-            clear_cache=args.clear_cache
         )
