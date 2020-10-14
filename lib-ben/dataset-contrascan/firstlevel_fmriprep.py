@@ -101,8 +101,10 @@ class FirstLevel():
 
         """
 
+        # Create the list of arguments we'll pass to 3dmerge. 
         args = f"-1blur_fwhm 5.0 -doall -prefix {self.paths['func'].stem}_smoothed {self.paths['func']}".split()
 
+        # Run 3dmerge.
         return AFNI(
             where_to_create_working_directory=self.dirs["output"],
             program="3dmerge",
@@ -135,7 +137,7 @@ class FirstLevel():
 
         smoothed_image = the_path_that_matches("*.HEAD", in_directory=self.results["merge"].working_directory)
 
-        # Create string to pass to interface. Remove all unnecessary whitespace by default.
+        # Create list of arguments to pass to 3dDeconvolve.
         args = f"""
             -input {smoothed_image}
             -GOFORIT 4
@@ -155,7 +157,7 @@ class FirstLevel():
             stim_label_info = f"-stim_label {stim_number} {regressor_name}"
             args += stim_file_info.split() + stim_label_info.split()
 
-        # Run the Deconvolve program.
+        # Run 3dDeconvolve.
         deconvolve_result = AFNI(
             where_to_create_working_directory=self.dirs["output"],
             program="3dDeconvolve",
@@ -190,15 +192,15 @@ class FirstLevel():
         deconvolve_matrix = the_path_that_matches("*xmat.1D", in_directory=self.results["deconvolve"].working_directory)
         smoothed_image = the_path_that_matches("*.HEAD", in_directory=self.results["merge"].working_directory)
 
+        # Create the list of arguments to pass to 3dREMLfit
         args = f"""
-
         -matrix {deconvolve_matrix}
         -input {smoothed_image}
         -fout -Rbuck Decon_REML -Rvar Decon_REMLvar -verb
         -mask {self.paths["mask"]}
-
         """.split()
         
+        # Run 3dREMLfit
         reml_result = AFNI(
             where_to_create_working_directory=self.dirs["output"],
             program="3dREMLfit",
