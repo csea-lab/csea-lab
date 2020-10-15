@@ -102,14 +102,24 @@ class FirstLevel():
         """
 
         # Create the list of arguments we'll pass to 3dmerge. 
-        args = f"-1blur_fwhm 5.0 -doall -prefix {self.paths['func'].stem}_smoothed {self.paths['func']}".split()
+        args = f"""
+            -1blur_fwhm 5.0
+            -doall
+            -prefix {self.paths['func'].stem}_smoothed
+            {self.paths['func']}
+        """.split()
 
         # Run 3dmerge.
-        return AFNI(
+        merge_result = AFNI(
             where_to_create_working_directory=self.dirs["output"],
             program="3dmerge",
             args=args
         )
+
+        # Store the path of the smoothed image as an attribute of the result object.
+        merge_result.smoothed_image = the_path_that_matches("*.HEAD", in_directory=merge_result.working_directory)
+
+        return merge_result
 
 
     def deconvolve(self):
@@ -135,19 +145,18 @@ class FirstLevel():
         # Total amount of regressors to include in the analysis.
         amount_of_regressors = 1 + len(self.regressor_names)
 
-        smoothed_image = the_path_that_matches("*.HEAD", in_directory=self.results["merge"].working_directory)
-
         # Create list of arguments to pass to 3dDeconvolve.
         args = f"""
-            -input {smoothed_image}
+            -input {self.results["merge"].smoothed_image}
+            -mask {self.paths["mask"]}
             -GOFORIT 4
             -polort A
+            -fout
+            -bucket sub-{self.subject_id}_deconvolve_betas+stats
             -num_stimts {amount_of_regressors}
             -stim_times 1 {self.dirs["subject_info"]/'onset'}.txt CSPLINzero(0,18,10)
             -stim_label 1 all
-            -iresp 1 sub-{self.subject_id}_IRF-all
-            -fout
-            -mask {self.paths["mask"]}
+            -iresp 1 sub-{self.subject_id}_deconvolve_IRF
         """.split()
 
         # Add individual stim files to the string.
@@ -163,6 +172,9 @@ class FirstLevel():
             program="3dDeconvolve",
             args=args
         )
+
+        # Store the path of the matrix as an attribute of the result object.
+        deconvolve_result.matrix = the_path_that_matches("*xmat.1D", in_directory=deconvolve_result.working_directory)
 
         # Copy anatomy file into working directory to use with AFNI viewer.
         shutil.copyfile(
@@ -189,15 +201,16 @@ class FirstLevel():
 
         """
 
-        deconvolve_matrix = the_path_that_matches("*xmat.1D", in_directory=self.results["deconvolve"].working_directory)
-        smoothed_image = the_path_that_matches("*.HEAD", in_directory=self.results["merge"].working_directory)
-
         # Create the list of arguments to pass to 3dREMLfit
         args = f"""
-        -matrix {deconvolve_matrix}
-        -input {smoothed_image}
-        -fout -Rbuck Decon_REML -Rvar Decon_REMLvar -verb
-        -mask {self.paths["mask"]}
+            -matrix {self.results["deconvolve"].matrix}
+            -input {self.results["merge"].smoothed_image}
+            -mask {self.paths["mask"]}
+            -fout
+            -tout
+            -Rbuck sub-{self.subject_id}_REML_betas+stats
+            -Rvar sub-{self.subject_id}_REML_varianceparameters
+            -verb
         """.split()
         
         # Run 3dREMLfit
