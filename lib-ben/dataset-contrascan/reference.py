@@ -68,7 +68,7 @@ def the_path_that_matches(pattern: str, in_directory):
     """
     Finds one and only one path matching the specified pattern. Raises an error if it finds 2+ paths or no paths.
 
-    To learn how to use advanced patterns, read https://pymotw.com/3/glob/
+    To learn how to use advanced patterns, read http://www.robelle.com/smugbook/wildcard.html
 
 
     Parameters
