@@ -81,7 +81,7 @@ class FirstLevel():
 
         """
 
-        return f"{self.__class__.__name__}(bids_dir={self.bids_dir}, subject_id='{self.subject_id}', regressor_names={self.regressor_names}, outputs_title='{self.outputs_title}')"
+        return f"{self.__class__.__name__}(bids_dir='{self.bids_dir}', subject_id='{self.subject_id}', regressor_names={self.regressor_names}, outputs_title='{self.outputs_title}')"
 
 
     def merge(self):
