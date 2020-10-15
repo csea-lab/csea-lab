@@ -97,7 +97,7 @@ class SecondLevel():
 
         # Append our deconvolve files as arguments.
         for subject_id in self.paths:
-            args += [str(self.paths[subject_id]["deconvolve_outfile"]) + ""]
+            args += [f"sub-{subject_id}"] + [str(self.paths[subject_id]["deconvolve_outfile"])]
 
         # Execute the command and return its results.
         return AFNI(
