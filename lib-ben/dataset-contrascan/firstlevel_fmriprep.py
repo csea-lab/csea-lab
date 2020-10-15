@@ -200,7 +200,7 @@ class FirstLevel():
 
         """
 
-        # Create the list of arguments to pass to 3dREMLfit
+        # Create the list of arguments to pass to 3dREMLfit.
         args = f"""
             -matrix {self.results["deconvolve"].matrix}
             -input {self.results["merge"].smoothed_image}
