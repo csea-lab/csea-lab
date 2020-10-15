@@ -240,7 +240,7 @@ class FirstLevel():
             "Regressors included": self.regressor_names,
             "Subject ID": self.subject_id,
             "Programs used": [result.program for result in self.results.values()],
-            "Commands executed": [[str(arg) for arg in result.runtime.args] for result in self.results.values()]
+            "Commands executed": [[result.program] + [result.args] for result in self.results.values()]
         }
 
         # Write the workflow dict to a json file.
