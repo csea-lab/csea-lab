@@ -8,17 +8,15 @@ veliebm@gmail.com
 
 """
 
+# Import some standard Python libraries.
 from datetime import datetime
 import argparse
-import re
 from pathlib import Path
 import shutil
 import json
 import pandas
-from contextlib import suppress
-import subprocess
 
-# Import my own custom libraries
+# Import CSEA custom libraries. (Scrappy and made with love :))
 from reference import subject_id_of, the_path_that_matches
 from afni import AFNI
 
