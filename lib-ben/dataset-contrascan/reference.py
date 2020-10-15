@@ -96,10 +96,10 @@ def the_path_that_matches(pattern: str, in_directory):
         raise IOError(f"{in_directory} either doesn't exist or isn't a directory!")
 
     elif(len(matches)) >= 2:
-        raise IOError(f"Found in {in_directory} more than one path that matches '{pattern}': {matches}")
+        raise IOError(f"{in_directory} exists but contains more than one path that matches '{pattern}': {matches}")
 
     elif(len(matches)) == 0:
-        raise IOError(f"Found in {in_directory} no paths that match pattern '{pattern}'")
+        raise IOError(f"{in_directory} exists but contains no paths that match pattern '{pattern}'")
     
     else:
         return matches[0]
