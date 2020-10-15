@@ -8,14 +8,15 @@ veliebm@gmail.com
 
 """
 
+# Import some standard Python libraries.
 from datetime import datetime
 import argparse
-import re
 from pathlib import Path
 import json
-import subprocess
-from reference import with_whitespace_trimmed, subject_id_of
-import multiprocessing
+
+# Import some CSEA custom libraries.
+from reference import subject_id_of, the_path_that_matches
+from afni import AFNI
 
 
 class SecondLevel():
@@ -44,26 +45,22 @@ class SecondLevel():
         self.dirs["secondlevel_root"] = self.dirs["bids_root"] / "derivatives" / "analysis_level-2"    # Location where we'll store all results of all second-level analyses.
         self.dirs["output"] = self.dirs["secondlevel_root"] / self.firstlevel_name     # Location where we'll store the results of this specific analysis.
 
-        # Store in self.paths paths to files we need. Each key is a subject ID, and each value is a path.
+        # Store in self.paths a dictionary of dictionaries of paths to files we need.
+        # Parent key is a subject ID, child key is type of file, value is path for that filetype and subject ID.
         self.paths = {}
-        self.paths["deconvolve"] = {subject_id: self.dirs["firstlevel_root"]/f"sub-{subject_id}"/firstlevel_name/"nipype-interfaces-afni-model-Deconvolve/Decon.nii" for subject_id in subject_ids}
-        self.paths["smoothed_image"] = {subject_id: self.dirs["firstlevel_root"]/f"sub-{subject_id}"/firstlevel_name/"nipype-interfaces-afni-model-Deconvolve/Decon.nii" for subject_id in subject_ids}
-        self.paths["reml"] = {subject_id: self.dirs["firstlevel_root"]/f"sub-{subject_id}"/firstlevel_name/"nipype-interfaces-afni-model-Remlfit/Decon.nii_REML+tlrc.HEAD" for subject_id in subject_ids}
-
-        # Raise an error if our files don't exist.
-        for category in self.paths.values():
-            for path in category.values():
-                if not path.is_file():
-                    raise OSError(f"{path} doesn't exist.")
+        for subject_id in self.subject_ids:
+            self.paths[subject_id] = {}
+            self.paths[subject_id]["deconvolve_outfile"] = the_path_that_matches(f"sub-{subject_id}_*stats*.HEAD", in_directory=self.dirs["firstlevel_root"]/f"sub-{subject_id}/{firstlevel_name}/3dDeconvolve")
+            self.paths[subject_id]["reml_outfile"] = the_path_that_matches(f"sub-{subject_id}_*stats*.HEAD", in_directory=self.dirs["firstlevel_root"]/f"sub-{subject_id}/{firstlevel_name}/3dREMLfit")
 
         # Create any directory that doesn't exist.
         for directory in self.dirs.values():
             directory.mkdir(exist_ok=True, parents=True)
 
         # Run our regressions.
-        self.runtimes = {}
-        self.runtimes["ttest"] = self.ttest()
-        self.runtimes["mema"] = self.mema()
+        self.results = {}
+        self.results["ttest"] = self.ttest()
+        self.results["mema"] = self.mema()
 
         # Record end time and write our report.
         self.end_time = datetime.now()
@@ -90,61 +87,62 @@ class SecondLevel():
 
         Returns
         -------
-        CompletedProcess
-            Contains some info about the 3dttest command execution.
+        AFNI object
+            Stores information about the outputs of 3dttest++.
 
         """
 
-        # Get base command as a list of parameters to be fed into the command line.
-        command = "3dttest++ -setA".split()
+        # Get basic arguments as a list of parameters to be fed into the command line.
+        args = ["-setA"]
 
-        # Append our deconvolve outfiles to the command.
-        command += self.paths["deconvolve"].values()
+        # Append our deconvolve files as arguments.
+        for subject_id in self.paths:
+            args += [str(self.paths[subject_id]["deconvolve_outfile"]) + ""]
 
         # Execute the command and return its results.
-        return subprocess.run(
-            command,
-            cwd=self.dirs["output"]
+        return AFNI(
+            where_to_create_working_directory=self.dirs["output"],
+            program="3dttest++",
+            args=args
         )
 
 
     def mema(self):
         """
-        Runs AFNI's 3dMEMA 2nd-level analysis on the smoothed functional image using the matrix created by 3dREMLfit.
+        Runs AFNI's 3dMEMA 2nd-level analysis using the output bucket of 3dREMLfit.
 
         AFNI command info: https://afni.nimh.nih.gov/pub/dist/doc/htmldoc/programs/3dMEMA_sphx.html#ahelp-3dmema
+        How to gather specific sub-briks from the the 3dREMLfit outfile: https://afni.nimh.nih.gov/pub/dist/doc/program_help/common_options.html
 
 
         Returns
         -------
-        CompletedProcess
-            Contains some info about the 3dMEMA command execution.
+        AFNI object
+            Stores information about the outputs of 3dmerge.
 
         """
 
-        # Create base command to pass to interface. Remove all unnecessary whitespace by default.
-        command = with_whitespace_trimmed(f"""
-            3dMEMA
-            -prefix mema
-            -jobs {multiprocessing.cpu_count()}
-            -model_outliers
-            -residual_Z
+        # Create base arguments to pass to program.
+        args = (f"""
+            -prefix {self.firstlevel_name}_mema
+            -jobs 4
             """).split()
 
         # Append our 3dREMLfit outfiles to the command.
-        command += "-set activation-vs-0".split()
-        for subject_id in self.subject_ids:
-            command += [
+        args += "-set activation-vs-0".split()
+        for subject_id in self.paths:
+            args += [
                 subject_id,
-                self.paths['smoothed_image'][subject_id],
-                self.paths['reml'][subject_id]
+                f"{self.paths[subject_id]['reml_outfile']}[1..15](2)",     # Use each beta estimate from reml outfile
+                f"{self.paths[subject_id]['reml_outfile']}[2..16](2)"       # Use each T value from reml outfile
             ]
 
         # Execute the command and return its results.
-        return subprocess.run(
-            command,
-            cwd=self.dirs["output"]
-        )        
+        return AFNI(
+            where_to_create_working_directory=self.dirs["output"],
+            program="3dMEMA",
+            args=args
+        )
 
 
     def write_report(self):
@@ -156,10 +154,10 @@ class SecondLevel():
         # Store workflow info into a dict.
         workflow_info = {
             "Time to complete workflow": str(self.end_time - self.start_time),
-            "First level analysis used": self.firstlevel_name,
-            "Subjects included": str(self.subject_ids),
-            "Programs used": [runtime.args[0] for runtime in self.runtimes.values()],
-            "Commands executed": [[str(arg) for arg in runtime.args] for runtime in self.runtimes.values()]
+            "Title of first level analysis": self.firstlevel_name,
+            "Subject IDs included in analysis": self.subject_ids,
+            "Programs used": [result.program for result in self.results.values()],
+            "Commands executed": [[str(arg) for arg in result.runtime.args] for result in self.results.values()]
         }
 
         # Write the workflow dict to a json file.
@@ -176,7 +174,7 @@ if __name__ == "__main__":
     """
 
     parser = argparse.ArgumentParser(
-        description="Runs a 2nd-level analysis on subjects for whom you have already run a 1st-level analysis. You must specify the path to the raw BIDS dataset you ran your 1st-level analysis on. You must also specify whether to analyze EITHER a list of specific subjects OR all subjects. Finally, you must specify the name of the directory containing your 1st-level analysis results.",
+        description="Runs a 2nd-level analysis on subjects for whom you have already run a 1st-level analysis. You must specify the path to the raw BIDS dataset you ran your 1st-level analysis on. You must also specify whether to analyze EITHER a list of specific subjects OR all subjects. Finally, you must specify the title of the directory containing your 1st-level analysis results.",
         fromfile_prefix_chars="@"
     )
 
