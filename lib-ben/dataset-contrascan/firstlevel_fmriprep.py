@@ -212,7 +212,7 @@ class FirstLevel():
             -verb
         """.split()
         
-        # Run 3dREMLfit
+        # Run 3dREMLfit.
         reml_result = AFNI(
             where_to_create_working_directory=self.dirs["output"],
             program="3dREMLfit",
