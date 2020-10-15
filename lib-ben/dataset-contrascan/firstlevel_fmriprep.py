@@ -151,7 +151,7 @@ class FirstLevel():
             -GOFORIT 4
             -polort A
             -fout
-            -bucket sub-{self.subject_id}_deconvolve_betas+stats
+            -bucket sub-{self.subject_id}_deconvolve_stats
             -num_stimts {amount_of_regressors}
             -stim_times 1 {self.dirs["subject_info"]/'onset'}.txt CSPLINzero(0,18,10)
             -stim_label 1 all
@@ -207,7 +207,7 @@ class FirstLevel():
             -mask {self.paths["mask"]}
             -fout
             -tout
-            -Rbuck sub-{self.subject_id}_REML_betas+stats
+            -Rbuck sub-{self.subject_id}_REML_stats
             -Rvar sub-{self.subject_id}_REML_varianceparameters
             -verb
         """.split()
