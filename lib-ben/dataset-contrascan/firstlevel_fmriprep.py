@@ -42,6 +42,9 @@ class FirstLevel():
         self.regressor_names = regressor_names
         self.outputs_title = outputs_title
 
+        # Tell the user what this class looks like internally.
+        print(f"Executing {self.__repr__()}")
+
         # Store paths to directories we need in self.dirs.
         self.dirs = {}
         self.dirs["bids_root"] = Path(bids_dir)     # Root of the raw BIDS dataset.
