@@ -44,7 +44,7 @@ class FirstLevel():
         # Store paths to directories we need in self.dirs.
         self.dirs = {}
         self.dirs["bids_root"] = Path(bids_dir)     # Root of the raw BIDS dataset.
-        self.dirs["fmriprep_root"] = self.dirs["bids_root"] / "derivatives" / "fmriprep"    # Root of fmriprep outputs.
+        self.dirs["fmriprep_root"] = self.dirs["bids_root"] / "derivatives" / "preprocessing" / "fmriprep"    # Root of fmriprep outputs.
         self.dirs["subject_root"] = self.dirs["bids_root"] / "derivatives" / "analysis_level-1" / f"sub-{subject_id}"   # Root of where we'll output info for the subject.
         self.dirs["regressors"] = self.dirs["subject_root"] / "regressors"      # Where we'll store our regressor text files.
         self.dirs["subject_info"] = self.dirs["subject_root"] / "subject_info"      # Where we'll store our subject's onsets in a text file.
