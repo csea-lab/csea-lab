@@ -44,19 +44,18 @@ class FirstLevel():
         # Store paths to directories we need in self.dirs.
         self.dirs = {}
         self.dirs["bids_root"] = Path(bids_dir)     # Root of the raw BIDS dataset.
-        self.dirs["fmriprep_root"] = self.dirs["bids_root"] / "derivatives" / "preprocessing" / "fmriprep"    # Root of fmriprep outputs.
-        self.dirs["subject_root"] = self.dirs["bids_root"] / "derivatives" / "analysis_level-1" / f"sub-{subject_id}"   # Root of where we'll output info for the subject.
-        self.dirs["regressors"] = self.dirs["subject_root"] / "regressors"      # Where we'll store our regressor text files.
-        self.dirs["subject_info"] = self.dirs["subject_root"] / "subject_info"      # Where we'll store our subject's onsets in a text file.
-        self.dirs["output"] = self.dirs["subject_root"] / outputs_title    # Where we'll output the results of the first level analysis.
+        self.dirs["fmriprep_root"] = self.dirs["bids_root"] / "derivatives" / "preprocessing" / f"sub-{subject_id}" / "fmriprep" / f"sub-{subject_id}"   # Root of fmriprep outputs for this subject.
+        self.dirs["output"] = self.dirs["bids_root"] / "derivatives" / "analysis_level-1" / f"sub-{subject_id}" / outputs_title    # Where we'll output the results of the first level analysis.
+        self.dirs["regressors"] = self.dirs["output"] / "all_regressors_available"      # Where we'll store our regressor text files.
+        self.dirs["subject_info"] = self.dirs["output"] / "subject_info"      # Where we'll store our subject's onsets in a text file.
 
         # Get paths to all files necessary for the analysis. Raise an error if Python can't find a file.
         self.paths = {}
-        self.paths["events_tsv"] = the_path_that_matches(f"**/func/sub-{subject_id}*_task-*_events.tsv", in_directory=self.dirs["bids_root"])
-        self.paths["anat"] = the_path_that_matches(f"**/anat/sub-{subject_id}*_space-*_desc-preproc_T1w.nii.gz", in_directory=self.dirs["fmriprep_root"])
-        self.paths["func"] = the_path_that_matches(f"**/func/sub-{subject_id}*_space-*_desc-preproc_bold.nii.gz", in_directory=self.dirs["fmriprep_root"])
-        self.paths["mask"] = the_path_that_matches(f"**/func/sub-{subject_id}*_space-*_desc-brain_mask.nii.gz", in_directory=self.dirs["fmriprep_root"])
-        self.paths["regressors_tsv"] = the_path_that_matches(f"**/func/sub-{subject_id}*_desc-confounds_regressors.tsv", in_directory=self.dirs["fmriprep_root"])
+        self.paths["events_tsv"] = the_path_that_matches(f"sub-{subject_id}/func/sub-{subject_id}*_task-*_events.tsv", in_directory=self.dirs["bids_root"])
+        self.paths["anat"] = the_path_that_matches(f"anat/sub-{subject_id}*_space-*_desc-preproc_T1w.nii.gz", in_directory=self.dirs["fmriprep_root"])
+        self.paths["func"] = the_path_that_matches(f"func/sub-{subject_id}*_space-*_desc-preproc_bold.nii.gz", in_directory=self.dirs["fmriprep_root"])
+        self.paths["mask"] = the_path_that_matches(f"func/sub-{subject_id}*_space-*_desc-brain_mask.nii.gz", in_directory=self.dirs["fmriprep_root"])
+        self.paths["regressors_tsv"] = the_path_that_matches(f"func/sub-{subject_id}*_desc-confounds_timeseries.tsv", in_directory=self.dirs["fmriprep_root"])
 
         # Create any directory that doesn't exist.
         for directory in self.dirs.values():
