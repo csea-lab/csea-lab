@@ -31,8 +31,6 @@ class FirstLevel():
 
     def __init__(self, bids_dir, subject_id, regressor_names: list, outputs_title):
     
-        print(f"Processing subject {subject_id}")
-
         # Track time information.
         self.start_time = datetime.now()
         
