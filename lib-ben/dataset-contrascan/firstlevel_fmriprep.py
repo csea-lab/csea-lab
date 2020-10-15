@@ -88,7 +88,7 @@ class FirstLevel():
         """
         Smooths the functional image.
 
-        Wraps AFNI's 3dmerge.
+        Wraps 3dmerge.
 
         AFNI command info: https://afni.nimh.nih.gov/pub/dist/doc/htmldoc/programs/3dmerge_sphx.html#ahelp-3dmerge
 
@@ -125,7 +125,7 @@ class FirstLevel():
         """
         Runs the 1st-level regression on the smoothed functional image.
 
-        Wraps AFNI's 3dDeconvolve.
+        Wraps 3dDeconvolve.
         
         AFNI command info: https://afni.nimh.nih.gov/pub/dist/doc/htmldoc/programs/3dDeconvolve_sphx.html#ahelp-3ddeconvolve
 
@@ -188,7 +188,7 @@ class FirstLevel():
         """
         Runs a 3dREMLfit 1st-level regression on the smoothed functional image using the matrix created by 3dDeconvolve.
 
-        Wraps AFNI's 3dREMLfit.
+        Wraps 3dREMLfit.
         
         AFNI command info: https://afni.nimh.nih.gov/pub/dist/doc/htmldoc/programs/3dREMLfit_sphx.html#ahelp-3dremlfit
 
