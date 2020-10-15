@@ -16,7 +16,7 @@ import shutil
 import json
 import pandas
 
-# Import CSEA custom libraries. (Scrappy and made with love :))
+# Import some CSEA custom libraries. (Scrappy and made with love :))
 from reference import subject_id_of, the_path_that_matches
 from afni import AFNI
 
