@@ -45,7 +45,7 @@ class AFNI():
 
 
         # Record the standard output of the program as a string. Print to terminal. ----------------------------------
-        self.stdout_string = f""
+        self.stdout_string = ""
         for line in self.runtime.stdout:
             sys.stdout.write(line)
             sys.stdout.flush()
@@ -53,7 +53,7 @@ class AFNI():
 
 
         # Record the standard error of the program as a string. Print to terminal. ----------------------------------
-        self.stderr_string = f""
+        self.stderr_string = ""
         for line in self.runtime.stderr:
             sys.stderr.write(line)
             sys.stderr.flush()
