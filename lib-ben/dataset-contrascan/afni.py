@@ -86,7 +86,9 @@ class AFNI():
         program_info = {
             "Program name": self.program,
             "Working directory": str(self.working_directory),
-            "Time to run program": str(self.end_time - self.start_time),
+            "Start time": self.start_time,
+            "End time": self.end_time,
+            "Total time to run program": str(self.end_time - self.start_time),
             "Complete command executed": self.runtime.args
         }
 
