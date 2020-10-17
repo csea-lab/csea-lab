@@ -21,7 +21,10 @@ class AFNI():
 
     def __init__(self, where_to_create_working_directory, program: str, args: list):
 
+        # Record start time. Tell user that we're executing this object. ------------------------
         self.start_time = datetime.now()
+        print(f"Executing {self.__repr__()}")
+
 
         # Store parameters. --------------------------
         self.where_to_create_working_directory = Path(where_to_create_working_directory).absolute()
