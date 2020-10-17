@@ -22,22 +22,25 @@ class AFNI():
 
         self.start_time = datetime.now()
 
-        # Store parameters.
+        # Store parameters. --------------------------
         self.where_to_create_working_directory = Path(where_to_create_working_directory).absolute()
         self.program = program
         self.args = args
 
-        # Make working_directory if it doesn't exist.
+
+        # Make working_directory if it doesn't exist. -------------------------------------
         self.working_directory = self.where_to_create_working_directory/self.program
         self.working_directory.mkdir(parents=True, exist_ok=True)
 
-        # Execute AFNI program.
+
+        # Execute AFNI program. ---------------------------------
         self.runtime = subprocess.run(
             [self.program] + self.args,
             cwd=self.working_directory
         )
 
-        # Record end time. Write logs.
+
+        # Record end time. Write logs. ----------------------------------------
         self.end_time = datetime.now()
         self.write_logs()
 
@@ -59,7 +62,7 @@ class AFNI():
 
         """
 
-        # Store program info into a dict.
+        # Store program info into a dict. ---------------------------------
         program_info = {
             "Program name": self.program,
             "Working directory": str(self.working_directory),
@@ -67,7 +70,8 @@ class AFNI():
             "Complete command executed": self.runtime.args,
         }
 
-        # Write the program info dict to a json file.
+
+        # Write the program info dict to a json file. --------------------------------
         output_json_path = self.working_directory / f"program_info.json"
         print(f"Writing {output_json_path}")
         with open(output_json_path, "w") as json_file:
