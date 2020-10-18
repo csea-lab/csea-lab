@@ -16,14 +16,14 @@ veliebm@gmail.com
 
 """
 
-# Import some standard Python libraries. -------------------
+# Import some standard Python modules. -------------------
 from datetime import datetime
 import argparse
 from pathlib import Path
 import json
 
 
-# Import some friendly and nice CSEA custom libraries. -------------------
+# Import some friendly and nice CSEA custom modules. -------------------
 from reference import subject_id_of, the_path_that_matches
 from afni import AFNI
 
@@ -71,6 +71,7 @@ class Preprocess():
         self.results["calc1"] = self.calc1()
         self.results["resample"] = self.resample()
         self.results["tshift"] = self.tshift()
+        self.results["volreg"] = self.volreg()
 
 
         # Record end time and write our report. --------------------------
@@ -182,7 +183,7 @@ class Preprocess():
         args = f"""
         -a {self.results["align_epi_anat"].outfile}
         -expr step(a)
-        -prefix {self.results["align_epi_anat"].outfile.stem}_tmp_mask+orig
+        -prefix sub-{subject_id}_anat_aligned_tmp_mask
         """.split()
 
 
@@ -218,7 +219,7 @@ class Preprocess():
         # Prepare the arguments we want to pass to the program. ---------------------
         args = f"""
             -master {self.paths["func"]}
-            -prefix {self.paths["func"].stem}_skull_al_mask
+            -prefix sub-{subject_id}_func_skull_al_mask
             -inset {self.results["calc1"].outfile}
         """.split()
 
@@ -257,7 +258,7 @@ class Preprocess():
             -tzero 0
             -tpattern alt+z
             -quintic
-            -prefix {self.paths["func"].stem}_tshift
+            -prefix sub-{subject_id}_func_tshift
             {self.paths["func"]}
         """.split()
 
@@ -272,6 +273,46 @@ class Preprocess():
 
         # Store path to outfile as an attribute of the results. Return results. ----------------------------
         results.outfile = the_path_that_matches("*_tshift+orig.HEAD", in_directory=results.working_directory)
+        return results
+
+
+    def volreg(self):
+        """
+        Align each dataset to the base volume using the same image as used in align_epi_anat.
+
+        Wraps 3dvolreg.
+
+        AFNI command info: https://afni.nimh.nih.gov/pub/dist/doc/htmldoc/programs/3dvolreg_sphx.html#ahelp-3dvolreg
+
+
+        Returns
+        -------
+        AFNI object
+            Stores information about the program.
+
+        """
+
+        # Prepare the arguments we want to pass to the program. ---------------------
+        args = f"""
+        -verbose
+        -zpad 1
+        -base {self.results["tshift"].outfile}[10]
+        -1Dfile sub-{subject_id}_regressors-motion.1D
+        -prefix sub-{subject_id}_func_tshift_volreg
+        {self.results["tshift"].outfile}
+        """.split()
+
+
+        # Run program and store results. -----------------------
+        results = AFNI(
+            program="3dvolreg",
+            args=args,
+            working_directory=self.dirs["output"]/"3dvolreg"
+        )
+
+
+        # Store path to outfile as an attribute of the results. Return results. ----------------------------
+        results.outfile = the_path_that_matches("*_volreg+orig.HEAD", in_directory=results.working_directory)
         return results
 
 
