@@ -19,6 +19,7 @@ import sys
 # Import some lean and mean CSEA modules. --------------------------
 from reference import the_path_that_matches
 
+
 class AFNI():
     """
     Class to run AFNI programs and store information about them.
