@@ -87,7 +87,7 @@ class Preprocess():
 
     def align_epi_anat(self):
         """
-        Aligns our anatomical image to our functional image.
+        Aligns our functional image to our anatomical image.
 
         Wraps align_epi_anat.py.
         
