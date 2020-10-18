@@ -112,9 +112,9 @@ class Preprocess():
 
         # Run align_epi_anat.py and store results. -----------------------
         results = AFNI(
-            where_to_create_working_directory=self.dirs["output"],
             program="align_epi_anat.py",
-            args=args
+            args=args,
+            working_directory=self.dirs["output"]/"align_epi_anat.py"
         )
 
 
@@ -149,9 +149,9 @@ class Preprocess():
 
         # Run @auto_tlrc and return info about it. -----------------------
         return AFNI(
-            where_to_create_working_directory=self.dirs["output"],
             program="@auto_tlrc",
-            args=args
+            args=args,
+            working_directory=self.dirs["output"]/"@auto_tlrc"
         )
 
 
