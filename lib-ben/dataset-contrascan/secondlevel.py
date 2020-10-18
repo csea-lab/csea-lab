@@ -101,9 +101,9 @@ class SecondLevel():
 
         # Execute the command and return its results.
         return AFNI(
-            where_to_create_working_directory=self.dirs["output"],
             program="3dttest++",
-            args=args
+            args=args,
+            working_directory=self.dirs["output"]/"3dttest++"
         )
 
 
@@ -139,9 +139,9 @@ class SecondLevel():
 
         # Execute the command and return its results.
         return AFNI(
-            where_to_create_working_directory=self.dirs["output"],
             program="3dMEMA",
-            args=args
+            args=args,
+            working_directory=self.dirs["output"]/"3dMEMA"
         )
 
 
