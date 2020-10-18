@@ -70,6 +70,7 @@ class Preprocess():
         self.results["auto_tlrc1"] = self.auto_tlrc1()
         self.results["calc1"] = self.calc1()
         self.results["resample"] = self.resample()
+        self.results["tshift"] = self.tshift()
 
 
         # Record end time and write our report. --------------------------
@@ -228,6 +229,45 @@ class Preprocess():
 
         # Store path to outfile as an attribute of the results. Return results. ----------------------------
         results.rough_skull_mask = the_path_that_matches("*_skull_al_mask+orig.HEAD", in_directory=results.working_directory)
+        return results
+
+
+    def tshift(self):
+        """
+        Performs slice-time correction.
+
+        Wraps 3dTshift.
+
+        AFNI command info: https://afni.nimh.nih.gov/pub/dist/doc/htmldoc/programs/3dTshift_sphx.html#ahelp-3dtshift
+
+
+        Returns
+        -------
+        AFNI object
+            Stores information about the program.
+
+        """
+
+        # Prepare the arguments we want to pass to the program. ---------------------
+        args = f"""
+            -tzero 0
+            -tpattern alt+z
+            -quintic
+            -prefix {self.paths["func"].stem}_tshift
+            {self.paths["func"]}
+        """.split()
+
+
+        # Run program and store results. -----------------------
+        results = AFNI(
+            program="3dTshift",
+            args=args,
+            working_directory=self.dirs["output"]/"3dTshift"
+        )
+
+
+        # Store path to outfile as an attribute of the results. Return results. ----------------------------
+        results.outfile = the_path_that_matches("*_tshift+orig.HEAD", in_directory=results.working_directory)
         return results
 
 
