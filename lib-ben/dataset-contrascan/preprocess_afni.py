@@ -105,7 +105,7 @@ class Preprocess():
 
         """
 
-        # Prepare the arguments we want to pass to align_epi_anat.py. ---------------------
+        # Prepare the arguments we want to pass to the program. ---------------------
         args = f"""
             -anat {self.paths["anat"]}
             -epi {self.paths["func"]}
@@ -113,7 +113,7 @@ class Preprocess():
         """.split()
 
 
-        # Run align_epi_anat.py and store results. -----------------------
+        # Run program and store results. -----------------------
         results = AFNI(
             program="align_epi_anat.py",
             args=args,
@@ -122,7 +122,7 @@ class Preprocess():
 
 
         # Store path to outfile as an attribute of the results. Return results. ----------------------------
-        results.aligned_anat_file = the_path_that_matches("*_T1w_al+orig.HEAD", in_directory=results.working_directory)
+        results.outfile = the_path_that_matches("*_T1w_al+orig.HEAD", in_directory=results.working_directory)
         return results
 
 
@@ -131,7 +131,7 @@ class Preprocess():
         Aligns our anatomy to base TT_N27.
 
         Wraps @auto_tlrc.
-        
+
         AFNI command info: https://afni.nimh.nih.gov/pub/dist/doc/htmldoc/programs/@auto_tlrc_sphx.html#ahelp-auto-tlrc
 
 
@@ -142,20 +142,24 @@ class Preprocess():
 
         """
 
-        # Prepare the arguments we want to pass to @auto_tlrc ---------------------
+        # Prepare the arguments we want to pass to the program ---------------------
         args = f"""
             -no_ss
             -base TT_N27+tlrc
-            -input {self.results["align_epi_anat"].aligned_anat_file}
+            -input {self.results["align_epi_anat"].outfile}
         """.split()
 
 
-        # Run @auto_tlrc and return info about it. -----------------------
-        return AFNI(
+        # Run program and store results. -----------------------
+        results = AFNI(
             program="@auto_tlrc",
             args=args,
             working_directory=self.dirs["output"]/"@auto_tlrc1"
         )
+
+        # Store path to outfile as an attribute of the results. Return results. ----------------------------
+        results.outfile = the_path_that_matches("*_T1w_al+tlrc.HEAD", in_directory=results.working_directory)
+        return results
 
 
     def calc1(self):
@@ -176,13 +180,13 @@ class Preprocess():
 
         # Prepare the arguments we want to pass to the program. ---------------------
         args = f"""
-        -a {self.results["align_epi_anat"].aligned_anat_file}
+        -a {self.results["align_epi_anat"].outfile}
         -expr step(a)
-        -prefix sub-{self.subject_id}_tmp_mask+orig
+        -prefix {self.results["align_epi_anat"].outfile.stem}_tmp_mask+orig
         """.split()
 
 
-        # Run align_epi_anat.py and store results. -----------------------
+        # Run program and store results. -----------------------
         results = AFNI(
             program="3dcalc",
             args=args,
@@ -191,7 +195,7 @@ class Preprocess():
 
 
         # Store path to outfile as an attribute of the results. Return results. ----------------------------
-        results.rough_skull_mask = the_path_that_matches("*_tmp_mask+orig.HEAD", in_directory=results.working_directory)
+        results.outfile = the_path_that_matches("*_tmp_mask+orig.HEAD", in_directory=results.working_directory)
         return results
 
 
@@ -214,8 +218,8 @@ class Preprocess():
         # Prepare the arguments we want to pass to the program. ---------------------
         args = f"""
             -master {self.paths["func"]}
-            -prefix sub-{self.subject_id}_skull_al_mask
-            -inset {self.results["calc1"].rough_skull_mask}
+            -prefix {self.paths["func"].stem}_skull_al_mask
+            -inset {self.results["calc1"].outfile}
         """.split()
 
 
@@ -228,7 +232,7 @@ class Preprocess():
 
 
         # Store path to outfile as an attribute of the results. Return results. ----------------------------
-        results.rough_skull_mask = the_path_that_matches("*_skull_al_mask+orig.HEAD", in_directory=results.working_directory)
+        results.outfile = the_path_that_matches("*_skull_al_mask+orig.HEAD", in_directory=results.working_directory)
         return results
 
 
