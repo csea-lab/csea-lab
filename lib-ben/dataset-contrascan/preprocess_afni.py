@@ -127,8 +127,7 @@ class Preprocess():
         workflow_info = {
             "Time to complete workflow": str(self.end_time - self.start_time),
             "Subject ID": self.subject_id,
-            "Programs used": [result.program for result in self.results.values()],
-            "Commands executed": [[result.program] + [result.args] for result in self.results.values()]
+            "Programs used (in order no less!)": [result.program for result in self.results.values()]
         }
 
 
