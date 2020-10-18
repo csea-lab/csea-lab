@@ -79,6 +79,7 @@ class AFNI():
         # Store program info into a dict. ---------------------------------
         program_info = {
             "Program name": self.program,
+            "Return code (if 0, then in theory the program threw no errors)": self.runtime.returncode,
             "Working directory": str(self.working_directory),
             "Start time": str(self.start_time),
             "End time": str(self.end_time),
