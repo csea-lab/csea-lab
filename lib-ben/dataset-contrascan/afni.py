@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 """
 Class to run AFNI programs and write and store info about them.
 
