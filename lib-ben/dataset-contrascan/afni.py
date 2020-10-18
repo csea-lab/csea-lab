@@ -46,7 +46,7 @@ class AFNI():
             # Immediately kill the process if it doesn't need to be run.
             if self._program_has_run_before():
                 process.kill()
-                print(f"Killing {self.program} because we've already run it before. Delete its log files if you wish to rerun {self.program}.")
+                print(f"Killing {self.program} because we've already run it before in {self.working_directory}. Delete its log files if you wish to rerun it.")
 
             self.process = process
             self.stdout_and_stderr = ""
