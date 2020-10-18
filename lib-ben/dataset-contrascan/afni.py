@@ -119,7 +119,7 @@ class AFNI():
 
         if the_path_that_matches("*_info.json", in_directory=self.working_directory).exists():
             program_info_present = True
-        if the_path_that_matches("*_stdout+stderr.log.json", in_directory=self.working_directory).exists():
+        if the_path_that_matches("*_stdout+stderr.log", in_directory=self.working_directory).exists():
             stderr_and_stdout_present = True
 
         if program_info_present and stderr_and_stdout_present:
