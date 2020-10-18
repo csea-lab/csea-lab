@@ -67,6 +67,7 @@ class Preprocess():
         # Run our programs of interest. Store outputs in a dict. -----------------------
         self.results = {}
         self.results["align_epi_anat"] = self.align_epi_anat()
+        self.results["auto_tlrc"] = self.autotlrc()
 
 
         # Record end time and write our report. --------------------------
@@ -87,7 +88,7 @@ class Preprocess():
 
     def align_epi_anat(self):
         """
-        Aligns our functional image to our anatomical image.
+        Aligns our anatomical image to our functional image.
 
         Wraps align_epi_anat.py.
         
@@ -109,10 +110,47 @@ class Preprocess():
         """.split()
 
 
-        # Run align_epi_anat.py and return info about it. -----------------------
-        return AFNI(
+        # Run align_epi_anat.py and store results. -----------------------
+        results = AFNI(
             where_to_create_working_directory=self.dirs["output"],
             program="align_epi_anat.py",
+            args=args
+        )
+
+
+        # Store path to outfile as an attribute of the results. Return results. ----------------------------
+        results.aligned_anat_file = the_path_that_matches("*_T1w_al+orig.HEAD", in_directory=results.working_directory)
+        return results
+
+
+    def autotlrc(self):
+        """
+        Aligns our anatomy to base TT_N27.
+
+        Wraps @auto_tlrc.
+        
+        AFNI command info: https://afni.nimh.nih.gov/pub/dist/doc/htmldoc/programs/@auto_tlrc_sphx.html#ahelp-auto-tlrc
+
+
+        Returns
+        -------
+        AFNI object
+            Stores information about the program.
+
+        """
+
+        # Prepare the arguments we want to pass to @auto_tlrc ---------------------
+        args = f"""
+            -no_ss
+            -base TT_N27+tlrc
+            -input {self.results["align_epi_anat"].aligned_anat_file}
+        """.split()
+
+
+        # Run @auto_tlrc and return info about it. -----------------------
+        return AFNI(
+            where_to_create_working_directory=self.dirs["output"],
+            program="@auto_tlrc",
             args=args
         )
 
