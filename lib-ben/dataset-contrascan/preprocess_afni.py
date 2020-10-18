@@ -31,8 +31,6 @@ from afni import AFNI
 class Preprocess():
     """
     This class preprocesses a subject using the power of AFNI.
-    
-    Here we use an AFNI-based pipeline.
 
     """
 
