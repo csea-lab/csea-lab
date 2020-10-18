@@ -72,6 +72,7 @@ class Preprocess():
         self.results["resample"] = self.resample()
         self.results["tshift"] = self.tshift()
         self.results["volreg"] = self.volreg()
+        self.results["merge"] = self.merge()
 
 
         # Record end time and write our report. --------------------------
@@ -313,6 +314,44 @@ class Preprocess():
 
         # Store path to outfile as an attribute of the results. Return results. ----------------------------
         results.outfile = the_path_that_matches("*_volreg+orig.HEAD", in_directory=results.working_directory)
+        return results
+
+
+    def merge(self):
+        """
+        Blur each volume. For inplane 2.5 use 5 fwhm - 2x times inplane is best.
+
+        Wraps 3dmerge.
+
+        AFNI command info: https://afni.nimh.nih.gov/pub/dist/doc/htmldoc/programs/3dmerge_sphx.html#ahelp-3dmerge
+
+
+        Returns
+        -------
+        AFNI object
+            Stores information about the program.
+
+        """
+
+        # Prepare the arguments we want to pass to the program. ---------------------
+        args = f"""
+            -1blur_fwhm 5.0
+            -doall
+            -prefix sub-{subject_id}_smoothed
+            {self.results["volreg"].outfile}
+        """.split()
+
+
+        # Run program and store results. -----------------------
+        results = AFNI(
+            program="3dmerge",
+            args=args,
+            working_directory=self.dirs["output"]/"3dmerge"
+        )
+
+
+        # Store path to outfile as an attribute of the results. Return results. ----------------------------
+        results.outfile = the_path_that_matches("*_smoothed+orig.HEAD", in_directory=results.working_directory)
         return results
 
 
