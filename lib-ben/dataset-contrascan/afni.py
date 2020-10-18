@@ -8,12 +8,16 @@ veliebm@gmail.com
 
 """
 
+# Import standard Python modules. ---------------------
 from datetime import datetime
 import subprocess
 from pathlib import Path
 import json
 import sys
 
+
+# Import some lean and mean CSEA modules. --------------------------
+from reference import the_path_that_matches
 
 class AFNI():
     """
@@ -38,6 +42,12 @@ class AFNI():
 
         # Execute AFNI program. Print stdout/stderr and store them in a string. ---------------------------------
         with subprocess.Popen([self.program] + self.args, cwd=self.working_directory, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, universal_newlines=True) as process:
+
+            # Immediately kill the process if it doesn't need to be run.
+            if self._program_has_run_before():
+                process.kill()
+                print(f"Killing {self.program} because we've already run it before. Delete its log files if you wish to run {self.program} again.")
+
             self.process = process
             self.stdout_and_stderr = ""
             for line in self.process.stdout:
@@ -48,7 +58,8 @@ class AFNI():
 
         # Record end time. Write logs. ----------------------------------------
         self.end_time = datetime.now()
-        self.write_logs()
+        if not self._program_has_run_before():
+            self.write_logs()
 
 
     def __repr__(self):
@@ -64,7 +75,7 @@ class AFNI():
     
     def write_logs(self):
         """
-        Write program info to working directory.
+        Write program info and logs to working directory.
 
         """
 
@@ -91,3 +102,26 @@ class AFNI():
         stdout_stderr_log_path = self.working_directory / f"{self.program}_stdout+stderr.log"
         print(f"Writing {stdout_stderr_log_path}")
         stdout_stderr_log_path.write_text(self.stdout_and_stderr)
+
+
+    def _program_has_run_before(self):
+        """
+        Returns true if the program has already run before.
+
+        We infer this by checking whether log files are present. If log files exist, then
+        the program has probably already ran to completion before.
+
+        """
+
+        program_info_present = False
+        stderr_and_stdout_present = False
+
+        if the_path_that_matches("*_info.json", in_directory=self.working_directory).exists():
+            program_info_present = True
+        if the_path_that_matches("*_stdout+stderr.log.json", in_directory=self.working_directory).exists():
+            stderr_and_stdout_present = True
+
+        if program_info_present and stderr_and_stdout_present:
+            return True
+        else:
+            return False
