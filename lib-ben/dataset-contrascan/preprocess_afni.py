@@ -37,36 +37,40 @@ class Preprocess():
 
     def __init__(self, bids_dir, subject_id):
 
-        # Track time information.
+        # Track time information. Store parameters. -------------------
         self.start_time = datetime.now()
-        
-        # Store parameters.
         self.bids_dir = bids_dir
         self.subject_id = subject_id
 
-        # Tell the user what this class looks like internally.
+
+        # Tell the user what this class looks like internally. ----------------
         print(f"Executing {self.__repr__()}")
 
-        # Store all our dirs in one dict.
+
+        # Store all our dirs in one dict. -----------------------
         self.dirs = {}
         self.dirs["bids_root"] = Path(self.bids_dir)     # Root of the raw BIDS dataset.
         self.dirs["output"] = self.dirs["bids_root"] / "derivatives" / "preprocessing_afni" / f"sub-{subject_id}"   # Where we'll output info for the subject.
 
-        # Gather paths to the files we need.
+
+        # Gather paths to the files we need. ------------------------
         self.paths = {}
         self.paths["events_tsv"] = the_path_that_matches(f"**/func/sub-{subject_id}*_task-*_events.tsv", in_directory=self.dirs["bids_root"])
         self.paths["anat"] = the_path_that_matches(f"sub-{subject_id}/anat/sub-{subject_id}*_T1w.nii", in_directory=self.dirs["bids_root"])
         self.paths["func"] = the_path_that_matches(f"sub-{subject_id}/func/sub-{subject_id}*_bold.nii", in_directory=self.dirs["bids_root"])
 
-        # Create any directory that doesn't exist.
+
+        # Create any directory that doesn't exist. -------------------------
         for directory in self.dirs.values():
             directory.mkdir(exist_ok=True, parents=True)
 
-        # Run our programs of interest. Store outputs in a dict.
+
+        # Run our programs of interest. Store outputs in a dict. -----------------------
         self.results = {}
         self.results["align_epi_anat"] = self.align_epi_anat()
 
-        # Record end time and write out report.
+
+        # Record end time and write out report. --------------------------
         self.end_time = datetime.now()
         self.write_report()
 
@@ -117,7 +121,7 @@ class Preprocess():
 
         """
 
-        # Store workflow info into a dict.
+        # Store workflow info into a dict. --------------------------------
         workflow_info = {
             "Time to complete workflow": str(self.end_time - self.start_time),
             "Subject ID": self.subject_id,
@@ -125,7 +129,8 @@ class Preprocess():
             "Commands executed": [[result.program] + [result.args] for result in self.results.values()]
         }
 
-        # Write the workflow dict to a json file.
+
+        # Write the workflow dict to a json file. ------------------------------------
         output_json_path = self.dirs["output"] / f"workflow_info.json"
         print(f"Writing {output_json_path}")
         with open(output_json_path, "w") as json_file:
@@ -170,21 +175,24 @@ if __name__ == "__main__":
     )
 
 
-    # Parse command-line args and make an empty list to store subject ids in.
+    # Parse command-line args and make an empty list to store subject ids in. -----------------------
     args = parser.parse_args()
     subject_ids = []
 
-    # Option 1: Process all subjects.
+
+    # Option 1: Process all subjects. ---------------------------
     if args.all:
         bids_root = Path(args.bids_dir)
         for subject_dir in bids_root.glob("sub-*"):
             subject_ids.append(subject_id_of(subject_dir))
 
-    # Option 2: Process specific subjects.
+
+    # Option 2: Process specific subjects. -------------------------
     else:
         subject_ids = args.subjects
 
-    # Preprocess the subjects we've selected.
+
+    # Preprocess the subjects we've selected. ------------------------
     for subject_id in subject_ids:
         Preprocess(
             bids_dir=args.bids_dir,
