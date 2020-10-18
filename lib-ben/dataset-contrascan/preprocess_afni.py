@@ -69,7 +69,7 @@ class Preprocess():
         self.results["align_epi_anat"] = self.align_epi_anat()
 
 
-        # Record end time and write out report. --------------------------
+        # Record end time and write our report. --------------------------
         self.end_time = datetime.now()
         self.write_report()
 
