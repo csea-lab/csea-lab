@@ -67,7 +67,7 @@ class Preprocess():
         # Run our programs of interest. Store outputs in a dict. -----------------------
         self.results = {}
         self.results["align_epi_anat"] = self.align_epi_anat()
-        self.results["auto_tlrc"] = self.autotlrc()
+        self.results["auto_tlrc"] = self.auto_tlrc()
 
 
         # Record end time and write our report. --------------------------
@@ -123,7 +123,7 @@ class Preprocess():
         return results
 
 
-    def autotlrc(self):
+    def auto_tlrc(self):
         """
         Aligns our anatomy to base TT_N27.
 
