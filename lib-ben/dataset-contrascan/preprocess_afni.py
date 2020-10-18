@@ -75,6 +75,7 @@ class Preprocess():
         self.results["volreg"] = self.volreg()
         self.results["merge"] = self.merge()
         self.results["roistats"] = self.roistats()
+        self.results["plot"] = self.plot()
 
 
         # Record end time and write our report. --------------------------
@@ -404,7 +405,7 @@ class Preprocess():
 
         matrix_lines = [line for line in results.stdout_and_stderr.splitlines() if is_part_of_matrix(line)]
 
-        matrix_path = working_directory_of_program / f"sub-{self.subject_id}_sliceaverage.1D"
+        matrix_path = working_directory_of_program / f"sub-{self.subject_id}_func_sliceaverage.1D"
 
         with open(matrix_path, "w") as file:
             file.writelines(matrix_lines)
@@ -412,6 +413,44 @@ class Preprocess():
 
         # Store path to outfile as an attribute of the results. Return results. ----------------------------
         results.outfile = the_path_that_matches("*_sliceaverage.1D", in_directory=results.working_directory)
+        return results
+
+
+    def plot(self):
+        """
+        Save the slice average plot in a jpg file.
+
+        Wraps 1dplot.
+
+        AFNI command info: https://afni.nimh.nih.gov/pub/dist/doc/htmldoc/programs/1dplot_sphx.html#ahelp-1dplot
+
+
+        Returns
+        -------
+        AFNI object
+            Stores information about the program.
+
+        """
+
+        # Prepare the arguments we want to pass to the program. ---------------------
+        args = f"""
+            -one
+            -jpg
+            sub-{subject_id}_func_sliceaverage.jpg
+            {self.results["roistats"].outfile}
+        """.split()
+
+
+        # Run program and store results. -----------------------
+        results = AFNI(
+            program="1dplot",
+            args=args,
+            working_directory=self.dirs["output"]/"1dplot"
+        )
+
+
+        # Store path to outfile as an attribute of the results. Return results. ----------------------------
+        results.outfile = the_path_that_matches("*_sliceaverage.jpg", in_directory=results.working_directory)
         return results
 
 
