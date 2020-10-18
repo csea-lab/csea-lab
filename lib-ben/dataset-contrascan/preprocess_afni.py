@@ -103,12 +103,15 @@ class Preprocess():
 
         """
 
+        # Prepare the arguments we want to pass to align_epi_anat.py. ---------------------
         args = f"""
             -anat {self.paths["anat"]}
             -epi {self.paths["func"]}
             -epi_base 10
         """.split()
 
+
+        # Run align_epi_anat.py and return info about it. -----------------------
         return AFNI(
             where_to_create_working_directory=self.dirs["output"],
             program="align_epi_anat.py",
