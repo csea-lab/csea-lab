@@ -115,8 +115,8 @@ class AFNI():
         """
 
         try:
-            the_path_that_matches("*_info.json", in_directory=self.working_directory).exists()
-            the_path_that_matches("*_stdout+stderr.log", in_directory=self.working_directory).exists()
+            the_path_that_matches(f"{self.program}_info.json", in_directory=self.working_directory).exists()
+            the_path_that_matches(f"{self.program}_stdout+stderr.log", in_directory=self.working_directory).exists()
             return True
         except OSError:
             return False
