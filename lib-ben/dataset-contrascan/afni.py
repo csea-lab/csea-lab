@@ -26,18 +26,17 @@ class AFNI():
 
     """
 
-    def __init__(self, where_to_create_working_directory, program: str, args: list):
+    def __init__(self, program: str, args: list, working_directory):
 
         # Store parameters and start time. Tell user that we're executing this object. --------------------------
-        self.where_to_create_working_directory = Path(where_to_create_working_directory).absolute()
+        self.start_time = datetime.now()
         self.program = program
         self.args = args
-        self.start_time = datetime.now()
+        self.working_directory = Path(working_directory).absolute()
         print(f"Executing {self.__repr__()}")
 
 
         # Make working_directory if it doesn't exist. -------------------------------------
-        self.working_directory = self.where_to_create_working_directory/self.program
         self.working_directory.mkdir(parents=True, exist_ok=True)
 
 
@@ -47,7 +46,7 @@ class AFNI():
             # Immediately kill the process if it doesn't need to be run.
             if self._program_has_run_before():
                 process.kill()
-                print(f"Killing {self.program} because we've already run it before. Delete its log files if you wish to run {self.program} again.")
+                print(f"Killing {self.program} because we've already run it before. Delete its log files if you wish to rerun {self.program}.")
 
             self.process = process
             self.stdout_and_stderr = ""
@@ -71,7 +70,7 @@ class AFNI():
 
         """
 
-        return f"{self.__class__.__name__}(where_to_create_working_directory='{self.where_to_create_working_directory}', program='{self.program}', args={self.args})"
+        return f"{self.__class__.__name__}(program='{self.program}', args={self.args}, working_directory='{self.working_directory}')"
 
     
     def write_logs(self):
