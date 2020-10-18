@@ -21,15 +21,12 @@ class AFNI():
 
     def __init__(self, where_to_create_working_directory, program: str, args: list):
 
-        # Record start time. Tell user that we're executing this object. ------------------------
-        self.start_time = datetime.now()
-        print(f"Executing {self.__repr__()}")
-
-
-        # Store parameters. --------------------------
+        # Store parameters and start time. Tell user that we're executing this object. --------------------------
         self.where_to_create_working_directory = Path(where_to_create_working_directory).absolute()
         self.program = program
         self.args = args
+        self.start_time = datetime.now()
+        print(f"Executing {self.__repr__()}")
 
 
         # Make working_directory if it doesn't exist. -------------------------------------
@@ -37,12 +34,12 @@ class AFNI():
         self.working_directory.mkdir(parents=True, exist_ok=True)
 
 
-        # Execute AFNI program. ---------------------------------
+        # Execute AFNI program. Merge standard error into standard output. ---------------------------------
         self.runtime = subprocess.Popen(
             [self.program] + self.args,
             cwd=self.working_directory,
             stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
             universal_newlines=True
         )
 
@@ -53,14 +50,6 @@ class AFNI():
             sys.stdout.write(line)
             sys.stdout.flush()
             self.stdout_string += line
-
-
-        # Record the standard error of the program as a string. Print to terminal. ----------------------------------
-        self.stderr_string = ""
-        for line in self.runtime.stderr:
-            sys.stderr.write(line)
-            sys.stderr.flush()
-            self.stderr_string += line
 
 
         # Record end time. Write logs. ----------------------------------------
@@ -76,7 +65,7 @@ class AFNI():
 
         """
 
-        return f"{self.__class__.__name__}(working_directory='{self.working_directory}', program='{self.program}', args={self.args})"
+        return f"{self.__class__.__name__}(where_to_create_working_directory='{self.where_to_create_working_directory}', program='{self.program}', args={self.args})"
 
     
     def write_logs(self):
@@ -103,13 +92,7 @@ class AFNI():
             json.dump(program_info, json_file, indent="\t")
 
 
-        # Write the program's stdout to a text file. -----------------------------
-        output_stdout_path = self.working_directory / f"{self.program}_stdout.log"
+        # Write the program's stdout (and the merged-in stderr) to a text file. -----------------------------
+        output_stdout_path = self.working_directory / f"{self.program}_stdout+stderr.log"
         print(f"Writing {output_stdout_path}")
         output_stdout_path.write_text(self.stdout_string)
-
-
-        # Write the program's stderr to a text file. -----------------------------
-        output_stderr_path = self.working_directory / f"{self.program}_stderr.log"
-        print(f"Writing {output_stderr_path}")
-        output_stderr_path.write_text(self.stderr_string)
