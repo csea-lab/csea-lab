@@ -16,13 +16,14 @@ veliebm@gmail.com
 
 """
 
-# Import some standard Python libraries.
+# Import some standard Python libraries. -------------------
 from datetime import datetime
 import argparse
 from pathlib import Path
 import json
 
-# Import some friendly and nice CSEA custom libraries.
+
+# Import some friendly and nice CSEA custom libraries. -------------------
 from reference import subject_id_of, the_path_that_matches
 from afni import AFNI
 
