@@ -67,7 +67,8 @@ class Preprocess():
         # Run our programs of interest. Store outputs in a dict. -----------------------
         self.results = {}
         self.results["align_epi_anat"] = self.align_epi_anat()
-        self.results["auto_tlrc"] = self.auto_tlrc()
+        self.results["auto_tlrc1"] = self.auto_tlrc1()
+        self.results["calc1"] = self.calc1()
 
 
         # Record end time and write our report. --------------------------
@@ -123,7 +124,7 @@ class Preprocess():
         return results
 
 
-    def auto_tlrc(self):
+    def auto_tlrc1(self):
         """
         Aligns our anatomy to base TT_N27.
 
@@ -151,8 +152,45 @@ class Preprocess():
         return AFNI(
             program="@auto_tlrc",
             args=args,
-            working_directory=self.dirs["output"]/"@auto_tlrc"
+            working_directory=self.dirs["output"]/"@auto_tlrc1"
         )
+
+
+    def calc1(self):
+        """
+        Calculate a rough skull mask. Specifically, discard all voxels with values less than zero.
+
+        Wraps 3dcalc.
+
+        AFNI command info: https://afni.nimh.nih.gov/pub/dist/doc/htmldoc/programs/3dcalc_sphx.html#ahelp-3dcalc
+
+
+        Returns
+        -------
+        AFNI object
+            Stores information about the program.
+
+        """
+
+        # Prepare the arguments we want to pass to the program. ---------------------
+        args = f"""
+        -a {self.results["align_epi_anat"].aligned_anat_file}
+        -expr step(a)
+        -prefix sub-{self.subject_id}_tmp_mask+orig
+        """.split()
+
+
+        # Run align_epi_anat.py and store results. -----------------------
+        results = AFNI(
+            program="3dcalc",
+            args=args,
+            working_directory=self.dirs["output"]/"3dcalc1"
+        )
+
+
+        # Store path to outfile as an attribute of the results. Return results. ----------------------------
+        results.rough_skull_mask = the_path_that_matches("*_tmp_mask+orig.HEAD", in_directory=results.working_directory)
+        return results
 
 
     def write_report(self):
