@@ -181,14 +181,14 @@ if __name__ == "__main__":
     subject_ids = []
 
 
-    # Option 1: Process all subjects. ---------------------------
+    # Option 1: Select all subjects. ---------------------------
     if args.all:
         bids_root = Path(args.bids_dir)
         for subject_dir in bids_root.glob("sub-*"):
             subject_ids.append(subject_id_of(subject_dir))
 
 
-    # Option 2: Process specific subjects. -------------------------
+    # Option 2: Select specific subjects. -------------------------
     else:
         subject_ids = args.subjects
 
