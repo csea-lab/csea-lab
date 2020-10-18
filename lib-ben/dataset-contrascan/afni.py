@@ -37,7 +37,7 @@ class AFNI():
 
 
         # Execute AFNI program. Merge standard error into standard output. ---------------------------------
-        self.runtime = subprocess.Popen(
+        self.runtime = subprocess.run(
             [self.program] + self.args,
             cwd=self.working_directory,
             stdout=subprocess.PIPE,
