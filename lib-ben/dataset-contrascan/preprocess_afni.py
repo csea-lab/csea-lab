@@ -69,6 +69,7 @@ class Preprocess():
         self.results["align_epi_anat"] = self.align_epi_anat()
         self.results["auto_tlrc1"] = self.auto_tlrc1()
         self.results["calc1"] = self.calc1()
+        self.results["resample"] = self.resample()
 
 
         # Record end time and write our report. --------------------------
@@ -190,6 +191,43 @@ class Preprocess():
 
         # Store path to outfile as an attribute of the results. Return results. ----------------------------
         results.rough_skull_mask = the_path_that_matches("*_tmp_mask+orig.HEAD", in_directory=results.working_directory)
+        return results
+
+
+    def resample(self):
+        """
+        TODO: Explain what the hell 3dresample actually does.
+
+        Wraps 3dresample.
+
+        AFNI command info: https://afni.nimh.nih.gov/pub/dist/doc/htmldoc/programs/3dresample_sphx.html#ahelp-3dresample
+
+
+        Returns
+        -------
+        AFNI object
+            Stores information about the program.
+
+        """
+
+        # Prepare the arguments we want to pass to the program. ---------------------
+        args = f"""
+            -master {self.paths["func"]}
+            -prefix sub-{self.subject_id}_skull_al_mask
+            -inset {self.results["calc1"].rough_skull_mask}
+        """.split()
+
+
+        # Run program and store results. -----------------------
+        results = AFNI(
+            program="3dresample",
+            args=args,
+            working_directory=self.dirs["output"]/"3dresample"
+        )
+
+
+        # Store path to outfile as an attribute of the results. Return results. ----------------------------
+        results.rough_skull_mask = the_path_that_matches("*_skull_al_mask+orig.HEAD", in_directory=results.working_directory)
         return results
 
 
