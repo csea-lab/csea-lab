@@ -109,9 +109,9 @@ class FirstLevel():
 
         # Run 3dmerge.
         merge_result = AFNI(
-            where_to_create_working_directory=self.dirs["output"],
             program="3dmerge",
-            args=args
+            args=args,
+            working_directory=self.dirs["output"]/"3dmerge"
         )
 
         # Store the path of the smoothed image as an attribute of the result object.
@@ -166,9 +166,9 @@ class FirstLevel():
 
         # Run 3dDeconvolve.
         deconvolve_result = AFNI(
-            where_to_create_working_directory=self.dirs["output"],
             program="3dDeconvolve",
-            args=args
+            args=args,
+            working_directory=self.dirs["output"]/"3dDeconvolve"
         )
 
         # Store the path of the matrix as an attribute of the result object.
@@ -213,9 +213,9 @@ class FirstLevel():
         
         # Run 3dREMLfit.
         reml_result = AFNI(
-            where_to_create_working_directory=self.dirs["output"],
             program="3dREMLfit",
-            args=args
+            args=args,
+            working_directory=self.dirs["output"]/"3dREMLfit"
         )
 
         # Copy anatomy file into working directory to use with AFNI viewer.
