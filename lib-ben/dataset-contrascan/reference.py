@@ -93,13 +93,13 @@ def the_path_that_matches(pattern: str, in_directory):
     matches = list(Path(in_directory).glob(pattern))
 
     if not Path(in_directory).is_dir():
-        raise IOError(f"{in_directory} either doesn't exist or isn't a directory!")
+        raise IOError(f"{in_directory} either doesn't exist or isn't a directory at all!")
 
     elif(len(matches)) >= 2:
-        raise IOError(f"{in_directory} exists but contains more than one path that matches '{pattern}': {matches}")
+        raise IOError(f"The directory {in_directory} exists but it contains more than one path that matches '{pattern}': {[match.name for match in matches]}")
 
     elif(len(matches)) == 0:
-        raise IOError(f"{in_directory} exists but contains no paths that match pattern '{pattern}'")
+        raise IOError(f"The directory {in_directory} exists but it contains no paths that match pattern '{pattern}'")
     
     else:
         return matches[0]
