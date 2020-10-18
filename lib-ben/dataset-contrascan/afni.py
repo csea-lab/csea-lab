@@ -36,22 +36,14 @@ class AFNI():
         self.working_directory.mkdir(parents=True, exist_ok=True)
 
 
-        # Execute AFNI program. Merge standard error into standard output. ---------------------------------
-        self.process = subprocess.Popen(
-            [self.program] + self.args,
-            cwd=self.working_directory,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.STDOUT,
-            universal_newlines=True
-        )
-
-
-        # Record the standard output of the program as a string. Print to terminal. ----------------------------------
-        self.stdout_string = ""
-        for line in self.process.stdout:
-            sys.stdout.write(line)
-            sys.stdout.flush()
-            self.stdout_string += line
+        # Execute AFNI program. Print stdout/stderr and store them in a string. ---------------------------------
+        with subprocess.Popen([self.program] + self.args, cwd=self.working_directory, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, universal_newlines=True) as process:
+            self.process = process
+            self.stdout_and_stderr = ""
+            for line in self.process.stdout:
+                sys.stdout.write(line)
+                sys.stdout.flush()
+                self.stdout_and_stderr += line
 
 
         # Record end time. Write logs. ----------------------------------------
@@ -95,7 +87,7 @@ class AFNI():
             json.dump(program_info, json_file, indent="\t")
 
 
-        # Write the program's stdout (and the merged-in stderr) to a text file. -----------------------------
-        output_stdout_path = self.working_directory / f"{self.program}_stdout+stderr.log"
-        print(f"Writing {output_stdout_path}")
-        output_stdout_path.write_text(self.stdout_string)
+        # Write the program's stdout and stderr to a text file. -----------------------------
+        stdout_stderr_log_path = self.working_directory / f"{self.program}_stdout+stderr.log"
+        print(f"Writing {stdout_stderr_log_path}")
+        stdout_stderr_log_path.write_text(self.stdout_and_stderr)
