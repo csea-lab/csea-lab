@@ -37,7 +37,7 @@ class AFNI():
 
 
         # Execute AFNI program. Merge standard error into standard output. ---------------------------------
-        self.runtime = subprocess.run(
+        self.process = subprocess.Popen(
             [self.program] + self.args,
             cwd=self.working_directory,
             stdout=subprocess.PIPE,
@@ -48,7 +48,7 @@ class AFNI():
 
         # Record the standard output of the program as a string. Print to terminal. ----------------------------------
         self.stdout_string = ""
-        for line in self.runtime.stdout:
+        for line in self.process.stdout:
             sys.stdout.write(line)
             sys.stdout.flush()
             self.stdout_string += line
@@ -79,12 +79,12 @@ class AFNI():
         # Store program info into a dict. ---------------------------------
         program_info = {
             "Program name": self.program,
-            "Return code (if 0, then in theory the program threw no errors)": self.runtime.returncode,
+            "Return code (if 0, then in theory the program threw no errors)": self.process.returncode,
             "Working directory": str(self.working_directory),
             "Start time": str(self.start_time),
             "End time": str(self.end_time),
             "Total time to run program": str(self.end_time - self.start_time),
-            "Complete command executed": self.runtime.args
+            "Complete command executed": self.process.args
         }
 
 
