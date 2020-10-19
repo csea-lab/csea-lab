@@ -65,7 +65,7 @@ class Preprocess():
             directory.mkdir(exist_ok=True, parents=True)
 
 
-        # Run our programs of interest. Store outputs in a dict. -----------------------
+        # Run our programs of interest in order. Store outputs in a dict. -----------------------
         self.results = {}
         self.results["align_epi_anat"] = self.align_epi_anat()
         self.results["auto_tlrc1"] = self.auto_tlrc1()
@@ -80,6 +80,7 @@ class Preprocess():
         self.results["plot2"] = self.plot2()
         self.results["eval"] = self.eval()
         self.results["tstat"] = self.tstat()
+        self.results["calc2"] = self.calc2()
 
 
         # Record end time and write our report. --------------------------
@@ -607,6 +608,48 @@ class Preprocess():
         return results
 
 
+    def calc2(self):
+        """
+        I also have no idea what this does! Something to do with scaling mayhaps?
+
+        Wraps 3dcalc.
+
+        AFNI command info: https://afni.nimh.nih.gov/pub/dist/doc/htmldoc/programs/3dcalc_sphx.html#ahelp-3dcalc
+
+
+        Returns
+        -------
+        AFNI object
+            Stores information about the program.
+
+        """
+
+        # Prepare the arguments we want to pass to the program. ---------------------
+        args = f"""
+
+            -float
+            -a {self.results["merge"].outfile}
+            -b {self.results["tstat"].outfile}
+            -c {self.results["resample"].outfile}
+            -expr c*(((a-b)/b)*100)
+            -prefix sub-{self.subject_id}_func_scaled
+
+        """.split()
+
+
+        # Run program and store results. -----------------------
+        results = AFNI(
+            program="3dcalc",
+            args=args,
+            working_directory=self.dirs["output"] / "3dcalc2"
+        )
+
+
+        # Store path to outfile as an attribute of the results. Return results. ----------------------------
+        results.outfile = the_path_that_matches("*_scaled+orig.HEAD", in_directory=results.working_directory)
+        return results
+
+
     def write_report(self):
         """
         Writes some files to subject folder to check the quality of the analysis.
@@ -617,7 +660,7 @@ class Preprocess():
         workflow_info = {
             "Time to complete workflow": str(self.end_time - self.start_time),
             "Subject ID": self.subject_id,
-            "Programs used (in order no less!)": [result.program for result in self.results.values()]
+            "Programs used (in order) and their return codes during the MOST RECENT run": [f"{result.program}: {result.process.returncode}" for result in self.results.values()]
         }
 
 
