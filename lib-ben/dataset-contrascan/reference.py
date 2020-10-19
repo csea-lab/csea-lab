@@ -105,7 +105,7 @@ def split_columns_into_text_files(tsv_path, output_dir):
     tsv_path = Path(tsv_path).absolute()
     output_dir = Path(output_dir).absolute()
     output_dir.mkdir(exist_ok=True, parents=True)
-    print(f"Storing the columns of {tsv_path.name} as text files in {output_dir}")
+    print(f"Storing the columns of {tsv_path.name} as text files in directory {output_dir}")
 
 
     # Read the .tsv file into a DataFrame and fill n/a values with zero. -----------------
