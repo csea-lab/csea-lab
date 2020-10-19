@@ -781,7 +781,7 @@ if __name__ == "__main__":
     """
 
     parser = argparse.ArgumentParser(
-        description=f"Preprocess a subject from the contrascan dataset. You must specify the path to the target BIDS directory. You also need to tell the program what you'd like the output directory to be named. Regarding which subjects to preprocess, you can specify EITHER a list of specific subjects OR all subjects.",
+        description=f"Preprocess subjects from the contrascan dataset. You must specify a path to the target BIDS directory. You must also specify whether to preprocess EITHER all subjects OR a list of specific subjects.",
         fromfile_prefix_chars="@"
     )
 
