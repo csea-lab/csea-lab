@@ -78,6 +78,7 @@ class Preprocess():
         self.results["plot1"] = self.plot1()
         self.results["outcount"] = self.outcount()
         self.results["plot2"] = self.plot2()
+        self.results["eval"] = self.eval()
 
 
         # Record end time and write our report. --------------------------
@@ -366,9 +367,10 @@ class Preprocess():
 
         TODO: Explain what that summary actually means??
 
-        Also, this wrapper is a little funny. 3dROIstats doesn't create a file - it prints a matrix
-        to stdout. Because I don't want to rewrite afni.py to be able to write said matrix directly 
-        to disk, we'll collect the stdout here and write it within this wrapper.
+        This wrapper is a little funny. 3dROIstats doesn't create a file - it prints a matrix
+        to stdout. Luckily, our convenient and nifti AFNI class can capture the matrix from
+        stdout and write it to disk. Just check it carefully to ensure the AFNI class didn't
+        get overly enthusiastic and include too many rows in the matrix :)
 
         Wraps 3dROIstats.
 
@@ -448,9 +450,10 @@ class Preprocess():
         """
         Detect outliers in our data.
 
-        Also, this wrapper is a little funny. 3dToutcount doesn't create a file - it prints a matrix
-        to stdout. Because I don't want to rewrite afni.py to be able to write said matrix directly 
-        to disk, we'll collect the stdout here and write it within this wrapper.
+        This wrapper is a little funny. 3dToutcount doesn't create a file - it prints a matrix
+        to stdout. Luckily, our convenient and nifti AFNI class can capture the matrix from
+        stdout and write it to disk. Just check it carefully to ensure the AFNI class didn't
+        get overly enthusiastic and include too many rows in the matrix :)
 
         Wraps 3dToutcount.
 
@@ -522,6 +525,48 @@ class Preprocess():
 
         # Store path to outfile as an attribute of the results. Return results. ----------------------------
         results.outfile = the_path_that_matches("*_outliers.jpg", in_directory=results.working_directory)
+        return results
+
+
+    def eval(self):
+        """
+        Flag trials that have too many outliers.
+
+        This wrapper is a little funny. 1deval doesn't create a file - it prints a matrix
+        to stdout. Luckily, our convenient and nifti AFNI class can capture the matrix from
+        stdout and write it to disk. Just check it carefully to ensure the AFNI class didn't
+        get overly enthusiastic and include too many rows in the matrix :)
+
+        Wraps 1deval.
+
+        AFNI command info: https://afni.nimh.nih.gov/pub/dist/doc/htmldoc/programs/3dToutcount_sphx.html#ahelp-3dtoutcount
+
+
+        Returns
+        -------
+        AFNI object
+            Stores information about the program.
+
+        """
+
+        # Prepare the arguments we want to pass to the program. ---------------------
+        args = f"""
+            -a {self.results["outcount"].outfile}
+            -expr step(.05-a)
+        """.split()
+
+
+        # Run program and store results. -----------------------
+        results = AFNI(
+            program="1deval",
+            args=args,
+            working_directory=self.dirs["output"] / "1deval",
+            write_matrix_lines_to=self.dirs["output"] / "1deval" / f"sub-{self.subject_id}_func_wholebraincensor.1D"
+        )
+
+
+        # Store path to outfile as an attribute of the results. Return results. ----------------------------
+        results.outfile = the_path_that_matches("*_wholebraincensor.1D", in_directory=results.working_directory)
         return results
 
 
