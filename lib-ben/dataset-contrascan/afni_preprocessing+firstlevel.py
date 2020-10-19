@@ -1,15 +1,9 @@
 #!/usr/bin/env python3
 
 """
-Script to preprocess subjects in Nipype using an AFNI-based pipeline.
+Script to process the contrascan dataset from preprocessing through the 1st-level analysis.
 
-Subjects must be organized in BIDS-format. Also, this script was written to preprocess
-the contrascan dataset, so I don't know how useful it'll be for a different dataset.
-
-!!!WARNINGS!!!
-    - If you don't have an X Server properly configured and running AND you're running this script
-    in a container, the Align step will fail.
-
+Subjects must be organized in BIDS-format.
 
 Created 9/17/2020 by Benjamin Velie.
 veliebm@gmail.com
