@@ -90,7 +90,7 @@ class AFNI():
         """
 
         # Define function to filter in any line of stdout that exclusively contains numbers, tabs, and decimal signs.
-        def is_part_of_matrix(string, contains_wrong_characters=re.compile(r'[^\t0-9.]').search):
+        def is_part_of_matrix(string, contains_wrong_characters=re.compile(r'[^\t0-9. ]').search):
             return not bool(contains_wrong_characters(string))
 
         # Apply filter to each line in stdout.
