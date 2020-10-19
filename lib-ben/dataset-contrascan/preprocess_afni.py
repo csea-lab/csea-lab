@@ -79,6 +79,7 @@ class Preprocess():
         self.results["outcount"] = self.outcount()
         self.results["plot2"] = self.plot2()
         self.results["eval"] = self.eval()
+        self.results["tstat"] = self.tstat()
 
 
         # Record end time and write our report. --------------------------
@@ -539,7 +540,7 @@ class Preprocess():
 
         Wraps 1deval.
 
-        AFNI command info: https://afni.nimh.nih.gov/pub/dist/doc/htmldoc/programs/3dToutcount_sphx.html#ahelp-3dtoutcount
+        AFNI command info: https://afni.nimh.nih.gov/pub/dist/doc/htmldoc/programs/1deval_sphx.html#ahelp-1deval
 
 
         Returns
@@ -567,6 +568,42 @@ class Preprocess():
 
         # Store path to outfile as an attribute of the results. Return results. ----------------------------
         results.outfile = the_path_that_matches("*_wholebraincensor.1D", in_directory=results.working_directory)
+        return results
+
+
+    def tstat(self):
+        """
+        I have utterly no idea what this does. But hey, it's something we need?
+
+        Wraps 3dTstat.
+
+        AFNI command info: https://afni.nimh.nih.gov/pub/dist/doc/htmldoc/programs/3dTstat_sphx.html#ahelp-3dtstat
+
+
+        Returns
+        -------
+        AFNI object
+            Stores information about the program.
+
+        """
+
+        # Prepare the arguments we want to pass to the program. ---------------------
+        args = f"""
+            -prefix sub-{subject_id}_func_mean
+            {self.results["merge"].outfile}
+        """.split()
+
+
+        # Run program and store results. -----------------------
+        results = AFNI(
+            program="3dTstat",
+            args=args,
+            working_directory=self.dirs["output"] / "3dTstat"
+        )
+
+
+        # Store path to outfile as an attribute of the results. Return results. ----------------------------
+        results.outfile = the_path_that_matches("*_mean+orig.HEAD", in_directory=results.working_directory)
         return results
 
 
