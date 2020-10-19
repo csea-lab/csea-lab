@@ -23,9 +23,9 @@ from reference import subject_id_of, the_path_that_matches, split_columns_into_t
 from afni import AFNI
 
 
-class Preprocess():
+class Pipeline():
     """
-    This class preprocesses a subject using the power of AFNI.
+    This class preprocesses a subject then runs a first-level analysis.
 
     """
 
@@ -823,7 +823,7 @@ if __name__ == "__main__":
 
     # Preprocess the subjects we've selected. ------------------------
     for subject_id in subject_ids:
-        Preprocess(
+        Pipeline(
             bids_dir=args.bids_dir,
             subject_id=subject_id,
         )
