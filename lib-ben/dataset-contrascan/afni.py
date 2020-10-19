@@ -14,6 +14,7 @@ import subprocess
 from pathlib import Path
 import json
 import sys
+import re
 
 
 # Import some lean and mean CSEA modules. --------------------------
@@ -26,13 +27,14 @@ class AFNI():
 
     """
 
-    def __init__(self, program: str, args: list, working_directory):
+    def __init__(self, program: str, args: list, working_directory, write_matrix_lines_to=None):
 
         # Store parameters and start time. Tell user that we're executing this object. --------------------------
         self.start_time = datetime.now()
         self.program = program
         self.args = args
         self.working_directory = Path(working_directory).absolute()
+        self.write_matrix_lines_to = write_matrix_lines_to
         print(f"Executing {self.__repr__()}")
 
 
@@ -56,6 +58,11 @@ class AFNI():
                 self.stdout_and_stderr += line
 
 
+        # Write matrix if an output path for it was given. ---------------------------
+        if self.write_matrix_lines_to:
+            self.write_matrix()
+
+
         # Record end time. Write logs. ----------------------------------------
         self.end_time = datetime.now()
         if not self._program_has_run_before():
@@ -72,7 +79,28 @@ class AFNI():
 
         return f"{self.__class__.__name__}(program='{self.program}', args={self.args}, working_directory='{self.working_directory}')"
 
-    
+
+    def write_matrix(self):
+        """
+        Writes ALL lines in stdout resembling a matrix to disk.
+
+        Double-check the matrix to make sure it ONLY captured the lines you want it to capture!
+        This method is useful if you're recording the outputs of 3dToutcount or 3dROIstats.
+
+        """
+
+        # Define function to filter in any line of stdout that exclusively contains numbers, tabs, and decimal signs.
+        def is_part_of_matrix(string, contains_wrong_characters=re.compile(r'[^\t0-9.]').search):
+            return not bool(contains_wrong_characters(string))
+
+        # Apply filter to each line in stdout.
+        matrix_lines = [line + "\n" for line in self.stdout_and_stderr.splitlines() if is_part_of_matrix(line)]
+
+        # Write our beautiful (and hopefully not broken!) matrix to disk.
+        with open(self.write_matrix_lines_to, "w") as file:
+            file.writelines(matrix_lines)
+
+
     def write_logs(self):
         """
         Write program info and logs to working directory.
