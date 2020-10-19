@@ -75,7 +75,7 @@ class Preprocess():
         self.results["volreg"] = self.volreg()
         self.results["merge"] = self.merge()
         self.results["roistats"] = self.roistats()
-        self.results["plot"] = self.plot()
+        self.results["plot1"] = self.plot1()
         self.results["outcount"] = self.outcount()
 
 
@@ -405,7 +405,7 @@ class Preprocess():
         return results
 
 
-    def plot(self):
+    def plot1(self):
         """
         Save the slice average plot in a jpg file.
 
@@ -434,7 +434,7 @@ class Preprocess():
         results = AFNI(
             program="1dplot",
             args=args,
-            working_directory=self.dirs["output"]/"1dplot"
+            working_directory=self.dirs["output"]/"1dplot1"
         )
 
 
