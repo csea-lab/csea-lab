@@ -82,6 +82,7 @@ class Preprocess():
         self.results["tstat"] = self.tstat()
         self.results["calc2"] = self.calc2()
         self.results["deconvolve"] = self.deconvolve()
+        self.results["auto_tlrc2"] = self.auto_tlrc2()
 
 
         # Record end time and write our report. --------------------------
@@ -710,6 +711,43 @@ class Preprocess():
 
         # Store path to outfile as an attribute of the results. Return results. ----------------------------
         results.outfile = the_path_that_matches("*_stats+orig.HEAD", in_directory=results.working_directory)
+        results.IRF = the_path_that_matches("*_IRF+orig.HEAD", in_directory=results.working_directory)
+        return results
+
+
+    def auto_tlrc2(self):
+        """
+        Aligns our IRF file to our anat file.
+
+        Wraps @auto_tlrc.
+
+        AFNI command info: https://afni.nimh.nih.gov/pub/dist/doc/htmldoc/programs/@auto_tlrc_sphx.html#ahelp-auto-tlrc
+
+
+        Returns
+        -------
+        AFNI object
+            Stores information about the program.
+
+        """
+
+        # Prepare the arguments we want to pass to the program ---------------------
+        args = f"""
+            -apar {self.results["auto_tlrc1"].outfile}
+            -input {self.results["deconvolve"].IRF}
+            -dxyz 2.5
+        """.split()
+
+
+        # Run program and store results. -----------------------
+        results = AFNI(
+            program="@auto_tlrc",
+            args=args,
+            working_directory=self.dirs["output"]/"@auto_tlrc2"
+        )
+
+        # Store path to outfile as an attribute of the results. Return results. ----------------------------
+        results.outfile = the_path_that_matches("*_IRF+tlrc.HEAD", in_directory=results.working_directory)
         return results
 
 
