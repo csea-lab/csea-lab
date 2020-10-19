@@ -25,7 +25,7 @@ import re
 
 
 # Import some friendly and nice CSEA custom modules. -------------------
-from reference import subject_id_of, the_path_that_matches
+from reference import subject_id_of, the_path_that_matches, split_columns_into_text_files
 from afni import AFNI
 
 
@@ -81,6 +81,7 @@ class Preprocess():
         self.results["eval"] = self.eval()
         self.results["tstat"] = self.tstat()
         self.results["calc2"] = self.calc2()
+        self.results["deconvolve"] = self.deconvolve()
 
 
         # Record end time and write our report. --------------------------
@@ -322,6 +323,7 @@ class Preprocess():
 
         # Store path to outfile as an attribute of the results. Return results. ----------------------------
         results.outfile = the_path_that_matches("*_volreg+orig.HEAD", in_directory=results.working_directory)
+        results.motion_regressors = the_path_that_matches("*_regressors-motion.1D", in_directory=results.working_directory)
         return results
 
 
@@ -647,6 +649,67 @@ class Preprocess():
 
         # Store path to outfile as an attribute of the results. Return results. ----------------------------
         results.outfile = the_path_that_matches("*_scaled+orig.HEAD", in_directory=results.working_directory)
+        return results
+
+
+    def deconvolve(self):
+        """
+        Performs a nice and simple 1st-level analysis.
+
+        Wraps 3dDeconvolve.
+
+        AFNI command info: https://afni.nimh.nih.gov/pub/dist/doc/htmldoc/programs/3dDeconvolve_sphx.html#ahelp-3ddeconvolve
+
+
+        Returns
+        -------
+        AFNI object
+            Stores information about the program.
+
+        """
+
+        # Grab onsets from our BIDS event file. --------------------
+        split_columns_into_text_files(
+            tsv_path=self.paths["events_tsv"],
+            output_dir=self.dirs["output"] / "other"
+        )
+        onsets_path = the_path_that_matches("onset.txt", in_directory=self.dirs["output"] / "other")
+
+
+        # Prepare the arguments we want to pass to the program. ---------------------
+        args = f"""
+
+            -input {self.results['calc2'].outfile}
+            -polort A
+            -GOFORIT 4
+            -censor {self.results['eval'].outfile}
+            -num_stimts 7
+            -stim_times 1 {onsets_path} CSPLINzero(0,18,10)
+            -stim_label 1 all
+            -stim_file 2 {self.results["volreg"].motion_regressors}[0] -stim_base 2 -stim_label 2 roll
+            -stim_file 3 {self.results["volreg"].motion_regressors}[1] -stim_base 3 -stim_label 3 pitch
+            -stim_file 4 {self.results["volreg"].motion_regressors}[2] -stim_base 4 -stim_label 4 yaw
+            -stim_file 5 {self.results["volreg"].motion_regressors}[3] -stim_base 5 -stim_label 5 dS
+            -stim_file 6 {self.results["volreg"].motion_regressors}[4] -stim_base 6 -stim_label 6 dL
+            -stim_file 7 {self.results["volreg"].motion_regressors}[5] -stim_base 7 -stim_label 7 dP
+            -jobs 2
+            -fout
+            -iresp 1 sub-{self.subject_id}_func_CSPLINz_all_IRF
+            -bucket sub-{self.subject_id}_func_CSPLINz_all_stats
+
+        """.split()
+
+
+        # Run program and store results. -----------------------
+        results = AFNI(
+            program="3dDeconvolve",
+            args=args,
+            working_directory=self.dirs["output"] / "3dDeconvolve"
+        )
+
+
+        # Store path to outfile as an attribute of the results. Return results. ----------------------------
+        results.outfile = the_path_that_matches("*_stats+orig.HEAD", in_directory=results.working_directory)
         return results
 
 
