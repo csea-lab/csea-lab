@@ -59,22 +59,22 @@ class Pipeline():
 
         # Run our programs of interest in order. Store outputs in a dict. -----------------------
         self.results = {}
-        self.results["align_epi_anat"] = self.align_epi_anat()
-        self.results["auto_tlrc1"] = self.auto_tlrc1()
-        self.results["calc1"] = self.calc1()
-        self.results["resample"] = self.resample()
-        self.results["tshift"] = self.tshift()
-        self.results["volreg"] = self.volreg()
-        self.results["merge"] = self.merge()
-        self.results["roistats"] = self.roistats()
-        self.results["plot1"] = self.plot1()
-        self.results["outcount"] = self.outcount()
-        self.results["plot2"] = self.plot2()
-        self.results["eval"] = self.eval()
-        self.results["tstat"] = self.tstat()
-        self.results["calc2"] = self.calc2()
-        self.results["deconvolve"] = self.deconvolve()
-        self.results["auto_tlrc2"] = self.auto_tlrc2()
+        self.results["align_epi_anat.py"] = self.align_epi_anat()
+        self.results["@auto_tlrc 1"] = self.auto_tlrc1()
+        self.results["3dcalc 1"] = self.calc1()
+        self.results["3dresample"] = self.resample()
+        self.results["3dTshift"] = self.tshift()
+        self.results["3dvolreg"] = self.volreg()
+        self.results["3dmerge"] = self.merge()
+        self.results["3dROIstats"] = self.roistats()
+        self.results["1dplot 1"] = self.plot1()
+        self.results["3dToutcount"] = self.outcount()
+        self.results["1dplot 2"] = self.plot2()
+        self.results["1deval"] = self.eval()
+        self.results["3dTstat"] = self.tstat()
+        self.results["3dcalc 2"] = self.calc2()
+        self.results["3dDeconvolve"] = self.deconvolve()
+        self.results["@auto_tlrc 2"] = self.auto_tlrc2()
 
 
         # Record end time and write our report. --------------------------
@@ -150,7 +150,7 @@ class Pipeline():
         args = f"""
             -no_ss
             -base TT_N27+tlrc
-            -input {self.results["align_epi_anat"].outfile}
+            -input {self.results["align_epi_anat.py"].outfile}
         """.split()
 
 
@@ -184,7 +184,7 @@ class Pipeline():
 
         # Prepare the arguments we want to pass to the program. ---------------------
         args = f"""
-        -a {self.results["align_epi_anat"].outfile}
+        -a {self.results["align_epi_anat.py"].outfile}
         -expr step(a)
         -prefix sub-{subject_id}_anat_aligned_tmp_mask
         """.split()
@@ -223,7 +223,7 @@ class Pipeline():
         args = f"""
             -master {self.paths["func"]}
             -prefix sub-{subject_id}_func_skull_al_mask
-            -inset {self.results["calc1"].outfile}
+            -inset {self.results["3dcalc 1"].outfile}
         """.split()
 
 
@@ -281,7 +281,7 @@ class Pipeline():
 
     def volreg(self):
         """
-        Align each dataset to the base volume using the same image as used in align_epi_anat.
+        Align each dataset to the base volume using the same image as used in align_epi_anat.py
 
         Wraps 3dvolreg.
 
@@ -299,10 +299,10 @@ class Pipeline():
         args = f"""
         -verbose
         -zpad 1
-        -base {self.results["tshift"].outfile}[10]
+        -base {self.results["3dTshift"].outfile}[10]
         -1Dfile sub-{subject_id}_regressors-motion.1D
         -prefix sub-{subject_id}_func_tshift_volreg
-        {self.results["tshift"].outfile}
+        {self.results["3dTshift"].outfile}
         """.split()
 
 
@@ -341,7 +341,7 @@ class Pipeline():
             -1blur_fwhm 5.0
             -doall
             -prefix sub-{subject_id}_func_smoothed
-            {self.results["volreg"].outfile}
+            {self.results["3dvolreg"].outfile}
         """.split()
 
 
@@ -383,10 +383,10 @@ class Pipeline():
 
         # Prepare the arguments we want to pass to the program. ---------------------
         # We append 3dcalc separately to the args so we don't accidentally split it.
-        mask_arg = ["-mask", f"3dcalc(-a {self.results['resample'].outfile} -expr a*(k+1) -datum short -nscale)"]
+        mask_arg = ["-mask", f"3dcalc(-a {self.results['3dresample'].outfile} -expr a*(k+1) -datum short -nscale)"]
         other_args = f"""
         -quiet
-        {self.results["volreg"].outfile}
+        {self.results["3dvolreg"].outfile}
         """.split()
 
 
@@ -426,7 +426,7 @@ class Pipeline():
             -one
             -jpg
             sub-{subject_id}_func_sliceaverage.jpg
-            {self.results["roistats"].outfile}
+            {self.results["3dROIstats"].outfile}
         """.split()
 
 
@@ -467,9 +467,9 @@ class Pipeline():
         # Prepare the arguments we want to pass to the program. ---------------------
 
         # We append 3dcalc separately to the args so we don't accidentally split it.
-        mask_arg = ["-mask", f"3dcalc(-a {self.results['resample'].outfile} -expr a*(k+1) -datum short -nscale)"]
+        mask_arg = ["-mask", f"3dcalc(-a {self.results['3dresample'].outfile} -expr a*(k+1) -datum short -nscale)"]
         other_args = f"""
-            -fraction {self.results["volreg"].outfile}
+            -fraction {self.results["3dvolreg"].outfile}
         """.split()
 
 
@@ -508,7 +508,7 @@ class Pipeline():
         args = f"""
             -jpg
             sub-{self.subject_id}_func_outliers.jpg
-            {self.results["outcount"].outfile}
+            {self.results["3dToutcount"].outfile}
         """.split()
 
 
@@ -548,7 +548,7 @@ class Pipeline():
 
         # Prepare the arguments we want to pass to the program. ---------------------
         args = f"""
-            -a {self.results["outcount"].outfile}
+            -a {self.results["3dToutcount"].outfile}
             -expr step(.05-a)
         """.split()
 
@@ -586,7 +586,7 @@ class Pipeline():
         # Prepare the arguments we want to pass to the program. ---------------------
         args = f"""
             -prefix sub-{subject_id}_func_mean
-            {self.results["merge"].outfile}
+            {self.results["3dmerge"].outfile}
         """.split()
 
 
@@ -623,9 +623,9 @@ class Pipeline():
         args = f"""
 
             -float
-            -a {self.results["merge"].outfile}
-            -b {self.results["tstat"].outfile}
-            -c {self.results["resample"].outfile}
+            -a {self.results["3dmerge"].outfile}
+            -b {self.results["3dTstat"].outfile}
+            -c {self.results["3dresample"].outfile}
             -expr c*(((a-b)/b)*100)
             -prefix sub-{self.subject_id}_func_scaled
 
@@ -672,19 +672,19 @@ class Pipeline():
         # Prepare the arguments we want to pass to the program. ---------------------
         args = f"""
 
-            -input {self.results['calc2'].outfile}
+            -input {self.results['3dcalc 2'].outfile}
             -polort A
             -GOFORIT 4
-            -censor {self.results['eval'].outfile}
+            -censor {self.results['1deval'].outfile}
             -num_stimts 7
             -stim_times 1 {onsets_path} CSPLINzero(0,18,10)
             -stim_label 1 all
-            -stim_file 2 {self.results["volreg"].motion_regressors}[0] -stim_base 2 -stim_label 2 roll
-            -stim_file 3 {self.results["volreg"].motion_regressors}[1] -stim_base 3 -stim_label 3 pitch
-            -stim_file 4 {self.results["volreg"].motion_regressors}[2] -stim_base 4 -stim_label 4 yaw
-            -stim_file 5 {self.results["volreg"].motion_regressors}[3] -stim_base 5 -stim_label 5 dS
-            -stim_file 6 {self.results["volreg"].motion_regressors}[4] -stim_base 6 -stim_label 6 dL
-            -stim_file 7 {self.results["volreg"].motion_regressors}[5] -stim_base 7 -stim_label 7 dP
+            -stim_file 2 {self.results["3dvolreg"].motion_regressors}[0] -stim_base 2 -stim_label 2 roll
+            -stim_file 3 {self.results["3dvolreg"].motion_regressors}[1] -stim_base 3 -stim_label 3 pitch
+            -stim_file 4 {self.results["3dvolreg"].motion_regressors}[2] -stim_base 4 -stim_label 4 yaw
+            -stim_file 5 {self.results["3dvolreg"].motion_regressors}[3] -stim_base 5 -stim_label 5 dS
+            -stim_file 6 {self.results["3dvolreg"].motion_regressors}[4] -stim_base 6 -stim_label 6 dL
+            -stim_file 7 {self.results["3dvolreg"].motion_regressors}[5] -stim_base 7 -stim_label 7 dP
             -jobs 2
             -fout
             -iresp 1 sub-{self.subject_id}_func_CSPLINz_all_IRF
@@ -726,14 +726,14 @@ class Pipeline():
         # Copy the input files to the @auto_tlrc folder. Otherwise, we risk its great wrath. ---------------
         program_working_directory = self.dirs["output"] / "@auto_tlrc2"
         program_working_directory.mkdir(exist_ok=True)
-        shutil.copy2(src=self.results["auto_tlrc1"].outfile, dst=program_working_directory / self.results["auto_tlrc1"].outfile.name)
-        shutil.copy2(src=self.results["deconvolve"].IRF, dst=program_working_directory / self.results["deconvolve"].IRF.name)
+        shutil.copy2(src=self.results["@auto_tlrc 1"].outfile, dst=program_working_directory / self.results["@auto_tlrc 1"].outfile.name)
+        shutil.copy2(src=self.results["3dDeconvolve"].IRF, dst=program_working_directory / self.results["3dDeconvolve"].IRF.name)
 
 
         # Prepare the arguments we want to pass to the program ---------------------
         args = f"""
-            -apar {self.results["auto_tlrc1"].outfile.name}
-            -input {self.results["deconvolve"].IRF.name}
+            -apar {self.results["@auto_tlrc 1"].outfile.name}
+            -input {self.results["3dDeconvolve"].IRF.name}
             -dxyz 2.5
         """.split()
 
