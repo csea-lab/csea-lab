@@ -31,13 +31,10 @@ class Pipeline():
 
     def __init__(self, bids_dir, subject_id):
 
-        # Track time information. Store parameters. -------------------
+        # Track time information. Store parameters. Tell user what's happening. -------------------
         self.start_time = datetime.now()
         self.bids_dir = bids_dir
         self.subject_id = subject_id
-
-
-        # Tell the user what this class looks like internally. ----------------
         print(f"Executing {self.__repr__()}")
 
 
