@@ -12,8 +12,8 @@ veliebm@gmail.com
 
 # Import some standard Python modules. -------------------
 from datetime import datetime
-import argparse
 from pathlib import Path
+import argparse
 import json
 import re
 
