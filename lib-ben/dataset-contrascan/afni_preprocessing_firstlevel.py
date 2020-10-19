@@ -16,6 +16,7 @@ from pathlib import Path
 import argparse
 import json
 import re
+import shutil
 
 
 # Import some friendly and nice CSEA custom modules. -------------------
@@ -721,11 +722,18 @@ class Pipeline():
             Stores information about the program.
 
         """
+        
+        # Copy the input files to the @auto_tlrc folder. Otherwise, we risk its great wrath. ---------------
+        program_working_directory = self.dirs["output"] / "@auto_tlrc2"
+        program_working_directory.mkdir(exist_ok=True)
+        shutil.copy2(src=self.results["auto_tlrc1"].outfile, dst=program_working_directory / self.results["auto_tlrc1"].outfile.name)
+        shutil.copy2(src=self.results["deconvolve"].IRF, dst=program_working_directory / self.results["deconvolve"].IRF.name)
+
 
         # Prepare the arguments we want to pass to the program ---------------------
         args = f"""
-            -apar {self.results["auto_tlrc1"].outfile}
-            -input {self.results["deconvolve"].IRF}
+            -apar {self.results["auto_tlrc1"].outfile.name}
+            -input {self.results["deconvolve"].IRF.name}
             -dxyz 2.5
         """.split()
 
@@ -734,8 +742,9 @@ class Pipeline():
         results = AFNI(
             program="@auto_tlrc",
             args=args,
-            working_directory=self.dirs["output"]/"@auto_tlrc2"
+            working_directory=program_working_directory
         )
+
 
         # Store path to outfile as an attribute of the results. Return results. ----------------------------
         results.outfile = the_path_that_matches("*_IRF+tlrc.HEAD", in_directory=results.working_directory)
