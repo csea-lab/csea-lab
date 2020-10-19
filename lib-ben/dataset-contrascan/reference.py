@@ -43,27 +43,6 @@ def subject_id_of(path) -> str:
         raise RuntimeError(f"No subject ID found in {path}")
 
 
-def with_whitespace_trimmed(docstring: str) -> str:
-    """
-    Removes extra whitespace from a string or docstring.
-
-
-    Inputs
-    ------
-    docstring : str
-        The docstring to de-whitespace.
-
-    
-    Returns
-    -------
-    str
-        The docstring with each extra space and newline shortened to a single space (" ").
-
-    """
-
-    return ' '.join(docstring.replace("\n", " ").split())
-
-
 def the_path_that_matches(pattern: str, in_directory):
     """
     Finds one and only one path matching the specified pattern. Raises an error if it finds 2+ paths or no paths.
