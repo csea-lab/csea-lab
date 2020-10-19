@@ -76,6 +76,7 @@ class Preprocess():
         self.results["merge"] = self.merge()
         self.results["roistats"] = self.roistats()
         self.results["plot"] = self.plot()
+        self.results["outcount"] = self.outcount()
 
 
         # Record end time and write our report. --------------------------
@@ -394,21 +395,9 @@ class Preprocess():
         results = AFNI(
             program="3dROIstats",
             args=mask_arg + other_args,
-            working_directory=working_directory_of_program
+            working_directory=working_directory_of_program,
+            write_matrix_lines_to=working_directory_of_program / f"sub-{self.subject_id}_func_sliceaverage.1D"
         )
-
-
-        # Write the matrix to disk. -------------------------
-        # A line of stdout is part of the matrix if it exclusively contains numbers, tabs, and decimal signs.
-        def is_part_of_matrix(string, contains_wrong_characters=re.compile(r'[^\t0-9.]').search):
-            return not bool(contains_wrong_characters(string))
-
-        matrix_lines = [line for line in results.stdout_and_stderr.splitlines() if is_part_of_matrix(line)]
-
-        matrix_path = working_directory_of_program / f"sub-{self.subject_id}_func_sliceaverage.1D"
-
-        with open(matrix_path, "w") as file:
-            file.writelines(matrix_lines)
 
 
         # Store path to outfile as an attribute of the results. Return results. ----------------------------
@@ -451,6 +440,50 @@ class Preprocess():
 
         # Store path to outfile as an attribute of the results. Return results. ----------------------------
         results.outfile = the_path_that_matches("*_sliceaverage.jpg", in_directory=results.working_directory)
+        return results
+
+
+    def outcount(self):
+        """
+        Detect outliers in our data.
+
+        Also, this wrapper is a little funny. 3dToutcount doesn't create a file - it prints a matrix
+        to stdout. Because I don't want to rewrite afni.py to be able to write said matrix directly 
+        to disk, we'll collect the stdout here and write it within this wrapper.
+
+        Wraps 3dToutcount.
+
+        AFNI command info: https://afni.nimh.nih.gov/pub/dist/doc/htmldoc/programs/3dToutcount_sphx.html#ahelp-3dtoutcount
+
+
+        Returns
+        -------
+        AFNI object
+            Stores information about the program.
+
+        """
+
+        # Prepare the arguments we want to pass to the program. ---------------------
+
+        # We append 3dcalc separately to the args so we don't accidentally split it.
+        mask_arg = ["-mask", f"3dcalc(-a {self.results['resample'].outfile} -expr a*(k+1) -datum short -nscale)"]
+        other_args = f"""
+            -fraction {self.results["volreg"].outfile}
+        """.split()
+
+
+        # Run program and store results. -----------------------
+        working_directory_of_program = self.dirs["output"]/"3dToutcount"
+        results = AFNI(
+            program="3dToutcount",
+            args=mask_arg + other_args,
+            working_directory=working_directory_of_program,
+            write_matrix_lines_to=working_directory_of_program / f"sub-{self.subject_id}_func_outliers.1D"
+        )
+
+
+        # Store path to outfile as an attribute of the results. Return results. ----------------------------
+        results.outfile = the_path_that_matches("*_outliers.1D", in_directory=results.working_directory)
         return results
 
 
