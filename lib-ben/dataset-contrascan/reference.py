@@ -22,12 +22,10 @@ def subject_id_of(path) -> str:
     path : str or Path
         String or Path containing the subject ID.
 
-
     Returns
     -------
     str
         Subject ID found in the filename
-
 
     Raises
     ------
