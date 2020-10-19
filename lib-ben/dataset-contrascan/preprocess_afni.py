@@ -77,6 +77,7 @@ class Preprocess():
         self.results["roistats"] = self.roistats()
         self.results["plot1"] = self.plot1()
         self.results["outcount"] = self.outcount()
+        self.results["plot2"] = self.plot2()
 
 
         # Record end time and write our report. --------------------------
@@ -484,6 +485,43 @@ class Preprocess():
 
         # Store path to outfile as an attribute of the results. Return results. ----------------------------
         results.outfile = the_path_that_matches("*_outliers.1D", in_directory=results.working_directory)
+        return results
+
+
+    def plot2(self):
+        """
+        Save the outliers plot into a jpg file.
+
+        Wraps 1dplot.
+
+        AFNI command info: https://afni.nimh.nih.gov/pub/dist/doc/htmldoc/programs/1dplot_sphx.html#ahelp-1dplot
+
+
+        Returns
+        -------
+        AFNI object
+            Stores information about the program.
+
+        """
+
+        # Prepare the arguments we want to pass to the program. ---------------------
+        args = f"""
+            -jpg
+            sub-{self.subject_id}_func_outliers.jpg
+            {self.results["outcount"].outfile}
+        """.split()
+
+
+        # Run program and store results. -----------------------
+        results = AFNI(
+            program="1dplot",
+            args=args,
+            working_directory=self.dirs["output"]/"1dplot2"
+        )
+
+
+        # Store path to outfile as an attribute of the results. Return results. ----------------------------
+        results.outfile = the_path_that_matches("*_outliers.jpg", in_directory=results.working_directory)
         return results
 
 
