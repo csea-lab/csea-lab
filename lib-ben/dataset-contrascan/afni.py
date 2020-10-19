@@ -60,7 +60,7 @@ class AFNI():
 
         # Write matrix if an output path for it was given. ---------------------------
         if self.write_matrix_lines_to:
-            self.write_matrix()
+            self._write_matrix()
 
 
         # Record end time. Write logs. ----------------------------------------
@@ -80,7 +80,7 @@ class AFNI():
         return f"{self.__class__.__name__}(program='{self.program}', args={self.args}, working_directory='{self.working_directory}')"
 
 
-    def write_matrix(self):
+    def _write_matrix(self):
         """
         Writes ALL lines in stdout resembling a matrix to disk.
 
