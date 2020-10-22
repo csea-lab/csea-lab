@@ -17,7 +17,7 @@ import json
 import pandas
 
 # Import some CSEA custom libraries. (Scrappy and made with love :))
-from reference import subject_id_of, the_path_that_matches
+from reference import subject_id_of, the_path_that_matches, split_columns_into_text_files
 from afni import AFNI
 
 
@@ -87,32 +87,21 @@ class FirstLevel():
         """
         Smooths the functional image.
 
-        Wraps 3dmerge.
-
-        AFNI command info: https://afni.nimh.nih.gov/pub/dist/doc/htmldoc/programs/3dmerge_sphx.html#ahelp-3dmerge
-
-
-        Returns
-        -------
-        AFNI object
-            Stores information about the outputs of 3dmerge.
+        3dmerge info: https://afni.nimh.nih.gov/pub/dist/doc/htmldoc/programs/3dmerge_sphx.html#ahelp-3dmerge
 
         """
 
-        # Create the list of arguments we'll pass to 3dmerge. 
-        args = f"""
-            -1blur_fwhm 5.0
-            -doall
-            -prefix {self.paths['func'].stem}_smoothed
-            {self.paths['func']}
-        """.split()
+        working_directory = self.dirs["output"] / "3dmerge"
 
-        # Run 3dmerge.
-        merge_result = AFNI(
-            program="3dmerge",
-            args=args,
-            working_directory=self.dirs["output"]/"3dmerge"
-        )
+        # Create the list of arguments and run 3dmerge.
+        args = f"""
+                -1blur_fwhm 5.0
+                -doall
+                -prefix {self.paths['func'].stem}_smoothed
+                {self.paths['func']}
+        
+        """.split()
+        merge_result = AFNI(program="3dmerge", args=args, working_directory=working_directory)
 
         # Store the path of the smoothed image as an attribute of the result object.
         merge_result.smoothed_image = the_path_that_matches("*.HEAD", in_directory=merge_result.working_directory)
@@ -124,37 +113,32 @@ class FirstLevel():
         """
         Runs the 1st-level regression on the smoothed functional image.
 
-        Wraps 3dDeconvolve.
-        
-        AFNI command info: https://afni.nimh.nih.gov/pub/dist/doc/htmldoc/programs/3dDeconvolve_sphx.html#ahelp-3ddeconvolve
-
-
-        Returns
-        -------
-        AFNI object
-            Stores information about the outputs of Deconvolve.
+        3dDeconvolve info: https://afni.nimh.nih.gov/pub/dist/doc/htmldoc/programs/3dDeconvolve_sphx.html#ahelp-3ddeconvolve
 
         """
 
+        working_directory = self.dirs["output"] / "3dDeconvolve"
+
         # Prepare regressor text files to scan into the interface.
-        self._break_tsv(self.paths["events_tsv"], self.dirs["subject_info"])
-        self._break_tsv(self.paths["regressors_tsv"], self.dirs["regressors"])
+        split_columns_into_text_files(self.paths["events_tsv"], self.dirs["subject_info"])
+        split_columns_into_text_files(self.paths["regressors_tsv"], self.dirs["regressors"])
         
         # Total amount of regressors to include in the analysis.
         amount_of_regressors = 1 + len(self.regressor_names)
 
         # Create list of arguments to pass to 3dDeconvolve.
         args = f"""
-            -input {self.results["merge"].smoothed_image}
-            -mask {self.paths["mask"]}
-            -GOFORIT 4
-            -polort A
-            -fout
-            -bucket sub-{self.subject_id}_deconvolve_stats
-            -num_stimts {amount_of_regressors}
-            -stim_times 1 {self.dirs["subject_info"]/'onset'}.txt CSPLINzero(0,18,10)
-            -stim_label 1 all
-            -iresp 1 sub-{self.subject_id}_deconvolve_IRF
+                -input {self.results["merge"].smoothed_image}
+                -mask {self.paths["mask"]}
+                -GOFORIT 4
+                -polort A
+                -fout
+                -bucket sub-{self.subject_id}_deconvolve_stats
+                -num_stimts {amount_of_regressors}
+                -stim_times 1 {self.dirs["subject_info"]/'onset'}.txt CSPLINzero(0,18,10)
+                -stim_label 1 all
+                -iresp 1 sub-{self.subject_id}_deconvolve_IRF
+
         """.split()
 
         # Add individual stim files to the string.
@@ -165,20 +149,13 @@ class FirstLevel():
             args += stim_file_info.split() + stim_label_info.split()
 
         # Run 3dDeconvolve.
-        deconvolve_result = AFNI(
-            program="3dDeconvolve",
-            args=args,
-            working_directory=self.dirs["output"]/"3dDeconvolve"
-        )
+        deconvolve_result = AFNI(program="3dDeconvolve", args=args, working_directory=working_directory)
 
         # Store the path of the matrix as an attribute of the result object.
         deconvolve_result.matrix = the_path_that_matches("*xmat.1D", in_directory=deconvolve_result.working_directory)
 
         # Copy anatomy file into working directory to use with AFNI viewer.
-        shutil.copyfile(
-            src=self.paths["anat"],
-            dst=deconvolve_result.working_directory/self.paths["anat"].name
-        )
+        shutil.copyfile(src=self.paths["anat"], dst=working_directory / self.paths["anat"].name)
 
         return deconvolve_result
     
@@ -187,42 +164,29 @@ class FirstLevel():
         """
         Runs a 3dREMLfit 1st-level regression on the smoothed functional image using the matrix created by 3dDeconvolve.
 
-        Wraps 3dREMLfit.
-        
-        AFNI command info: https://afni.nimh.nih.gov/pub/dist/doc/htmldoc/programs/3dREMLfit_sphx.html#ahelp-3dremlfit
-
-
-        Returns
-        -------
-        AFNI object
-            Stores information about the outputs of Deconvolve.
+        3dREMLfit info: https://afni.nimh.nih.gov/pub/dist/doc/htmldoc/programs/3dREMLfit_sphx.html#ahelp-3dremlfit
 
         """
 
+        working_directory = self.dirs["output"] / "3dREMLfit"
+
         # Create the list of arguments to pass to 3dREMLfit.
         args = f"""
-            -matrix {self.results["deconvolve"].matrix}
-            -input {self.results["merge"].smoothed_image}
-            -mask {self.paths["mask"]}
-            -fout
-            -tout
-            -Rbuck sub-{self.subject_id}_REML_stats
-            -Rvar sub-{self.subject_id}_REML_varianceparameters
-            -verb
+                -matrix {self.results["deconvolve"].matrix}
+                -input {self.results["merge"].smoothed_image}
+                -mask {self.paths["mask"]}
+                -fout
+                -tout
+                -Rbuck sub-{self.subject_id}_REML_stats
+                -Rvar sub-{self.subject_id}_REML_varianceparameters
+                -verb
         """.split()
         
         # Run 3dREMLfit.
-        reml_result = AFNI(
-            program="3dREMLfit",
-            args=args,
-            working_directory=self.dirs["output"]/"3dREMLfit"
-        )
+        reml_result = AFNI(program="3dREMLfit", args=args, working_directory=working_directory)
 
         # Copy anatomy file into working directory to use with AFNI viewer.
-        shutil.copyfile(
-            src=self.paths["anat"],
-            dst=reml_result.working_directory/self.paths["anat"].name
-        )
+        shutil.copyfile(src=self.paths["anat"], dst=working_directory / self.paths["anat"].name)
 
         return reml_result
 
@@ -235,9 +199,9 @@ class FirstLevel():
 
         # Store workflow info into a dict.
         workflow_info = {
+            "Subject ID": self.subject_id,
             "Time to complete workflow": str(self.end_time - self.start_time),
             "Regressors included": self.regressor_names,
-            "Subject ID": self.subject_id,
             "Programs used": [result.program for result in self.results.values()],
             "Commands executed": [[result.program] + [result.args] for result in self.results.values()]
         }
@@ -247,42 +211,6 @@ class FirstLevel():
         print(f"Writing {output_json_path}")
         with open(output_json_path, "w") as json_file:
             json.dump(workflow_info, json_file, indent="\t")
-
-
-    def _break_tsv(self, tsv_path, output_dir):
-        """
-        Converts a tsv file into a collection of text files.
-
-        Each column name becomes the name of a text file. Each value in that column is then
-        placed into the text file.
-
-
-        Parameters
-        ----------
-        tsv_path : str or Path
-            Path to the .tsv file to read.
-        output_dir : str or Path
-            Directory to write columns of the .tsv file to.
-
-        """
-
-        # Guarantee we're working with Path objects.
-        tsv_path = Path(tsv_path)
-        output_dir = Path(output_dir)
-
-        print(f"Breaking up {tsv_path.name} and storing columns in {output_dir}")
-
-        # Read the .tsv file into a dataframe and fill n/a values with zero.
-        tsv_info = pandas.read_table(
-            tsv_path,
-            sep="\t",
-            na_values="n/a"
-        ).fillna(value=0)
-
-        # Write each column of the dataframe.
-        for column_name in tsv_info:
-            column_path = output_dir / f"{column_name}.txt"
-            tsv_info[column_name].to_csv(column_path, sep=' ', index=False, header=False)
 
 
 if __name__ == "__main__":
