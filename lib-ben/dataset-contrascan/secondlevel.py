@@ -194,8 +194,6 @@ if __name__ == "__main__":
         help="<Mandatory> Analyze all subjects. Mutually exclusive with --subjects."
     )
 
-    group.add_argument
-
     # Parse args from the command line and create an empty list to store the subject ids we picked.
     args = parser.parse_args()
     subject_ids = []
