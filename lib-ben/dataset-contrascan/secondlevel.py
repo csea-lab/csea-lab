@@ -124,8 +124,8 @@ class SecondLevel():
         for subject_id in self.paths:
             args += [
                 subject_id,
-                f"{self.paths[subject_id]['reml_outfile']}[7]",     # Use each beta estimate from reml outfile
-                f"{self.paths[subject_id]['reml_outfile']}[8]"       # Use each T value from reml outfile
+                f"{self.paths[subject_id]['reml_outfile']}[7]",     # Use a beta estimate from reml outfile
+                f"{self.paths[subject_id]['reml_outfile']}[8]"       # Use a T value from reml outfile
             ]
 
         # Execute the command and return its results.
