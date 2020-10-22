@@ -63,7 +63,8 @@ class FirstLevel():
 
         # Run our programs of interest. Must be run in the correct order.
         self.results = {}
-        self.results["3dmerge"] = self.merge()
+        self.results["3dmerge 1"] = self.merge1()
+        self.results["3dmerge 2"] = self.merge2()
         self.results["3dTstat"] = self.tstat()
         self.results["3dcalc"] = self.calc()
         self.results["3dDeconvolve"] = self.deconvolve()
@@ -85,7 +86,7 @@ class FirstLevel():
         return f"{self.__class__.__name__}(bids_dir='{self.bids_dir}', subject_id='{self.subject_id}', regressor_names={self.regressor_names}, outputs_title='{self.outputs_title}')"
 
 
-    def merge(self):
+    def merge1(self):
         """
         Smooths the functional image.
 
@@ -93,7 +94,7 @@ class FirstLevel():
 
         """
 
-        working_directory = self.dirs["output"] / "3dmerge"
+        working_directory = self.dirs["output"] / "3dmerge1"
 
         # Create the list of arguments and run 3dmerge.
         args = f"""
@@ -103,12 +104,38 @@ class FirstLevel():
                 {self.paths['func']}
         
         """.split()
-        merge_result = AFNI(program="3dmerge", args=args, working_directory=working_directory)
+        results = AFNI(program="3dmerge", args=args, working_directory=working_directory)
 
         # Store the path of the smoothed image as an attribute of the result object.
-        merge_result.outfile = the_path_that_matches("*.HEAD", in_directory=merge_result.working_directory)
+        results.outfile = the_path_that_matches("*.HEAD", in_directory=working_directory)
 
-        return merge_result
+        return results
+
+
+    def merge2(self):
+        """
+        Smooths the mask fmriprep provided.
+
+        3dmerge info: https://afni.nimh.nih.gov/pub/dist/doc/htmldoc/programs/3dmerge_sphx.html#ahelp-3dmerge
+
+        """
+
+        working_directory = self.dirs["output"] / "3dmerge2"
+
+        # Create the list of arguments and run 3dmerge.
+        args = f"""
+                -1blur_fwhm 5.0
+                -doall
+                -prefix {self.paths['mask'].stem}_smoothed
+                {self.paths['mask']}
+        
+        """.split()
+        results = AFNI(program="3dmerge", args=args, working_directory=working_directory)
+
+        # Store the path of the smoothed image as an attribute of the result object.
+        results.outfile = the_path_that_matches("*.HEAD", in_directory=working_directory)
+
+        return results
 
 
     def tstat(self):
@@ -124,7 +151,8 @@ class FirstLevel():
         # Prepare arguments and run the program.
         args = f"""
             -prefix sub-{subject_id}_func_mean
-            {self.results["3dmerge"].outfile}
+            -mask {self.results["3dmerge 2"].outfile}
+            {self.results["3dmerge 1"].outfile}
 
         """.split()
         results = AFNI(program="3dTstat", args=args, working_directory=working_directory)
@@ -148,7 +176,7 @@ class FirstLevel():
         # Prepare arguments and run the program.
         args = f"""
                 -float
-                -a {self.results["3dmerge"].outfile}
+                -a {self.results["3dmerge 1"].outfile}
                 -b {self.results["3dTstat"].outfile}
                 -expr ((a-b)/b)*100
                 -prefix sub-{self.subject_id}_func_scaled
@@ -157,7 +185,7 @@ class FirstLevel():
         results = AFNI(program="3dcalc", args=args, working_directory=working_directory)
 
         # Store path to outfile as an attribute of the results.
-        results.outfile = the_path_that_matches("*_scaled+tlrc.HEAD", in_directory=results.working_directory)
+        results.outfile = the_path_that_matches("*_scaled+tlrc.HEAD", in_directory=working_directory)
 
         return results
 
@@ -183,7 +211,6 @@ class FirstLevel():
         # Create list of arguments to pass to 3dDeconvolve.
         args = f"""
                 -input {self.results["3dcalc"].outfile}
-                -mask {self.paths["mask"]}
                 -GOFORIT 4
                 -polort A
                 -fout
@@ -203,15 +230,15 @@ class FirstLevel():
             args += stim_file_info.split() + stim_label_info.split()
 
         # Run 3dDeconvolve.
-        deconvolve_result = AFNI(program="3dDeconvolve", args=args, working_directory=working_directory)
+        results = AFNI(program="3dDeconvolve", args=args, working_directory=working_directory)
 
         # Store the path of the matrix as an attribute of the result object.
-        deconvolve_result.matrix = the_path_that_matches("*xmat.1D", in_directory=deconvolve_result.working_directory)
+        results.matrix = the_path_that_matches("*xmat.1D", in_directory=working_directory)
 
         # Copy anatomy file into working directory to use with AFNI viewer.
         shutil.copyfile(src=self.paths["anat"], dst=working_directory / self.paths["anat"].name)
 
-        return deconvolve_result
+        return results
     
 
     def remlfit(self):
@@ -228,7 +255,6 @@ class FirstLevel():
         args = f"""
                 -matrix {self.results["3dDeconvolve"].matrix}
                 -input {self.results["3dcalc"].outfile}
-                -mask {self.paths["mask"]}
                 -fout
                 -tout
                 -Rbuck sub-{self.subject_id}_REML_stats
@@ -238,12 +264,12 @@ class FirstLevel():
         """.split()
         
         # Run 3dREMLfit.
-        reml_result = AFNI(program="3dREMLfit", args=args, working_directory=working_directory)
+        results = AFNI(program="3dREMLfit", args=args, working_directory=working_directory)
 
         # Copy anatomy file into working directory to use with AFNI viewer.
         shutil.copyfile(src=self.paths["anat"], dst=working_directory / self.paths["anat"].name)
 
-        return reml_result
+        return results
 
 
     def write_report(self):
