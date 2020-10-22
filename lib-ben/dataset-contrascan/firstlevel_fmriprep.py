@@ -63,9 +63,9 @@ class FirstLevel():
 
         # Run our programs of interest. Must be run in the correct order.
         self.results = {}
-        self.results["merge"] = self.merge()
-        self.results["deconvolve"] = self.deconvolve()
-        self.results["remlfit"] = self.remlfit()
+        self.results["3dmerge"] = self.merge()
+        self.results["3dDeconvolve"] = self.deconvolve()
+        self.results["3dREMLfit"] = self.remlfit()
 
         # Record end time and write our report.
         self.end_time = datetime.now()
@@ -128,7 +128,7 @@ class FirstLevel():
 
         # Create list of arguments to pass to 3dDeconvolve.
         args = f"""
-                -input {self.results["merge"].smoothed_image}
+                -input {self.results["3dmerge"].smoothed_image}
                 -mask {self.paths["mask"]}
                 -GOFORIT 4
                 -polort A
@@ -172,8 +172,8 @@ class FirstLevel():
 
         # Create the list of arguments to pass to 3dREMLfit.
         args = f"""
-                -matrix {self.results["deconvolve"].matrix}
-                -input {self.results["merge"].smoothed_image}
+                -matrix {self.results["3dDeconvolve"].matrix}
+                -input {self.results["3dmerge"].smoothed_image}
                 -mask {self.paths["mask"]}
                 -fout
                 -tout
