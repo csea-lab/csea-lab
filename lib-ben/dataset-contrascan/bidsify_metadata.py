@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 """
 Extracts the necessary metadata from a dataset to make it BIDS compliant. 
 
@@ -5,16 +7,17 @@ The dataset must already be named according to BIDS standards. Thus, I recommend
 
 Created 8/13/2020 by Benjamin Velie.
 veliebm@gmail.com
+
 """
 
 # Standard python modules
-import pathlib
+from pathlib import Path
 import argparse
 import re
 import pandas
 import json
 
-# Python modules I wrote for CSEA
+# Python modules I wrote for CSEA to help organize our data
 import dat, vmrk, settings, nifti
 
 
@@ -28,9 +31,19 @@ FILETYPES = {
 
 
 def main(input_dir):
+    """
+    Extracts metadata from a collection of BIDSified files and formats that metadata.
+
+
+    Parameters
+    ----------
+    input_dir : str or Path
+        Path to the root of the collection of the BIDSified files.
+
+    """
     
     # Force input dir to become a path object.
-    input_dir_path = pathlib.Path(input_dir)
+    input_dir_path = Path(input_dir)
 
     # Gather into paths all file paths in the input directory and recursively its subdirectories.
     path_list = [path for path in input_dir_path.rglob("*") if path.is_file()]
@@ -50,7 +63,20 @@ def main(input_dir):
 
 def organize_files(path_list):
     """
-    Organizes a list of paths by subject name and file type. Returns a dataframe.
+    Organizes the paths within the BIDS directory by subject name and file type. Returns a DataFrame.
+
+
+    Parameters
+    ----------
+    path_list : list
+        List of paths 
+
+
+    Returns
+    -------
+    DataFrame
+        Contains metadata about each file. Columns are labeled by subject ID and rows are labeled by file type.
+
     """
 
     # Get lists of subjects and file types.
@@ -75,6 +101,13 @@ def organize_files(path_list):
 def write_func_tsvs(file_dataframe):
     """
     Given a complete dataframe of files, writes appropriate tsvs for func files.
+
+
+    Parameters
+    ----------
+    file_dataframe : DataFrame
+        DataFrame created by organize_files() containing metadata about each file
+
     """
 
     for subject in file_dataframe:
@@ -89,7 +122,7 @@ def write_func_tsvs(file_dataframe):
 
         # Get .tsv path.
         func_file = file_dataframe[subject]["func"]
-        tsv_path = pathlib.Path(str(func_file.path).replace("_bold.nii", "_events.tsv"))
+        tsv_path = Path(str(func_file.path).replace("_bold.nii", "_events.tsv"))
 
         # Write the .tsv
         tsv_dataframe.to_csv(tsv_path, sep="\t", header=False, index=False)
@@ -98,6 +131,13 @@ def write_func_tsvs(file_dataframe):
 def write_func_jsons(file_dataframe):
     """
     Given a full file dataframe, writes appropriate jsons for functional files.
+
+
+    Parameters
+    ----------
+    file_dataframe : DataFrame
+        DataFrame created by organize_files() containing metadata about each file
+
     """
 
     for subject in file_dataframe:
@@ -127,6 +167,13 @@ def write_func_jsons(file_dataframe):
 def write_dataset_description(file_dataframe):
     """
     Given a complete file dataframe, writes the dataset description for the dataset.
+
+
+    Parameters
+    ----------
+    file_dataframe : DataFrame
+        DataFrame created by organize_files() containing metadata about each file
+
     """
 
     # Get dataset description path.
@@ -150,6 +197,21 @@ def get_subject_id(path) -> str:
     Returns the subject ID found in the input file name.
 
     Returns "None" if no subject ID found.
+
+
+    Parameters
+    ----------
+    path : Path or str
+        Path to the file you want to extract a subject ID from.
+
+
+    Returns
+    -------
+    str
+        ID of subject in filename.
+    None
+        If no subject ID found.
+
     """
     
     potential_subject_ids = re.findall(r"sub-(\d+)", str(path))
@@ -165,6 +227,27 @@ def get_subject_id(path) -> str:
 def extract_file(path):
     """
     Returns the object extracted from the input path.
+
+
+    Parameters
+    ----------
+    path : Path
+        Path to a file you want to extract metadata from.
+
+
+    Returns
+    -------
+    Nifti
+        If path leads to a .nii file.
+    Vmrk
+        If path leads to a .vmrk file.
+    Dat
+        If path leads to a .dat file.
+    Settings
+        If path leads to an fMRI settings file.
+    None
+        If path leads to none of the above.    
+
     """
 
     filetype = get_file_type(path)
@@ -190,6 +273,19 @@ def get_file_type(path) -> str:
     Returns the type of neuroimaging file the target file is.
 
     Returns any file type in FILETYPES. Returns unsorted if no filetype matched.
+
+
+    Parameters
+    ----------
+    path : Path
+        Path to a file you want to classify.
+    
+
+    Returns
+    -------
+    str
+        Type of file the input path is.
+
     """
 
     for file_type, keyword_list in FILETYPES.items():
@@ -204,7 +300,22 @@ def calculate_slice_timings(repetition_time: float, volume_count: int):
     """
     Returns the slice timings in a list.
 
-    Slice must be interleaved in the + direction.
+    Slices must be interleaved in the + direction.
+
+
+    Parameters
+    ----------
+    repetition_time : float
+        Repetition time of each scan in the functional image.
+    volume_count : int
+        Number of volumes in the functional image.
+
+
+    Returns
+    -------
+    list
+        List of slice timings.
+
     """
 
     # Generate a slice order of length volume_count in interleaved order.
@@ -217,6 +328,12 @@ def calculate_slice_timings(repetition_time: float, volume_count: int):
 
 
 if __name__ == "__main__":
+    """
+    This section of the script only runs when you run the script directly from the shell.
+
+    It contains the parser that parses arguments from the command line.
+
+    """
 
     # Add command line argument to let user pick directory to target.
     parser = argparse.ArgumentParser(description="Makes a dataset BIDS compliant.")

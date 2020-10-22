@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 """
 Provides templates for bidsify_paths.py.
 
@@ -8,15 +10,15 @@ NEWTYPEGOESHERE_template(input_path, output_dir_path) to tell the program what t
 
 Note that "unsorted" MUST be at the bottom of FILETYPES!
 
-I built this template for Matt Friedl's 2020 concurrent EEG/fMRI study. Other datasets probably require different templates.
+I built this template for the contrascan dataset. Other datasets probably require different templates.
 But you can use bidsify_paths.py for any conceivable dataset!
 
 Created 8/12/2020 by Benjamin Velie.
 veliebm@gmail.com
+
 """
 
 import re
-import pathlib
 
 
 # Task name to use when naming fMRI and EEG files
@@ -36,6 +38,21 @@ FILETYPES = {
 def anat_template(input_path, output_dir_path):
     """
     Template to bidsify anatomical paths.
+
+
+    Parameters
+    ----------
+    input_path : Path
+        Path to an anatomical file.
+    output_dir_path : Path
+        Where we're building our BIDS directory.
+
+
+    Returns
+    -------
+    Path
+        Path to the new location of the anatomical file.
+
     """
 
     subject_id = get_subject_id(input_path)
@@ -48,6 +65,21 @@ def anat_template(input_path, output_dir_path):
 def func_template(input_path, output_dir_path):
     """
     Template to bidsify functional paths.
+    
+
+    Parameters
+    ----------
+    input_path : Path
+        Path to a functional file.
+    output_dir_path : Path
+        Where we're building our BIDS directory.
+
+
+    Returns
+    -------
+    Path
+        Path to the new location of the functional file.
+
     """
 
     subject_id = get_subject_id(input_path)
@@ -59,7 +91,22 @@ def func_template(input_path, output_dir_path):
 
 def eeg_template(input_path, output_dir_path):
     """
-    Template to bidsify eeg paths.
+    Template to bidsify EEG paths.
+
+    
+    Parameters
+    ----------
+    input_path : Path
+        Path to an EEG file.
+    output_dir_path : Path
+        Where we're building our BIDS directory.
+
+
+    Returns
+    -------
+    Path
+        Path to the new location of the EEG file.
+
     """
 
     subject_id = get_subject_id(input_path)
@@ -72,6 +119,21 @@ def eeg_template(input_path, output_dir_path):
 def dat_template(input_path, output_dir_path):
     """
     Template to bidsify .dat paths.
+
+    
+    Parameters
+    ----------
+    input_path : Path
+        Path to a .dat file.
+    output_dir_path : Path
+        Where we're building our BIDS directory.
+
+
+    Returns
+    -------
+    Path
+        Path to the new location of the .dat file.
+
     """
 
     subject_id = get_subject_id(input_path)
@@ -84,6 +146,21 @@ def dat_template(input_path, output_dir_path):
 def settings_template(input_path, output_dir_path):
     """
     Template to bidsify fMRI settings files paths.
+
+    
+    Parameters
+    ----------
+    input_path : Path
+        Path to an fMRI settings file.
+    output_dir_path : Path
+        Where we're building our BIDS directory.
+
+
+    Returns
+    -------
+    Path
+        Path to the new location of the fMRI settings file.
+
     """
 
     subject_id = get_subject_id(input_path)
@@ -96,6 +173,21 @@ def settings_template(input_path, output_dir_path):
 def unsorted_template(input_path, output_dir_path):
     """
     Leave unsorted paths untouched.
+
+    
+    Parameters
+    ----------
+    input_path : Path
+        Path to an unsorted file.
+    output_dir_path : Path
+        Where we're building our BIDS directory.
+
+
+    Returns
+    -------
+    Path
+        Path to the new location of the unsorted file. Exactly the same as the old path.
+
     """
 
     return input_path
@@ -107,6 +199,7 @@ def get_subject_id(input_path) -> str:
 
     Specifically, if the filename contains 3 numerals in a row, returns it as the subject ID.
     Returns None if no match found.
+    
     """
 
     return re.search("[0-9][0-9][0-9]", str(input_path.absolute()))[0]

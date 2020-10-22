@@ -1,13 +1,17 @@
-"""
-Starts Docker, then starts the Docker image specified in config.ini.
+#!/usr/bin/env python3
 
-This process can be configured further by editing config.ini.
+"""
+Starts Docker, then starts the Docker image specified in config.json.
+
+This process can be configured further by editing config.json.
 
 Created 08/20 by Ben Velie.
 veliebm@gmail.com
+
 """
 
-import configparser
+
+import json
 import subprocess
 import os
 import platform
@@ -16,8 +20,10 @@ import pathlib
 from copy import deepcopy
 from time import sleep
 
+CONFIG_NAME = "config.json"
+ARGS_FLAG = "[arg]"
+SPLIT_CHAR = "|"
 
-CONFIG_NAME = "config.ini"
 
 def main():
 
@@ -32,69 +38,68 @@ def main():
 # Functions to initialize the config file
 def initialize_config_file():
     """
-    Initialize a config file.
+    Initialize the config file.
+
     """
-    config = configparser.ConfigParser()
 
-    # Get default config.
-    config.read_dict(OS_default_config())
+    # If a config file exists, use it.
+    try:
+        with open(CONFIG_NAME, "r") as config_file:
+            json.load(config_file)
+        print(f"Loaded {CONFIG_NAME}")
 
-    # Overwrite default config with config file.
-    config.read(CONFIG_NAME)
-
-    # Save our changes to the config file.
-    with open(CONFIG_NAME, 'w') as config_file:
-        config.write(config_file)
+    # If there's an error accessing the config file, then offer to make a new one.
+    except:
+        wants_config = input(f"Error accessing {CONFIG_NAME}. Create a fresh one? (y/n) ")
+        if wants_config.lower() == "y":
+            with open(CONFIG_NAME, 'w') as config_file:
+                json.dump(OS_default_config(), config_file, indent="\t")
+        else:
+            raise Exception(f"You have chosen not to create a new {CONFIG_NAME}")
 def OS_default_config():
     """
     Returns the default config dictionary for the current operating system.
+
     """
 
-    home_directory = os.getenv('USERPROFILE')
+    home_directory = pathlib.Path(os.path.expanduser("~"))
     repository_directory = pathlib.Path().absolute().parent.parent
 
     default_config = {
-        "DEFAULT": {
-            "image": "afni/afni",
-            "name": "afni",
-            "program to run inside container": "bash",
-            "port": "8888:8888",
-            "read/write directory": f"{home_directory}/Files/Development/Docker",
-            "where to mount read/write directory inside container": "/readwrite/",
-            "read-only directory": "C:/",
-            "where to mount read-only directory inside container": "/readonly/",
-            "working directory inside container": "/readwrite/",
-            "path to repository": str(repository_directory),
-            "path to docker": "C:/Program Files/Docker/Docker/Docker Desktop.exe",
-            "path to x server": "C:/Program Files/VcXsrv/vcxsrv.exe",
-            "name of x server process": "vcxsrv.exe",
-            "display": "DISPLAY=host.docker.internal:0",
-            }
-        }
+        "Instructions": f"For each key containing {ARGS_FLAG}, its value will be appended to the command line in order. {SPLIT_CHAR} characters can be used to split one argument into as many as you'd like. Try adding your own! A full list of args is at https://docs.docker.com/engine/reference/commandline/run/",
+        "path to docker": "C:/Program Files/Docker/Docker/Docker Desktop.exe",
+        "path to x server": "C:/Program Files/VcXsrv/vcxsrv.exe",
+        "name of x server process": "vcxsrv.exe",
+        f"base docker command {ARGS_FLAG}": "docker|run",
+        f"name the container {ARGS_FLAG}": "--name|nipype",
+        f"make the container impermanent {ARGS_FLAG}": "--rm",
+        f"make the container interactive {ARGS_FLAG}": "-it",
+        f"mount home directory within container {ARGS_FLAG}": f"-v|{home_directory}:/readwrite/",
+        f"mount repo into container {ARGS_FLAG}": f"-v|{repository_directory}:/csea-lab/",
+        f"working directory inside container {ARGS_FLAG}": "-w=/csea-lab/",
+        f"image to run {ARGS_FLAG}": "nipype/nipype",
+        f"program to run within the container {ARGS_FLAG}": "bash",
+    }
 
     windows_config = deepcopy(default_config)
 
     # Overwrite the default config with mac values.
-    mac_overwrite = { "read/write directory": "$HOME/Docker",
-        "read-only directory": "/",
+    mac_overwrite = {
         "path to docker": "/Applications/Docker.app",
         "path to x server": "/Applications/Utilities/XQuartz.app",
         "name of x server process": "X11.bin",
-        "display": "DISPLAY=$DISPLAY"
         }
     mac_config = deepcopy(default_config)
-    mac_config["DEFAULT"].update(mac_overwrite)
+    mac_config.update(mac_overwrite)
 
     # Overwrite the default config with linux values.
-    linux_overwrite = { "read/write directory": "$HOME/Docker",
-        "read-only directory": "/",
+    linux_overwrite = {
         "path to docker": "",
         "path to x server": "",
         "name of x server process": "",
-        "display": "DISPLAY=$DISPLAY"
         }
     linux_config = deepcopy(default_config)
-    linux_config["DEFAULT"].update(linux_overwrite)
+    linux_config.update(linux_overwrite)
     
     OS = get_OS()
     print(f"Using {OS} template for {CONFIG_NAME}")
@@ -110,6 +115,7 @@ def OS_default_config():
 def launch_xserver():
     """
     Launch X Server if it isn't already running.
+    
     """
     
     if not xserver_running():
@@ -123,7 +129,9 @@ def launch_xserver():
 def start_xserver_process():
     """
     Start whatever X Server you have on your OS.
+
     """
+
     xserver_path = read_config()["path to x server"]
     OS = get_OS()
     if OS == "Windows":
@@ -135,7 +143,9 @@ def start_xserver_process():
 def xserver_running():
     """
     Returns True if X Server is running.
+
     """
+
     xprocess = read_config()["name of x server process"]
     if xprocess in (process.name() for process in psutil.process_iter()):
         return True
@@ -146,7 +156,9 @@ def xserver_running():
 def launch_docker():
     """
     Launches Docker then waits until it's running.
+
     """
+
     if not docker_running():
         print("Starting Docker")
         while not docker_running():
@@ -156,7 +168,9 @@ def launch_docker():
 def start_docker_process():
     """
     Starts the Docker process.
+
     """
+
     docker_path = read_config()["path to docker"]
     OS = get_OS()
     if OS == "Windows":
@@ -168,7 +182,9 @@ def start_docker_process():
 def docker_running():
     """
     Returns true if docker is running.
+
     """
+
     process = subprocess.run(["docker", "ps"], capture_output=True)
     if process.returncode != 0:
         return False
@@ -179,7 +195,9 @@ def docker_running():
 def launch_container():
     """
     Launches the docker container.
+
     """
+
     docker_args = get_container_args()
     print("Executing the following command to launch the container:")
     print(docker_args)
@@ -188,30 +206,16 @@ def launch_container():
 def get_container_args():
     """
     Reads the config file and returns a list of arguments for the container.
+
     """
+
     config_dict = read_config()
+    args_list = list()
 
-    args_list = ["docker",
-                 "run",
-                 "--interactive", # Allow interaction with the container.
-                 "--tty", # Connect the local shell to the container.
-                 "--rm", # Remove the container when it's closed.
-                 "--name", # Set the name of the container.
-                 config_dict["name"],
-                 "--volume", # Set the directory to read/write to.
-                 config_dict["read/write directory"] + ":" + config_dict["where to mount read/write directory inside container"],
-                 "--volume", # Set the directory to read from.
-                 config_dict["read-only directory"] + ":" + config_dict["where to mount read-only directory inside container"] + ":ro",
-                 "--volume", # Mount the csea-lab repository.
-                 config_dict["path to repository"] + ":" + "/csea-lab/",
-                 "--workdir", # Set the working directory in the container.
-                 config_dict["working directory inside container"],
-                 "-p", # Set the port.
-                 config_dict["port"],
-                 ]
-
-    args_list.append(config_dict["image"]) # Set the image to run within the container.
-    args_list.append(config_dict["program to run inside container"]) # Set the program to run within the container.
+    for key, value in config_dict.items():
+        if ARGS_FLAG in key:
+            next_args = value.split(SPLIT_CHAR)
+            args_list += next_args
 
     return args_list
 
@@ -219,7 +223,9 @@ def get_container_args():
 def get_OS():
     """
     Returns the operating system.
+
     """
+
     if "Windows" in platform.platform():
         return "Windows"
     elif "macOS" in platform.platform():
@@ -229,10 +235,12 @@ def get_OS():
 def read_config():
     """
     Returns the config file as a dictionary.
+
     """
-    config = configparser.ConfigParser()
-    config.read(CONFIG_NAME)
-    return {key: config["DEFAULT"][key] for key in config["DEFAULT"]}
+
+    with open(CONFIG_NAME, "r") as config_file:
+        return json.load(config_file)
+
 
 if __name__ == "__main__":
     main()

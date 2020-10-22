@@ -1,31 +1,42 @@
+#!/usr/bin/env python3
+
 """
 Class to organize and extract data from a .dat file.
 
 Created 8/20/2020 by Benjamin Velie.
 veliebm@gmail.com
+
 """
 
-import pathlib
+from pathlib import Path
+import pandas
+from reference import with_whitespace_trimmed
 
 
 class Dat():
     """
-    Class to organize and extract data from a NIFTI file.
+    Class to organize and extract data from a .dat file.
+
 
     Parameters
     ----------
     input_path : str or Path
         Path to the .dat file to be processed.
 
+
     Attributes
     ----------
     path : Path
         Path to the .dat file.
+    dataframe : DataFrame
+        DataFrame containing each value of the .dat table. Rows and columns are numbered from 0 onward.
+
     """
 
     def __init__(self, input_path):
 
-        self.path = pathlib.Path(input_path)
+        self.path = Path(input_path)
+        self.dataframe = self._as_dataframe()
 
 
     def durations(self) -> list:
@@ -33,56 +44,37 @@ class Dat():
         Returns a list of durations extracted from the .dat file.
 
         Automatically converts times into seconds.
+
         """
 
-        raw_durations = self._raw_durations()
+        # Get raw durations from the last column in the DataFrame.
+        raw_durations = self.dataframe[self.dataframe.columns[-1]]
 
-        return self._clean_durations(raw_durations)
-
-
-    def line_list(self) -> list:
-        """
-        Returns the .dat file as a list of lines.
-        """
-
-        return self.path.read_text().splitlines()
+        # Clean the raw durations into standard float numbers, then return them.
+        return [float(duration) for duration in raw_durations]
 
 
     def average_duration(self) -> float:
         """
         Returns the average stimulus duration recorded in the .dat file.
+
         """
 
         return sum(self.durations()) / len(self.durations())
 
 
-    def _clean_durations(self, raw_durations: list) -> list:
+    def _as_dataframe(self) -> pandas.DataFrame:
         """
-        Converts a list of raw durations into clean durations.
+        Reads the .dat file and returns it as a fresh, clean DataFrame.
 
-        Each raw duration is converted from scientific notation to a float.
-        """
+        Columns are numbered in order. Rows are also numbered in order.
 
-        clean_durations = []
-
-        for raw_duration in raw_durations:
-            duration = float(raw_duration)
-            clean_durations.append(duration)
-
-        return clean_durations
-
-
-    def _raw_durations(self) -> list:
-        """
-        Returns a list of all raw durations from the .dat file.
-
-        Note that the durations must be further cleaned.
         """
 
-        raw_durations = []
+        # Format our data into a dewhitespaced list of lists
+        line_list = self.path.read_text().splitlines()
+        dewhitespaced_line_list = [with_whitespace_trimmed(line) for line in line_list]
+        split_line_list = [line.split() for line in dewhitespaced_line_list]
 
-        for line in self.line_list():
-            raw_duration = line.split(" ")[4]
-            raw_durations.append(raw_duration)
-
-        return raw_durations
+        # Return the list of lists as a glorious DataFrame
+        return pandas.DataFrame(split_line_list)

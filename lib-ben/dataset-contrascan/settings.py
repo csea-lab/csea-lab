@@ -1,37 +1,41 @@
+#!/usr/bin/env python3
+
 """
 Class to organize and extract data from an fMRI settings file.
 
 Created 8/20/2020 by Benjamin Velie.
 veliebm@gmail.com
+
 """
 
-import pathlib
+from pathlib import Path
 from copy import deepcopy
 
 
 class Settings():
-
     """
     Class to organize data extracted from an fMRI settings file.
+
 
     Parameters
     ----------
     input_path : str or Path
         Path to the fMRI settings file to be processed.
 
-    ...
 
     Attributes
     ----------
     path : Path
         The path of the NIFTI file.
+
     """
 
     _SUBSETTING_FLAG = "!@#SUBSETTING#@!"
 
+
     def __init__(self, input_path):
         
-        self.path = pathlib.Path(input_path)
+        self.path = Path(input_path)
 
 
     def dict(self) -> dict:
@@ -41,6 +45,7 @@ class Settings():
         Suppose you wanted to access setting X. It'll be equal to DICTNAME["X"]["value"].
         Suppose you wanted to access subvalue Y for setting X. It'll be equal to
         DICTNAME["X"]["subvalues"]["Y"].
+
         """
 
         # Get the target file as a raw list of tuples.
@@ -56,6 +61,7 @@ class Settings():
     def repetition_time(self):
         """
         Returns the repetition time (in seconds) extracted from the target settings file.
+
         """
 
         TR_in_ms = self.dict()["TR"]["subvalues"]["(ms)"]
@@ -68,6 +74,7 @@ class Settings():
     def raw_text(self):
         """
         Returns the raw text in the settings file.
+
         """
 
         return self.path.read_text()
@@ -76,6 +83,7 @@ class Settings():
     def _dictify(self, flagged_keys_and_values) -> dict:
         """
         Returns a properly formatted dict from a list of flagged keys and values.
+
         """
 
         # Get all our not subsettings settings into a dict.
@@ -104,6 +112,7 @@ class Settings():
     def _get_raw_keys_and_values(self) -> list:
         """
         Returns a list of raw key:value pairs stored in tuples.
+
         """
 
         lines = self.path.read_text().splitlines()
@@ -114,9 +123,9 @@ class Settings():
 
 
     def _split_keys_and_values(self, raw_keys_and_values: list) -> tuple: 
-
         """
         Splits a list of raw keys and values into a raw keys list and a raw values list.
+
         """
 
         raw_keys = []
@@ -133,6 +142,7 @@ class Settings():
     def _clean_raw_keys_and_values(self, raw_keys_and_values: list) -> list:
         """
         Returns a list of cleaned keys and values that are flagged as settings or subsettings.
+
         """
 
         depunctuated_raw_keys_and_values = self._remove_unwanted_punctuation(raw_keys_and_values)
@@ -148,6 +158,7 @@ class Settings():
 
         A string is a subsetting if it begins with an empty space OR it
         contains the subsetting flag.
+
         """
 
         return string[0:1] == " " or self._SUBSETTING_FLAG in string
@@ -156,6 +167,7 @@ class Settings():
     def _remove_unwanted_punctuation(self, raw_keys_and_values) -> list:
         """
         Removes unwanted punctuation from a list of key-value tuples.
+
         """
     
         keys_and_values = deepcopy(raw_keys_and_values)
@@ -171,6 +183,7 @@ class Settings():
     def _flag_and_dewhitespace(self, raw_keys_and_values) -> list:
         """
         Returns a list of settings tuples with extra whitespace removed and labelled subsettings.
+
         """
     
         keys_and_values = deepcopy(raw_keys_and_values)
@@ -190,6 +203,7 @@ class Settings():
     def _merge(self, list1, list2): 
         """
         Merges two lists into a list of tuples.
+
         """
 
         merged_list = tuple(zip(list1, list2))  
