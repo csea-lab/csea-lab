@@ -64,6 +64,8 @@ class FirstLevel():
         # Run our programs of interest. Must be run in the correct order.
         self.results = {}
         self.results["3dmerge"] = self.merge()
+        self.results["3dTstat"] = self.tstat()
+        self.results["3dcalc"] = self.calc()
         self.results["3dDeconvolve"] = self.deconvolve()
         self.results["3dREMLfit"] = self.remlfit()
 
@@ -104,9 +106,60 @@ class FirstLevel():
         merge_result = AFNI(program="3dmerge", args=args, working_directory=working_directory)
 
         # Store the path of the smoothed image as an attribute of the result object.
-        merge_result.smoothed_image = the_path_that_matches("*.HEAD", in_directory=merge_result.working_directory)
+        merge_result.outfile = the_path_that_matches("*.HEAD", in_directory=merge_result.working_directory)
 
         return merge_result
+
+
+    def tstat(self):
+        """
+        Get the mean of each voxel in the functional dataset.
+
+        3dTstat info: https://afni.nimh.nih.gov/pub/dist/doc/htmldoc/programs/3dTstat_sphx.html#ahelp-3dtstat
+
+        """
+
+        working_directory = self.dirs["output"] / "3dTstat"
+
+        # Prepare arguments and run the program.
+        args = f"""
+            -prefix sub-{subject_id}_func_mean
+            {self.results["3dmerge"].outfile}
+
+        """.split()
+        results = AFNI(program="3dTstat", args=args, working_directory=working_directory)
+
+        # Store path to outfile as an attribute of the results.
+        results.outfile = the_path_that_matches("*_mean+tlrc.HEAD", in_directory=working_directory)
+
+        return results
+
+
+    def calc(self):
+        """
+        For each voxel in smoothed func image, calculate voxel as percent of the mean.
+
+        3dcalc info: https://afni.nimh.nih.gov/pub/dist/doc/htmldoc/programs/3dcalc_sphx.html#ahelp-3dcalc
+
+        """
+
+        working_directory = self.dirs["output"] / "3dcalc"
+
+        # Prepare arguments and run the program.
+        args = f"""
+                -float
+                -a {self.results["3dmerge"].outfile}
+                -b {self.results["3dTstat"].outfile}
+                -expr ((a-b)/b)*100
+                -prefix sub-{self.subject_id}_func_scaled
+
+        """.split()
+        results = AFNI(program="3dcalc", args=args, working_directory=working_directory)
+
+        # Store path to outfile as an attribute of the results.
+        results.outfile = the_path_that_matches("*_scaled+tlrc.HEAD", in_directory=results.working_directory)
+
+        return results
 
 
     def deconvolve(self):
@@ -122,20 +175,21 @@ class FirstLevel():
         # Prepare regressor text files to scan into the interface.
         split_columns_into_text_files(self.paths["events_tsv"], self.dirs["subject_info"])
         split_columns_into_text_files(self.paths["regressors_tsv"], self.dirs["regressors"])
+        onsets_path = self.dirs["subject_info"] / "onset.txt"
         
         # Total amount of regressors to include in the analysis.
         amount_of_regressors = 1 + len(self.regressor_names)
 
         # Create list of arguments to pass to 3dDeconvolve.
         args = f"""
-                -input {self.results["3dmerge"].smoothed_image}
+                -input {self.results["3dcalc"].outfile}
                 -mask {self.paths["mask"]}
                 -GOFORIT 4
                 -polort A
                 -fout
                 -bucket sub-{self.subject_id}_deconvolve_stats
                 -num_stimts {amount_of_regressors}
-                -stim_times 1 {self.dirs["subject_info"]/'onset'}.txt CSPLINzero(0,18,10)
+                -stim_times 1 {onsets_path} CSPLINzero(0,18,10)
                 -stim_label 1 all
                 -iresp 1 sub-{self.subject_id}_deconvolve_IRF
 
@@ -173,13 +227,14 @@ class FirstLevel():
         # Create the list of arguments to pass to 3dREMLfit.
         args = f"""
                 -matrix {self.results["3dDeconvolve"].matrix}
-                -input {self.results["3dmerge"].smoothed_image}
+                -input {self.results["3dcalc"].outfile}
                 -mask {self.paths["mask"]}
                 -fout
                 -tout
                 -Rbuck sub-{self.subject_id}_REML_stats
                 -Rvar sub-{self.subject_id}_REML_varianceparameters
                 -verb
+
         """.split()
         
         # Run 3dREMLfit.
