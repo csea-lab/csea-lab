@@ -157,7 +157,7 @@ class Pipeline():
         args = f"""
                 -a {self.results["align_epi_anat.py"].outfile}
                 -expr step(a)
-                -prefix sub-{subject_id}_anat_aligned_tmp_mask
+                -prefix sub-{self.subject_id}_anat_aligned_tmp_mask
 
         """.split()
         results = AFNI("3dcalc", args, working_directory)
@@ -181,7 +181,7 @@ class Pipeline():
         # Create list of arguments and run program.
         args = f"""
                 -master {self.paths["func"]}
-                -prefix sub-{subject_id}_func_skull_al_mask
+                -prefix sub-{self.subject_id}_func_skull_al_mask
                 -inset {self.results["3dcalc 1"].outfile}
 
         """.split()
@@ -208,7 +208,7 @@ class Pipeline():
                 -tzero 0
                 -tpattern alt+z
                 -quintic
-                -prefix sub-{subject_id}_func_tshift
+                -prefix sub-{self.subject_id}_func_tshift
                 {self.paths["func"]}
 
         """.split()
@@ -235,8 +235,8 @@ class Pipeline():
                 -verbose
                 -zpad 1
                 -base {self.results["3dTshift"].outfile}[10]
-                -1Dfile sub-{subject_id}_regressors-motion.1D
-                -prefix sub-{subject_id}_func_tshift_volreg
+                -1Dfile sub-{self.subject_id}_regressors-motion.1D
+                -prefix sub-{self.subject_id}_func_tshift_volreg
                 {self.results["3dTshift"].outfile}
         
         """.split()
@@ -263,7 +263,7 @@ class Pipeline():
         args = f"""
                 -1blur_fwhm 5.0
                 -doall
-                -prefix sub-{subject_id}_func_smoothed
+                -prefix sub-{self.subject_id}_func_smoothed
                 {self.results["3dvolreg"].outfile}
 
         """.split()
@@ -324,7 +324,7 @@ class Pipeline():
         args = f"""
                 -one
                 -jpg
-                sub-{subject_id}_func_sliceaverage.jpg
+                sub-{self.subject_id}_func_sliceaverage.jpg
                 {self.results["3dROIstats"].outfile}
     
         """.split()
@@ -433,7 +433,7 @@ class Pipeline():
 
         # Create list of arguments and run program.
         args = f"""
-            -prefix sub-{subject_id}_func_mean
+            -prefix sub-{self.subject_id}_func_mean
             {self.results["3dmerge"].outfile}
 
         """.split()
@@ -526,22 +526,26 @@ class Pipeline():
 
         """
         
-        # Copy the input files to the @auto_tlrc folder. Otherwise, we risk its great wrath.
-        program_working_directory = self.dirs["output"] / "@auto_tlrc2"
-        program_working_directory.mkdir(exist_ok=True)
-        shutil.copy2(src=self.results["@auto_tlrc 1"].outfile, dst=program_working_directory / self.results["@auto_tlrc 1"].outfile.name)
-        shutil.copy2(src=self.results["3dDeconvolve"].IRF, dst=program_working_directory / self.results["3dDeconvolve"].IRF.name)
+        working_directory = self.dirs["output"] / "@auto_tlrc2"
+
+        # Copy the input files to the @auto_tlrc folder. Otherwise, we risk its wrath.
+        working_directory.mkdir(exist_ok=True)
+        shutil.copy2(src=self.results["@auto_tlrc 1"].outfile, dst=working_directory / self.results["@auto_tlrc 1"].outfile.name)
+        shutil.copy2(src=self.results["@auto_tlrc 1"].outfile.with_suffix('.BRIK'), dst=working_directory / self.results["@auto_tlrc 1"].outfile.with_suffix('.BRIK').name)
+        shutil.copy2(src=self.results["3dDeconvolve"].IRF, dst=working_directory / self.results["3dDeconvolve"].IRF.name)
+        shutil.copy2(src=self.results["3dDeconvolve"].IRF.with_suffix('.BRIK'), dst=working_directory / Path(self.results["3dDeconvolve"].IRF.name).with_suffix('.BRIK'))
 
         # Create list of arguments and run program.
         args = f"""
-            -apar {self.results["@auto_tlrc 1"].outfile.name}
-            -input {self.results["3dDeconvolve"].IRF.name}
-            -dxyz 2.5
+                -apar {self.results["@auto_tlrc 1"].outfile.name}
+                -input {self.results["3dDeconvolve"].IRF.name}
+                -dxyz 2.5
+
         """.split()
-        results = AFNI(program="@auto_tlrc", args=args, working_directory=program_working_directory)
+        results = AFNI(program="@auto_tlrc", args=args, working_directory=working_directory)
 
         # Store path to outfile as an attribute of the results.
-        results.outfile = the_path_that_matches("*_IRF+tlrc.HEAD", in_directory=results.working_directory)
+        results.outfile = the_path_that_matches("*_IRF+tlrc.HEAD", in_directory=working_directory)
 
         return results
 
