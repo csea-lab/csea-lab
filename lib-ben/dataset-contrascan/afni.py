@@ -36,6 +36,11 @@ class AFNI():
         self.working_directory = Path(working_directory).absolute()
         self.write_matrix_lines_to = write_matrix_lines_to
 
+        # Figure out if program has run before. If yes, we'll kill the process later.
+        self.program_has_run_before = False
+        if self._program_has_run_before():
+            self.program_has_run_before = True
+
         # Tell user that we're executing this object.
         print(f"Executing {self.__repr__()}")
 
@@ -46,7 +51,7 @@ class AFNI():
         with subprocess.Popen([self.program] + self.args, cwd=self.working_directory, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, universal_newlines=True) as process:
 
             # Immediately kill the process if it doesn't need to be run.
-            if self._program_has_run_before():
+            if self.program_has_run_before:
                 process.kill()
                 print(f"Killing {self.program} because we've already run it before in {self.working_directory}. Delete its log files if you wish to rerun it.")
 
@@ -64,7 +69,7 @@ class AFNI():
 
         # Record end time. Write logs.
         self.end_time = datetime.now()
-        if not self._program_has_run_before():
+        if not self.program_has_run_before:
             self.write_logs()
 
 
