@@ -208,7 +208,7 @@ if __name__ == "__main__":
     print(f"Args: {args}")
 
     # Option 1: Process all subjects.
-    subject_ids = list()
+    subject_ids = []
     if args.all:
         bids_root = Path(args.bids_dir)
         for subject_dir in bids_root.glob("sub-*"):
