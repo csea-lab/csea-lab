@@ -28,12 +28,15 @@ class AFNI():
 
     def __init__(self, program: str, args: list, working_directory, write_matrix_lines_to=None):
 
-        # Store parameters and start time. Tell user that we're executing this object.
         self.start_time = datetime.now()
+
+        # Store input parameters of the object.
         self.program = program
         self.args = args
         self.working_directory = Path(working_directory).absolute()
         self.write_matrix_lines_to = write_matrix_lines_to
+
+        # Tell user that we're executing this object.
         print(f"Executing {self.__repr__()}")
 
         # Make working_directory if it doesn't exist.
