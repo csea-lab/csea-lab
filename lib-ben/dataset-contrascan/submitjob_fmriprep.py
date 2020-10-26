@@ -107,20 +107,33 @@ exit $exitcode
         script.write(script_contents)
 
 
-def _get_subject_id(path) -> str:
+def subject_id_of(path) -> str:
     """
-    Returns the subject ID found in the input file name.
+    Returns the subject ID closest to the end of the input string or Path.
 
-    Returns "None" if no subject ID found.
+
+    Inputs
+    ------
+    path : str or Path
+        String or Path containing the subject ID.
+
+    Returns
+    -------
+    str
+        Subject ID found in the filename
+
+    Raises
+    ------
+    RuntimeError
+        If no subject ID found in input filename.
 
     """
-    
-    potential_subject_ids = re.findall(r"sub-(\d+)", str(path))
+
     try:
-        subject_id = potential_subject_ids[-1]
+        subject_ids = re.findall(r"sub-(\d+)", str(path))
+        return subject_ids[-1]
     except IndexError:
-        subject_id = None
-    return subject_id
+        raise RuntimeError(f"No subject ID found in {path}")
 
 
 if __name__ == "__main__":
@@ -212,7 +225,7 @@ if __name__ == "__main__":
     if args.all:
         bids_root = args.bids_dir
         for subject_dir in bids_root.glob("sub-*"):
-            subject_ids.append(_get_subject_id(subject_dir))
+            subject_ids.append(subject_id_of(subject_dir))
 
     # Option 2: Process specific subjects.
     else:
