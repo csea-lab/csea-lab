@@ -132,7 +132,7 @@ if __name__ == "__main__":
     """
 
     parser = argparse.ArgumentParser(
-        description=f"Launch this script on HiPerGator to run fMRIPrep on your BIDS-valid dataset! Each subject receives their own container. You may specify EITHER specific subjects OR all subjects. All outputs are placed in bids_dir/derivatives/preprocessing/. Remember to do your work in /blue/akeil/{os.getlogin()}!",
+        description=f"Launch this script on HiPerGator to run fMRIPrep on your BIDS-valid dataset! Each subject receives their own container. You may specify EITHER specific subjects OR all subjects. Final outputs are written to bids_dir/derivatives/preprocessing/. Intermediate results are written to the current working directory. Remember to only do your work in subdirectories of /blue/akeil/{os.getlogin()}!",
         fromfile_prefix_chars="@"
     )
 
