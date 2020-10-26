@@ -67,8 +67,8 @@ class AFNI():
         if self.write_matrix_lines_to:
             self._write_matrix()
 
-        # Record end time. Write logs.
         self.end_time = datetime.now()
+        
         if not self.program_has_run_before:
             self.write_logs()
 
