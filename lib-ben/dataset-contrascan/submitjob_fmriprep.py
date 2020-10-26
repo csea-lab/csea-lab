@@ -210,7 +210,7 @@ if __name__ == "__main__":
     # Option 1: Process all subjects.
     subject_ids = []
     if args.all:
-        bids_root = Path(args.bids_dir)
+        bids_root = args.bids_dir
         for subject_dir in bids_root.glob("sub-*"):
             subject_ids.append(_get_subject_id(subject_dir))
 
