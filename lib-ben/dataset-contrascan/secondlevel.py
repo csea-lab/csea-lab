@@ -143,7 +143,7 @@ class SecondLevel():
             "Time to complete workflow": str(self.end_time - self.start_time),
             "Title of first level analysis": self.firstlevel_name,
             "Subject IDs included in analysis": self.subject_ids,
-            "Programs used": [result.program for result in self.results.values()]
+            "Programs used (in order!)": [result.program for result in self.results.values()]
         }
 
         # Write the workflow dict to a json file.
