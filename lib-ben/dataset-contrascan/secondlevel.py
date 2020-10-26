@@ -157,6 +157,8 @@ if __name__ == "__main__":
     """
     This section of the script only runs when you run the script directly from the shell.
 
+    It contains the parser that parses arguments from the command line.
+    
     """
 
     parser = argparse.ArgumentParser(
