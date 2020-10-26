@@ -26,7 +26,7 @@ START_TIME = f"{now.tm_hour}.{now.tm_min}.{now.tm_sec}"
 START_DATE = f"{now.tm_mon}.{now.tm_mday}.{now.tm_year}"
 
 
-def write_script(time_requested, email_address, script_name, number_of_processors, qos, subject_id, bids_dir, freesurfer_license_path, singularity_image_path):
+def write_script(time_requested, email_address, script_name, number_of_processors, qos, subject_id, bids_dir, singularity_image_path):
     """
     Writes the SLURM script to the current working directory.
 
@@ -47,8 +47,6 @@ def write_script(time_requested, email_address, script_name, number_of_processor
         Subject ID to target.
     bids_dir : str or Path
         Path to the root of the BIDS directory.
-    freesurfer_license_path : str or Path
-        Path to a Freesurfer license file.
     singularity_image_path : str or Path
         Path to an fMRIPrep Singularity image.
         
@@ -78,7 +76,7 @@ DERIVS_DIR="{bids_dir}/derivatives/preprocessing/sub-{subject_id}"
 LOCAL_FREESURFER_DIR="$DERIVS_DIR/freesurfer"
 
 # Make sure FS_LICENSE is defined in the container.
-export SINGULARITYENV_FS_LICENSE="{freesurfer_license_path}"
+export SINGULARITYENV_FS_LICENSE="/blue/akeil/.licenses/freesurfer.txt"
 
 # Prepare derivatives folder.
 mkdir -p "$DERIVS_DIR"
@@ -132,12 +130,10 @@ if __name__ == "__main__":
 
     """
 
-
     parser = argparse.ArgumentParser(
         description=f"Launch this script on HiPerGator to run fMRIPrep on your BIDS-valid dataset! Each subject receives their own container. You may specify EITHER specific subjects OR all subjects. All outputs are placed in bids_dir/derivatives/preprocessing/. Remember to do your work in /blue/akeil/{os.getlogin()}!",
         fromfile_prefix_chars="@"
     )
-
 
     parser.add_argument(
         "--bids_dir",
@@ -155,15 +151,7 @@ if __name__ == "__main__":
         help="<Mandatory> Path to an fMRIPrep singularity image. Example: '--image /blue/akeil/veliebm/files/images/fmriprep_version-20.2.0.sig'"
     )
 
-    parser.add_argument(
-        "--fs_license",
-        "-f",
-        type=Path,
-        required=True,
-        help="<Mandatory> Path to your freesurfer license file. Example: '--fs_license /blue/akeil/veliebm/files/.licenses/freesurfer.txt'"
-    )
 
-    
     group = parser.add_mutually_exclusive_group(required=True)
     group.add_argument(
         "--subjects",
@@ -241,7 +229,6 @@ if __name__ == "__main__":
             qos=args.qos,
             subject_id=subject_id,
             bids_dir=args.bids_dir.absolute(),
-            freesurfer_license_path=args.fs_license.absolute(),
             singularity_image_path=args.image.absolute()
         )
 
