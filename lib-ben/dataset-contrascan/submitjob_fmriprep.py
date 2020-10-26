@@ -61,7 +61,7 @@ def write_script(time_requested, email_address, script_name, number_of_processor
 #SBATCH --job-name=sub-{subject_id} 				# Job name
 #SBATCH --ntasks=1					                # Run a single task		
 #SBATCH --cpus-per-task={number_of_processors}		# Number of CPU cores per task
-#SBATCH --mem=8gb						            # Job memory request
+#SBATCH --mem=8gb						            # Job memory request. You should never need to change this from 8gb for fMRIPrep.
 #SBATCH --time={time_requested}				        # Walltime in hh:mm:ss or d-hh:mm:ss
 #SBATCH --qos={qos}                                 # QOS level to use. Can be investment (akeil) or burst (akeil-b).
 # Outputs ----------------------------------
