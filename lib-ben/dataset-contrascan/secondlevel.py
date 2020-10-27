@@ -25,7 +25,7 @@ class SecondLevel():
 
     """
 
-    def __init__(self, subject_ids, bids_dir, firstlevel_name):
+    def __init__(self, subject_ids, bids_dir, firstlevel_name, secondlevel_name):
 
         # Track when the program begins running.
         self.start_time = datetime.now()
@@ -34,6 +34,12 @@ class SecondLevel():
         self.subject_ids = subject_ids
         self.bids_dir = bids_dir
         self.firstlevel_name = firstlevel_name
+        self.secondlevel_name = secondlevel_name
+
+        # Set name of analysis equal to 1st-level name unless the user provided a 2nd-level name.
+        self.analysis_name = self.firstlevel_name
+        if self.secondlevel_name:
+            self.analysis_name = secondlevel_name
 
         # Tell the user what this class looks like internally.
         print(f"Executing {self.__repr__()}")
@@ -43,7 +49,7 @@ class SecondLevel():
         self.dirs["bids_root"] = Path(self.bids_dir)     # Location of the raw BIDS dataset.
         self.dirs["firstlevel_root"] = self.dirs["bids_root"] / "derivatives" / "analysis_level-1"     # Location of all results of all our first-level analyses.
         self.dirs["secondlevel_root"] = self.dirs["bids_root"] / "derivatives" / "analysis_level-2"    # Location where we'll store all results of all second-level analyses.
-        self.dirs["output"] = self.dirs["secondlevel_root"] / self.firstlevel_name     # Location where we'll store the results of this specific analysis.
+        self.dirs["output"] = self.dirs["secondlevel_root"] / self.analysis_name     # Location where we'll store the results of this specific analysis.
 
         # Store in self.paths a dictionary of dictionaries of paths to files we need.
         # Parent key is a subject ID, child key is type of file, value is path for that filetype and subject ID.
@@ -89,7 +95,7 @@ class SecondLevel():
         working_directory = self.dirs["output"] / "3dttest++"
 
         # Get basic arguments as a list of parameters to be fed into the command line.
-        args = "-zskip -HKtest -setA ttest".split()
+        args = "-zskip -setA ttest".split()
 
         # Append our deconvolve files as arguments.
         for subject_id in self.paths:
@@ -196,6 +202,12 @@ if __name__ == "__main__":
         help="<Mandatory> Analyze all subjects. Mutually exclusive with --subjects."
     )
 
+    parser.add_argument(
+        "--secondlevel_name",
+        default=None,
+        help="Default: Name of the 1st-level analysis. What to name the 2nd-level analysis. Example: '--secondlevel_name hello_this_is_a_test'"
+    )
+
     # Parse args from the command line and create an empty list to store the subject ids we picked.
     args = parser.parse_args()
     subject_ids = []
@@ -214,5 +226,6 @@ if __name__ == "__main__":
     SecondLevel(
         subject_ids=subject_ids,
         bids_dir=args.bids_dir,
-        firstlevel_name=args.firstlevel_name
+        firstlevel_name=args.firstlevel_name,
+        secondlevel_name=args.secondlevel_name
     )
