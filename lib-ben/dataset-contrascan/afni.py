@@ -119,7 +119,7 @@ class AFNI():
             "Start time": str(self.start_time),
             "End time": str(self.end_time),
             "Total time to run program": str(self.end_time - self.start_time),
-            "Complete command executed": self.process.args
+            "Complete command executed": [str(arg) for arg in self.process.args]
         }
 
         # Write the program info dict to a json file.
