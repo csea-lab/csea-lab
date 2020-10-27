@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 """
 Processes all .vmrk files within a directory and outputs lists of their stimulus onsets into .txt files.
 
