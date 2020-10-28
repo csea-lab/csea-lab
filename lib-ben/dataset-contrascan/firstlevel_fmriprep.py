@@ -63,8 +63,7 @@ class FirstLevel():
 
         # Run our programs of interest. Must be run in the correct order.
         self.results = {}
-        self.results["3dmerge 1"] = self.merge1()
-        self.results["3dmerge 2"] = self.merge2()
+        self.results["3dmerge"] = self.merge()
         self.results["3dTstat"] = self.tstat()
         self.results["3dcalc"] = self.calc()
         self.results["3dDeconvolve"] = self.deconvolve()
@@ -86,7 +85,7 @@ class FirstLevel():
         return f"{self.__class__.__name__}(bids_dir='{self.bids_dir}', subject_id='{self.subject_id}', regressor_names={self.regressor_names}, outputs_title='{self.outputs_title}')"
 
 
-    def merge1(self):
+    def merge(self):
         """
         Smooths the functional image.
 
@@ -94,7 +93,7 @@ class FirstLevel():
 
         """
 
-        working_directory = self.dirs["output"] / "3dmerge1"
+        working_directory = self.dirs["output"] / "3dmerge"
 
         # Create the list of arguments and run 3dmerge.
         args = f"""
@@ -102,32 +101,6 @@ class FirstLevel():
                 -doall
                 -prefix {self.paths['func'].stem}_smoothed
                 {self.paths['func']}
-        
-        """.split()
-        results = AFNI(program="3dmerge", args=args, working_directory=working_directory)
-
-        # Store the path of the smoothed image as an attribute of the result object.
-        results.outfile = the_path_that_matches("*.HEAD", in_directory=working_directory)
-
-        return results
-
-
-    def merge2(self):
-        """
-        Smooths the mask fmriprep provided.
-
-        3dmerge info: https://afni.nimh.nih.gov/pub/dist/doc/htmldoc/programs/3dmerge_sphx.html#ahelp-3dmerge
-
-        """
-
-        working_directory = self.dirs["output"] / "3dmerge2"
-
-        # Create the list of arguments and run 3dmerge.
-        args = f"""
-                -1blur_fwhm 5.0
-                -doall
-                -prefix {self.paths['mask'].stem}_smoothed
-                {self.paths['mask']}
         
         """.split()
         results = AFNI(program="3dmerge", args=args, working_directory=working_directory)
@@ -151,8 +124,7 @@ class FirstLevel():
         # Prepare arguments and run the program.
         args = f"""
             -prefix sub-{subject_id}_func_mean
-            -mask {self.results["3dmerge 2"].outfile}
-            {self.results["3dmerge 1"].outfile}
+            {self.results["3dmerge"].outfile}
 
         """.split()
         results = AFNI(program="3dTstat", args=args, working_directory=working_directory)
@@ -176,7 +148,7 @@ class FirstLevel():
         # Prepare arguments and run the program.
         args = f"""
                 -float
-                -a {self.results["3dmerge 1"].outfile}
+                -a {self.results["3dmerge"].outfile}
                 -b {self.results["3dTstat"].outfile}
                 -expr ((a-b)/b)*100
                 -prefix sub-{self.subject_id}_func_scaled
