@@ -46,7 +46,7 @@ class FirstLevel():
         self.dirs["bids_root"] = Path(bids_dir)     # Root of the raw BIDS dataset.
         self.dirs["fmriprep_root"] = self.dirs["bids_root"] / "derivatives" / "preprocessing" / f"sub-{subject_id}" / "fmriprep" / f"sub-{subject_id}"   # Root of fmriprep outputs for this subject.
         self.dirs["output"] = self.dirs["bids_root"] / "derivatives" / "analysis_level-1" / f"sub-{subject_id}" / outputs_title    # Where we'll output the results of the first level analysis.
-        self.dirs["regressors"] = self.dirs["output"] / "all_regressors_available"      # Where we'll store our regressor text files.
+        self.dirs["regressors"] = self.dirs["output"] / "every_goddamn_regressor_imaginable"      # Where we'll store our regressor text files.
         self.dirs["subject_info"] = self.dirs["output"] / "subject_info"      # Where we'll store our subject's onsets in a text file.
 
         # Get paths to all files necessary for the analysis. Raise an error if Python can't find a file.
