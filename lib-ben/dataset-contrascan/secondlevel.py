@@ -25,7 +25,7 @@ class SecondLevel():
 
     """
 
-    def __init__(self, subject_ids, bids_dir, firstlevel_name):
+    def __init__(self, subject_ids, bids_dir, firstlevel_name, secondlevel_name):
 
         # Track when the program begins running.
         self.start_time = datetime.now()
@@ -34,6 +34,12 @@ class SecondLevel():
         self.subject_ids = subject_ids
         self.bids_dir = bids_dir
         self.firstlevel_name = firstlevel_name
+        self.secondlevel_name = secondlevel_name
+
+        # Set name of analysis equal to 1st-level name unless the user provided a 2nd-level name.
+        self.analysis_name = self.firstlevel_name
+        if self.secondlevel_name:
+            self.analysis_name = secondlevel_name
 
         # Tell the user what this class looks like internally.
         print(f"Executing {self.__repr__()}")
@@ -43,7 +49,7 @@ class SecondLevel():
         self.dirs["bids_root"] = Path(self.bids_dir)     # Location of the raw BIDS dataset.
         self.dirs["firstlevel_root"] = self.dirs["bids_root"] / "derivatives" / "analysis_level-1"     # Location of all results of all our first-level analyses.
         self.dirs["secondlevel_root"] = self.dirs["bids_root"] / "derivatives" / "analysis_level-2"    # Location where we'll store all results of all second-level analyses.
-        self.dirs["output"] = self.dirs["secondlevel_root"] / self.firstlevel_name     # Location where we'll store the results of this specific analysis.
+        self.dirs["output"] = self.dirs["secondlevel_root"] / self.analysis_name     # Location where we'll store the results of this specific analysis.
 
         # Store in self.paths a dictionary of dictionaries of paths to files we need.
         # Parent key is a subject ID, child key is type of file, value is path for that filetype and subject ID.
@@ -59,8 +65,8 @@ class SecondLevel():
 
         # Run our regressions.
         self.results = {}
-        self.results["ttest"] = self.ttest()
-        self.results["mema"] = self.mema()
+        self.results["3dttest++"] = self.ttest()
+        self.results["3dMEMA"] = self.mema()
 
         # Record end time and write our report.
         self.end_time = datetime.now()
@@ -82,50 +88,41 @@ class SecondLevel():
         """
         Run AFNI's 3dttest++ on each subject.
 
-        AFNI command info: https://afni.nimh.nih.gov/pub/dist/doc/htmldoc/programs/3dttest++_sphx.html#ahelp-3dttest
-
-
-        Returns
-        -------
-        AFNI object
-            Stores information about the outputs of 3dttest++.
+        3dttest++ info: https://afni.nimh.nih.gov/pub/dist/doc/htmldoc/programs/3dttest++_sphx.html#ahelp-3dttest
 
         """
 
+        working_directory = self.dirs["output"] / "3dttest++"
+
         # Get basic arguments as a list of parameters to be fed into the command line.
-        args = ["-setA"]
+        args = "-zskip -setA ttest".split()
 
         # Append our deconvolve files as arguments.
         for subject_id in self.paths:
-            args += [f"sub-{subject_id}"] + [str(self.paths[subject_id]["deconvolve_outfile"])]
+            args += [f"sub-{subject_id}"] + [f'{self.paths[subject_id]["deconvolve_outfile"]}[0]']
 
         # Execute the command and return its results.
-        return AFNI(
-            program="3dttest++",
-            args=args,
-            working_directory=self.dirs["output"]/"3dttest++"
-        )
+        return AFNI(program="3dttest++", args=args, working_directory=working_directory)
 
 
     def mema(self):
         """
         Runs AFNI's 3dMEMA 2nd-level analysis using the output bucket of 3dREMLfit.
 
-        AFNI command info: https://afni.nimh.nih.gov/pub/dist/doc/htmldoc/programs/3dMEMA_sphx.html#ahelp-3dmema
-        How to gather specific sub-briks from the the 3dREMLfit outfile: https://afni.nimh.nih.gov/pub/dist/doc/program_help/common_options.html
-
-
-        Returns
-        -------
-        AFNI object
-            Stores information about the outputs of 3dmerge.
+        3dMEMA info: https://afni.nimh.nih.gov/pub/dist/doc/htmldoc/programs/3dMEMA_sphx.html#ahelp-3dmema
+        How to gather specific sub-briks from the 3dREMLfit outfile: https://afni.nimh.nih.gov/pub/dist/doc/program_help/common_options.html
 
         """
+
+        working_directory = self.dirs["output"] / "3dMEMA"
 
         # Create base arguments to pass to program.
         args = (f"""
             -prefix {self.firstlevel_name}_mema
             -jobs 4
+            -verb 1
+            -missing_data 0
+
             """).split()
 
         # Append our 3dREMLfit outfiles to the command.
@@ -133,16 +130,12 @@ class SecondLevel():
         for subject_id in self.paths:
             args += [
                 subject_id,
-                f"{self.paths[subject_id]['reml_outfile']}[1..15](2)",     # Use each beta estimate from reml outfile
-                f"{self.paths[subject_id]['reml_outfile']}[2..16](2)"       # Use each T value from reml outfile
+                f"{self.paths[subject_id]['reml_outfile']}[7]",     # Use a beta estimate from reml outfile
+                f"{self.paths[subject_id]['reml_outfile']}[8]"       # Use a T value from reml outfile
             ]
 
         # Execute the command and return its results.
-        return AFNI(
-            program="3dMEMA",
-            args=args,
-            working_directory=self.dirs["output"]/"3dMEMA"
-        )
+        return AFNI(program="3dMEMA", args=args, working_directory=working_directory)
 
 
     def write_report(self):
@@ -156,8 +149,7 @@ class SecondLevel():
             "Time to complete workflow": str(self.end_time - self.start_time),
             "Title of first level analysis": self.firstlevel_name,
             "Subject IDs included in analysis": self.subject_ids,
-            "Programs used": [result.program for result in self.results.values()],
-            "Commands executed": [[str(arg) for arg in result.runtime.args] for result in self.results.values()]
+            "Programs used (in order!)": [result.program for result in self.results.values()]
         }
 
         # Write the workflow dict to a json file.
@@ -171,6 +163,8 @@ if __name__ == "__main__":
     """
     This section of the script only runs when you run the script directly from the shell.
 
+    It contains the parser that parses arguments from the command line.
+    
     """
 
     parser = argparse.ArgumentParser(
@@ -208,7 +202,11 @@ if __name__ == "__main__":
         help="<Mandatory> Analyze all subjects. Mutually exclusive with --subjects."
     )
 
-    group.add_argument
+    parser.add_argument(
+        "--secondlevel_name",
+        default=None,
+        help="Default: Name of the 1st-level analysis. What to name the 2nd-level analysis. Example: '--secondlevel_name hello_this_is_a_test'"
+    )
 
     # Parse args from the command line and create an empty list to store the subject ids we picked.
     args = parser.parse_args()
@@ -228,5 +226,6 @@ if __name__ == "__main__":
     SecondLevel(
         subject_ids=subject_ids,
         bids_dir=args.bids_dir,
-        firstlevel_name=args.firstlevel_name
+        firstlevel_name=args.firstlevel_name,
+        secondlevel_name=args.secondlevel_name
     )

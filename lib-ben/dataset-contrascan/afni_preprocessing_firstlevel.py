@@ -86,8 +86,8 @@ class Pipeline():
         """
         Defines how the class represents itself internally as a string.
         
-        To learn more, consider reading https://docs.python.org/3/reference/datamodel.html#basic-customization
-        
+        To learn more, read https://docs.python.org/3/reference/datamodel.html#basic-customization
+
         """
 
         return f"{self.__class__.__name__}(bids_dir='{self.bids_dir}', subject_id='{self.subject_id}')"
@@ -97,36 +97,24 @@ class Pipeline():
         """
         Aligns our anatomical image to our functional image.
 
-        Wraps align_epi_anat.py.
-        
-        AFNI command info: https://afni.nimh.nih.gov/pub/dist/doc/htmldoc/programs/align_epi_anat.py_sphx.html#ahelp-align-epi-anat-py
-
-
-        Returns
-        -------
-        AFNI object
-            Stores information about the program.
+        align_epi_anat.py info: https://afni.nimh.nih.gov/pub/dist/doc/htmldoc/programs/align_epi_anat.py_sphx.html#ahelp-align-epi-anat-py
 
         """
 
-        # Prepare the arguments we want to pass to the program. ---------------------
+        working_directory = self.dirs["output"] / "align_epi_anat.py"
+
+        # Create list of arguments and run program.
         args = f"""
-            -anat {self.paths["anat"]}
-            -epi {self.paths["func"]}
-            -epi_base 10
+                -anat {self.paths["anat"]}
+                -epi {self.paths["func"]}
+                -epi_base 10
+
         """.split()
+        results = AFNI("align_epi_anat.py", args, working_directory)
 
-
-        # Run program and store results. -----------------------
-        results = AFNI(
-            program="align_epi_anat.py",
-            args=args,
-            working_directory=self.dirs["output"]/"align_epi_anat.py"
-        )
-
-
-        # Store path to outfile as an attribute of the results. Return results. ----------------------------
+        # Store path to outfile as an attribute of the program results.
         results.outfile = the_path_that_matches("*_T1w_al+orig.HEAD", in_directory=results.working_directory)
+
         return results
 
 
@@ -134,35 +122,24 @@ class Pipeline():
         """
         Aligns our anatomy to base TT_N27.
 
-        Wraps @auto_tlrc.
-
-        AFNI command info: https://afni.nimh.nih.gov/pub/dist/doc/htmldoc/programs/@auto_tlrc_sphx.html#ahelp-auto-tlrc
-
-
-        Returns
-        -------
-        AFNI object
-            Stores information about the program.
+        @auto_tlrc info: https://afni.nimh.nih.gov/pub/dist/doc/htmldoc/programs/@auto_tlrc_sphx.html#ahelp-auto-tlrc
 
         """
 
-        # Prepare the arguments we want to pass to the program ---------------------
+        working_directory = self.dirs["output"] / "@auto_tlrc1"
+
+        # Create list of arguments and run program.
         args = f"""
-            -no_ss
-            -base TT_N27+tlrc
-            -input {self.results["align_epi_anat.py"].outfile}
+                -no_ss
+                -base TT_N27+tlrc
+                -input {self.results['align_epi_anat.py'].outfile}
+
         """.split()
+        results = AFNI("@auto_tlrc", args, working_directory)
 
-
-        # Run program and store results. -----------------------
-        results = AFNI(
-            program="@auto_tlrc",
-            args=args,
-            working_directory=self.dirs["output"]/"@auto_tlrc1"
-        )
-
-        # Store path to outfile as an attribute of the results. Return results. ----------------------------
+        # Store path to outfile as an attribute of the program results.
         results.outfile = the_path_that_matches("*_T1w_al+tlrc.HEAD", in_directory=results.working_directory)
+
         return results
 
 
@@ -170,36 +147,24 @@ class Pipeline():
         """
         Calculate a rough skull mask. Specifically, discard all voxels with values less than zero.
 
-        Wraps 3dcalc.
-
-        AFNI command info: https://afni.nimh.nih.gov/pub/dist/doc/htmldoc/programs/3dcalc_sphx.html#ahelp-3dcalc
-
-
-        Returns
-        -------
-        AFNI object
-            Stores information about the program.
+        3dcalc info: https://afni.nimh.nih.gov/pub/dist/doc/htmldoc/programs/3dcalc_sphx.html#ahelp-3dcalc
 
         """
 
-        # Prepare the arguments we want to pass to the program. ---------------------
+        working_directory = self.dirs["output"] / "3dcalc1"
+    
+        # Create list of arguments and run program.
         args = f"""
-        -a {self.results["align_epi_anat.py"].outfile}
-        -expr step(a)
-        -prefix sub-{subject_id}_anat_aligned_tmp_mask
+                -a {self.results["align_epi_anat.py"].outfile}
+                -expr step(a)
+                -prefix sub-{self.subject_id}_anat_aligned_tmp_mask
+
         """.split()
+        results = AFNI("3dcalc", args, working_directory)
 
-
-        # Run program and store results. -----------------------
-        results = AFNI(
-            program="3dcalc",
-            args=args,
-            working_directory=self.dirs["output"]/"3dcalc1"
-        )
-
-
-        # Store path to outfile as an attribute of the results. Return results. ----------------------------
+        # Store path to outfile as an attribute of the program results.
         results.outfile = the_path_that_matches("*_tmp_mask+orig.HEAD", in_directory=results.working_directory)
+
         return results
 
 
@@ -207,36 +172,24 @@ class Pipeline():
         """
         TODO: Explain what the hell 3dresample actually does.
 
-        Wraps 3dresample.
-
-        AFNI command info: https://afni.nimh.nih.gov/pub/dist/doc/htmldoc/programs/3dresample_sphx.html#ahelp-3dresample
-
-
-        Returns
-        -------
-        AFNI object
-            Stores information about the program.
+        3dresample info: https://afni.nimh.nih.gov/pub/dist/doc/htmldoc/programs/3dresample_sphx.html#ahelp-3dresample
 
         """
 
-        # Prepare the arguments we want to pass to the program. ---------------------
+        working_directory = self.dirs["output"] / "3dresample"
+
+        # Create list of arguments and run program.
         args = f"""
-            -master {self.paths["func"]}
-            -prefix sub-{subject_id}_func_skull_al_mask
-            -inset {self.results["3dcalc 1"].outfile}
+                -master {self.paths["func"]}
+                -prefix sub-{self.subject_id}_func_skull_al_mask
+                -inset {self.results["3dcalc 1"].outfile}
+
         """.split()
+        results = AFNI("3dresample", args, working_directory)
 
-
-        # Run program and store results. -----------------------
-        results = AFNI(
-            program="3dresample",
-            args=args,
-            working_directory=self.dirs["output"]/"3dresample"
-        )
-
-
-        # Store path to outfile as an attribute of the results. Return results. ----------------------------
+        # Store path to outfile as an attribute of the results.
         results.outfile = the_path_that_matches("*_skull_al_mask+orig.HEAD", in_directory=results.working_directory)
+
         return results
 
 
@@ -244,38 +197,26 @@ class Pipeline():
         """
         Performs slice-time correction.
 
-        Wraps 3dTshift.
-
-        AFNI command info: https://afni.nimh.nih.gov/pub/dist/doc/htmldoc/programs/3dTshift_sphx.html#ahelp-3dtshift
-
-
-        Returns
-        -------
-        AFNI object
-            Stores information about the program.
+        3dTshift info: https://afni.nimh.nih.gov/pub/dist/doc/htmldoc/programs/3dTshift_sphx.html#ahelp-3dtshift
 
         """
 
-        # Prepare the arguments we want to pass to the program. ---------------------
+        working_directory = self.dirs["output"] / "3dTshift"
+
+        # Create list of arguments and run program.
         args = f"""
-            -tzero 0
-            -tpattern alt+z
-            -quintic
-            -prefix sub-{subject_id}_func_tshift
-            {self.paths["func"]}
+                -tzero 0
+                -tpattern alt+z
+                -quintic
+                -prefix sub-{self.subject_id}_func_tshift
+                {self.paths["func"]}
+
         """.split()
+        results = AFNI("3dTshift", args, working_directory)
 
-
-        # Run program and store results. -----------------------
-        results = AFNI(
-            program="3dTshift",
-            args=args,
-            working_directory=self.dirs["output"]/"3dTshift"
-        )
-
-
-        # Store path to outfile as an attribute of the results. Return results. ----------------------------
+        # Store path to outfile as an attribute of the results.
         results.outfile = the_path_that_matches("*_tshift+orig.HEAD", in_directory=results.working_directory)
+
         return results
 
 
@@ -283,40 +224,28 @@ class Pipeline():
         """
         Align each dataset to the base volume using the same image as used in align_epi_anat.py
 
-        Wraps 3dvolreg.
-
-        AFNI command info: https://afni.nimh.nih.gov/pub/dist/doc/htmldoc/programs/3dvolreg_sphx.html#ahelp-3dvolreg
-
-
-        Returns
-        -------
-        AFNI object
-            Stores information about the program.
+        3dvolreg info: https://afni.nimh.nih.gov/pub/dist/doc/htmldoc/programs/3dvolreg_sphx.html#ahelp-3dvolreg
 
         """
 
-        # Prepare the arguments we want to pass to the program. ---------------------
+        working_directory = self.dirs["output"] / "3dvolreg"
+
+        # Create list of arguments and run program.
         args = f"""
-        -verbose
-        -zpad 1
-        -base {self.results["3dTshift"].outfile}[10]
-        -1Dfile sub-{subject_id}_regressors-motion.1D
-        -prefix sub-{subject_id}_func_tshift_volreg
-        {self.results["3dTshift"].outfile}
+                -verbose
+                -zpad 1
+                -base {self.results["3dTshift"].outfile}[10]
+                -1Dfile sub-{self.subject_id}_regressors-motion.1D
+                -prefix sub-{self.subject_id}_func_tshift_volreg
+                {self.results["3dTshift"].outfile}
+        
         """.split()
+        results = AFNI("3dvolreg", args, working_directory)
 
-
-        # Run program and store results. -----------------------
-        results = AFNI(
-            program="3dvolreg",
-            args=args,
-            working_directory=self.dirs["output"]/"3dvolreg"
-        )
-
-
-        # Store path to outfile as an attribute of the results. Return results. ----------------------------
+        # Store path to outfiles as an attribute of the results.
         results.outfile = the_path_that_matches("*_volreg+orig.HEAD", in_directory=results.working_directory)
         results.motion_regressors = the_path_that_matches("*_regressors-motion.1D", in_directory=results.working_directory)
+    
         return results
 
 
@@ -324,37 +253,26 @@ class Pipeline():
         """
         Blur each volume. For inplane 2.5 use 5 fwhm - 2x times inplane is best.
 
-        Wraps 3dmerge.
-
-        AFNI command info: https://afni.nimh.nih.gov/pub/dist/doc/htmldoc/programs/3dmerge_sphx.html#ahelp-3dmerge
-
-
-        Returns
-        -------
-        AFNI object
-            Stores information about the program.
+        3dmerge info: https://afni.nimh.nih.gov/pub/dist/doc/htmldoc/programs/3dmerge_sphx.html#ahelp-3dmerge
 
         """
 
-        # Prepare the arguments we want to pass to the program. ---------------------
+        working_directory = self.dirs["output"] / "3dmerge"
+
+        # Create list of arguments and run program.
         args = f"""
-            -1blur_fwhm 5.0
-            -doall
-            -prefix sub-{subject_id}_func_smoothed
-            {self.results["3dvolreg"].outfile}
+                -1blur_fwhm 5.0
+                -doall
+                -prefix sub-{self.subject_id}_func_smoothed
+                {self.results["3dvolreg"].outfile}
+
         """.split()
+        results = AFNI("3dmerge", args, working_directory)
 
 
-        # Run program and store results. -----------------------
-        results = AFNI(
-            program="3dmerge",
-            args=args,
-            working_directory=self.dirs["output"]/"3dmerge"
-        )
-
-
-        # Store path to outfile as an attribute of the results. Return results. ----------------------------
+        # Store path to outfile as an attribute of the results.
         results.outfile = the_path_that_matches("*_smoothed+orig.HEAD", in_directory=results.working_directory)
+
         return results
 
 
@@ -369,39 +287,26 @@ class Pipeline():
         stdout and write it to disk. Just check it carefully to ensure the AFNI class didn't
         get overly enthusiastic and include too many rows in the matrix :)
 
-        Wraps 3dROIstats.
-
-        AFNI command info: https://afni.nimh.nih.gov/pub/dist/doc/htmldoc/programs/3dROIstats_sphx.html#ahelp-3droistats
-
-
-        Returns
-        -------
-        AFNI object
-            Stores information about the program.
+        3dROIstats info: https://afni.nimh.nih.gov/pub/dist/doc/htmldoc/programs/3dROIstats_sphx.html#ahelp-3droistats
 
         """
 
-        # Prepare the arguments we want to pass to the program. ---------------------
-        # We append 3dcalc separately to the args so we don't accidentally split it.
+        working_directory = self.dirs["output"] / "3dROIstats"
+        matrix_out_path = working_directory / f"sub-{self.subject_id}_func_sliceaverage.1D"
+
+        # Create list of arguments and run program. We append 3dcalc separately so we don't accidentally split it.
         mask_arg = ["-mask", f"3dcalc(-a {self.results['3dresample'].outfile} -expr a*(k+1) -datum short -nscale)"]
         other_args = f"""
-        -quiet
-        {self.results["3dvolreg"].outfile}
+                    -quiet
+                    {self.results["3dvolreg"].outfile}
+
         """.split()
+        results = AFNI("3dROIstats", mask_arg + other_args, working_directory, write_matrix_lines_to=matrix_out_path)
 
 
-        # Run program and store results. -----------------------
-        working_directory_of_program = self.dirs["output"]/"3dROIstats"
-        results = AFNI(
-            program="3dROIstats",
-            args=mask_arg + other_args,
-            working_directory=working_directory_of_program,
-            write_matrix_lines_to=working_directory_of_program / f"sub-{self.subject_id}_func_sliceaverage.1D"
-        )
-
-
-        # Store path to outfile as an attribute of the results. Return results. ----------------------------
+        # Store path to outfile as an attribute of the results.
         results.outfile = the_path_that_matches("*_sliceaverage.1D", in_directory=results.working_directory)
+        
         return results
 
 
@@ -409,37 +314,25 @@ class Pipeline():
         """
         Save the slice average plot in a jpg file.
 
-        Wraps 1dplot.
-
-        AFNI command info: https://afni.nimh.nih.gov/pub/dist/doc/htmldoc/programs/1dplot_sphx.html#ahelp-1dplot
-
-
-        Returns
-        -------
-        AFNI object
-            Stores information about the program.
+        1dplot info: https://afni.nimh.nih.gov/pub/dist/doc/htmldoc/programs/1dplot_sphx.html#ahelp-1dplot
 
         """
 
-        # Prepare the arguments we want to pass to the program. ---------------------
+        working_directory = self.dirs["output"] / "1dplot1"
+
+        # Create list of arguments and run program.
         args = f"""
-            -one
-            -jpg
-            sub-{subject_id}_func_sliceaverage.jpg
-            {self.results["3dROIstats"].outfile}
+                -one
+                -jpg
+                sub-{self.subject_id}_func_sliceaverage.jpg
+                {self.results["3dROIstats"].outfile}
+    
         """.split()
+        results = AFNI("1dplot", args, working_directory)
 
-
-        # Run program and store results. -----------------------
-        results = AFNI(
-            program="1dplot",
-            args=args,
-            working_directory=self.dirs["output"]/"1dplot1"
-        )
-
-
-        # Store path to outfile as an attribute of the results. Return results. ----------------------------
+        # Store path to outfile as an attribute of the results.
         results.outfile = the_path_that_matches("*_sliceaverage.jpg", in_directory=results.working_directory)
+
         return results
 
 
@@ -452,39 +345,24 @@ class Pipeline():
         stdout and write it to disk. Just check it carefully to ensure the AFNI class didn't
         get overly enthusiastic and include too many rows in the matrix :)
 
-        Wraps 3dToutcount.
-
-        AFNI command info: https://afni.nimh.nih.gov/pub/dist/doc/htmldoc/programs/3dToutcount_sphx.html#ahelp-3dtoutcount
-
-
-        Returns
-        -------
-        AFNI object
-            Stores information about the program.
+        3dToutcount info: https://afni.nimh.nih.gov/pub/dist/doc/htmldoc/programs/3dToutcount_sphx.html#ahelp-3dtoutcount
 
         """
 
-        # Prepare the arguments we want to pass to the program. ---------------------
+        working_directory = self.dirs["output"] / "3dToutcount"
+        matrix_out_path = working_directory / f"sub-{self.subject_id}_func_outliers.1D"
 
-        # We append 3dcalc separately to the args so we don't accidentally split it.
+        # Create list of arguments and run program. We append 3dcalc separately so we don't accidentally split it.        
         mask_arg = ["-mask", f"3dcalc(-a {self.results['3dresample'].outfile} -expr a*(k+1) -datum short -nscale)"]
         other_args = f"""
-            -fraction {self.results["3dvolreg"].outfile}
+                    -fraction {self.results["3dvolreg"].outfile}
+    
         """.split()
+        results = AFNI("3dToutcount", mask_arg + other_args, working_directory, write_matrix_lines_to=matrix_out_path)
 
-
-        # Run program and store results. -----------------------
-        working_directory_of_program = self.dirs["output"]/"3dToutcount"
-        results = AFNI(
-            program="3dToutcount",
-            args=mask_arg + other_args,
-            working_directory=working_directory_of_program,
-            write_matrix_lines_to=working_directory_of_program / f"sub-{self.subject_id}_func_outliers.1D"
-        )
-
-
-        # Store path to outfile as an attribute of the results. Return results. ----------------------------
+        # Store path to outfile as an attribute of the results.
         results.outfile = the_path_that_matches("*_outliers.1D", in_directory=results.working_directory)
+
         return results
 
 
@@ -492,36 +370,24 @@ class Pipeline():
         """
         Save the outliers plot into a jpg file.
 
-        Wraps 1dplot.
-
-        AFNI command info: https://afni.nimh.nih.gov/pub/dist/doc/htmldoc/programs/1dplot_sphx.html#ahelp-1dplot
-
-
-        Returns
-        -------
-        AFNI object
-            Stores information about the program.
+        1dplot info: https://afni.nimh.nih.gov/pub/dist/doc/htmldoc/programs/1dplot_sphx.html#ahelp-1dplot
 
         """
 
-        # Prepare the arguments we want to pass to the program. ---------------------
+        working_directory=self.dirs["output"] / "1dplot2"
+
+        # Create list of arguments and run program.
         args = f"""
             -jpg
             sub-{self.subject_id}_func_outliers.jpg
             {self.results["3dToutcount"].outfile}
+
         """.split()
-
-
-        # Run program and store results. -----------------------
-        results = AFNI(
-            program="1dplot",
-            args=args,
-            working_directory=self.dirs["output"]/"1dplot2"
-        )
-
+        results = AFNI("1dplot", args, working_directory)
 
         # Store path to outfile as an attribute of the results. Return results. ----------------------------
         results.outfile = the_path_that_matches("*_outliers.jpg", in_directory=results.working_directory)
+
         return results
 
 
@@ -534,36 +400,24 @@ class Pipeline():
         stdout and write it to disk. Just check it carefully to ensure the AFNI class didn't
         get overly enthusiastic and include too many rows in the matrix :)
 
-        Wraps 1deval.
-
-        AFNI command info: https://afni.nimh.nih.gov/pub/dist/doc/htmldoc/programs/1deval_sphx.html#ahelp-1deval
-
-
-        Returns
-        -------
-        AFNI object
-            Stores information about the program.
+        1deval command info: https://afni.nimh.nih.gov/pub/dist/doc/htmldoc/programs/1deval_sphx.html#ahelp-1deval
 
         """
 
-        # Prepare the arguments we want to pass to the program. ---------------------
+        working_directory = self.dirs["output"] / "1deval"
+        matrix_out_path = working_directory / f"sub-{self.subject_id}_func_wholebraincensor.1D"
+
+        # Create list of arguments and run program.
         args = f"""
-            -a {self.results["3dToutcount"].outfile}
-            -expr step(.05-a)
+                -a {self.results["3dToutcount"].outfile}
+                -expr step(.05-a)
+        
         """.split()
+        results = AFNI("1deval", args, working_directory, write_matrix_lines_to=matrix_out_path)
 
-
-        # Run program and store results. -----------------------
-        results = AFNI(
-            program="1deval",
-            args=args,
-            working_directory=self.dirs["output"] / "1deval",
-            write_matrix_lines_to=self.dirs["output"] / "1deval" / f"sub-{self.subject_id}_func_wholebraincensor.1D"
-        )
-
-
-        # Store path to outfile as an attribute of the results. Return results. ----------------------------
+        # Store path to outfile as an attribute of the results.
         results.outfile = the_path_that_matches("*_wholebraincensor.1D", in_directory=results.working_directory)
+
         return results
 
 
@@ -571,35 +425,23 @@ class Pipeline():
         """
         I have utterly no idea what this does. But hey, it's something we need?
 
-        Wraps 3dTstat.
-
-        AFNI command info: https://afni.nimh.nih.gov/pub/dist/doc/htmldoc/programs/3dTstat_sphx.html#ahelp-3dtstat
-
-
-        Returns
-        -------
-        AFNI object
-            Stores information about the program.
+        3dTstat info: https://afni.nimh.nih.gov/pub/dist/doc/htmldoc/programs/3dTstat_sphx.html#ahelp-3dtstat
 
         """
 
-        # Prepare the arguments we want to pass to the program. ---------------------
+        working_directory = self.dirs["output"] / "3dTstat"
+
+        # Create list of arguments and run program.
         args = f"""
-            -prefix sub-{subject_id}_func_mean
+            -prefix sub-{self.subject_id}_func_mean
             {self.results["3dmerge"].outfile}
+
         """.split()
+        results = AFNI(program="3dTstat", args=args, working_directory=working_directory)
 
-
-        # Run program and store results. -----------------------
-        results = AFNI(
-            program="3dTstat",
-            args=args,
-            working_directory=self.dirs["output"] / "3dTstat"
-        )
-
-
-        # Store path to outfile as an attribute of the results. Return results. ----------------------------
+        # Store path to outfile as an attribute of the results.
         results.outfile = the_path_that_matches("*_mean+orig.HEAD", in_directory=results.working_directory)
+
         return results
 
 
@@ -607,21 +449,14 @@ class Pipeline():
         """
         I also have no idea what this does! Something to do with scaling mayhaps?
 
-        Wraps 3dcalc.
-
-        AFNI command info: https://afni.nimh.nih.gov/pub/dist/doc/htmldoc/programs/3dcalc_sphx.html#ahelp-3dcalc
-
-
-        Returns
-        -------
-        AFNI object
-            Stores information about the program.
+        3dcalc info: https://afni.nimh.nih.gov/pub/dist/doc/htmldoc/programs/3dcalc_sphx.html#ahelp-3dcalc
 
         """
 
-        # Prepare the arguments we want to pass to the program. ---------------------
-        args = f"""
+        working_directory = self.dirs["output"] / "3dcalc2"
 
+        # Create list of arguments and run program.
+        args = f"""
             -float
             -a {self.results["3dmerge"].outfile}
             -b {self.results["3dTstat"].outfile}
@@ -630,18 +465,11 @@ class Pipeline():
             -prefix sub-{self.subject_id}_func_scaled
 
         """.split()
+        results = AFNI(program="3dcalc", args=args, working_directory=working_directory)
 
-
-        # Run program and store results. -----------------------
-        results = AFNI(
-            program="3dcalc",
-            args=args,
-            working_directory=self.dirs["output"] / "3dcalc2"
-        )
-
-
-        # Store path to outfile as an attribute of the results. Return results. ----------------------------
+        # Store path to outfile as an attribute of the results.
         results.outfile = the_path_that_matches("*_scaled+orig.HEAD", in_directory=results.working_directory)
+
         return results
 
 
@@ -649,29 +477,18 @@ class Pipeline():
         """
         Performs a nice and simple 1st-level analysis.
 
-        Wraps 3dDeconvolve.
-
-        AFNI command info: https://afni.nimh.nih.gov/pub/dist/doc/htmldoc/programs/3dDeconvolve_sphx.html#ahelp-3ddeconvolve
-
-
-        Returns
-        -------
-        AFNI object
-            Stores information about the program.
+        3dDeconvolve info: https://afni.nimh.nih.gov/pub/dist/doc/htmldoc/programs/3dDeconvolve_sphx.html#ahelp-3ddeconvolve
 
         """
 
-        # Grab onsets from our BIDS event file. --------------------
-        split_columns_into_text_files(
-            tsv_path=self.paths["events_tsv"],
-            output_dir=self.dirs["output"] / "other"
-        )
+        working_directory = self.dirs["output"] / "3dDeconvolve"
+
+        # Grab onsets from our BIDS event file.
+        split_columns_into_text_files(tsv_path=self.paths["events_tsv"], output_dir=self.dirs["output"] / "other")
         onsets_path = the_path_that_matches("onset.txt", in_directory=self.dirs["output"] / "other")
 
-
-        # Prepare the arguments we want to pass to the program. ---------------------
+        # Create list of arguments and run program.
         args = f"""
-
             -input {self.results['3dcalc 2'].outfile}
             -polort A
             -GOFORIT 4
@@ -691,19 +508,13 @@ class Pipeline():
             -bucket sub-{self.subject_id}_func_CSPLINz_all_stats
 
         """.split()
+        results = AFNI(program="3dDeconvolve", args=args, working_directory=working_directory)
 
 
-        # Run program and store results. -----------------------
-        results = AFNI(
-            program="3dDeconvolve",
-            args=args,
-            working_directory=self.dirs["output"] / "3dDeconvolve"
-        )
-
-
-        # Store path to outfile as an attribute of the results. Return results. ----------------------------
+        # Store paths to outfiles as attributes of the results.
         results.outfile = the_path_that_matches("*_stats+orig.HEAD", in_directory=results.working_directory)
         results.IRF = the_path_that_matches("*_IRF+orig.HEAD", in_directory=results.working_directory)
+
         return results
 
 
@@ -711,43 +522,31 @@ class Pipeline():
         """
         Aligns our IRF file to our anat file.
 
-        Wraps @auto_tlrc.
-
-        AFNI command info: https://afni.nimh.nih.gov/pub/dist/doc/htmldoc/programs/@auto_tlrc_sphx.html#ahelp-auto-tlrc
-
-
-        Returns
-        -------
-        AFNI object
-            Stores information about the program.
+        @auto_tlrc info: https://afni.nimh.nih.gov/pub/dist/doc/htmldoc/programs/@auto_tlrc_sphx.html#ahelp-auto-tlrc
 
         """
         
-        # Copy the input files to the @auto_tlrc folder. Otherwise, we risk its great wrath. ---------------
-        program_working_directory = self.dirs["output"] / "@auto_tlrc2"
-        program_working_directory.mkdir(exist_ok=True)
-        shutil.copy2(src=self.results["@auto_tlrc 1"].outfile, dst=program_working_directory / self.results["@auto_tlrc 1"].outfile.name)
-        shutil.copy2(src=self.results["3dDeconvolve"].IRF, dst=program_working_directory / self.results["3dDeconvolve"].IRF.name)
+        working_directory = self.dirs["output"] / "@auto_tlrc2"
 
+        # Copy the input files to the @auto_tlrc folder. Otherwise, we risk its wrath.
+        working_directory.mkdir(exist_ok=True)
+        shutil.copy2(src=self.results["@auto_tlrc 1"].outfile, dst=working_directory / self.results["@auto_tlrc 1"].outfile.name)
+        shutil.copy2(src=self.results["@auto_tlrc 1"].outfile.with_suffix('.BRIK'), dst=working_directory / self.results["@auto_tlrc 1"].outfile.with_suffix('.BRIK').name)
+        shutil.copy2(src=self.results["3dDeconvolve"].IRF, dst=working_directory / self.results["3dDeconvolve"].IRF.name)
+        shutil.copy2(src=self.results["3dDeconvolve"].IRF.with_suffix('.BRIK'), dst=working_directory / Path(self.results["3dDeconvolve"].IRF.name).with_suffix('.BRIK'))
 
-        # Prepare the arguments we want to pass to the program ---------------------
+        # Create list of arguments and run program.
         args = f"""
-            -apar {self.results["@auto_tlrc 1"].outfile.name}
-            -input {self.results["3dDeconvolve"].IRF.name}
-            -dxyz 2.5
+                -apar {self.results["@auto_tlrc 1"].outfile.name}
+                -input {self.results["3dDeconvolve"].IRF.name}
+                -dxyz 2.5
+
         """.split()
+        results = AFNI(program="@auto_tlrc", args=args, working_directory=working_directory)
 
+        # Store path to outfile as an attribute of the results.
+        results.outfile = the_path_that_matches("*_IRF+tlrc.HEAD", in_directory=working_directory)
 
-        # Run program and store results. -----------------------
-        results = AFNI(
-            program="@auto_tlrc",
-            args=args,
-            working_directory=program_working_directory
-        )
-
-
-        # Store path to outfile as an attribute of the results. Return results. ----------------------------
-        results.outfile = the_path_that_matches("*_IRF+tlrc.HEAD", in_directory=results.working_directory)
         return results
 
 
