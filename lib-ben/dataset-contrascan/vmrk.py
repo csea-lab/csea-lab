@@ -141,9 +141,12 @@ class Vmrk():
         """
         Returns the name of each column in the .vmrk file as defined in the header.
 
+        Includes one extra column named "Special" that catches any dangling bits of data appended to the end
+        of the .vmrk lines.
+
         """
 
-        return re.findall(pattern=r"(?<=\<).+?(?=\>)", string=self.header_string())
+        return re.findall(pattern=r"(?<=\<).+?(?=\>)", string=self.header_string()) + ["Special"]
 
 
     def _as_dataframe(self) -> pandas.DataFrame:
@@ -154,9 +157,9 @@ class Vmrk():
 
         """
 
-        # Format our data into a clean list of lists. Ignore the final column because only a single line has an extra column.
+        # Format our data into a clean list of lists.
         line_list = [line.replace("Mk", "") for line in self.body_string().splitlines()]
-        split_line_list = [re.split(pattern="[,=]", string=line)[:-1] for line in line_list]
+        split_line_list = [re.split(pattern="[,=]", string=line) for line in line_list]
 
-        # From the list of lists birth a glorious DataFrame with column names extracted from the header
+        # From the list of lists birth a glorious DataFrame with column names extracted from the header.
         return pandas.DataFrame(split_line_list, columns=self.column_names())
