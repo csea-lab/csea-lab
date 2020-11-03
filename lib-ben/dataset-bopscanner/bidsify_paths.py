@@ -2,6 +2,8 @@
 """
 The time has come! Here we bidsify the paths of the bopscanner dataset to prepare it for fMRIPrep.
 
+Run bidsify_metadata.py after this to finalize our preparation for fMRIPrep.
+
 Created 11/3/2020 by Benjamin Velie.
 veliebm@gmail.com
 """
