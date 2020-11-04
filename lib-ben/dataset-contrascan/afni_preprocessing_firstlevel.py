@@ -7,7 +7,6 @@ Subjects must be organized in BIDS-format.
 
 Created 9/17/2020 by Benjamin Velie.
 veliebm@gmail.com
-
 """
 
 # Import some standard Python modules. -------------------
@@ -27,7 +26,6 @@ from afni import AFNI
 class Pipeline():
     """
     This class preprocesses a subject then runs a first-level analysis.
-
     """
 
     def __init__(self, bids_dir, subject_id):
@@ -88,7 +86,6 @@ class Pipeline():
         Defines how the class represents itself internally as a string.
         
         To learn more, read https://docs.python.org/3/reference/datamodel.html#basic-customization
-
         """
 
         return f"{self.__class__.__name__}(bids_dir='{self.bids_dir}', subject_id='{self.subject_id}')"
@@ -99,7 +96,6 @@ class Pipeline():
         Makes the dataset no longer oblique.
 
         3dwarp info: https://afni.nimh.nih.gov/pub/dist/doc/htmldoc/programs/3dWarp_sphx.html#ahelp-3dwarp
-
         """
 
         working_directory = self.dirs["output"] / "3dWarp"
@@ -124,7 +120,6 @@ class Pipeline():
         Aligns our anatomical image to our functional image.
 
         align_epi_anat.py info: https://afni.nimh.nih.gov/pub/dist/doc/htmldoc/programs/align_epi_anat.py_sphx.html#ahelp-align-epi-anat-py
-
         """
 
         working_directory = self.dirs["output"] / "align_epi_anat.py"
@@ -149,7 +144,6 @@ class Pipeline():
         Aligns our anatomy to base TT_N27.
 
         @auto_tlrc info: https://afni.nimh.nih.gov/pub/dist/doc/htmldoc/programs/@auto_tlrc_sphx.html#ahelp-auto-tlrc
-
         """
 
         working_directory = self.dirs["output"] / "@auto_tlrc1"
@@ -174,7 +168,6 @@ class Pipeline():
         Calculate a rough skull mask. Specifically, discard all voxels with values less than zero.
 
         3dcalc info: https://afni.nimh.nih.gov/pub/dist/doc/htmldoc/programs/3dcalc_sphx.html#ahelp-3dcalc
-
         """
 
         working_directory = self.dirs["output"] / "3dcalc1"
@@ -199,7 +192,6 @@ class Pipeline():
         TODO: Explain what the hell 3dresample actually does.
 
         3dresample info: https://afni.nimh.nih.gov/pub/dist/doc/htmldoc/programs/3dresample_sphx.html#ahelp-3dresample
-
         """
 
         working_directory = self.dirs["output"] / "3dresample"
@@ -224,7 +216,6 @@ class Pipeline():
         Performs slice-time correction.
 
         3dTshift info: https://afni.nimh.nih.gov/pub/dist/doc/htmldoc/programs/3dTshift_sphx.html#ahelp-3dtshift
-
         """
 
         working_directory = self.dirs["output"] / "3dTshift"
@@ -251,7 +242,6 @@ class Pipeline():
         Align each dataset to the base volume using the same image as used in align_epi_anat.py
 
         3dvolreg info: https://afni.nimh.nih.gov/pub/dist/doc/htmldoc/programs/3dvolreg_sphx.html#ahelp-3dvolreg
-
         """
 
         working_directory = self.dirs["output"] / "3dvolreg"
@@ -280,7 +270,6 @@ class Pipeline():
         Blur each volume. For inplane 2.5 use 5 fwhm - 2x times inplane is best.
 
         3dmerge info: https://afni.nimh.nih.gov/pub/dist/doc/htmldoc/programs/3dmerge_sphx.html#ahelp-3dmerge
-
         """
 
         working_directory = self.dirs["output"] / "3dmerge"
@@ -314,7 +303,6 @@ class Pipeline():
         get overly enthusiastic and include too many rows in the matrix :)
 
         3dROIstats info: https://afni.nimh.nih.gov/pub/dist/doc/htmldoc/programs/3dROIstats_sphx.html#ahelp-3droistats
-
         """
 
         working_directory = self.dirs["output"] / "3dROIstats"
@@ -341,7 +329,6 @@ class Pipeline():
         Save the slice average plot in a jpg file.
 
         1dplot info: https://afni.nimh.nih.gov/pub/dist/doc/htmldoc/programs/1dplot_sphx.html#ahelp-1dplot
-
         """
 
         working_directory = self.dirs["output"] / "1dplot1"
@@ -372,7 +359,6 @@ class Pipeline():
         get overly enthusiastic and include too many rows in the matrix :)
 
         3dToutcount info: https://afni.nimh.nih.gov/pub/dist/doc/htmldoc/programs/3dToutcount_sphx.html#ahelp-3dtoutcount
-
         """
 
         working_directory = self.dirs["output"] / "3dToutcount"
@@ -397,7 +383,6 @@ class Pipeline():
         Save the outliers plot into a jpg file.
 
         1dplot info: https://afni.nimh.nih.gov/pub/dist/doc/htmldoc/programs/1dplot_sphx.html#ahelp-1dplot
-
         """
 
         working_directory=self.dirs["output"] / "1dplot2"
@@ -427,7 +412,6 @@ class Pipeline():
         get overly enthusiastic and include too many rows in the matrix :)
 
         1deval command info: https://afni.nimh.nih.gov/pub/dist/doc/htmldoc/programs/1deval_sphx.html#ahelp-1deval
-
         """
 
         working_directory = self.dirs["output"] / "1deval"
@@ -452,7 +436,6 @@ class Pipeline():
         I have utterly no idea what this does. But hey, it's something we need?
 
         3dTstat info: https://afni.nimh.nih.gov/pub/dist/doc/htmldoc/programs/3dTstat_sphx.html#ahelp-3dtstat
-
         """
 
         working_directory = self.dirs["output"] / "3dTstat"
@@ -476,7 +459,6 @@ class Pipeline():
         I also have no idea what this does! Something to do with scaling mayhaps?
 
         3dcalc info: https://afni.nimh.nih.gov/pub/dist/doc/htmldoc/programs/3dcalc_sphx.html#ahelp-3dcalc
-
         """
 
         working_directory = self.dirs["output"] / "3dcalc2"
@@ -504,7 +486,6 @@ class Pipeline():
         Performs a nice and simple 1st-level analysis.
 
         3dDeconvolve info: https://afni.nimh.nih.gov/pub/dist/doc/htmldoc/programs/3dDeconvolve_sphx.html#ahelp-3ddeconvolve
-
         """
 
         working_directory = self.dirs["output"] / "3dDeconvolve"
@@ -549,7 +530,6 @@ class Pipeline():
         Aligns our IRF file to our anat file.
 
         @auto_tlrc info: https://afni.nimh.nih.gov/pub/dist/doc/htmldoc/programs/@auto_tlrc_sphx.html#ahelp-auto-tlrc
-
         """
         
         working_directory = self.dirs["output"] / "@auto_tlrc2"
@@ -579,7 +559,6 @@ class Pipeline():
     def write_report(self):
         """
         Writes some files to subject folder to check the quality of the analysis.
-
         """
 
         # Store workflow info into a dict. --------------------------------
@@ -602,7 +581,6 @@ if __name__ == "__main__":
     This section of the script only runs when you run the script directly from the shell.
 
     It contains the parser that parses arguments from the command line.
-
     """
 
     parser = argparse.ArgumentParser(description=f"Preprocess subjects from the contrascan dataset. You must specify a path to the target BIDS directory. You must also specify whether to preprocess EITHER all subjects OR a list of specific subjects.", fromfile_prefix_chars="@")
