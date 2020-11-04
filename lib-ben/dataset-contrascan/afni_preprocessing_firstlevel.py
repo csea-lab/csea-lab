@@ -605,34 +605,13 @@ if __name__ == "__main__":
 
     """
 
-    parser = argparse.ArgumentParser(
-        description=f"Preprocess subjects from the contrascan dataset. You must specify a path to the target BIDS directory. You must also specify whether to preprocess EITHER all subjects OR a list of specific subjects.",
-        fromfile_prefix_chars="@"
-    )
+    parser = argparse.ArgumentParser(description=f"Preprocess subjects from the contrascan dataset. You must specify a path to the target BIDS directory. You must also specify whether to preprocess EITHER all subjects OR a list of specific subjects.", fromfile_prefix_chars="@")
 
-    parser.add_argument(
-        "--bids_dir",
-        "-b",
-        type=Path,
-        required=True,
-        help="<Mandatory> Path to the root of the BIDS directory."
-    )
+    parser.add_argument("--bids_dir", type=Path, required=True, help="<Mandatory> Path to the root of the BIDS directory.")
 
     group = parser.add_mutually_exclusive_group(required=True)
-    group.add_argument(
-        "--subjects",
-        "-s",
-        metavar="SUBJECT_ID",
-        nargs="+",
-        help="<Mandatory> Preprocess a list of specific subject IDs. Mutually exclusive with --all."
-    )
-
-    group.add_argument(
-        '--all',
-        '-a',
-        action='store_true',
-        help="<Mandatory> Analyze all subjects. Mutually exclusive with --subjects."
-    )
+    group.add_argument("--subjects", metavar="SUBJECT_ID", nargs="+", help="<Mandatory> Preprocess a list of specific subject IDs. Mutually exclusive with --all.")
+    group.add_argument('--all', action='store_true', help="<Mandatory> Analyze all subjects. Mutually exclusive with --subjects.")
 
 
     # Parse command-line args and make an empty list to store subject ids in. -----------------------
@@ -654,7 +633,4 @@ if __name__ == "__main__":
 
     # Preprocess the subjects we've selected. ------------------------
     for subject_id in subject_ids:
-        Pipeline(
-            bids_dir=args.bids_dir,
-            subject_id=subject_id,
-        )
+        Pipeline(bids_dir=args.bids_dir, subject_id=subject_id)
