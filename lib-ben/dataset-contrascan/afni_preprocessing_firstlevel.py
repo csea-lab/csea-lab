@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 """
-Script to process the contrascan dataset from preprocessing through the 1st-level analysis.
+Script to preprocess the contrascan dataset then 1st-level-analysis it.
 
 Subjects must be organized in BIDS-format.
 
