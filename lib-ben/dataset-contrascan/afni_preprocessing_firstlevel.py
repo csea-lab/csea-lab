@@ -103,14 +103,14 @@ class Pipeline():
         # Create list of arguments and run program.
         args = f"""
                 -deoblique
-                -prefix sub-{self.subject_id}_anat_warped
+                -prefix sub-{self.subject_id}_warped
                 {self.paths["anat"]}
 
         """.split()
         results = AFNI("3dWarp", args, working_directory)
 
         # Store path to outfile as an attribute of the program results.
-        results.outfile = the_path_that_matches("*_warped*.HEAD", in_directory=results.working_directory)
+        results.outfile = the_path_that_matches("*_warped+*.HEAD", in_directory=results.working_directory)
 
         return results
 
@@ -134,7 +134,7 @@ class Pipeline():
         results = AFNI("align_epi_anat.py", args, working_directory)
 
         # Store path to outfile as an attribute of the program results.
-        results.outfile = the_path_that_matches("*_T1w_al+orig.HEAD", in_directory=results.working_directory)
+        results.outfile = the_path_that_matches("*_al+*.HEAD", in_directory=results.working_directory)
 
         return results
 
@@ -158,7 +158,7 @@ class Pipeline():
         results = AFNI("@auto_tlrc", args, working_directory)
 
         # Store path to outfile as an attribute of the program results.
-        results.outfile = the_path_that_matches("*_T1w_al+tlrc.HEAD", in_directory=results.working_directory)
+        results.outfile = the_path_that_matches("*+tlrc.HEAD", in_directory=results.working_directory)
 
         return results
 
@@ -182,7 +182,7 @@ class Pipeline():
         results = AFNI("3dcalc", args, working_directory)
 
         # Store path to outfile as an attribute of the program results.
-        results.outfile = the_path_that_matches("*_tmp_mask+orig.HEAD", in_directory=results.working_directory)
+        results.outfile = the_path_that_matches("*_tmp_mask+*.HEAD", in_directory=results.working_directory)
 
         return results
 
@@ -511,8 +511,8 @@ class Pipeline():
             -stim_file 7 {self.results["3dvolreg"].motion_regressors}[5] -stim_base 7 -stim_label 7 dP
             -jobs 2
             -fout
-            -iresp 1 sub-{self.subject_id}_func_CSPLINz_all_IRF
-            -bucket sub-{self.subject_id}_func_CSPLINz_all_stats
+            -iresp 1 sub-{self.subject_id}_func_CSPLINzero_all_IRF
+            -bucket sub-{self.subject_id}_func_CSPLINzero_all_stats
 
         """.split()
         results = AFNI(program="3dDeconvolve", args=args, working_directory=working_directory)
