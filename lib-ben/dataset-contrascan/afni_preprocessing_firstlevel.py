@@ -59,6 +59,7 @@ class Pipeline():
 
         # Run our programs of interest in order. Store outputs in a dict. -----------------------
         self.results = {}
+        self.results["3dWarp"] = self.warp()
         self.results["align_epi_anat.py"] = self.align_epi_anat()
         self.results["@auto_tlrc 1"] = self.auto_tlrc1()
         self.results["3dcalc 1"] = self.calc1()
@@ -93,6 +94,31 @@ class Pipeline():
         return f"{self.__class__.__name__}(bids_dir='{self.bids_dir}', subject_id='{self.subject_id}')"
 
 
+    def warp(self):
+        """
+        Makes the dataset no longer oblique.
+
+        3dwarp info: https://afni.nimh.nih.gov/pub/dist/doc/htmldoc/programs/3dWarp_sphx.html#ahelp-3dwarp
+
+        """
+
+        working_directory = self.dirs["output"] / "3dWarp"
+
+        # Create list of arguments and run program.
+        args = f"""
+                -deoblique
+                -prefix sub-{self.subject_id}_anat_warped
+                {self.paths["anat"]}
+
+        """.split()
+        results = AFNI("3dWarp", args, working_directory)
+
+        # Store path to outfile as an attribute of the program results.
+        results.outfile = the_path_that_matches("*_warped*.HEAD", in_directory=results.working_directory)
+
+        return results
+
+
     def align_epi_anat(self):
         """
         Aligns our anatomical image to our functional image.
@@ -105,7 +131,7 @@ class Pipeline():
 
         # Create list of arguments and run program.
         args = f"""
-                -anat {self.paths["anat"]}
+                -anat {self.results["3dWarp"].outfile}
                 -epi {self.paths["func"]}
                 -epi_base 10
 
