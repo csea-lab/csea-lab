@@ -1,1 +1,1 @@
-These are the scripts I'm using to process Kiersten's study in fall 2020.
+These are the scripts I'm using to process Kierstin Riels's bopscanner dataset during this lovely fall of 2020.
