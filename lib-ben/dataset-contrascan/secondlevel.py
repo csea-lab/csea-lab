@@ -99,7 +99,7 @@ class SecondLevel():
 
         # Append our deconvolve files as arguments.
         for subject_id in self.paths:
-            args += [f"sub-{subject_id}"] + [f'{self.paths[subject_id]["deconvolve_outfile"]}[0]']
+            args += [f"sub-{subject_id}"] + [f'{self.paths[subject_id]["deconvolve_outfile"]}[4]']
 
         # Execute the command and return its results.
         return AFNI(program="3dttest++", args=args, working_directory=working_directory)
