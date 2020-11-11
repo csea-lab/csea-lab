@@ -11,7 +11,7 @@ veliebm@gmail.com
 import argparse
 from pathlib import Path
 from re import search
-from shutil import copy
+from shutil import copy, copytree, rmtree
 
 
 def main(input_dir, bids_dir):
@@ -28,13 +28,40 @@ def main(input_dir, bids_dir):
 
     input_dir = Path(input_dir).absolute()
     bids_dir = Path(bids_dir).absolute()
+    raw_dir = bids_dir / "sourcedata"
 
-    old_and_new_paths = create_dictionary_of_old_and_new_paths(input_dir, bids_dir)
+    copy_all_paths_to_storage(input_dir, raw_dir)
+
+    old_and_new_paths = create_dictionary_of_old_and_new_paths(raw_dir, bids_dir)
 
     copy_files_to_their_new_homes(old_and_new_paths)
 
 
-def create_dictionary_of_old_and_new_paths(input_dir: Path, bids_dir: Path) -> dict:
+def copy_all_paths_to_storage(input_dir: Path, raw_dir: Path):
+    """
+    Copies every single path in the input directory into bids_dir/sourcedata/dataset-raw
+
+    Every. Single. One.
+    """
+
+    user_wants_to_continue = "y"
+
+    if raw_dir.exists():
+        print(f"{raw_dir} already exists. Do you want to overwrite it?")
+        user_wants_to_continue = input("(y/n): ")
+    
+    if user_wants_to_continue == "y":
+        rmtree(raw_dir)
+        print(f"Copying {input_dir.name} to {raw_dir}")
+        print("This will probably take a really long time.")
+        copytree(src=input_dir, dst=raw_dir, dirs_exist_ok=True)
+        print("Copying complete.")
+
+    else:
+        print(f"OK. I won't overwrite {raw_dir.name}, but I'll try bidsifying what's already inside it.")
+
+
+def create_dictionary_of_old_and_new_paths(raw_dir: Path, bids_dir: Path) -> dict:
     """
     The meat and potatoes of this script.
 
@@ -44,7 +71,7 @@ def create_dictionary_of_old_and_new_paths(input_dir: Path, bids_dir: Path) -> d
     """
 
     old_and_new_paths = {}
-    old_paths = list(input_dir.rglob("*"))
+    old_paths = list(raw_dir.rglob("*"))
     print(f"Sorting {len(old_paths)} paths.")    
 
     list_of_lines_containing_raw_subject_info = []
