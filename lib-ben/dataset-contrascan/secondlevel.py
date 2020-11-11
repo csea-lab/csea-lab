@@ -95,7 +95,7 @@ class SecondLevel():
         working_directory = self.dirs["output"] / "3dttest++"
 
         # Get basic arguments as a list of parameters to be fed into the command line.
-        args = "-zskip -setA ttest".split()
+        args = "-setA ttest".split()
 
         # Append our deconvolve files as arguments.
         for subject_id in self.paths:
