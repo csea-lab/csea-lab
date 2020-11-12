@@ -175,7 +175,7 @@ def fix_json_metadata_in(bids_dir: Path):
             json.dump(contents, json_file)
 
 
-def add_dataset_description_to(bids_dir):
+def add_dataset_description_to(bids_dir: Path):
     """
     You know the drill. All we're doing is adding the bare minimum to please the BIDS gods.
     """
@@ -194,7 +194,7 @@ def add_dataset_description_to(bids_dir):
         json.dump(description_dict, out_file, indent="\t")
 
 
-def write_tsvs(raw_dir, bids_dir):
+def write_tsvs(raw_dir: Path, bids_dir: Path):
     """
     Write tsvs using data from raw_dir.
 
