@@ -37,13 +37,13 @@ def main(input_dir, bids_dir):
 
     copy_all_paths_to_sourcedata(input_dir, raw_dir)
 
-    fix_acquisition_numbers_of_json_files(raw_dir)
+    fix_acquisition_numbers_of_json_files_in(raw_dir)
 
     old_and_new_paths = create_dictionary_of_old_and_new_paths(raw_dir, bids_dir)
 
     copy_files_to_their_new_homes(old_and_new_paths)
 
-    fix_json_metadata(bids_dir)
+    fix_json_metadata_in(bids_dir)
 
 
 def copy_all_paths_to_sourcedata(input_dir: Path, raw_dir: Path):
@@ -70,7 +70,7 @@ def copy_all_paths_to_sourcedata(input_dir: Path, raw_dir: Path):
         print(f"OK. I won't overwrite {raw_dir.name}, but I'll try bidsifying what's already inside it.")
 
 
-def fix_acquisition_numbers_of_json_files(raw_dir: Path):
+def fix_acquisition_numbers_of_json_files_in(raw_dir: Path):
     """
     Fixes the acquisition numbers of all json files in raw_dir.
 
@@ -152,7 +152,7 @@ def copy_files_to_their_new_homes(old_and_new_paths: dict):
             print(f"Copied {old_path.name}  ->  {new_path.absolute()}")
 
 
-def fix_json_metadata(bids_dir: Path):
+def fix_json_metadata_in(bids_dir: Path):
     """
     Go through our json files and add TaskName into them as a key.
     """
