@@ -1,8 +1,6 @@
 #!/usr/bin/env python3
 """
-The time has come... again! Here we bidsify the paths of the Leipzig dataset to prepare it for fMRIPrep.
-
-Run bidsify_metadata.py after this to finalize our fMRIPrep prep.
+The time has come... again! Here we completely bidsify the Leipzig dataset to prepare it for fMRIPrep.
 
 Created 11/10/2020 by Benjamin Velie.
 veliebm@gmail.com
@@ -21,7 +19,7 @@ from reference import task_name_of, the_path_that_matches
 
 def main(input_dir, bids_dir):
     """
-    Structure an input directory into BIDS but without any metadata included.
+    Structure an input directory into BIDS with all metadata included.
 
     Parameters
     ----------
@@ -286,7 +284,7 @@ if __name__ == "__main__":
     It contains the parser that parses arguments from the command line.
     """
 
-    parser = argparse.ArgumentParser(description="Renames and moves files into a BIDS-compliant directory structure.")
+    parser = argparse.ArgumentParser(description="Completely BIDSifies the Leipzig dataset.")
     parser.add_argument("input_dir", help="Input directory.")
     parser.add_argument("output_dir", help="Path to where the BIDS directory will be.")
 
