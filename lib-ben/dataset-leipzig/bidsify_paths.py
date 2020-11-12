@@ -30,14 +30,14 @@ def main(input_dir, bids_dir):
     bids_dir = Path(bids_dir).absolute()
     raw_dir = bids_dir / "sourcedata"
 
-    copy_all_paths_to_storage(input_dir, raw_dir)
+    copy_all_paths_to_sourcedata(input_dir, raw_dir)
 
     old_and_new_paths = create_dictionary_of_old_and_new_paths(raw_dir, bids_dir)
 
     copy_files_to_their_new_homes(old_and_new_paths)
 
 
-def copy_all_paths_to_storage(input_dir: Path, raw_dir: Path):
+def copy_all_paths_to_sourcedata(input_dir: Path, raw_dir: Path):
     """
     Copies every single path in the input directory into bids_dir/sourcedata/dataset-raw
 
