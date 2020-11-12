@@ -8,10 +8,15 @@ Created 11/10/2020 by Benjamin Velie.
 veliebm@gmail.com
 """
 
+# Standard python modules.
 import argparse
 from pathlib import Path
 from re import search
 from shutil import copy, copytree, rmtree
+import json
+
+# Modules I wrote myself for CSEA stuff.
+from reference import task_name_of
 
 
 def main(input_dir, bids_dir):
@@ -37,6 +42,8 @@ def main(input_dir, bids_dir):
     old_and_new_paths = create_dictionary_of_old_and_new_paths(raw_dir, bids_dir)
 
     copy_files_to_their_new_homes(old_and_new_paths)
+
+    fix_json_metadata(bids_dir)
 
 
 def copy_all_paths_to_sourcedata(input_dir: Path, raw_dir: Path):
@@ -98,7 +105,9 @@ def create_dictionary_of_old_and_new_paths(raw_dir: Path, bids_dir: Path) -> dic
 
     def task_name_of(path_to_func_or_json):
         """
-        Returns the task name of a func or json file.
+        Returns the task name of a func or json file. This function OVERWRITES the function
+        "task_name_of" that we imported at the top of this script. BUT! It only overwrites it
+        HERE, in "create_dictionary_of_old_and_new_paths".
         """
 
         list_of_lines_containing_raw_subject_info = []
@@ -109,7 +118,7 @@ def create_dictionary_of_old_and_new_paths(raw_dir: Path, bids_dir: Path) -> dic
 
         for line in list_of_lines_containing_raw_subject_info:
             if path_to_func_or_json.stem in line:
-                return line.split("z")[1]      
+                return line.split("z")[1]
 
 
     for old_path in old_paths:
@@ -141,6 +150,20 @@ def copy_files_to_their_new_homes(old_and_new_paths: dict):
             new_path.parent.mkdir(parents=True, exist_ok=True)
             copy(old_path, new_path)
             print(f"Copied {old_path.name}  ->  {new_path.absolute()}")
+
+
+def fix_json_metadata(bids_dir: Path):
+    """
+    Go through our json files and add TaskName into them as a key.
+    """
+
+    target_jsons = [path_to_json for path_to_json in bids_dir.rglob("_task-*.json")]
+
+    for path_to_json in target_jsons:
+        with open(path_to_json) as json_file:
+            contents = json.load(json_file)
+            contents["TaskName"] = task_name_of(path_to_json)
+            json.dump(contents, json_file)
 
 
 def filetype_of(path: Path) -> str:
