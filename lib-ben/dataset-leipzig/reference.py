@@ -7,7 +7,7 @@ Created 11/11/2020 by Benjamin Velie
 veliebm@gmail.com
 """
 
-import re
+from re import search
 from pathlib import Path
 
 
@@ -32,8 +32,8 @@ def subject_id_of(path) -> str:
     """
 
     try:
-        subject_ids = re.findall(r"sub-(\d+)", str(path))
-        return subject_ids[-1]
+        match = search(r"sub-([0-9]+)[_.]", str(path))
+        return match.group(1)
     except IndexError:
         raise RuntimeError(f"No subject ID found in {path}. Is this file named correctly?")
 
@@ -59,8 +59,8 @@ def task_name_of(path) -> str:
     """
 
     try:
-        tasks = re.findall(r"task-(.+)[_\.]", str(path))
-        return tasks[-1]
+        match = search(r"task-(.+?)[_.]", str(path))
+        return match.group(1)
     except IndexError:
         raise RuntimeError(f"No task name found in {path}. Is this file named correctly?")
 
