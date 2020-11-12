@@ -16,7 +16,7 @@ from shutil import copy, copytree, rmtree
 import json
 
 # Modules I wrote myself for CSEA stuff.
-from reference import task_name_of
+from reference import task_name_of, the_path_that_matches
 
 
 def main(input_dir, bids_dir):
@@ -44,6 +44,13 @@ def main(input_dir, bids_dir):
     copy_files_to_their_new_homes(old_and_new_paths)
 
     fix_json_metadata_in(bids_dir)
+
+    add_dataset_description_to(bids_dir)
+
+    write_tsvs(raw_dir, bids_dir)
+
+    print("Congratulations! You're BIDS-compliant, yay!")
+    print("To double-check, use this handy dandy BIDS validator: https://bids-standard.github.io/bids-validator/")
 
 
 def copy_all_paths_to_sourcedata(input_dir: Path, raw_dir: Path):
@@ -101,7 +108,7 @@ def create_dictionary_of_old_and_new_paths(raw_dir: Path, bids_dir: Path) -> dic
 
     old_and_new_paths = {}
     old_paths = list(raw_dir.rglob("*"))
-    print(f"Sorting {len(old_paths)} paths.")  
+    print(f"Sorting {len(old_paths)} paths into a dictionary.")  
 
     def task_name_of(path_to_func_or_json):
         """
@@ -157,6 +164,8 @@ def fix_json_metadata_in(bids_dir: Path):
     Go through our json files and add TaskName into them as a key.
     """
 
+    print("Adding task names to json files.")
+
     target_jsons = [path_to_json for path_to_json in bids_dir.rglob("_task-*.json")]
 
     for path_to_json in target_jsons:
@@ -164,6 +173,55 @@ def fix_json_metadata_in(bids_dir: Path):
             contents = json.load(json_file)
             contents["TaskName"] = task_name_of(path_to_json)
             json.dump(contents, json_file)
+
+
+def add_dataset_description_to(bids_dir):
+    """
+    You know the drill. All we're doing is adding the bare minimum to please the BIDS gods.
+    """
+    
+    unborn_path_to_dataset_description = bids_dir / f"dataset_description.json"
+
+    print(f"Writing a description of the dataset at {unborn_path_to_dataset_description}")
+
+    description_dict = {
+        "Name": "bopscanner",
+        "BIDSVersion": "1.4.0",
+        "Authors": ["Kierstin Riels", "Benjamin Velie", "Andreas Keil"]
+    }
+
+    with open(unborn_path_to_dataset_description, "w") as out_file:
+        json.dump(description_dict, out_file, indent="\t")
+
+
+def write_tsvs(raw_dir, bids_dir):
+    """
+    Write tsvs using data from raw_dir.
+
+    These tsvs provide the onset and duration information for our tasks.
+    """
+
+    print("Writing tsvs.")
+
+    for path_to_onset in Path(raw_dir/"onset_textfiles").glob("*.txt"):
+
+        onsets_as_lines_with_too_much_whitespace = path_to_onset.read_text().splitlines()
+        onsets = [line.strip() for line in onsets_as_lines_with_too_much_whitespace]
+
+        tsv_lines_without_a_header = [onset + "\t" + "4" for onset in onsets]
+        tsv_lines = ["onset" + "\t" + "duration"] + tsv_lines_without_a_header
+        full_text_of_tsv = "\n".join(tsv_lines)
+
+        subject_id = subject_id_of(path_to_onset)
+        task_id = path_to_onset.stem.split("_")[1]
+        
+        func_path_to_imitate = the_path_that_matches(f"*_task-{task_id}*.nii", in_directory=bids_dir/f"sub-{subject_id}/func")
+        func_stem_split_into_parts = func_path_to_imitate.stem.split("_")
+        tsv_stem_split_into_parts = func_stem_split_into_parts[:-1] + ["events"]
+        tsv_stem = "_".join(tsv_stem_split_into_parts)
+        tsv_path = func_path_to_imitate.with_name(tsv_stem + ".tsv")
+
+        tsv_path.write_text(full_text_of_tsv)
 
 
 def filetype_of(path: Path) -> str:
@@ -202,7 +260,7 @@ def subject_id_of(path: Path) -> str:
     Specifically, if the filename contains a 'V' and then 2 numerals in a row, returns it as the subject ID.
     """
 
-    match = search(pattern="V([0-9][0-9])", string=str(path))
+    match = search(pattern="[Vv]([0-9][0-9])", string=str(path))
     return match.group(1)
 
 
