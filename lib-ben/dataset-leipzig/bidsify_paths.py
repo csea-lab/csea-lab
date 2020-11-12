@@ -39,7 +39,7 @@ def main(input_dir, bids_dir):
 
 def copy_all_paths_to_sourcedata(input_dir: Path, raw_dir: Path):
     """
-    Copies every single path in the input directory into bids_dir/sourcedata/dataset-raw
+    Copies every single path in the input directory into bids_dir/sourcedata/
 
     Every. Single. One.
     """
