@@ -166,12 +166,16 @@ def fix_json_metadata_in(bids_dir: Path):
 
     print("Adding task names to json files.")
 
-    target_jsons = [path_to_json for path_to_json in bids_dir.rglob("_task-*.json")]
+    target_jsons = [path_to_json for path_to_json in bids_dir.rglob("*_task-*.json")]
 
     for path_to_json in target_jsons:
-        with open(path_to_json) as json_file:
+        contents = {}
+
+        with open(path_to_json, "r") as json_file:
             contents = json.load(json_file)
             contents["TaskName"] = task_name_of(path_to_json)
+        
+        with open(path_to_json, "w") as json_file:
             json.dump(contents, json_file)
 
 
