@@ -9,7 +9,6 @@ by typing "./submitjob_fmriprep.py".
 
 Created 9/16/2020 by Ben Velie.
 veliebm@gmail.com
-
 """
 
 import argparse
@@ -30,7 +29,6 @@ def write_script(script_path, time_requested, email_address, number_of_processor
     """
     Writes the SLURM script that we'll automatically submit to the cluster.
 
-
     Parameters
     ----------
     script_path : str
@@ -49,7 +47,6 @@ def write_script(script_path, time_requested, email_address, number_of_processor
         Path to the root of the BIDS directory.
     singularity_image_path : str or Path
         Path to an fMRIPrep Singularity image.
-        
     """
 
     # Get the contents of the SLURM script as a nice, big string.
@@ -111,7 +108,6 @@ def subject_id_of(path) -> str:
     """
     Returns the subject ID closest to the end of the input string or Path.
 
-
     Inputs
     ------
     path : str or Path
@@ -126,7 +122,6 @@ def subject_id_of(path) -> str:
     ------
     RuntimeError
         If no subject ID found in input filename.
-
     """
 
     try:
@@ -141,7 +136,6 @@ if __name__ == "__main__":
     This section of the script only runs when you run the script directly from the shell.
 
     Thus, this is where we read and interpret arguments from the command line.
-
     """
 
     parser = argparse.ArgumentParser(
