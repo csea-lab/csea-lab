@@ -32,6 +32,8 @@ def main(input_dir, bids_dir):
 
     copy_all_paths_to_sourcedata(input_dir, raw_dir)
 
+    fix_acquisition_numbers_of_json_files(raw_dir)
+
     old_and_new_paths = create_dictionary_of_old_and_new_paths(raw_dir, bids_dir)
 
     copy_files_to_their_new_homes(old_and_new_paths)
@@ -51,7 +53,7 @@ def copy_all_paths_to_sourcedata(input_dir: Path, raw_dir: Path):
         user_wants_to_continue = input("(y/n): ")
     
     if user_wants_to_continue == "y":
-        rmtree(raw_dir)
+        rmtree(raw_dir, ignore_errors=True)
         print(f"Copying {input_dir.name} to {raw_dir}")
         print("This will probably take a really long time.")
         copytree(src=input_dir, dst=raw_dir, dirs_exist_ok=True)
@@ -59,6 +61,26 @@ def copy_all_paths_to_sourcedata(input_dir: Path, raw_dir: Path):
 
     else:
         print(f"OK. I won't overwrite {raw_dir.name}, but I'll try bidsifying what's already inside it.")
+
+
+def fix_acquisition_numbers_of_json_files(raw_dir: Path):
+    """
+    Fixes the acquisition numbers of all json files in raw_dir.
+
+    They begin as single digit numbers. They must become 2 digit numbers, i.e. they
+    need one zero in front of them. This function converts the 1 digit numbers
+    into 2 digit numbers.  
+    """
+
+    print("Fixing the acquisition numbers of the .json files in sourcedata.")
+
+    for old_path in raw_dir.rglob("*.json"):
+
+        parts_of_stem_of_old_path = old_path.stem.split("_")
+        stem_parts_with_correct_acquisition_number = parts_of_stem_of_old_path[:-1] + [acquisition_number_of(old_path)]
+        fresh_new_stem = "_".join(stem_parts_with_correct_acquisition_number)
+        fresh_new_path = old_path.with_name(fresh_new_stem + old_path.suffix)
+        old_path.replace(fresh_new_path)
 
 
 def create_dictionary_of_old_and_new_paths(raw_dir: Path, bids_dir: Path) -> dict:
@@ -72,33 +94,38 @@ def create_dictionary_of_old_and_new_paths(raw_dir: Path, bids_dir: Path) -> dic
 
     old_and_new_paths = {}
     old_paths = list(raw_dir.rglob("*"))
-    print(f"Sorting {len(old_paths)} paths.")    
+    print(f"Sorting {len(old_paths)} paths.")  
 
-    list_of_lines_containing_raw_subject_info = []
-    for path in old_paths:
-        if filetype_of(path) == "subject info":
-            list_of_lines_containing_raw_subject_info = path.read_text().splitlines()
-            break
+    def task_name_of(path_to_func_or_json):
+        """
+        Returns the task name of a func or json file.
+        """
 
-    def task_name_of(path_to_func_file):
+        list_of_lines_containing_raw_subject_info = []
+        for path in old_paths:
+            if filetype_of(path) == "subject info":
+                list_of_lines_containing_raw_subject_info = path.read_text().splitlines()
+                break
+
         for line in list_of_lines_containing_raw_subject_info:
-            if path_to_func_file.name in line:
-                return line.split("z")[1]
+            if path_to_func_or_json.stem in line:
+                return line.split("z")[1]      
+
 
     for old_path in old_paths:
 
-        if filetype_of(old_path) == "anat" and acquisition_number_of(old_path) == "14":
+        new_path = old_path
+
+        if filetype_of(old_path.with_suffix(".nii")) == "anat" and acquisition_number_of(old_path) == "14":
             new_path = bids_dir / f"sub-{subject_id_of(old_path)}" / "anat" / f"sub-{subject_id_of(old_path)}_T1w{old_path.suffix}"
 
-        elif filetype_of(old_path) == "func" and acquisition_number_of(old_path) != "2":
+        elif filetype_of(old_path.with_suffix(".nii")) == "func" and acquisition_number_of(old_path) != "02":
             new_path = bids_dir / f"sub-{subject_id_of(old_path)}" / "func" / f"sub-{subject_id_of(old_path)}_task-{task_name_of(old_path)}_acq-{acquisition_number_of(old_path)}_bold{old_path.suffix}"
-
-        else:
-            new_path = old_path
 
         old_and_new_paths[old_path] = new_path
 
     print("Paths sorted.")
+
     return old_and_new_paths
 
 
@@ -156,12 +183,15 @@ def subject_id_of(path: Path) -> str:
     return match.group(1)
 
 
-def acquisition_number_of(path_to_func_or_anat_file: Path) -> str:
+def acquisition_number_of(path_to_func_or_anat_or_json: Path) -> str:
     """
     Returns the acquisition number of a scan so we can keep track of their order.
+
+    Automatically pads the acquisition number with one zero if the acquisition number is
+    below 10.
     """
 
-    return path_to_func_or_anat_file.stem.split("_")[-1]
+    return path_to_func_or_anat_or_json.stem.split("_")[-1].zfill(2)
 
 
 if __name__ == "__main__":
