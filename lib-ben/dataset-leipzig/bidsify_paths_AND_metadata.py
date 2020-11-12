@@ -218,7 +218,7 @@ def write_tsvs(raw_dir: Path, bids_dir: Path):
 
         subject_id = subject_id_of(path_to_onset)
         task_id = path_to_onset.stem.split("_")[1]
-        
+
         func_path_to_imitate = the_path_that_matches(f"*_task-{task_id}*.nii", in_directory=bids_dir/f"sub-{subject_id}/func")
         func_stem_split_into_parts = func_path_to_imitate.stem.split("_")
         tsv_stem_split_into_parts = func_stem_split_into_parts[:-1] + ["events"]
