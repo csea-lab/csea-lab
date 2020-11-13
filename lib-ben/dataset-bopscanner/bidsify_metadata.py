@@ -82,9 +82,14 @@ def write_func_tsvs(distilled_paths):
 
     print("Writing .tsv files for all functional scans.")
 
+    def fixed(unfixed_onsets):
+        """Returns fresh, clean onsets using the raw onsets we get from our .vmrk file."""
+        return [onset - 2 for onset in unfixed_onsets]
+
     for subject in distilled_paths:
-        onsets = distilled_paths[subject]["vmrk"].onsets()
-        duration = distilled_paths[subject]["dat"].average_duration
+        unfixed_onsets = distilled_paths[subject]["vmrk"].onsets()
+        onsets = fixed(unfixed_onsets)
+        duration = 2.5
         trial_types = distilled_paths[subject]["dat"].trial_codes
 
         # Prep a dataframe to write to .tsv.
