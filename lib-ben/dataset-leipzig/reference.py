@@ -9,6 +9,7 @@ veliebm@gmail.com
 
 from re import search
 from pathlib import Path
+import pandas
 
 
 def subject_id_of(path) -> str:
@@ -102,3 +103,42 @@ def the_path_that_matches(pattern: str, in_directory):
     
     else:
         return matches[0]
+
+
+def split_columns_into_text_files(tsv_path, output_dir):
+    """
+    Converts a tsv file into a collection of text files.
+
+    Each column name becomes the name of a text file. Each value in that column is then
+    placed into the text file. Don't worry - this won't hurt your .tsv file, which will lay
+    happily in its original location.
+
+
+    Parameters
+    ----------
+    tsv_path : str or Path
+        Path to the .tsv file to break up.
+    output_dir : str or Path
+        Directory to write columns of the .tsv file to.
+    
+    """
+
+    # Alert the user and prepare our paths. ----------------
+    tsv_path = Path(tsv_path).absolute()
+    output_dir = Path(output_dir).absolute()
+    output_dir.mkdir(exist_ok=True, parents=True)
+    print(f"Storing the columns of {tsv_path.name} as text files in directory {output_dir}")
+
+
+    # Read the .tsv file into a DataFrame and fill n/a values with zero. -----------------
+    tsv_info = pandas.read_table(
+        tsv_path,
+        sep="\t",
+        na_values="n/a"
+    ).fillna(value=0)
+
+
+    # Write each column of the dataframe as a text file. -----------------------
+    for column_name in tsv_info:
+        column_path = output_dir / f"{column_name}.txt"
+        tsv_info[column_name].to_csv(column_path, sep=' ', index=False, header=False)
