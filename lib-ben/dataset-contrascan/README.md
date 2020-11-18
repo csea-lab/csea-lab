@@ -1,3 +1,5 @@
+THIS IS OUT OF DATE. I'll update this when I finish the contrascan project :)
+
 ### Introduction:
 -----------------
 
