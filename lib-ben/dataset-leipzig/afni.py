@@ -5,7 +5,6 @@ Class to run AFNI programs and write and store info about them.
 
 Created 10/13/2020 by Benjamin Velie.
 veliebm@gmail.com
-
 """
 
 # Import standard Python modules.
