@@ -142,3 +142,17 @@ def split_columns_into_text_files(tsv_path, output_dir):
     for column_name in tsv_info:
         column_path = output_dir / f"{column_name}.txt"
         tsv_info[column_name].to_csv(column_path, sep=' ', index=False, header=False)
+
+
+def stem_of(path: Path):
+    """
+    Returns the TRUE stem of a path, even if it has multiple suffixes.
+
+    If you call this on an AFNI dataset, it'll also return whatever comes before
+    "+tlrc" or "+orig"
+    """
+
+    if search(r"\+tlrc\.", path.name) or search(r"\+orig\.", path.name):
+        return path.name.split("+")[-2]
+    else:
+        return path.stem.split('.')[0]
