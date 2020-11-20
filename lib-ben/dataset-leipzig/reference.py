@@ -35,7 +35,7 @@ def subject_id_of(path) -> str:
     try:
         match = search(r"sub-([0-9]+)[_.]", str(path))
         return match.group(1)
-    except IndexError:
+    except AttributeError:
         raise RuntimeError(f"No subject ID found in {path}. Is this file named correctly?")
 
 
