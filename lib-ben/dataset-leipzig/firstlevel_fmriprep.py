@@ -14,6 +14,7 @@ from pathlib import Path
 import shutil
 import json
 import pandas
+import sys
 
 # Import some CSEA custom modules. (Scrappy and made with love :))
 from reference import subject_id_of, the_path_that_matches, split_columns_into_text_files, stem_of, task_name_of
@@ -249,9 +250,10 @@ class FirstLevel():
 
         # Store workflow info into a dict.
         workflow_info = {
-            "Subject ID": self.subject_id,
-            "Time to complete workflow": str(self.end_time - self.start_time),
-            "Regressors included": self.regressor_names
+            "You analyzed this subject": self.subject_id,
+            "The workflow took this long to run": str(self.end_time - self.start_time),
+            "You included these regressors in the analysis": self.regressor_names,
+            "You passed these arguments to the script": sys.argv
         }
 
         # Write the workflow dict to a json file.
