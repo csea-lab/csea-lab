@@ -189,7 +189,7 @@ def add_dataset_description_to(bids_dir: Path):
     description_dict = {
         "Name": "bopscanner",
         "BIDSVersion": "1.4.0",
-        "Authors": ["Kierstin Riels", "Benjamin Velie", "Andreas Keil"]
+        "Authors": ["Maeve Boylan", "Andreas Keil"]
     }
 
     with open(unborn_path_to_dataset_description, "w") as out_file:
