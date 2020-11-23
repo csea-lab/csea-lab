@@ -5,7 +5,6 @@ A script to run an AFNI 2nd level analysis... but in Python???
 
 Created 9/29/2020 by Benjamin Velie.
 veliebm@gmail.com
-
 """
 
 # Import some standard Python libraries.
@@ -22,7 +21,6 @@ from afni import AFNI
 class SecondLevel():
     """
     This class runs a second level analysis on subjects for whom you've already run a first-level analysis.
-
     """
 
     def __init__(self, subject_ids, bids_dir, firstlevel_name, secondlevel_name):
@@ -78,7 +76,6 @@ class SecondLevel():
         Defines how the class represents itself internally as a string.
         
         To learn more, consider reading https://docs.python.org/3/reference/datamodel.html#basic-customization
-        
         """
 
         return f"SecondLevel(subject_ids={self.subject_ids}, bids_dir='{self.bids_dir}', firstlevel_name='{self.firstlevel_name}')"
@@ -89,7 +86,6 @@ class SecondLevel():
         Run AFNI's 3dttest++ on each subject.
 
         3dttest++ info: https://afni.nimh.nih.gov/pub/dist/doc/htmldoc/programs/3dttest++_sphx.html#ahelp-3dttest
-
         """
 
         working_directory = self.dirs["output"] / "3dttest++"
@@ -111,7 +107,6 @@ class SecondLevel():
 
         3dMEMA info: https://afni.nimh.nih.gov/pub/dist/doc/htmldoc/programs/3dMEMA_sphx.html#ahelp-3dmema
         How to gather specific sub-briks from the 3dREMLfit outfile: https://afni.nimh.nih.gov/pub/dist/doc/program_help/common_options.html
-
         """
 
         working_directory = self.dirs["output"] / "3dMEMA"
@@ -141,7 +136,6 @@ class SecondLevel():
     def write_report(self):
         """
         Writes files containing info about the analysis to help us stay sane.
-
         """
 
         # Store workflow info into a dict.
@@ -164,7 +158,6 @@ if __name__ == "__main__":
     This section of the script only runs when you run the script directly from the shell.
 
     It contains the parser that parses arguments from the command line.
-    
     """
 
     parser = argparse.ArgumentParser(description="Runs a 2nd-level analysis on subjects for whom you have already run a 1st-level analysis. You must specify the path to the raw BIDS dataset you ran your 1st-level analysis on. You must also specify whether to analyze EITHER a list of specific subjects OR all subjects. Finally, you must specify the title of the directory containing your 1st-level analysis results.", fromfile_prefix_chars="@")
