@@ -167,46 +167,16 @@ if __name__ == "__main__":
     
     """
 
-    parser = argparse.ArgumentParser(
-        description="Runs a 2nd-level analysis on subjects for whom you have already run a 1st-level analysis. You must specify the path to the raw BIDS dataset you ran your 1st-level analysis on. You must also specify whether to analyze EITHER a list of specific subjects OR all subjects. Finally, you must specify the title of the directory containing your 1st-level analysis results.",
-        fromfile_prefix_chars="@"
-    )
+    parser = argparse.ArgumentParser(description="Runs a 2nd-level analysis on subjects for whom you have already run a 1st-level analysis. You must specify the path to the raw BIDS dataset you ran your 1st-level analysis on. You must also specify whether to analyze EITHER a list of specific subjects OR all subjects. Finally, you must specify the title of the directory containing your 1st-level analysis results.", fromfile_prefix_chars="@")
 
-    parser.add_argument(
-        "--bids_dir",
-        "-b",
-        required=True,
-        help="<Mandatory> Path to the root of the BIDS directory. Example: '--bids_dir /readwrite/contrascan/bids_attempt-2'"
-    )
-
-    parser.add_argument(
-        "--firstlevel_name",
-        "-f",
-        required=True,
-        help="<Mandatory> Name of the 1st-level analysis directory to access within the BIDS directory. Example: to access 'bidsroot/derivatives/first_level_analysis/sub-$SUBJECT_ID/analysis_regressors-csf', use '--firstlevel_name analysis_regressors-csf'"
-    )
+    parser.add_argument("--bids_dir", "-b", required=True, help="<Mandatory> Path to the root of the BIDS directory. Example: '--bids_dir /readwrite/contrascan/bids_attempt-2'")
+    parser.add_argument("--firstlevel_name", "-f", required=True, help="<Mandatory> Name of the 1st-level analysis directory to access within the BIDS directory. Example: to access 'bidsroot/derivatives/first_level_analysis/sub-$SUBJECT_ID/analysis_regressors-csf', use '--firstlevel_name analysis_regressors-csf'")
 
     group = parser.add_mutually_exclusive_group(required=True)
-    group.add_argument(
-        "--subjects",
-        "-s",
-        metavar="SUBJECT_ID",
-        nargs="+",
-        help="<Mandatory> Analyze a list of specific subject IDs. Example: '--subjects 107 108 110'. Mutually exclusive with --all."
-    )
+    group.add_argument("--subjects", "-s", metavar="SUBJECT_ID", nargs="+", help="<Mandatory> Analyze a list of specific subject IDs. Example: '--subjects 107 108 110'. Mutually exclusive with --all.")
+    group.add_argument('--all', '-a', action='store_true', help="<Mandatory> Analyze all subjects. Mutually exclusive with --subjects.")
 
-    group.add_argument(
-        '--all',
-        '-a',
-        action='store_true',
-        help="<Mandatory> Analyze all subjects. Mutually exclusive with --subjects."
-    )
-
-    parser.add_argument(
-        "--secondlevel_name",
-        default=None,
-        help="Default: Name of the 1st-level analysis. What to name the 2nd-level analysis. Example: '--secondlevel_name hello_this_is_a_test'"
-    )
+    parser.add_argument("--secondlevel_name", default=None, help="Default: Name of the 1st-level analysis. What to name the 2nd-level analysis. Example: '--secondlevel_name hello_this_is_a_test'")
 
     # Parse args from the command line and create an empty list to store the subject ids we picked.
     args = parser.parse_args()
