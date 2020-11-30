@@ -139,7 +139,6 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=f"Launch this script on HiPerGator to run fMRIPrep on your BIDS-valid dataset! Each subject receives their own container. You may specify EITHER specific subjects OR all subjects. Final outputs are written to bids_dir/derivatives/preprocessing/. Intermediate results are written to the current working directory. Remember to only do your work in subdirectories of /blue/akeil/{os.getlogin()}!", fromfile_prefix_chars="@")
 
     parser.add_argument("--bids_dir", "-b", type=Path, required=True, help="<Mandatory> Path to the root of the BIDS directory. Example: '--bids_dir /blue/akeil/veliebm/files/contrascan/bids_attempt-3'")
-    parser.add_argument("--image", "-i", type=Path, required=True, help="<Mandatory> Path to an fMRIPrep singularity image. Example: '--image /blue/akeil/veliebm/files/images/fmriprep_version-20.2.0.sig'")
 
     group = parser.add_mutually_exclusive_group(required=True)
     group.add_argument("--subjects", "-s", metavar="SUBJECT_ID", nargs="+", help="<Mandatory> Preprocess a list of specific subject IDs. Mutually exclusive with '--all'. Example: '--subjects 107 110 123'")
@@ -165,13 +164,19 @@ if __name__ == "__main__":
     else:
         subject_ids = args.subjects
 
+    # Get fMRIPrep singularity image.
+    images_dir = Path().absolute() / "images"
+    images_dir.mkdir(exist_ok=True, parents=True)
+    subprocess.Popen(["singularity", "pull", "docker://poldracklab/fmriprep:latest"], cwd=images_dir)
+    singularity_image_path = images_dir / "fmriprep_latest.sif"
+
     for subject_id in subject_ids:
 
         # Create working directory for subject.
         work_path = Path(f"./sub-{subject_id}_work").absolute()
         work_path.mkdir(exist_ok=True)
 
-        script_path = work_path / f"sub-{subject_id}_fmriprep_date-{START_DATE}_time-{START_TIME}.sh"
+        script_path = work_path / f"sub-{subject_id}_date-{START_DATE}_time-{START_TIME}_fmriprep.sh"
 
         # Write SLURM script.
         write_script(
@@ -182,7 +187,7 @@ if __name__ == "__main__":
             qos=args.qos,
             subject_id=subject_id,
             bids_dir=args.bids_dir.absolute(),
-            singularity_image_path=args.image.absolute()
+            singularity_image_path=singularity_image_path
         )
 
         # Run SLURM script.
