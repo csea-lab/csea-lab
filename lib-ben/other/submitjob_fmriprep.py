@@ -167,7 +167,8 @@ if __name__ == "__main__":
     # Get fMRIPrep singularity image.
     images_dir = Path().absolute() / "images"
     images_dir.mkdir(exist_ok=True, parents=True)
-    subprocess.Popen(["singularity", "pull", "docker://poldracklab/fmriprep:latest"], cwd=images_dir)
+    process = subprocess.Popen(["singularity", "pull", "docker://poldracklab/fmriprep:latest"], cwd=images_dir)
+    process.wait()
     singularity_image_path = images_dir / "fmriprep_latest.sif"
 
     for subject_id in subject_ids:
