@@ -174,7 +174,7 @@ if __name__ == "__main__":
     for subject_id in subject_ids:
 
         # Create working directory for subject.
-        work_path = Path(f"./sub-{subject_id}_work").absolute()
+        work_path = Path(f"./sub-{subject_id}").absolute()
         work_path.mkdir(exist_ok=True)
 
         script_path = work_path / f"sub-{subject_id}_date-{START_DATE}_time-{START_TIME}_fmriprep.sh"
