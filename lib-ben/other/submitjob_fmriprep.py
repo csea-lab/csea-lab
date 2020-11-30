@@ -136,77 +136,19 @@ if __name__ == "__main__":
     Thus, this is where we read and interpret arguments from the command line.
     """
 
-    parser = argparse.ArgumentParser(
-        description=f"Launch this script on HiPerGator to run fMRIPrep on your BIDS-valid dataset! Each subject receives their own container. You may specify EITHER specific subjects OR all subjects. Final outputs are written to bids_dir/derivatives/preprocessing/. Intermediate results are written to the current working directory. Remember to only do your work in subdirectories of /blue/akeil/{os.getlogin()}!",
-        fromfile_prefix_chars="@"
-    )
+    parser = argparse.ArgumentParser(description=f"Launch this script on HiPerGator to run fMRIPrep on your BIDS-valid dataset! Each subject receives their own container. You may specify EITHER specific subjects OR all subjects. Final outputs are written to bids_dir/derivatives/preprocessing/. Intermediate results are written to the current working directory. Remember to only do your work in subdirectories of /blue/akeil/{os.getlogin()}!", fromfile_prefix_chars="@")
 
-    parser.add_argument(
-        "--bids_dir",
-        "-b",
-        type=Path,
-        required=True,
-        help="<Mandatory> Path to the root of the BIDS directory. Example: '--bids_dir /blue/akeil/veliebm/files/contrascan/bids_attempt-3'"
-    )
-
-    parser.add_argument(
-        "--image",
-        "-i",
-        type=Path,
-        required=True,
-        help="<Mandatory> Path to an fMRIPrep singularity image. Example: '--image /blue/akeil/veliebm/files/images/fmriprep_version-20.2.0.sig'"
-    )
-
+    parser.add_argument("--bids_dir", "-b", type=Path, required=True, help="<Mandatory> Path to the root of the BIDS directory. Example: '--bids_dir /blue/akeil/veliebm/files/contrascan/bids_attempt-3'")
+    parser.add_argument("--image", "-i", type=Path, required=True, help="<Mandatory> Path to an fMRIPrep singularity image. Example: '--image /blue/akeil/veliebm/files/images/fmriprep_version-20.2.0.sig'")
 
     group = parser.add_mutually_exclusive_group(required=True)
-    group.add_argument(
-        "--subjects",
-        "-s",
-        metavar="SUBJECT_ID",
-        nargs="+",
-        help="<Mandatory> Preprocess a list of specific subject IDs. Mutually exclusive with '--all'. Example: '--subjects 107 110 123'"
-    )
+    group.add_argument("--subjects", "-s", metavar="SUBJECT_ID", nargs="+", help="<Mandatory> Preprocess a list of specific subject IDs. Mutually exclusive with '--all'. Example: '--subjects 107 110 123'")
+    group.add_argument('--all', '-a', action='store_true', help="<Mandatory> Analyze all subjects. Mutually exclusive with '--subjects'. Example: '--all'")
 
-    group.add_argument(
-        '--all',
-        '-a',
-        action='store_true',
-        help="<Mandatory> Analyze all subjects. Mutually exclusive with '--subjects'. Example: '--all'"
-    )
-
-
-    parser.add_argument(
-        "--time",
-        "-t",
-        default="4-00:00:00",
-        metavar="d-hh:mm:ss",
-        help="Default: 4-00:00:00. Maximum time the job can run. Burst QOS max allowed: 4 days. Investment QOS max allowed: 31 days. Example (3.5 days): '--time 3-12:00:00'"
-    )
-
-    parser.add_argument(
-        "--n_procs",
-        '-n',
-        default="2",
-        metavar="PROCESSORS",
-        help="Default: 2. Number of processors to use per subject. Example: '--n_procs 4'"
-    )
-
-    parser.add_argument(
-        "--qos",
-        "-q",
-        default="akeil-b",
-        choices=["akeil", "akeil-b"],
-        help="Default: akeil-b (burst QOS). QOS level to use. Example (investment QOS): '--qos akeil'"
-    )
-    
-    parser.add_argument(
-        "--email",
-        "-e",
-        metavar="EMAIL_ADDRESS",
-        default=f"{os.getlogin()}@ufl.edu",
-        help=f"Default: {os.getlogin()}@ufl.edu. Email address to send job updates to. Example: '--email veliebm@gmail.com'"
-    )
-
+    parser.add_argument("--time", "-t", default="4-00:00:00", metavar="d-hh:mm:ss", help="Default: 4-00:00:00. Maximum time the job can run. Burst QOS max allowed: 4 days. Investment QOS max allowed: 31 days. Example (3.5 days): '--time 3-12:00:00'")
+    parser.add_argument("--n_procs", '-n', default="2", metavar="PROCESSORS", help="Default: 2. Number of processors to use per subject. Example: '--n_procs 4'")
+    parser.add_argument("--qos", "-q", default="akeil-b", choices=["akeil", "akeil-b"], help="Default: akeil-b (burst QOS). QOS level to use. Example (investment QOS): '--qos akeil'")
+    parser.add_argument("--email", "-e", metavar="EMAIL_ADDRESS", default=f"{os.getlogin()}@ufl.edu", help=f"Default: {os.getlogin()}@ufl.edu. Email address to send job updates to. Example: '--email veliebm@gmail.com'")
 
     # Gather arguments from the command line.
     args = parser.parse_args()
