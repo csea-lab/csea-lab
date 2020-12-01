@@ -84,7 +84,7 @@ def write_func_tsvs(distilled_paths):
 
     def fixed(unfixed_onsets):
         """Returns fresh, clean onsets using the raw onsets we get from our .vmrk file."""
-        return [onset - 2 for onset in unfixed_onsets]
+        return [onset for onset in unfixed_onsets]
 
     for subject in distilled_paths:
         unfixed_onsets = distilled_paths[subject]["vmrk"].onsets()
