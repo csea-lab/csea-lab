@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 """
-This module contains functions I find myself using again and again across the entire leipzig project.
+This module contains functions I'd like to access across the entire project.
 
 Created 11/11/2020 by Benjamin Velie
 veliebm@gmail.com
@@ -9,7 +9,6 @@ veliebm@gmail.com
 
 from re import search
 from pathlib import Path
-import pandas
 
 
 def subject_id_of(path) -> str:
