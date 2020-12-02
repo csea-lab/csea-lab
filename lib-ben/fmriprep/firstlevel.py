@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 """
-A script to run a 1st-level analysis on subjects from the Leipzig dataset
-using the beautiful and eternal AFNI.
+A script to run a 1st-level analysis on an fMRIPrepped dataset using the beautiful and eternal AFNI.
 
 Created 11/16/2020 by Benjamin Velie.
 veliebm@gmail.com
