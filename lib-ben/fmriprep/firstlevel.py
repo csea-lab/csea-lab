@@ -22,7 +22,7 @@ from afni import AFNI
 
 class FirstLevel():
     """
-    This class runs a first level analysis on a subject in the fMRIPrepped Leipzig dataset.
+    This class runs a 1st-level analysis on an fMRIPrepped dataset using the beautiful and eternal AFNI.
     """
 
     def __init__(self, bids_dir, subject_id, regressor_names: list, outputs_title):
