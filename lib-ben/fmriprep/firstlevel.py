@@ -17,7 +17,7 @@ import pandas
 import sys
 
 # Import some CSEA custom modules. (Scrappy and made with love :))
-from reference import subject_id_of, the_path_that_matches, split_columns_into_text_files, stem_of, task_name_of
+from reference import subject_id_of, the_path_that_matches, stem_of, task_name_of
 from afni import AFNI
 
 
@@ -173,8 +173,8 @@ class FirstLevel():
         regressors_directory = self.dirs["output"] / f"task-{task_name}" / "all_regressors_available_for_task"
 
         # Prepare regressor text files to scan into the interface.
-        split_columns_into_text_files(self.paths[task_name]["events_tsv"], subject_info_directory)
-        split_columns_into_text_files(self.paths[task_name]["regressors_tsv"], regressors_directory)
+        _split_columns_into_text_files(self.paths[task_name]["events_tsv"], subject_info_directory)
+        _split_columns_into_text_files(self.paths[task_name]["regressors_tsv"], regressors_directory)
         onsets_path = subject_info_directory / "onset.txt"
 
         # Total amount of regressors to include in the analysis.
@@ -261,6 +261,45 @@ class FirstLevel():
         print(f"Writing {output_json_path}")
         with open(output_json_path, "w") as json_file:
             json.dump(workflow_info, json_file, indent="\t")
+
+
+def _split_columns_into_text_files(tsv_path, output_dir):
+    """
+    Converts a tsv file into a collection of text files.
+
+    Each column name becomes the name of a text file. Each value in that column is then
+    placed into the text file. Don't worry - this won't hurt your .tsv file, which will lay
+    happily in its original location.
+
+
+    Parameters
+    ----------
+    tsv_path : str or Path
+        Path to the .tsv file to break up.
+    output_dir : str or Path
+        Directory to write columns of the .tsv file to.
+    
+    """
+
+    # Alert the user and prepare our paths. ----------------
+    tsv_path = Path(tsv_path).absolute()
+    output_dir = Path(output_dir).absolute()
+    output_dir.mkdir(exist_ok=True, parents=True)
+    print(f"Storing the columns of {tsv_path.name} as text files in directory {output_dir}")
+
+
+    # Read the .tsv file into a DataFrame and fill n/a values with zero. -----------------
+    tsv_info = pandas.read_table(
+        tsv_path,
+        sep="\t",
+        na_values="n/a"
+    ).fillna(value=0)
+
+
+    # Write each column of the dataframe as a text file. -----------------------
+    for column_name in tsv_info:
+        column_path = output_dir / f"{column_name}.txt"
+        tsv_info[column_name].to_csv(column_path, sep=' ', index=False, header=False)
 
 
 if __name__ == "__main__":
