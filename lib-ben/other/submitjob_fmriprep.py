@@ -166,11 +166,18 @@ if __name__ == "__main__":
 
     # Get fMRIPrep singularity image.
     images_dir = Path().absolute() / "images"
-    images_dir.mkdir(exist_ok=True, parents=True)
-    process = subprocess.Popen(["singularity", "pull", "docker://poldracklab/fmriprep:latest"], cwd=images_dir)
-    process.wait()
     singularity_image_path = images_dir / "fmriprep_latest.sif"
-
+    if singularity_image_path.exists():
+        print(f"Detected a singularity image at {singularity_image_path}")
+        print("I'm going to use this image.")
+    else:
+        print(f"Failed to detect a pre-existing singularity image at {singularity_image_path}")
+        print("Attempting to download a fresh image.")
+        images_dir.mkdir(exist_ok=True, parents=True)
+        process = subprocess.Popen(["singularity", "pull", "docker://poldracklab/fmriprep:latest"], cwd=images_dir)
+        process.wait()
+        print("Downloaded fresh image.")
+    
     for subject_id in subject_ids:
 
         # Create working directory for subject.
@@ -194,3 +201,6 @@ if __name__ == "__main__":
         # Run SLURM script.
         print(f"Submitting {script_path.name}")
         subprocess.Popen(["sbatch", script_path], cwd=work_path)
+
+    print("All intermediate work and logs will be saved to folders in the current working directory.")
+    print("All final results will be written to the derivatives folder in the root of your BIDS dataset.")
