@@ -45,17 +45,16 @@ class SecondLevel():
         # Store in self.dirs paths to directories we need.
         self.dirs = {}
         self.dirs["bids_root"] = Path(self.bids_dir)     # Location of the raw BIDS dataset.
-        self.dirs["firstlevel_root"] = self.dirs["bids_root"] / "derivatives" / "analysis_level-1"     # Location of all results of all our first-level analyses.
-        self.dirs["secondlevel_root"] = self.dirs["bids_root"] / "derivatives" / "analysis_level-2"    # Location where we'll store all results of all second-level analyses.
-        self.dirs["output"] = self.dirs["secondlevel_root"] / self.analysis_name     # Location where we'll store the results of this specific analysis.
+        self.dirs["firstlevel"] = self.dirs["bids_root"] / "derivatives" / "analysis_level-1" / self.firstlevel_name     # Location of the results of our first-level analyses.
+        self.dirs["output"] = self.dirs["bids_root"] / "derivatives" / "analysis_level-2" / self.analysis_name    # Location where we'll store the results of this second-level analysis.
 
         # Store in self.paths a dictionary of dictionaries of paths to files we need.
         # Parent key is a subject ID, child key is type of file, value is path for that filetype and subject ID.
         self.paths = {}
         for subject_id in self.subject_ids:
             self.paths[subject_id] = {}
-            self.paths[subject_id]["deconvolve_outfile"] = the_path_that_matches(f"sub-{subject_id}_*stats*.HEAD", in_directory=self.dirs["firstlevel_root"]/f"sub-{subject_id}/{firstlevel_name}/3dDeconvolve")
-            self.paths[subject_id]["reml_outfile"] = the_path_that_matches(f"sub-{subject_id}_*stats*.HEAD", in_directory=self.dirs["firstlevel_root"]/f"sub-{subject_id}/{firstlevel_name}/3dREMLfit")
+            self.paths[subject_id]["deconvolve_outfile"] = the_path_that_matches(f"sub-{subject_id}_*stats*.HEAD", in_directory=self.dirs["firstlevel"]/f"sub-{subject_id}/3dDeconvolve")
+            self.paths[subject_id]["reml_outfile"] = the_path_that_matches(f"sub-{subject_id}_*stats*.HEAD", in_directory=self.dirs["firstlevel"]/f"sub-{subject_id}/3dREMLfit")
 
         # Create any directory that doesn't exist.
         for directory in self.dirs.values():
@@ -142,8 +141,7 @@ class SecondLevel():
         workflow_info = {
             "Time to complete workflow": str(self.end_time - self.start_time),
             "Title of first level analysis": self.firstlevel_name,
-            "Subject IDs included in analysis": self.subject_ids,
-            "Programs used (in order!)": [result.program for result in self.results.values()]
+            "Subject IDs included in analysis": self.subject_ids
         }
 
         # Write the workflow dict to a json file.
