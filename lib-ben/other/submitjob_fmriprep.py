@@ -151,7 +151,7 @@ if __name__ == "__main__":
 
     # Gather arguments from the command line.
     args = parser.parse_args()
-    print(f"Args: {args}")
+    print(f"Arguments: {args}")
 
     # Option 1: Process all subjects.
     subject_ids = []
