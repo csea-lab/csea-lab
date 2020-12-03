@@ -169,6 +169,18 @@ class SecondLevel():
                 results[label] = AFNI(program="3dMEMA", args=args, working_directory=working_directory)
                 results[label].outfile = the_path_that_matches("*.HEAD", in_directory=working_directory)
 
+        # Concatenate our betas into a mega dataset.
+        beta_working_directory = base_working_directory / "concatenated_betas"
+        tcat_args = "-tr 2".split()
+        tcat_args = [f"{result.outfile}[activation-vs-0:b]" for result in results.values() if result.program == "3dMEMA"]
+        results["concatenated_betas"] = AFNI(program="3dTcat", args=tcat_args, working_directory=beta_working_directory)
+
+        # Concatenate our T values into a mega dataset.
+        tstat_working_directory = base_working_directory / "concatenated_Tstats"
+        tcat_args = "-tr 2".split()
+        tcat_args += [f"{result.outfile}[activation-vs-0:t]" for result in results.values() if result.program == "3dMEMA"]
+        results["concatenated_Tstats"] = AFNI(program="3dTcat", args=tcat_args, working_directory=tstat_working_directory)
+
         # Return the results as a dictionary. Keys = subbrick labels, values = 3dttest++ results.
         return results
 
