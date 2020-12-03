@@ -124,7 +124,7 @@ class SecondLevel():
         tcat_args += [f"{result.outfile}[ttest_Tstat]" for result in results.values() if result.program == "3dttest++"]
         results["concatenated_Tstats"] = AFNI(program="3dTcat", args=tcat_args, working_directory=tstat_working_directory)
 
-        # Return the results as a dictionary. Keys = subbricks, values = 3dttest++ results.
+        # Return the results as a dictionary. Keys = subbrick labels, values = 3dttest++ results.
         return results
 
 
@@ -169,8 +169,8 @@ class SecondLevel():
                 results[label] = AFNI(program="3dMEMA", args=args, working_directory=working_directory)
                 results[label].outfile = the_path_that_matches("*.HEAD", in_directory=working_directory)
 
-        # Execute the command and return its results.
-        return AFNI(program="3dMEMA", args=args, working_directory=working_directory)
+        # Return the results as a dictionary. Keys = subbrick labels, values = 3dttest++ results.
+        return results
 
 
     def write_report(self):
