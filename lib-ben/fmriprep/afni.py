@@ -35,9 +35,7 @@ class AFNI():
         self.write_matrix_lines_to = write_matrix_lines_to
 
         # Figure out if program has run before. If yes, we'll kill the process later.
-        self.program_has_run_before = False
-        if self._program_has_run_before():
-            self.program_has_run_before = True
+        self.program_has_run_before = self._program_has_run_before()
 
         # Tell user that we're executing this object.
         print(f"Executing {self.__repr__()}")
