@@ -62,13 +62,11 @@ class AFNI():
                 sys.stdout.flush()
                 self.stdout_and_stderr += line
 
-        # Write matrix if an output path for it was given.
-        if self.write_matrix_lines_to:
-            self._write_matrix()
-
         self.end_time = datetime.now()
         
         if not self.program_has_run_before:
+            if self.write_matrix_lines_to:
+                self._write_matrix()
             self.write_logs()
 
 
