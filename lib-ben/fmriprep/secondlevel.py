@@ -150,7 +150,7 @@ class SecondLevel():
                 # Create base arguments to pass to program.
                 args = (f"""
                     -prefix {self.firstlevel_name}_task-{task_name}_mema
-                    -jobs 10
+                    -jobs 5
                     -verb 1
                     -missing_data 0
                     -set activation-vs-0
