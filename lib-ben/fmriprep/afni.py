@@ -146,7 +146,7 @@ class AFNI():
             return False
 
 
-def _subbrick_labels_of(path_to_afni_dataset):
+def subbrick_labels_of(path_to_afni_dataset):
     """
     Returns a list. Each element is the label of a sub-brick within the target dataset.
     """
