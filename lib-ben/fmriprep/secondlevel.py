@@ -141,6 +141,8 @@ class SecondLevel():
 
         # Store workflow info into a dict.
         workflow_info = {
+            "Start time": str(self.start_time),
+            "End time": str(self.end_time),
             "Time to complete workflow": str(self.end_time - self.start_time),
             "Title of first level analysis": self.firstlevel_name,
             "Title of second level analysis": self.analysis_name,
