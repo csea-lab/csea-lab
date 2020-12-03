@@ -14,7 +14,7 @@ import json
 
 # Import some CSEA custom libraries.
 from reference import subject_id_of, the_path_that_matches, task_name_of
-from afni import AFNI
+from afni import AFNI, subbrick_labels_of
 
 
 class SecondLevel():
@@ -84,22 +84,48 @@ class SecondLevel():
 
     def ttest(self, task_name):
         """
-        Run AFNI's 3dttest++ on the outfiles of the specified task.
+        Run AFNI's 3dttest++ on the outfiles of the specified task. Also concatenates them together.
 
         3dttest++ info: https://afni.nimh.nih.gov/pub/dist/doc/htmldoc/programs/3dttest++_sphx.html#ahelp-3dttest
+
+        3dTcat info: https://afni.nimh.nih.gov/pub/dist/doc/htmldoc/programs/3dTcat_sphx.html#ahelp-3dtcat
         """
 
-        working_directory = self.dirs["output"] / f"task-{task_name}" / "3dttest++"
+        base_working_directory = self.dirs["output"] / f"task-{task_name}" / "3dttest++"
 
-        # Get basic arguments as a list of parameters to be fed into the command line.
-        args = "-setA ttest".split()
+        # Gather the labels of the subbricks we want to include.
+        representative_dataset = list(self.paths[task_name].values())[0]["deconvolve_outfile"]
+        labels = subbrick_labels_of(representative_dataset)
 
-        # Append our deconvolve files as arguments.
-        for subject_id in self.subject_ids:
-            args += [f"sub-{subject_id}"] + [f'{self.paths[task_name][subject_id]["deconvolve_outfile"]}[4]']
+        # For each relevant subbrick for each subject, run 3dttest++.
+        results = {}
+        for label in labels:
+            if "_Coef" in label:
 
-        # Execute the command and return its results.
-        return AFNI(program="3dttest++", args=args, working_directory=working_directory)
+                # Build arguments to pass to the program.
+                args = "-setA ttest".split()
+                for subject_id in self.subject_ids:
+                    args += [f"sub-{subject_id}"] + [f'{self.paths[task_name][subject_id]["deconvolve_outfile"]}[{label}]']
+
+                # Run program. Store path to outfile as an attribute of the AFNI object.
+                working_directory = base_working_directory / f"subbrick-{label}"
+                results[label] = AFNI(program="3dttest++", args=args, working_directory=working_directory)
+                results[label].outfile = the_path_that_matches("*.HEAD", in_directory=working_directory)
+
+        # Concatenate our means into a mega dataset.
+        mean_working_directory = base_working_directory / "concatenated_means"
+        tcat_args = "-tr 2".split()
+        tcat_args = [f"{result.outfile}[ttest_mean]" for result in results.values() if result.program == "3dttest++"]
+        results["concatenated_means"] = AFNI(program="3dTcat", args=tcat_args, working_directory=mean_working_directory)
+
+        # Concatenate our T values into a mega dataset.
+        tstat_working_directory = base_working_directory / "concatenated_Tstats"
+        tcat_args = "-tr 2".split()
+        tcat_args += [f"{result.outfile}[ttest_Tstat]" for result in results.values() if result.program == "3dttest++"]
+        results["concatenated_Tstats"] = AFNI(program="3dTcat", args=tcat_args, working_directory=tstat_working_directory)
+
+        # Return the results as a dictionary. Keys = subbricks, values = 3dttest++ results.
+        return results
 
 
     def mema(self, task_name):
