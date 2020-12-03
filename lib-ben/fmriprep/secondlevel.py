@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-
 """
 A script to run an AFNI 2nd level analysis... but in Python???
 
@@ -14,7 +13,7 @@ from pathlib import Path
 import json
 
 # Import some CSEA custom libraries.
-from reference import subject_id_of, the_path_that_matches
+from reference import subject_id_of, the_path_that_matches, task_name_of
 from afni import AFNI
 
 
@@ -48,22 +47,25 @@ class SecondLevel():
         self.dirs["firstlevel"] = self.dirs["bids_root"] / "derivatives" / "analysis_level-1" / self.firstlevel_name     # Location of the results of our first-level analyses.
         self.dirs["output"] = self.dirs["bids_root"] / "derivatives" / "analysis_level-2" / self.analysis_name    # Location where we'll store the results of this second-level analysis.
 
-        # Store in self.paths a dictionary of dictionaries of paths to files we need.
-        # Parent key is a subject ID, child key is type of file, value is path for that filetype and subject ID.
-        self.paths = {}
-        for subject_id in self.subject_ids:
-            self.paths[subject_id] = {}
-            self.paths[subject_id]["deconvolve_outfile"] = the_path_that_matches(f"sub-{subject_id}_*stats*.HEAD", in_directory=self.dirs["firstlevel"]/f"sub-{subject_id}/3dDeconvolve")
-            self.paths[subject_id]["reml_outfile"] = the_path_that_matches(f"sub-{subject_id}_*stats*.HEAD", in_directory=self.dirs["firstlevel"]/f"sub-{subject_id}/3dREMLfit")
+        # Get a list of available tasks for our subjects.
+        task_dirs = self.dirs["firstlevel"].glob(f"sub-*/task-*")
+        self.task_names = {task_name_of(task_dir) for task_dir in task_dirs}
 
-        # Create any directory that doesn't exist.
-        for directory in self.dirs.values():
-            directory.mkdir(exist_ok=True, parents=True)
+        # Gather into a dict of dicts all the paths we'll use. Sort by task and subject ID.
+        self.paths = {}
+        for task_name in self.task_names:
+            self.paths[task_name] = {}
+            for subject_id in self.subject_ids:
+                self.paths[task_name][subject_id] = {}
+                self.paths[task_name][subject_id]["deconvolve_outfile"] = the_path_that_matches(f"sub-{subject_id}_task-{task_name}*stats*.HEAD", in_directory=self.dirs["firstlevel"]/f"sub-{subject_id}/task-{task_name}/3dDeconvolve")
+                self.paths[task_name][subject_id]["reml_outfile"] = the_path_that_matches(f"sub-{subject_id}_task-{task_name}*stats*.HEAD", in_directory=self.dirs["firstlevel"]/f"sub-{subject_id}/task-{task_name}/3dREMLfit")
 
         # Run our regressions.
         self.results = {}
-        self.results["3dttest++"] = self.ttest()
-        self.results["3dMEMA"] = self.mema()
+        for task_name in self.task_names:
+            self.results[task_name] = {}
+            self.results[task_name]["3dttest++"] = self.ttest(task_name)
+            self.results[task_name]["3dMEMA"] = self.mema(task_name)
 
         # Record end time and write our report.
         self.end_time = datetime.now()
@@ -80,27 +82,27 @@ class SecondLevel():
         return f"SecondLevel(subject_ids={self.subject_ids}, bids_dir='{self.bids_dir}', firstlevel_name='{self.firstlevel_name}')"
 
 
-    def ttest(self):
+    def ttest(self, task_name):
         """
-        Run AFNI's 3dttest++ on each subject.
+        Run AFNI's 3dttest++ on the outfiles of the specified task.
 
         3dttest++ info: https://afni.nimh.nih.gov/pub/dist/doc/htmldoc/programs/3dttest++_sphx.html#ahelp-3dttest
         """
 
-        working_directory = self.dirs["output"] / "3dttest++"
+        working_directory = self.dirs["output"] / f"task-{task_name}" / "3dttest++"
 
         # Get basic arguments as a list of parameters to be fed into the command line.
         args = "-setA ttest".split()
 
         # Append our deconvolve files as arguments.
-        for subject_id in self.paths:
-            args += [f"sub-{subject_id}"] + [f'{self.paths[subject_id]["deconvolve_outfile"]}[4]']
+        for subject_id in self.subject_ids:
+            args += [f"sub-{subject_id}"] + [f'{self.paths[task_name][subject_id]["deconvolve_outfile"]}[4]']
 
         # Execute the command and return its results.
         return AFNI(program="3dttest++", args=args, working_directory=working_directory)
 
 
-    def mema(self):
+    def mema(self, task_name):
         """
         Runs AFNI's 3dMEMA 2nd-level analysis using the output bucket of 3dREMLfit.
 
@@ -108,11 +110,11 @@ class SecondLevel():
         How to gather specific sub-briks from the 3dREMLfit outfile: https://afni.nimh.nih.gov/pub/dist/doc/program_help/common_options.html
         """
 
-        working_directory = self.dirs["output"] / "3dMEMA"
+        working_directory = self.dirs["output"] / f"task-{task_name}" / "3dMEMA"
 
         # Create base arguments to pass to program.
         args = (f"""
-            -prefix {self.firstlevel_name}_mema
+            -prefix {self.firstlevel_name}_task-{task_name}_mema
             -jobs 4
             -verb 1
             -missing_data 0
@@ -121,11 +123,11 @@ class SecondLevel():
 
         # Append our 3dREMLfit outfiles to the command.
         args += "-set activation-vs-0".split()
-        for subject_id in self.paths:
+        for subject_id in self.subject_ids:
             args += [
                 subject_id,
-                f"{self.paths[subject_id]['reml_outfile']}[7]",     # Use a beta estimate from reml outfile
-                f"{self.paths[subject_id]['reml_outfile']}[8]"       # Use a T value from reml outfile
+                f"{self.paths[task_name][subject_id]['reml_outfile']}[7]",     # Use a beta estimate from reml outfile
+                f"{self.paths[task_name][subject_id]['reml_outfile']}[8]"       # Use a T value from reml outfile
             ]
 
         # Execute the command and return its results.
@@ -141,7 +143,8 @@ class SecondLevel():
         workflow_info = {
             "Time to complete workflow": str(self.end_time - self.start_time),
             "Title of first level analysis": self.firstlevel_name,
-            "Subject IDs included in analysis": self.subject_ids
+            "Title of second level analysis": self.analysis_name,
+            "Subject IDs included": self.subject_ids
         }
 
         # Write the workflow dict to a json file.
