@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
 
 """
-Class to run AFNI programs and write and store info about them.
+This module includes a class to run AFNI programs and write and store info about them.
+
+It also includes some helper functions to assist you in your travels with AFNI.
 
 Created 10/13/2020 by Benjamin Velie.
 veliebm@gmail.com
@@ -14,6 +16,7 @@ from pathlib import Path
 import json
 import sys
 import re
+import nibabel
 
 # Import some lean and mean CSEA modules.
 from reference import the_path_that_matches
@@ -141,3 +144,14 @@ class AFNI():
             return True
         except OSError:
             return False
+
+
+def _subbrick_labels_of(path_to_afni_dataset):
+    """
+    Returns a list. Each element is the label of a sub-brick within the target dataset.
+    """
+    dataset = nibabel.load(path_to_afni_dataset)
+    raw_label_string = dataset.header.info['BRICK_LABS']
+    labels = raw_label_string.split("~")
+
+    return labels
