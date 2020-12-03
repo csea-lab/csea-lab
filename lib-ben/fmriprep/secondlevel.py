@@ -136,25 +136,38 @@ class SecondLevel():
         How to gather specific sub-briks from the 3dREMLfit outfile: https://afni.nimh.nih.gov/pub/dist/doc/program_help/common_options.html
         """
 
-        working_directory = self.dirs["output"] / f"task-{task_name}" / "3dMEMA"
+        base_working_directory = self.dirs["output"] / f"task-{task_name}" / "3dMEMA"
 
-        # Create base arguments to pass to program.
-        args = (f"""
-            -prefix {self.firstlevel_name}_task-{task_name}_mema
-            -jobs 4
-            -verb 1
-            -missing_data 0
+        # Gather the labels of the sub-bricks we want to include.
+        representative_dataset = list(self.paths[task_name].values())[0]["reml_outfile"]
+        labels = subbrick_labels_of(representative_dataset)
 
-            """).split()
+        # For each relevant subbrick for each subject, run 3dMEMA.
+        results = {}
+        for i, label in enumerate(labels):
+            if "_Coef" in label:
 
-        # Append our 3dREMLfit outfiles to the command.
-        args += "-set activation-vs-0".split()
-        for subject_id in self.subject_ids:
-            args += [
-                subject_id,
-                f"{self.paths[task_name][subject_id]['reml_outfile']}[7]",     # Use a beta estimate from reml outfile
-                f"{self.paths[task_name][subject_id]['reml_outfile']}[8]"       # Use a T value from reml outfile
-            ]
+                # Create base arguments to pass to program.
+                args = (f"""
+                    -prefix {self.firstlevel_name}_task-{task_name}_subbrick-{label}_mema
+                    -jobs 10
+                    -verb 1
+                    -missing_data 0
+                    -set activation-vs-0
+                    """).split()
+
+                # Append our 3dREMLfit outfiles to the command.
+                for subject_id in self.subject_ids:
+                    args += [
+                        subject_id,
+                        f'{self.paths[task_name][subject_id]["reml_outfile"]}[{i}]',    # Append a beta sub-brick to the command
+                        f'{self.paths[task_name][subject_id]["reml_outfile"]}[{i+1}]',  # Append a Tstat sub-brick to the command
+                    ]
+
+                # Run program. Store path to outfile as an attribute of the AFNI object.
+                working_directory = base_working_directory / f"subbrick-{label}"
+                results[label] = AFNI(program="3dMEMA", args=args, working_directory=working_directory)
+                results[label].outfile = the_path_that_matches("*.HEAD", in_directory=working_directory)
 
         # Execute the command and return its results.
         return AFNI(program="3dMEMA", args=args, working_directory=working_directory)
