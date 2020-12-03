@@ -61,7 +61,7 @@ def task_name_of(path) -> str:
     try:
         match = search(r"task-(.+?)[_.]", str(path))
         return match.group(1)
-    except IndexError:
+    except AttributeError:
         raise RuntimeError(f"No task name found in {path}. Is this file named correctly?")
 
 
