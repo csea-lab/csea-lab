@@ -112,17 +112,9 @@ class SecondLevel():
                 results[label] = AFNI(program="3dttest++", args=args, working_directory=working_directory)
                 results[label].outfile = the_path_that_matches("*.HEAD", in_directory=working_directory)
 
-        # Concatenate our means into a mega dataset.
-        mean_working_directory = base_working_directory / "concatenated_means"
-        tcat_args = "-tr 2".split()
-        tcat_args = [f"{result.outfile}[ttest_mean]" for result in results.values() if result.program == "3dttest++"]
-        results["concatenated_means"] = AFNI(program="3dTcat", args=tcat_args, working_directory=mean_working_directory)
+        outfiles = [result.outfile for result in results.values() if result.program == "3dttest++"]
 
-        # Concatenate our T values into a mega dataset.
-        tstat_working_directory = base_working_directory / "concatenated_Tstats"
-        tcat_args = "-tr 2".split()
-        tcat_args += [f"{result.outfile}[ttest_Tstat]" for result in results.values() if result.program == "3dttest++"]
-        results["concatenated_Tstats"] = AFNI(program="3dTcat", args=tcat_args, working_directory=tstat_working_directory)
+        results["concatenated_results"] = self.concatenate(paths_to_datasets=outfiles, parent_working_directory=base_working_directory)
 
         # Return the results as a dictionary. Keys = subbrick labels, values = 3dttest++ results.
         return results
@@ -169,17 +161,9 @@ class SecondLevel():
                 results[label] = AFNI(program="3dMEMA", args=args, working_directory=working_directory)
                 results[label].outfile = the_path_that_matches("*.HEAD", in_directory=working_directory)
 
-        # Concatenate our betas into a mega dataset.
-        beta_working_directory = base_working_directory / "concatenated_betas"
-        tcat_args = "-tr 2".split()
-        tcat_args = [f"{result.outfile}[activation-vs-0:b]" for result in results.values() if result.program == "3dMEMA"]
-        results["concatenated_betas"] = AFNI(program="3dTcat", args=tcat_args, working_directory=beta_working_directory)
+        outfiles = [result.outfile for result in results.values() if result.program == "3dMEMA"]
 
-        # Concatenate our T values into a mega dataset.
-        tstat_working_directory = base_working_directory / "concatenated_Tstats"
-        tcat_args = "-tr 2".split()
-        tcat_args += [f"{result.outfile}[activation-vs-0:t]" for result in results.values() if result.program == "3dMEMA"]
-        results["concatenated_Tstats"] = AFNI(program="3dTcat", args=tcat_args, working_directory=tstat_working_directory)
+        results["concatenated_results"] = self.concatenate(paths_to_datasets=outfiles, parent_working_directory=base_working_directory)
 
         # Return the results as a dictionary. Keys = subbrick labels, values = 3dttest++ results.
         return results
@@ -205,6 +189,22 @@ class SecondLevel():
         print(f"Writing {output_json_path}")
         with open(output_json_path, "w") as json_file:
             json.dump(workflow_info, json_file, indent="\t")
+
+
+    def concatenate(self, paths_to_datasets: list, parent_working_directory: Path):
+        """
+        Runs 3dTcat to neatly organize all subbricks from the datasets you specify.
+        """
+        subbrick_labels = subbrick_labels_of(paths_to_datasets[0])
+
+        results = {}
+        for label in subbrick_labels:
+            tcat_args = "-tr 2".split()
+            for path in paths_to_datasets:
+                tcat_args += [f"{path}[{label}]"]
+            results[label] = AFNI(program="3dTcat", args=tcat_args, working_directory=parent_working_directory/f"{label}_concatenated")
+
+        return results
 
 
 if __name__ == "__main__":
