@@ -111,10 +111,24 @@ def append_to_json_file(key, value, path_to_json):
     Adds a key-value pair to your json file of choice.
     """
 
-    with open(path_to_json, "r+") as json_file:
+    contents = {}
+
+    with open(path_to_json, "r") as json_file:
         contents = json.load(json_file)
         contents[key] = value
+
+    with open(path_to_json, "w") as json_file:
         json.dump(contents, json_file)
+
+
+def value_of_key_in_json_file(key, path_to_json):
+    """
+    Gets the value of the specified key in the specified json file.
+    """
+
+    with open(path_to_json, "r") as json_file:
+        contents = json.load(json_file)
+        return contents[key]
 
 
 def stem_of(path: Path):
