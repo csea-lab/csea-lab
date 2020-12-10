@@ -10,6 +10,7 @@ veliebm@gmail.com
 from re import search
 from pathlib import Path
 import pandas
+import json
 
 
 def subject_id_of(path) -> str:
@@ -103,6 +104,17 @@ def the_path_that_matches(pattern: str, in_directory):
     
     else:
         return matches[0]
+
+
+def append_to_json_file(key, value, path_to_json):
+    """
+    Adds a key-value pair to your json file of choice.
+    """
+
+    with open(path_to_json, "r+") as json_file:
+        contents = json.load(json_file)
+        contents[key] = value
+        json.dump(contents, json_file)
 
 
 def stem_of(path: Path):
