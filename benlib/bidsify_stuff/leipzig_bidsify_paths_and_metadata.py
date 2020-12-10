@@ -43,7 +43,7 @@ def main(input_dir, bids_dir, exclude_fieldmaps):
 
     copy_files_to_their_new_homes(old_and_new_paths)
 
-    fix_json_metadata_in(bids_dir)
+    fix_task_jsons_in(bids_dir)
 
     add_dataset_description_to(bids_dir)
 
@@ -168,9 +168,9 @@ def copy_files_to_their_new_homes(old_and_new_paths: dict):
             print(f"Copied {old_path.name}  ->  {new_path.absolute()}")
 
 
-def fix_json_metadata_in(bids_dir: Path):
+def fix_task_jsons_in(bids_dir: Path):
     """
-    Go through our json files and add necessary keys to them.
+    Go through our task json files and add necessary keys to them.
     """
 
     print("Adding task names to json files.")
