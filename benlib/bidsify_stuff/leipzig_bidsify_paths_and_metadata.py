@@ -14,7 +14,7 @@ from shutil import copy, copytree, rmtree
 import json
 
 # Modules I wrote myself for CSEA stuff.
-from reference import task_name_of, the_path_that_matches, append_to_json_file
+from reference import task_name_of, the_path_that_matches, append_to_json_file, value_of_key_in_json_file
 
 
 def main(input_dir, bids_dir, exclude_fieldmaps):
@@ -175,8 +175,18 @@ def fix_jsons_in(bids_dir: Path):
 
     print("Finalizing task json files.")
 
-    for task_json in list(bids_dir.rglob("*_task-*.json")):
-        append_to_json_file(key="TaskName", value=task_name_of(task_json), path_to_json=task_json)
+    for path in bids_dir.rglob("func/*_task-*.json"):
+        append_to_json_file(key="TaskName", value=task_name_of(path), path_to_json=path)
+
+    print("Appending echo times to phase difference json files.")
+
+    for path in bids_dir.rglob("fmap/*_phasediff.json"):
+        magnitude1_path = the_path_that_matches(pattern="sub-*_magnitude1.json", in_directory=path.parent)
+        magnitude2_path = the_path_that_matches(pattern="sub-*_magnitude2.json", in_directory=path.parent)
+        echo_time1 = value_of_key_in_json_file("EchoTime", magnitude1_path)
+        echo_time2 = value_of_key_in_json_file("EchoTime", magnitude2_path)
+        append_to_json_file(key="EchoTime1", value=echo_time1, path_to_json=path)
+        append_to_json_file(key="EchoTime2", value=echo_time2, path_to_json=path)
 
 
 def add_dataset_description_to(bids_dir: Path):
