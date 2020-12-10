@@ -178,9 +178,11 @@ def fix_task_jsons_in(bids_dir: Path):
     for task_json in list(bids_dir.rglob("*_task-*.json")):
         contents = {}
 
-        with open(task_json, "r+") as json_file:
+        with open(task_json, "r") as json_file:
             contents = json.load(json_file)
             contents["TaskName"] = task_name_of(task_json)
+
+        with open(task_json, "w") as json_file:
             json.dump(contents, json_file)
 
 
