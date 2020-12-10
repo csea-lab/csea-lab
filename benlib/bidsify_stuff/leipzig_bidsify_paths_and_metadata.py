@@ -192,8 +192,8 @@ def fix_jsons_in(bids_dir: Path):
 
     for path in bids_dir.rglob("fmap/*.json"):
         func_dir = path.parent.parent / "func"
-        func_paths = [str(func_path) for func_path in func_dir.glob("*.nii")]
-        append_to_json_file(key="IntendedFor", value=func_paths, path_to_json=path)
+        trimmed_func_paths = ["func/" + func_path.name for func_path in func_dir.glob("*.nii")]
+        append_to_json_file(key="IntendedFor", value=trimmed_func_paths, path_to_json=path)
 
 
 def add_dataset_description_to(bids_dir: Path):
