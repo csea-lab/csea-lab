@@ -17,7 +17,7 @@ import json
 from reference import task_name_of, the_path_that_matches
 
 
-def main(input_dir, bids_dir):
+def main(input_dir, bids_dir, exclude_fieldmaps):
     """
     Structure an input directory into BIDS with all metadata included.
 
@@ -27,6 +27,8 @@ def main(input_dir, bids_dir):
         Directory to transform into BIDS.
     bids_dir : str or Path
         Where to create the new BIDS directory.
+    exclude_fieldmaps : bool
+        Whether to include fieldmaps in the BIDS dataset.
     """
 
     input_dir = Path(input_dir).absolute()
@@ -37,7 +39,7 @@ def main(input_dir, bids_dir):
 
     fix_acquisition_numbers_of_json_files_in(raw_dir)
 
-    old_and_new_paths = create_dictionary_of_old_and_new_paths(raw_dir, bids_dir)
+    old_and_new_paths = create_dictionary_of_old_and_new_paths(raw_dir, bids_dir, exclude_fieldmaps)
 
     copy_files_to_their_new_homes(old_and_new_paths)
 
@@ -95,7 +97,7 @@ def fix_acquisition_numbers_of_json_files_in(raw_dir: Path):
         old_path.replace(fresh_new_path)
 
 
-def create_dictionary_of_old_and_new_paths(raw_dir: Path, bids_dir: Path) -> dict:
+def create_dictionary_of_old_and_new_paths(raw_dir: Path, bids_dir: Path, exclude_fieldmaps: bool) -> dict:
     """
     The meat and potatoes of this script.
 
@@ -136,6 +138,15 @@ def create_dictionary_of_old_and_new_paths(raw_dir: Path, bids_dir: Path) -> dic
         elif filetype_of(old_path.with_suffix(".nii")) == "func" and acquisition_number_of(old_path) != "02":
             new_path = bids_dir / f"sub-{subject_id_of(old_path)}" / "func" / f"sub-{subject_id_of(old_path)}_task-{task_name_of(old_path)}_acq-{acquisition_number_of(old_path)}_bold{old_path.suffix}"
 
+        elif filetype_of(old_path.with_suffix(".nii")) == "fieldmap" and not exclude_fieldmaps:
+            old_affix = old_path.stem.split("_")[-1]
+            new_affix = "phasediff"
+            if old_affix == "e1":
+                new_affix = "magnitude1"
+            if old_affix == "e2":
+                new_affix = "magnitude2"
+            new_path = bids_dir / f"sub-{subject_id_of(old_path)}" / "fmap" / f"sub-{subject_id_of(old_path)}_{new_affix}{old_path.suffix}"
+
         old_and_new_paths[old_path] = new_path
 
     print("Paths sorted.")
@@ -159,21 +170,17 @@ def copy_files_to_their_new_homes(old_and_new_paths: dict):
 
 def fix_json_metadata_in(bids_dir: Path):
     """
-    Go through our json files and add TaskName into them as a key.
+    Go through our json files and add necessary keys to them.
     """
 
     print("Adding task names to json files.")
 
-    target_jsons = [path_to_json for path_to_json in bids_dir.rglob("*_task-*.json")]
-
-    for path_to_json in target_jsons:
+    for task_json in list(bids_dir.rglob("*_task-*.json")):
         contents = {}
 
-        with open(path_to_json, "r") as json_file:
+        with open(task_json, "r+") as json_file:
             contents = json.load(json_file)
-            contents["TaskName"] = task_name_of(path_to_json)
-        
-        with open(path_to_json, "w") as json_file:
+            contents["TaskName"] = task_name_of(task_json)
             json.dump(contents, json_file)
 
 
@@ -250,7 +257,7 @@ def filetype_of(path: Path) -> str:
         elif "_lessvoids_" in path.stem:
             filetype = "func"
         elif "field_map" in path.stem:
-            filetype = "field map"
+            filetype = "fieldmap"
 
     return filetype
 
@@ -287,7 +294,8 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Completely BIDSifies the Leipzig dataset.")
     parser.add_argument("input_dir", help="Input directory.")
     parser.add_argument("output_dir", help="Path to where the BIDS directory will be.")
+    parser.add_argument("--no_fieldmaps_please", "-n", action="store_true", help="Use this flag if you DON'T want fieldmaps in your BIDS dataset.")
 
     args = parser.parse_args()
 
-    main(args.input_dir, args.output_dir)
+    main(args.input_dir, args.output_dir, args.no_fieldmaps_please)
