@@ -14,7 +14,7 @@ from shutil import copy, copytree, rmtree
 import json
 
 # Modules I wrote myself for CSEA stuff.
-from reference import task_name_of, the_path_that_matches
+from reference import task_name_of, the_path_that_matches, append_to_json_file
 
 
 def main(input_dir, bids_dir, exclude_fieldmaps):
@@ -43,7 +43,7 @@ def main(input_dir, bids_dir, exclude_fieldmaps):
 
     copy_files_to_their_new_homes(old_and_new_paths)
 
-    fix_task_jsons_in(bids_dir)
+    fix_jsons_in(bids_dir)
 
     add_dataset_description_to(bids_dir)
 
@@ -168,22 +168,15 @@ def copy_files_to_their_new_homes(old_and_new_paths: dict):
             print(f"Copied {old_path.name}  ->  {new_path.absolute()}")
 
 
-def fix_task_jsons_in(bids_dir: Path):
+def fix_jsons_in(bids_dir: Path):
     """
-    Go through our task json files and add necessary keys to them.
+    Go through our json files and add necessary keys to them.
     """
 
-    print("Adding task names to json files.")
+    print("Finalizing task json files.")
 
     for task_json in list(bids_dir.rglob("*_task-*.json")):
-        contents = {}
-
-        with open(task_json, "r") as json_file:
-            contents = json.load(json_file)
-            contents["TaskName"] = task_name_of(task_json)
-
-        with open(task_json, "w") as json_file:
-            json.dump(contents, json_file)
+        append_to_json_file(key="TaskName", value=task_name_of(task_json), path_to_json=task_json)
 
 
 def add_dataset_description_to(bids_dir: Path):
