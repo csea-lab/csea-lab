@@ -118,7 +118,7 @@ def append_to_json_file(key, value, path_to_json):
         contents[key] = value
 
     with open(path_to_json, "w") as json_file:
-        json.dump(contents, json_file)
+        json.dump(contents, json_file, indent="\t")
 
 
 def value_of_key_in_json_file(key, path_to_json):
