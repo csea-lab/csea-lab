@@ -188,6 +188,13 @@ def fix_jsons_in(bids_dir: Path):
         append_to_json_file(key="EchoTime1", value=echo_time1, path_to_json=path)
         append_to_json_file(key="EchoTime2", value=echo_time2, path_to_json=path)
 
+    print("Setting targets of fieldmap json files.")
+
+    for path in bids_dir.rglob("fmap/*.json"):
+        func_dir = path.parent.parent / "func"
+        func_paths = [str(func_path) for func_path in func_dir.glob("*.nii")]
+        append_to_json_file(key="IntendedFor", value=func_paths, path_to_json=path)
+
 
 def add_dataset_description_to(bids_dir: Path):
     """
