@@ -14,7 +14,8 @@ import json
 
 # Import some CSEA custom libraries.
 from reference import subject_id_of, the_path_that_matches, task_name_of
-from afni import AFNI, subbrick_labels_of
+from afni import AFNI, subbrick_labels_of, copy_dataset
+import templateflow.api
 
 
 class SecondLevel():
@@ -112,13 +113,18 @@ class SecondLevel():
                 results[label] = AFNI(program="3dttest++", args=args, working_directory=working_directory)
                 results[label].outfile = the_path_that_matches("*.HEAD", in_directory=working_directory)
 
+        # Concatenate outfiles into some rockin' time series :)
         outfiles = [result.outfile for result in results.values() if result.program == "3dttest++"]
-
         results["concatenated_results"] = self.concatenate(paths_to_datasets=outfiles, parent_working_directory=base_working_directory)
+
+        # Copy the MNI template to each directory so we can use it in the AFNI viewer.
+        directories = [path for path in base_working_directory.glob("*") if path.is_dir()]
+        for directory in directories:
+            self.download_MNI_brain_into(directory)
 
         # Return the results as a dictionary. Keys = subbrick labels, values = 3dttest++ results.
         return results
-
+ 
 
     def mema(self, task_name):
         """
@@ -161,9 +167,14 @@ class SecondLevel():
                 results[label] = AFNI(program="3dMEMA", args=args, working_directory=working_directory)
                 results[label].outfile = the_path_that_matches("*.HEAD", in_directory=working_directory)
 
+        # Concatenate outfiles into some rockin' time series :)
         outfiles = [result.outfile for result in results.values() if result.program == "3dMEMA"]
-
         results["concatenated_results"] = self.concatenate(paths_to_datasets=outfiles, parent_working_directory=base_working_directory)
+
+        # Copy the MNI template to each directory so we can use it in the AFNI viewer.
+        directories = [path for path in base_working_directory.glob("*") if path.is_dir()]
+        for directory in directories:
+            self.download_MNI_brain_into(directory)
 
         # Return the results as a dictionary. Keys = subbrick labels, values = 3dttest++ results.
         return results
@@ -205,6 +216,16 @@ class SecondLevel():
             results[label] = AFNI(program="3dTcat", args=tcat_args, working_directory=parent_working_directory/f"{label}_concatenated")
 
         return results
+
+
+    def download_MNI_brain_into(self, directory):
+        """
+        Uses templateflow to download the MNI brain and move it into the target directory.
+        """
+
+        for path in templateflow.api.get("MNI152NLin2009cAsym"):
+            if path.name == "tpl-MNI152NLin2009cAsym_res-01_T1w.nii.gz":
+                copy_dataset(from_path=path, to_path=directory/path.name)
 
 
 if __name__ == "__main__":
