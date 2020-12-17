@@ -70,7 +70,7 @@ class Pipeline():
         I learned a lot about this topic from https://docs.python.org/3/reference/datamodel.html#basic-customization
         """
 
-        return f"{self.__class__.__name__}(bids_dir='{self.bids_dir}', subject_id='{self.subject_id}', outputs_title='{self.outputs_title}')"
+        return f"{self.__class__.__name__}(bids_dir='{self.bids_dir}', subject_id='{self.subject_id}')"
 
 
     def afni_proc(self):
