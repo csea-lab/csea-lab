@@ -24,7 +24,7 @@ class Pipeline():
     This class preprocesses and deconvolves a BIDSified dataset using afni_proc.py.
     """
 
-    def __init__(self, bids_dir, subject_id, outputs_title):
+    def __init__(self, bids_dir, subject_id):
     
         # Track time information.
         self.start_time = datetime.now()
@@ -32,7 +32,6 @@ class Pipeline():
         # Store parameters.
         self.bids_dir = bids_dir
         self.subject_id = subject_id
-        self.outputs_title = outputs_title
 
         # Tell the user what this class looks like internally.
         print(f"Executing {self.__repr__()}")
@@ -41,7 +40,7 @@ class Pipeline():
         self.dirs = {}
         self.dirs["bids_root"] = Path(bids_dir)     # Root of the raw BIDS dataset.
         self.dirs["subject_dir"] = self.dirs["bids_root"] / f"sub-{subject_id}"
-        self.dirs["output"] = self.dirs["bids_root"] / "derivatives" / "analysis_level-1_pipeline-afniproc" / outputs_title / f"sub-{subject_id}"    # Where we'll output the results of the first level analysis.
+        self.dirs["output"] = self.dirs["bids_root"] / "derivatives" / "afni_proc" / "analysis_level-1" / f"sub-{subject_id}"    # Where we'll output the results of the first level analysis.
 
         # Get paths to all files necessary for the analysis. Store in a dict of dicts, except for anat_path.
         self.anat_path = the_path_that_matches(f"anat/*_T1w.nii", in_directory=self.dirs["subject_dir"])
@@ -57,7 +56,7 @@ class Pipeline():
         for directory in self.dirs.values():
             directory.mkdir(exist_ok=True, parents=True)
 
-        results = self.afni_proc()
+        self.results = self.afni_proc()
 
         # Record end time and write our report.
         self.end_time = datetime.now()
@@ -186,7 +185,6 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(description="Runs BIDSified subjects through an afni_proc.py pipeline crafted by Andreas. You must specify the path to the root of the BIDS directory. You must also specify EITHER a list of specific subjects OR all subjects.", fromfile_prefix_chars="@")
     parser.add_argument("--bids_dir", type=Path, required=True, help="<Mandatory> Path to the root of the BIDS directory.")
-    parser.add_argument("--outputs_title", default="nice_analysis", help="Title you'd like to use for this analysis. Default: analysis_level-1_pipeline-afniproc")
 
     group = parser.add_mutually_exclusive_group(required=True)
     group.add_argument("--subjects", metavar="SUBJECT_ID", nargs="+", help="<Mandatory> Preprocess a list of specific subject IDs. Mutually exclusive with --all.")
@@ -212,5 +210,4 @@ if __name__ == "__main__":
         Pipeline(
             bids_dir=args.bids_dir,
             subject_id=subject_id,
-            outputs_title=args.outputs_title,
         )
