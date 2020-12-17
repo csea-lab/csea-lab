@@ -154,7 +154,6 @@ class Pipeline():
             Path to the .tsv file to break up.
         output_dir : str or Path
             Directory to write columns of the .tsv file to.
-
         """
 
         # Alert the user and prepare our paths.
