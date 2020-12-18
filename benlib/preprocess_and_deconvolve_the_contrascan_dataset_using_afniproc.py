@@ -102,7 +102,7 @@ class Pipeline():
             -volreg_tlrc_warp
             -blur_size 4.0
             -regress_stim_labels stim
-            -regress_basis CSPLINzero(0,14,8)
+            -regress_basis CSPLINzero(0,18,10)
             -regress_opts_3dD -jobs 2
             -regress_motion_per_run
             -regress_censor_motion 0.3
