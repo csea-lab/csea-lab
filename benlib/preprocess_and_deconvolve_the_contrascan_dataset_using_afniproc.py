@@ -24,14 +24,16 @@ class Pipeline():
     This class preprocesses and deconvolves a BIDSified dataset using afni_proc.py.
     """
 
-    def __init__(self, bids_dir, subject_id):
+    def __init__(self, bids_dir, subject_id, how_many_trs_to_remove):
     
         # Track time information.
         self.start_time = datetime.now()
 
-        # Store parameters.
+        # Store parameters and constants.
         self.bids_dir = bids_dir
         self.subject_id = subject_id
+        self.how_many_trs_to_remove = how_many_trs_to_remove
+        self.time_repetition = 2
 
         # Tell the user what this class looks like internally.
         print(f"Executing {self.__repr__()}")
@@ -39,8 +41,8 @@ class Pipeline():
         # Store paths to directories we need in self.dirs.
         self.dirs = {}
         self.dirs["bids_root"] = Path(bids_dir)     # Root of the raw BIDS dataset.
-        self.dirs["subject_dir"] = self.dirs["bids_root"] / f"sub-{subject_id}"
-        self.dirs["output"] = self.dirs["bids_root"] / "derivatives" / "afni_proc" / "analysis_level-1" / f"sub-{subject_id}"    # Where we'll output the results of the first level analysis.
+        self.dirs["subject_dir"] = self.dirs["bids_root"] / f"sub-{subject_id}"         # Where to find info about the subject
+        self.dirs["output"] = self.dirs["bids_root"] / "derivatives" / "analysis_level-1" / "preprocessing_AND_deconvolution_with_only_afniproc" / f"sub-{subject_id}"    # Where we'll output the results of the first level analysis.
 
         # Get paths to all files necessary for the analysis. Store in a dict of dicts, except for anat_path.
         self.anat_path = the_path_that_matches(f"anat/*_T1w.nii", in_directory=self.dirs["subject_dir"])
@@ -70,7 +72,7 @@ class Pipeline():
         I learned a lot about this topic from https://docs.python.org/3/reference/datamodel.html#basic-customization
         """
 
-        return f"{self.__class__.__name__}(bids_dir='{self.bids_dir}', subject_id='{self.subject_id}')"
+        return f"{self.__class__.__name__}(bids_dir='{self.bids_dir}', subject_id='{self.subject_id}', how_many_trs_to_remove={self.how_many_trs_to_remove})"
 
 
     def afni_proc(self):
@@ -84,8 +86,8 @@ class Pipeline():
         args = ["-regress_stim_times"]
 
         for task_name in self.task_names:
-            task_info_dir = self.dirs["output"] / f"task-{task_name}_info"
-            self._split_columns_into_text_files(self.paths[task_name]["events_tsv"], task_info_dir)
+            task_info_dir = self.dirs["output"] / f"task-{task_name}_onsets_and_more"
+            self._extract_onsets(self.paths[task_name]["events_tsv"], task_info_dir)
             args += [task_info_dir/"onset.txt"]            
 
         args += ["-dsets"] + [self.paths[task_name]["func_scan"] for task_name in self.task_names]
@@ -93,7 +95,7 @@ class Pipeline():
             -subj_id {self.subject_id}
             -copy_anat {self.anat_path}
             -blocks tshift align tlrc volreg blur mask scale regress
-            -tcat_remove_first_trs 1
+            -tcat_remove_first_trs {self.how_many_trs_to_remove}
             -align_opts_aea -cost lpc+ZZ -giant_move -check_flip
             -tlrc_base TT_N27+tlrc
             -tlrc_NL_warp
@@ -129,8 +131,9 @@ class Pipeline():
         workflow_info = {
             "You analyzed this subject": self.subject_id,
             "The workflow took this long to run": str(self.end_time - self.start_time),
+            "Number of TRs we sliced off the front of the dataset": self.how_many_trs_to_remove,
             "You passed these arguments to the script": sys.argv
-        }
+        }  
 
         # Write the workflow dict to a json file.
         output_json_path = self.dirs["output"] / f"workflow_info.json"
@@ -139,13 +142,16 @@ class Pipeline():
             json.dump(workflow_info, json_file, indent="\t")
 
 
-    def _split_columns_into_text_files(self, tsv_path, output_dir):
+    def _extract_onsets(self, tsv_path, output_dir):
         """
-        Converts a tsv file into a collection of text files.
+        Converts your subject info tsv into a collection of text files.
 
         Each column name becomes the name of a text file. Each value in that column is then
         placed into the text file. Don't worry - this won't hurt your .tsv file, which will lay
         happily in its original location.
+
+        This method will furthermore remove TRs from the onset times if you so specified when
+        you ran this script.
 
 
         Parameters
@@ -169,6 +175,9 @@ class Pipeline():
             na_values="n/a"
         ).fillna(value=0)
 
+        # Adjust onset times.
+        tsv_info["onset"] = tsv_info["onset"].apply(lambda time: time - self.how_many_trs_to_remove * self.time_repetition)
+
         # Write each column of the dataframe as a text file.
         for column_name in tsv_info:
             column_path = output_dir / f"{column_name}.txt"
@@ -182,12 +191,14 @@ if __name__ == "__main__":
     It contains the parser that parses arguments from the command line.
     """
 
-    parser = argparse.ArgumentParser(description="Runs BIDSified subjects through an afni_proc.py pipeline crafted by Andreas. You must specify the path to the root of the BIDS directory. You must also specify EITHER a list of specific subjects OR all subjects.", fromfile_prefix_chars="@")
+    parser = argparse.ArgumentParser(description="Runs BIDSified subjects through an afni_proc.py pipeline. You must specify the path to the root of the BIDS directory. You must also specify EITHER a list of specific subjects OR all subjects.", fromfile_prefix_chars="@")
     parser.add_argument("--bids_dir", type=Path, required=True, help="<Mandatory> Path to the root of the BIDS directory.")
 
     group = parser.add_mutually_exclusive_group(required=True)
     group.add_argument("--subjects", metavar="SUBJECT_ID", nargs="+", help="<Mandatory> Preprocess a list of specific subject IDs. Mutually exclusive with --all.")
     group.add_argument('--all', action='store_true', help="<Mandatory> Analyze all subjects. Mutually exclusive with --subjects.")
+
+    parser.add_argument("--remove_this_many_trs", type=int, default=1, help="How many TRs you wanna chop off the front of your data. Fear not - we'll also adjust your onsets. Defaults to 1.")
 
     # Parse command-line args and make an empty list to store subject ids in.
     args = parser.parse_args()
@@ -209,4 +220,5 @@ if __name__ == "__main__":
         Pipeline(
             bids_dir=args.bids_dir,
             subject_id=subject_id,
+            how_many_trs_to_remove=args.remove_this_many_trs
         )
