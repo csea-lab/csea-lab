@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-
 """
 Script to preprocess the contrascan dataset then 1st-level-analysis it.
 
@@ -16,10 +15,11 @@ import argparse
 import json
 import re
 import shutil
+import pandas
 
 
 # Import some friendly and nice CSEA custom modules. -------------------
-from reference import subject_id_of, the_path_that_matches, split_columns_into_text_files
+from reference import subject_id_of, the_path_that_matches
 from afni import AFNI
 
 
@@ -491,7 +491,7 @@ class Pipeline():
         working_directory = self.dirs["output"] / "3dDeconvolve"
 
         # Grab onsets from our BIDS event file.
-        split_columns_into_text_files(tsv_path=self.paths["events_tsv"], output_dir=self.dirs["output"] / "other")
+        self._split_columns_into_text_files(tsv_path=self.paths["events_tsv"], output_dir=self.dirs["output"] / "other")
         onsets_path = the_path_that_matches("onset.txt", in_directory=self.dirs["output"] / "other")
 
         # Create list of arguments and run program.
@@ -574,6 +574,43 @@ class Pipeline():
         print(f"Writing {output_json_path}")
         with open(output_json_path, "w") as json_file:
             json.dump(workflow_info, json_file, indent="\t")
+
+
+    def _split_columns_into_text_files(self, tsv_path, output_dir):
+        """
+        Converts a tsv file into a collection of text files.
+
+        Each column name becomes the name of a text file. Each value in that column is then
+        placed into the text file. Don't worry - this won't hurt your .tsv file, which will lay
+        happily in its original location.
+
+
+        Parameters
+        ----------
+        tsv_path : str or Path
+            Path to the .tsv file to break up.
+        output_dir : str or Path
+            Directory to write columns of the .tsv file to.
+
+        """
+
+        # Alert the user and prepare our paths.
+        tsv_path = Path(tsv_path).absolute()
+        output_dir = Path(output_dir).absolute()
+        output_dir.mkdir(exist_ok=True, parents=True)
+        print(f"Storing the columns of {tsv_path.name} as text files in directory {output_dir}")
+
+        # Read the .tsv file into a DataFrame and fill n/a values with zero.
+        tsv_info = pandas.read_table(
+            tsv_path,
+            sep="\t",
+            na_values="n/a"
+        ).fillna(value=0)
+
+        # Write each column of the dataframe as a text file.
+        for column_name in tsv_info:
+            column_path = output_dir / f"{column_name}.txt"
+            tsv_info[column_name].to_csv(column_path, sep=' ', index=False, header=False)
 
 
 if __name__ == "__main__":
