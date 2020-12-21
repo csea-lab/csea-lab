@@ -40,7 +40,7 @@ class Pipeline():
         # Store all our dirs in one dict. -----------------------
         self.dirs = {}
         self.dirs["bids_root"] = Path(self.bids_dir)     # Root of the raw BIDS dataset.
-        self.dirs["output"] = self.dirs["bids_root"] / "derivatives" / "preprocessing_afni" / f"sub-{subject_id}"   # Where we'll output info for the subject.
+        self.dirs["output"] = self.dirs["bids_root"] / "derivatives" / "analysis_level-1" / "basic_afni_pipeline_for_preprocessing_and_deconvolution" / f"sub-{subject_id}"   # Where we'll output info for the subject.
 
 
         # Gather paths to the files we need. ------------------------
