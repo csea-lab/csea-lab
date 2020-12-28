@@ -16,7 +16,7 @@ from pathlib import Path
 import json
 import sys
 import re
-import nibabel
+import nibabel 
 
 # Import some lean and mean CSEA modules.
 from reference import the_path_that_matches
@@ -153,16 +153,3 @@ def subbrick_labels_of(path_to_afni_dataset):
     labels = raw_label_string.split("~")
 
     return labels
-
-
-def copy_dataset(from_path, to_path):
-    """
-    Copies an AFNI head and brick file to the specified location using 3dcopy.
-
-    Yes, this is literally just a wrapper for 3dcopy. Why remake the wheel, right?
-    """
-
-    args = ["3dcopy", from_path, to_path]
-
-    print(f"3dcopying {from_path}  -->  {to_path}")
-    subprocess.run(args, capture_output=True)
