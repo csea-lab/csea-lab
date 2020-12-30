@@ -11,10 +11,11 @@ from datetime import datetime
 import argparse
 from pathlib import Path
 import json
+from shutil import copy2
 
 # Import some CSEA custom libraries.
 from reference import subject_id_of, the_path_that_matches, task_name_of
-from afni import AFNI, subbrick_labels_of, copy_dataset
+from afni import AFNI, subbrick_labels_of
 import templateflow.api
 
 
@@ -23,7 +24,7 @@ class SecondLevel():
     This class runs a second level analysis on subjects for whom you've already run a first-level analysis.
     """
 
-    def __init__(self, subject_ids, bids_dir, firstlevel_name, secondlevel_name):
+    def __init__(self, subject_ids, bids_dir, firstlevel_name, secondlevel_name, tasks_to_compare):
 
         # Track when the program begins running.
         self.start_time = datetime.now()
@@ -33,6 +34,7 @@ class SecondLevel():
         self.bids_dir = bids_dir
         self.firstlevel_name = firstlevel_name
         self.secondlevel_name = secondlevel_name
+        self.tasks_to_compare = tasks_to_compare
 
         # Set name of analysis equal to 1st-level name unless the user provided a 2nd-level name.
         self.analysis_name = self.firstlevel_name
@@ -61,12 +63,15 @@ class SecondLevel():
                 self.paths[task_name][subject_id]["deconvolve_outfile"] = the_path_that_matches(f"sub-{subject_id}_task-{task_name}*stats*.HEAD", in_directory=self.dirs["firstlevel"]/f"sub-{subject_id}/task-{task_name}/3dDeconvolve")
                 self.paths[task_name][subject_id]["reml_outfile"] = the_path_that_matches(f"sub-{subject_id}_task-{task_name}*stats*.HEAD", in_directory=self.dirs["firstlevel"]/f"sub-{subject_id}/task-{task_name}/3dREMLfit")
 
-        # Run our regressions.
-        self.results = {}
+        # Run our regressions compared against zero.
         for task_name in self.task_names:
-            self.results[task_name] = {}
-            self.results[task_name]["3dttest++"] = self.ttest(task_name)
-            self.results[task_name]["3dMEMA"] = self.mema(task_name)
+            self.ttest(task_name)
+            self.mema(task_name)
+
+        # Run our regressions compared against each other.
+        for i in range(len(self.tasks_to_compare)):
+            self.ttest(self.tasks_to_compare[i], comparison_task=self.tasks_to_compare[i+1])
+            i += 1
 
         # Record end time and write our report.
         self.end_time = datetime.now()
@@ -80,12 +85,14 @@ class SecondLevel():
         To learn more, consider reading https://docs.python.org/3/reference/datamodel.html#basic-customization
         """
 
-        return f"SecondLevel(subject_ids={self.subject_ids}, bids_dir='{self.bids_dir}', firstlevel_name='{self.firstlevel_name}')"
+        return f"SecondLevel(subject_ids={self.subject_ids}, bids_dir='{self.bids_dir}', firstlevel_name='{self.firstlevel_name}', secondlevel_name='{self.secondlevel_name}', tasks_to_compare={self.tasks_to_compare})"
 
 
-    def ttest(self, task_name):
+    def ttest(self, task_name, comparison_task=None):
         """
         Run AFNI's 3dttest++ on the outfiles of the specified task. Also concatenates them together.
+
+        If you specify a comparison task, 3dttest will compare both tasks against each other AND against zero! What a time to be alive!
 
         3dttest++ info: https://afni.nimh.nih.gov/pub/dist/doc/htmldoc/programs/3dttest++_sphx.html#ahelp-3dttest
 
@@ -93,6 +100,8 @@ class SecondLevel():
         """
 
         base_working_directory = self.dirs["output"] / f"task-{task_name}" / "3dttest++"
+        if comparison_task:
+            base_working_directory = self.dirs["output"] / f"task-{task_name}_vs_task-{comparison_task}" / "3dttest++"
 
         # Gather the labels of the subbricks we want to include.
         representative_dataset = list(self.paths[task_name].values())[0]["deconvolve_outfile"]
@@ -103,10 +112,16 @@ class SecondLevel():
         for label in labels:
             if "_Coef" in label:
 
-                # Build arguments to pass to the program.
-                args = "-setA ttest".split()
+                # Build base arguments to pass to the program.
+                args = ["-setA", task_name]
                 for subject_id in self.subject_ids:
                     args += [f"sub-{subject_id}"] + [f'{self.paths[task_name][subject_id]["deconvolve_outfile"]}[{label}]']
+
+                if comparison_task:
+                    args += ["-setB", comparison_task]
+                    for subject_id in self.subject_ids:
+                        args += [f"sub-{subject_id}"] + [f'{self.paths[comparison_task][subject_id]["deconvolve_outfile"]}[{label}]']
+    
 
                 # Run program. Store path to outfile as an attribute of the AFNI object.
                 working_directory = base_working_directory / f"subbrick-{label}"
@@ -114,7 +129,7 @@ class SecondLevel():
                 results[label].outfile = the_path_that_matches("*.HEAD", in_directory=working_directory)
 
         # Concatenate outfiles into some rockin' time series :)
-        outfiles = [result.outfile for result in results.values() if result.program == "3dttest++"]
+        outfiles = [result.outfile for result in results.values()]
         results["concatenated_results"] = self.concatenate(paths_to_datasets=outfiles, parent_working_directory=base_working_directory)
 
         # Copy the MNI template to each directory so we can use it in the AFNI viewer.
@@ -225,7 +240,7 @@ class SecondLevel():
 
         for path in templateflow.api.get("MNI152NLin2009cAsym"):
             if path.name == "tpl-MNI152NLin2009cAsym_res-01_T1w.nii.gz":
-                copy_dataset(from_path=path, to_path=directory/path.name)
+                copy2(src=path, dst=directory/path.name)
 
 
 if __name__ == "__main__":
@@ -237,24 +252,27 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(description="Runs a 2nd-level analysis on subjects for whom you have already run a 1st-level analysis. You must specify the path to the raw BIDS dataset you ran your 1st-level analysis on. You must also specify whether to analyze EITHER a list of specific subjects OR all subjects. Finally, you must specify the title of the directory containing your 1st-level analysis results.", fromfile_prefix_chars="@")
 
-    parser.add_argument("--bids_dir", "-b", required=True, help="<Mandatory> Path to the root of the BIDS directory. Example: '--bids_dir /readwrite/contrascan/bids_attempt-2'")
-    parser.add_argument("--firstlevel_name", "-f", required=True, help="<Mandatory> Name of the 1st-level analysis directory to access within the BIDS directory. Example: to access 'bidsroot/derivatives/first_level_analysis/sub-$SUBJECT_ID/analysis_regressors-csf', use '--firstlevel_name analysis_regressors-csf'")
+    parser.add_argument("--bids_dir", required=True, help="<Mandatory> Path to the root of the BIDS directory. Example: '--bids_dir /readwrite/contrascan/bids_attempt-2'")
+    parser.add_argument("--firstlevel_name", required=True, help="<Mandatory> Name of the 1st-level analysis directory to access within the BIDS directory. Example: to access 'bidsroot/derivatives/first_level_analysis/sub-$SUBJECT_ID/analysis_regressors-csf', use '--firstlevel_name analysis_regressors-csf'")
 
     group = parser.add_mutually_exclusive_group(required=True)
-    group.add_argument("--subjects", "-s", metavar="SUBJECT_ID", nargs="+", help="<Mandatory> Analyze a list of specific subject IDs. Example: '--subjects 107 108 110'. Mutually exclusive with --all.")
-    group.add_argument('--all', '-a', action='store_true', help="<Mandatory> Analyze all subjects. Mutually exclusive with --subjects.")
+    group.add_argument("--subjects", metavar="SUBJECT_ID", nargs="+", help="<Mandatory> Analyze a list of specific subject IDs. Example: '--subjects 107 108 110'. Mutually exclusive with --all.")
+    group.add_argument('--all', action='store_true', help="<Mandatory> Analyze all subjects. Mutually exclusive with --subjects.")
+    group.add_argument("--all_except", metavar="SUBJECT_ID", nargs="+", help="<Mandatory> Analyze all subjects but exclude those specified here. Example: '--all_except 109 111'")
 
     parser.add_argument("--secondlevel_name", default=None, help="Default: Name of the 1st-level analysis. What to name the 2nd-level analysis. Example: '--secondlevel_name hello_this_is_a_test'")
+    parser.add_argument("--compare_tasks", metavar="TASK", nargs="+", help="Default: None. Compares specific pairs of tasks together. Example: '--compare_tasks alpha nietzche 10 potato' will compare task alpha vs task nietzche and task 10 vs task potato.")
 
     # Parse args from the command line and create an empty list to store the subject ids we picked.
     args = parser.parse_args()
     subject_ids = []
 
     # Option 1: Process all subjects.
-    if args.all:
+    if args.all or args.all_except:
         bids_root = Path(args.bids_dir)
         for subject_dir in bids_root.glob("sub-*"):
-            subject_ids.append(subject_id_of(subject_dir))
+            if subject_id_of(subject_dir) not in args.all_except:
+                subject_ids.append(subject_id_of(subject_dir))
 
     # Option 2: Process specific subjects.
     else:
@@ -265,5 +283,6 @@ if __name__ == "__main__":
         subject_ids=subject_ids,
         bids_dir=args.bids_dir,
         firstlevel_name=args.firstlevel_name,
-        secondlevel_name=args.secondlevel_name
+        secondlevel_name=args.secondlevel_name,
+        tasks_to_compare=args.compare_tasks
     )
