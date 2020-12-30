@@ -69,9 +69,8 @@ class SecondLevel():
             self.mema(task_name)
 
         # Run our regressions compared against each other.
-        for i in range(len(self.tasks_to_compare)):
+        for i in range(0, len(self.tasks_to_compare), 2):
             self.ttest(self.tasks_to_compare[i], comparison_task=self.tasks_to_compare[i+1])
-            i += 1
 
         # Record end time and write our report.
         self.end_time = datetime.now()
