@@ -71,6 +71,7 @@ class SecondLevel():
         # Run our regressions compared against each other.
         for i in range(0, len(self.tasks_to_compare), 2):
             self.ttest(self.tasks_to_compare[i], comparison_task=self.tasks_to_compare[i+1])
+            self.mema(self.tasks_to_compare[i], comparison_task=self.tasks_to_compare[i+1])
 
         # Record end time and write our report.
         self.end_time = datetime.now()
@@ -140,15 +141,19 @@ class SecondLevel():
         return results
  
 
-    def mema(self, task_name):
+    def mema(self, task_name, comparison_task=None):
         """
         Runs AFNI's 3dMEMA 2nd-level analysis using the output bucket of 3dREMLfit.
+
+        If you specify a comparison task, 3dMEMA will compare both tasks against each other AND against zero! What a time to be alive!
 
         3dMEMA info: https://afni.nimh.nih.gov/pub/dist/doc/htmldoc/programs/3dMEMA_sphx.html#ahelp-3dmema
         How to gather specific sub-briks from the 3dREMLfit outfile: https://afni.nimh.nih.gov/pub/dist/doc/program_help/common_options.html
         """
 
         base_working_directory = self.dirs["output"] / f"task-{task_name}" / "3dMEMA"
+        if comparison_task:
+            base_working_directory = self.dirs["output"] / f"task-{task_name}_vs_task-{comparison_task}" / "3dMEMA"
 
         # Gather the labels of the sub-bricks we want to include.
         representative_dataset = list(self.paths[task_name].values())[0]["reml_outfile"]
@@ -161,20 +166,34 @@ class SecondLevel():
 
                 # Create base arguments to pass to program.
                 args = (f"""
-                    -prefix {self.firstlevel_name}_task-{task_name}_mema
+                    -prefix memamemamema
                     -jobs 5
                     -verb 1
                     -missing_data 0
-                    -set activation-vs-0
+                    -groups task-{task_name}
                     """).split()
 
-                # Append our 3dREMLfit outfiles to the command.
+                if comparison_task:
+                    args += [f"task-{comparison_task}"]
+
+                # Append our 3dREMLfit outfiles to the command for our first task.
+                args += ["-set", f"task-{task_name}"]
                 for subject_id in self.subject_ids:
                     args += [
                         subject_id,
                         f'{self.paths[task_name][subject_id]["reml_outfile"]}[{i}]',    # Append a beta sub-brick to the command
                         f'{self.paths[task_name][subject_id]["reml_outfile"]}[{i+1}]',  # Append a Tstat sub-brick to the command
                     ]
+
+                # Include the !bonus task! if necessary :D
+                if comparison_task:
+                    args += ["-set", f"task-{comparison_task}"]
+                    for subject_id in self.subject_ids:
+                        args += [
+                            subject_id,
+                            f'{self.paths[comparison_task][subject_id]["reml_outfile"]}[{i}]',    # Append a beta sub-brick to the command
+                            f'{self.paths[comparison_task][subject_id]["reml_outfile"]}[{i+1}]',  # Append a Tstat sub-brick to the command
+                        ]
 
                 # Run program. Store path to outfile as an attribute of the AFNI object.
                 working_directory = base_working_directory / f"subbrick-{label}"
@@ -190,7 +209,7 @@ class SecondLevel():
         for directory in directories:
             self.download_MNI_brain_into(directory)
 
-        # Return the results as a dictionary. Keys = subbrick labels, values = 3dttest++ results.
+        # Return the results as a dictionary. Keys = subbrick labels, values = 3dMEMA results.
         return results
 
 
