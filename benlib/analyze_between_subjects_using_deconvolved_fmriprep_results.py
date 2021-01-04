@@ -113,7 +113,7 @@ class SecondLevel():
             if "_Coef" in label:
 
                 # Build base arguments to pass to the program.
-                args = ["-setA", task_name]
+                args = f"-zskip 100% -setA {task_name}".split()
                 for subject_id in self.subject_ids:
                     args += [f"sub-{subject_id}"] + [f'{self.paths[task_name][subject_id]["deconvolve_outfile"]}[{label}]']
 
