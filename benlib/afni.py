@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
 
 """
-Class to run AFNI programs and write and store info about them.
+This module includes a class to run AFNI programs and write and store info about them.
+
+It also includes some helper functions to assist you in your travels with AFNI.
 
 Created 10/13/2020 by Benjamin Velie.
 veliebm@gmail.com
-
 """
 
 # Import standard Python modules.
@@ -15,6 +16,7 @@ from pathlib import Path
 import json
 import sys
 import re
+import nibabel 
 
 # Import some lean and mean CSEA modules.
 from reference import the_path_that_matches
@@ -23,7 +25,6 @@ from reference import the_path_that_matches
 class AFNI():
     """
     Class to run AFNI programs and store information about them.
-
     """
 
     def __init__(self, program: str, args: list, working_directory, write_matrix_lines_to=None):
@@ -37,9 +38,7 @@ class AFNI():
         self.write_matrix_lines_to = write_matrix_lines_to
 
         # Figure out if program has run before. If yes, we'll kill the process later.
-        self.program_has_run_before = False
-        if self._program_has_run_before():
-            self.program_has_run_before = True
+        self.program_has_run_before = self._program_has_run_before()
 
         # Tell user that we're executing this object.
         print(f"Executing {self.__repr__()}")
@@ -63,13 +62,11 @@ class AFNI():
                 sys.stdout.flush()
                 self.stdout_and_stderr += line
 
-        # Write matrix if an output path for it was given.
-        if self.write_matrix_lines_to:
-            self._write_matrix()
-
         self.end_time = datetime.now()
         
         if not self.program_has_run_before:
+            if self.write_matrix_lines_to:
+                self._write_matrix()
             self.write_logs()
 
 
@@ -78,7 +75,6 @@ class AFNI():
         Defines how the class represents itself internally as a string.
 
         To learn more, consider reading https://docs.python.org/3/reference/datamodel.html#basic-customization
-
         """
 
         return f"{self.__class__.__name__}(program='{self.program}', args={self.args}, working_directory='{self.working_directory}')"
@@ -90,7 +86,6 @@ class AFNI():
 
         Double-check the matrix to make sure it ONLY captured the lines you want it to capture!
         This method is useful if you're recording the outputs of 3dToutcount or 3dROIstats.
-
         """
 
         # Define function to filter in any line of stdout that exclusively contains numbers, tabs, and decimal signs.
@@ -108,7 +103,6 @@ class AFNI():
     def write_logs(self):
         """
         Write program info and logs to working directory.
-
         """
 
         # Store program info into a dict.
@@ -140,7 +134,6 @@ class AFNI():
 
         We infer this by checking whether log files are present. If log files exist, then
         the program has probably already ran to completion before.
-
         """
 
         try:
@@ -149,3 +142,14 @@ class AFNI():
             return True
         except OSError:
             return False
+
+
+def subbrick_labels_of(path_to_afni_dataset):
+    """
+    Returns a list. Each element is the label of a sub-brick within the target dataset.
+    """
+    dataset = nibabel.load(path_to_afni_dataset)
+    raw_label_string = dataset.header.info['BRICK_LABS']
+    labels = raw_label_string.split("~")
+
+    return labels

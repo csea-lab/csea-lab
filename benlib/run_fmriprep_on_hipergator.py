@@ -3,13 +3,10 @@
 """
 Process subjects from a BIDS-valid dataset via Singularity containers on HiPerGator.
 
-Note that you MUST run this script with Python 3, not Python 2. Thus, to activate this script in
-HiPerGator, either type "python3 submitjob_fmriprep.py" into the command line OR call the script directly
-by typing "./submitjob_fmriprep.py".
+Note that you MUST run this script with Python 3, not Python 2.
 
 Created 9/16/2020 by Ben Velie.
 veliebm@gmail.com
-
 """
 
 import argparse
@@ -30,7 +27,6 @@ def write_script(script_path, time_requested, email_address, number_of_processor
     """
     Writes the SLURM script that we'll automatically submit to the cluster.
 
-
     Parameters
     ----------
     script_path : str
@@ -49,7 +45,6 @@ def write_script(script_path, time_requested, email_address, number_of_processor
         Path to the root of the BIDS directory.
     singularity_image_path : str or Path
         Path to an fMRIPrep Singularity image.
-        
     """
 
     # Get the contents of the SLURM script as a nice, big string.
@@ -111,7 +106,6 @@ def subject_id_of(path) -> str:
     """
     Returns the subject ID closest to the end of the input string or Path.
 
-
     Inputs
     ------
     path : str or Path
@@ -126,7 +120,6 @@ def subject_id_of(path) -> str:
     ------
     RuntimeError
         If no subject ID found in input filename.
-
     """
 
     try:
@@ -141,84 +134,24 @@ if __name__ == "__main__":
     This section of the script only runs when you run the script directly from the shell.
 
     Thus, this is where we read and interpret arguments from the command line.
-
     """
 
-    parser = argparse.ArgumentParser(
-        description=f"Launch this script on HiPerGator to run fMRIPrep on your BIDS-valid dataset! Each subject receives their own container. You may specify EITHER specific subjects OR all subjects. Final outputs are written to bids_dir/derivatives/preprocessing/. Intermediate results are written to the current working directory. Remember to only do your work in subdirectories of /blue/akeil/{os.getlogin()}!",
-        fromfile_prefix_chars="@"
-    )
+    parser = argparse.ArgumentParser(description=f"Launch this script on HiPerGator to run fMRIPrep on your BIDS-valid dataset! Each subject receives their own container. You may specify EITHER specific subjects OR all subjects. Final outputs are written to bids_dir/derivatives/preprocessing/. Intermediate results are written to the current working directory. Remember to only do your work in subdirectories of /blue/akeil/{os.getlogin()}!", fromfile_prefix_chars="@")
 
-    parser.add_argument(
-        "--bids_dir",
-        "-b",
-        type=Path,
-        required=True,
-        help="<Mandatory> Path to the root of the BIDS directory. Example: '--bids_dir /blue/akeil/veliebm/files/contrascan/bids_attempt-3'"
-    )
-
-    parser.add_argument(
-        "--image",
-        "-i",
-        type=Path,
-        required=True,
-        help="<Mandatory> Path to an fMRIPrep singularity image. Example: '--image /blue/akeil/veliebm/files/images/fmriprep_version-20.2.0.sig'"
-    )
-
+    parser.add_argument("--bids_dir", "-b", type=Path, required=True, help="<Mandatory> Path to the root of the BIDS directory. Example: '--bids_dir /blue/akeil/veliebm/files/contrascan/bids_attempt-3'")
 
     group = parser.add_mutually_exclusive_group(required=True)
-    group.add_argument(
-        "--subjects",
-        "-s",
-        metavar="SUBJECT_ID",
-        nargs="+",
-        help="<Mandatory> Preprocess a list of specific subject IDs. Mutually exclusive with '--all'. Example: '--subjects 107 110 123'"
-    )
+    group.add_argument("--subjects", "-s", metavar="SUBJECT_ID", nargs="+", help="<Mandatory> Preprocess a list of specific subject IDs. Mutually exclusive with '--all'. Example: '--subjects 107 110 123'")
+    group.add_argument('--all', '-a', action='store_true', help="<Mandatory> Analyze all subjects. Mutually exclusive with '--subjects'. Example: '--all'")
 
-    group.add_argument(
-        '--all',
-        '-a',
-        action='store_true',
-        help="<Mandatory> Analyze all subjects. Mutually exclusive with '--subjects'. Example: '--all'"
-    )
-
-
-    parser.add_argument(
-        "--time",
-        "-t",
-        default="4-00:00:00",
-        metavar="d-hh:mm:ss",
-        help="Default: 4-00:00:00. Maximum time the job can run. Burst QOS max allowed: 4 days. Investment QOS max allowed: 31 days. Example (3.5 days): '--time 3-12:00:00'"
-    )
-
-    parser.add_argument(
-        "--n_procs",
-        '-n',
-        default="2",
-        metavar="PROCESSORS",
-        help="Default: 2. Number of processors to use per subject. Example: '--n_procs 4'"
-    )
-
-    parser.add_argument(
-        "--qos",
-        "-q",
-        default="akeil-b",
-        choices=["akeil", "akeil-b"],
-        help="Default: akeil-b (burst QOS). QOS level to use. Example (investment QOS): '--qos akeil'"
-    )
-    
-    parser.add_argument(
-        "--email",
-        "-e",
-        metavar="EMAIL_ADDRESS",
-        default=f"{os.getlogin()}@ufl.edu",
-        help=f"Default: {os.getlogin()}@ufl.edu. Email address to send job updates to. Example: '--email veliebm@gmail.com'"
-    )
-
+    parser.add_argument("--time", "-t", default="4-00:00:00", metavar="d-hh:mm:ss", help="Default: 4-00:00:00. Maximum time the job can run. Burst QOS max allowed: 4 days. Investment QOS max allowed: 31 days. Example (3.5 days): '--time 3-12:00:00'")
+    parser.add_argument("--n_procs", '-n', default="2", metavar="PROCESSORS", help="Default: 2. Number of processors to use per subject. Example: '--n_procs 4'")
+    parser.add_argument("--qos", "-q", default="akeil-b", choices=["akeil", "akeil-b"], help="Default: akeil-b (burst QOS). QOS level to use. Example (investment QOS): '--qos akeil'")
+    parser.add_argument("--email", "-e", metavar="EMAIL_ADDRESS", default=f"{os.getlogin()}@ufl.edu", help=f"Default: {os.getlogin()}@ufl.edu. Email address to send job updates to. Example: '--email veliebm@gmail.com'")
 
     # Gather arguments from the command line.
     args = parser.parse_args()
-    print(f"Args: {args}")
+    print(f"Arguments: {args}")
 
     # Option 1: Process all subjects.
     subject_ids = []
@@ -231,13 +164,27 @@ if __name__ == "__main__":
     else:
         subject_ids = args.subjects
 
+    # Get fMRIPrep singularity image.
+    images_dir = Path().absolute() / "images"
+    singularity_image_path = images_dir / "fmriprep_latest.sif"
+    if singularity_image_path.exists():
+        print(f"Detected a singularity image at {singularity_image_path}")
+        print("I'm going to use this image.")
+    else:
+        print(f"Failed to detect a pre-existing singularity image at {singularity_image_path}")
+        print("Attempting to download a fresh image.")
+        images_dir.mkdir(exist_ok=True, parents=True)
+        process = subprocess.Popen(["singularity", "pull", "docker://poldracklab/fmriprep:latest"], cwd=images_dir)
+        process.wait()
+        print("Downloaded fresh image.")
+    
     for subject_id in subject_ids:
 
         # Create working directory for subject.
-        work_path = Path(f"./sub-{subject_id}_work").absolute()
+        work_path = Path(f"./sub-{subject_id}").absolute()
         work_path.mkdir(exist_ok=True)
 
-        script_path = work_path / f"sub-{subject_id}_fmriprep_date-{START_DATE}_time-{START_TIME}.sh"
+        script_path = work_path / f"sub-{subject_id}_date-{START_DATE}_time-{START_TIME}_fmriprep.sh"
 
         # Write SLURM script.
         write_script(
@@ -248,9 +195,12 @@ if __name__ == "__main__":
             qos=args.qos,
             subject_id=subject_id,
             bids_dir=args.bids_dir.absolute(),
-            singularity_image_path=args.image.absolute()
+            singularity_image_path=singularity_image_path
         )
 
         # Run SLURM script.
         print(f"Submitting {script_path.name}")
         subprocess.Popen(["sbatch", script_path], cwd=work_path)
+
+    print("All intermediate work and logs will be saved to folders in the current working directory.")
+    print("All final results will be written to the derivatives folder in the root of your BIDS dataset.")

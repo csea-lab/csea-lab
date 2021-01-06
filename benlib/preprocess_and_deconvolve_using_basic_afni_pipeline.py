@@ -1,13 +1,11 @@
 #!/usr/bin/env python3
-
 """
-Script to process the contrascan dataset from preprocessing through the 1st-level analysis.
+Script to preprocess the contrascan dataset then 1st-level-analysis it.
 
 Subjects must be organized in BIDS-format.
 
 Created 9/17/2020 by Benjamin Velie.
 veliebm@gmail.com
-
 """
 
 # Import some standard Python modules. -------------------
@@ -17,17 +15,17 @@ import argparse
 import json
 import re
 import shutil
+import pandas
 
 
 # Import some friendly and nice CSEA custom modules. -------------------
-from reference import subject_id_of, the_path_that_matches, split_columns_into_text_files
+from reference import subject_id_of, the_path_that_matches
 from afni import AFNI
 
 
 class Pipeline():
     """
     This class preprocesses a subject then runs a first-level analysis.
-
     """
 
     def __init__(self, bids_dir, subject_id):
@@ -42,7 +40,7 @@ class Pipeline():
         # Store all our dirs in one dict. -----------------------
         self.dirs = {}
         self.dirs["bids_root"] = Path(self.bids_dir)     # Root of the raw BIDS dataset.
-        self.dirs["output"] = self.dirs["bids_root"] / "derivatives" / "preprocessing_afni" / f"sub-{subject_id}"   # Where we'll output info for the subject.
+        self.dirs["output"] = self.dirs["bids_root"] / "derivatives" / "analysis_level-1" / "basic_afni_pipeline_for_preprocessing_and_deconvolution" / f"sub-{subject_id}"   # Where we'll output info for the subject.
 
 
         # Gather paths to the files we need. ------------------------
@@ -59,6 +57,7 @@ class Pipeline():
 
         # Run our programs of interest in order. Store outputs in a dict. -----------------------
         self.results = {}
+        self.results["3dWarp"] = self.warp()
         self.results["align_epi_anat.py"] = self.align_epi_anat()
         self.results["@auto_tlrc 1"] = self.auto_tlrc1()
         self.results["3dcalc 1"] = self.calc1()
@@ -87,10 +86,33 @@ class Pipeline():
         Defines how the class represents itself internally as a string.
         
         To learn more, read https://docs.python.org/3/reference/datamodel.html#basic-customization
-
         """
 
         return f"{self.__class__.__name__}(bids_dir='{self.bids_dir}', subject_id='{self.subject_id}')"
+
+
+    def warp(self):
+        """
+        Makes the dataset no longer oblique.
+
+        3dwarp info: https://afni.nimh.nih.gov/pub/dist/doc/htmldoc/programs/3dWarp_sphx.html#ahelp-3dwarp
+        """
+
+        working_directory = self.dirs["output"] / "3dWarp"
+
+        # Create list of arguments and run program.
+        args = f"""
+                -deoblique
+                -prefix sub-{self.subject_id}_warped
+                {self.paths["anat"]}
+
+        """.split()
+        results = AFNI("3dWarp", args, working_directory)
+
+        # Store path to outfile as an attribute of the program results.
+        results.outfile = the_path_that_matches("*_warped+*.HEAD", in_directory=results.working_directory)
+
+        return results
 
 
     def align_epi_anat(self):
@@ -98,14 +120,13 @@ class Pipeline():
         Aligns our anatomical image to our functional image.
 
         align_epi_anat.py info: https://afni.nimh.nih.gov/pub/dist/doc/htmldoc/programs/align_epi_anat.py_sphx.html#ahelp-align-epi-anat-py
-
         """
 
         working_directory = self.dirs["output"] / "align_epi_anat.py"
 
         # Create list of arguments and run program.
         args = f"""
-                -anat {self.paths["anat"]}
+                -anat {self.results["3dWarp"].outfile}
                 -epi {self.paths["func"]}
                 -epi_base 10
 
@@ -113,7 +134,7 @@ class Pipeline():
         results = AFNI("align_epi_anat.py", args, working_directory)
 
         # Store path to outfile as an attribute of the program results.
-        results.outfile = the_path_that_matches("*_T1w_al+orig.HEAD", in_directory=results.working_directory)
+        results.outfile = the_path_that_matches("*_al+*.HEAD", in_directory=results.working_directory)
 
         return results
 
@@ -123,7 +144,6 @@ class Pipeline():
         Aligns our anatomy to base TT_N27.
 
         @auto_tlrc info: https://afni.nimh.nih.gov/pub/dist/doc/htmldoc/programs/@auto_tlrc_sphx.html#ahelp-auto-tlrc
-
         """
 
         working_directory = self.dirs["output"] / "@auto_tlrc1"
@@ -138,7 +158,7 @@ class Pipeline():
         results = AFNI("@auto_tlrc", args, working_directory)
 
         # Store path to outfile as an attribute of the program results.
-        results.outfile = the_path_that_matches("*_T1w_al+tlrc.HEAD", in_directory=results.working_directory)
+        results.outfile = the_path_that_matches("*+tlrc.HEAD", in_directory=results.working_directory)
 
         return results
 
@@ -148,7 +168,6 @@ class Pipeline():
         Calculate a rough skull mask. Specifically, discard all voxels with values less than zero.
 
         3dcalc info: https://afni.nimh.nih.gov/pub/dist/doc/htmldoc/programs/3dcalc_sphx.html#ahelp-3dcalc
-
         """
 
         working_directory = self.dirs["output"] / "3dcalc1"
@@ -163,7 +182,7 @@ class Pipeline():
         results = AFNI("3dcalc", args, working_directory)
 
         # Store path to outfile as an attribute of the program results.
-        results.outfile = the_path_that_matches("*_tmp_mask+orig.HEAD", in_directory=results.working_directory)
+        results.outfile = the_path_that_matches("*_tmp_mask+*.HEAD", in_directory=results.working_directory)
 
         return results
 
@@ -173,7 +192,6 @@ class Pipeline():
         TODO: Explain what the hell 3dresample actually does.
 
         3dresample info: https://afni.nimh.nih.gov/pub/dist/doc/htmldoc/programs/3dresample_sphx.html#ahelp-3dresample
-
         """
 
         working_directory = self.dirs["output"] / "3dresample"
@@ -198,7 +216,6 @@ class Pipeline():
         Performs slice-time correction.
 
         3dTshift info: https://afni.nimh.nih.gov/pub/dist/doc/htmldoc/programs/3dTshift_sphx.html#ahelp-3dtshift
-
         """
 
         working_directory = self.dirs["output"] / "3dTshift"
@@ -225,7 +242,6 @@ class Pipeline():
         Align each dataset to the base volume using the same image as used in align_epi_anat.py
 
         3dvolreg info: https://afni.nimh.nih.gov/pub/dist/doc/htmldoc/programs/3dvolreg_sphx.html#ahelp-3dvolreg
-
         """
 
         working_directory = self.dirs["output"] / "3dvolreg"
@@ -254,7 +270,6 @@ class Pipeline():
         Blur each volume. For inplane 2.5 use 5 fwhm - 2x times inplane is best.
 
         3dmerge info: https://afni.nimh.nih.gov/pub/dist/doc/htmldoc/programs/3dmerge_sphx.html#ahelp-3dmerge
-
         """
 
         working_directory = self.dirs["output"] / "3dmerge"
@@ -288,7 +303,6 @@ class Pipeline():
         get overly enthusiastic and include too many rows in the matrix :)
 
         3dROIstats info: https://afni.nimh.nih.gov/pub/dist/doc/htmldoc/programs/3dROIstats_sphx.html#ahelp-3droistats
-
         """
 
         working_directory = self.dirs["output"] / "3dROIstats"
@@ -315,7 +329,6 @@ class Pipeline():
         Save the slice average plot in a jpg file.
 
         1dplot info: https://afni.nimh.nih.gov/pub/dist/doc/htmldoc/programs/1dplot_sphx.html#ahelp-1dplot
-
         """
 
         working_directory = self.dirs["output"] / "1dplot1"
@@ -346,7 +359,6 @@ class Pipeline():
         get overly enthusiastic and include too many rows in the matrix :)
 
         3dToutcount info: https://afni.nimh.nih.gov/pub/dist/doc/htmldoc/programs/3dToutcount_sphx.html#ahelp-3dtoutcount
-
         """
 
         working_directory = self.dirs["output"] / "3dToutcount"
@@ -371,7 +383,6 @@ class Pipeline():
         Save the outliers plot into a jpg file.
 
         1dplot info: https://afni.nimh.nih.gov/pub/dist/doc/htmldoc/programs/1dplot_sphx.html#ahelp-1dplot
-
         """
 
         working_directory=self.dirs["output"] / "1dplot2"
@@ -401,7 +412,6 @@ class Pipeline():
         get overly enthusiastic and include too many rows in the matrix :)
 
         1deval command info: https://afni.nimh.nih.gov/pub/dist/doc/htmldoc/programs/1deval_sphx.html#ahelp-1deval
-
         """
 
         working_directory = self.dirs["output"] / "1deval"
@@ -426,7 +436,6 @@ class Pipeline():
         I have utterly no idea what this does. But hey, it's something we need?
 
         3dTstat info: https://afni.nimh.nih.gov/pub/dist/doc/htmldoc/programs/3dTstat_sphx.html#ahelp-3dtstat
-
         """
 
         working_directory = self.dirs["output"] / "3dTstat"
@@ -450,7 +459,6 @@ class Pipeline():
         I also have no idea what this does! Something to do with scaling mayhaps?
 
         3dcalc info: https://afni.nimh.nih.gov/pub/dist/doc/htmldoc/programs/3dcalc_sphx.html#ahelp-3dcalc
-
         """
 
         working_directory = self.dirs["output"] / "3dcalc2"
@@ -478,13 +486,12 @@ class Pipeline():
         Performs a nice and simple 1st-level analysis.
 
         3dDeconvolve info: https://afni.nimh.nih.gov/pub/dist/doc/htmldoc/programs/3dDeconvolve_sphx.html#ahelp-3ddeconvolve
-
         """
 
         working_directory = self.dirs["output"] / "3dDeconvolve"
 
         # Grab onsets from our BIDS event file.
-        split_columns_into_text_files(tsv_path=self.paths["events_tsv"], output_dir=self.dirs["output"] / "other")
+        self._split_columns_into_text_files(tsv_path=self.paths["events_tsv"], output_dir=self.dirs["output"] / "other")
         onsets_path = the_path_that_matches("onset.txt", in_directory=self.dirs["output"] / "other")
 
         # Create list of arguments and run program.
@@ -504,8 +511,8 @@ class Pipeline():
             -stim_file 7 {self.results["3dvolreg"].motion_regressors}[5] -stim_base 7 -stim_label 7 dP
             -jobs 2
             -fout
-            -iresp 1 sub-{self.subject_id}_func_CSPLINz_all_IRF
-            -bucket sub-{self.subject_id}_func_CSPLINz_all_stats
+            -iresp 1 sub-{self.subject_id}_func_CSPLINzero_all_IRF
+            -bucket sub-{self.subject_id}_func_CSPLINzero_all_stats
 
         """.split()
         results = AFNI(program="3dDeconvolve", args=args, working_directory=working_directory)
@@ -523,7 +530,6 @@ class Pipeline():
         Aligns our IRF file to our anat file.
 
         @auto_tlrc info: https://afni.nimh.nih.gov/pub/dist/doc/htmldoc/programs/@auto_tlrc_sphx.html#ahelp-auto-tlrc
-
         """
         
         working_directory = self.dirs["output"] / "@auto_tlrc2"
@@ -553,7 +559,6 @@ class Pipeline():
     def write_report(self):
         """
         Writes some files to subject folder to check the quality of the analysis.
-
         """
 
         # Store workflow info into a dict. --------------------------------
@@ -571,42 +576,57 @@ class Pipeline():
             json.dump(workflow_info, json_file, indent="\t")
 
 
+    def _split_columns_into_text_files(self, tsv_path, output_dir):
+        """
+        Converts a tsv file into a collection of text files.
+
+        Each column name becomes the name of a text file. Each value in that column is then
+        placed into the text file. Don't worry - this won't hurt your .tsv file, which will lay
+        happily in its original location.
+
+
+        Parameters
+        ----------
+        tsv_path : str or Path
+            Path to the .tsv file to break up.
+        output_dir : str or Path
+            Directory to write columns of the .tsv file to.
+
+        """
+
+        # Alert the user and prepare our paths.
+        tsv_path = Path(tsv_path).absolute()
+        output_dir = Path(output_dir).absolute()
+        output_dir.mkdir(exist_ok=True, parents=True)
+        print(f"Storing the columns of {tsv_path.name} as text files in directory {output_dir}")
+
+        # Read the .tsv file into a DataFrame and fill n/a values with zero.
+        tsv_info = pandas.read_table(
+            tsv_path,
+            sep="\t",
+            na_values="n/a"
+        ).fillna(value=0)
+
+        # Write each column of the dataframe as a text file.
+        for column_name in tsv_info:
+            column_path = output_dir / f"{column_name}.txt"
+            tsv_info[column_name].to_csv(column_path, sep=' ', index=False, header=False)
+
+
 if __name__ == "__main__":
     """
     This section of the script only runs when you run the script directly from the shell.
 
     It contains the parser that parses arguments from the command line.
-
     """
 
-    parser = argparse.ArgumentParser(
-        description=f"Preprocess subjects from the contrascan dataset. You must specify a path to the target BIDS directory. You must also specify whether to preprocess EITHER all subjects OR a list of specific subjects.",
-        fromfile_prefix_chars="@"
-    )
+    parser = argparse.ArgumentParser(description=f"Preprocess subjects from the contrascan dataset. You must specify a path to the target BIDS directory. You must also specify whether to preprocess EITHER all subjects OR a list of specific subjects.", fromfile_prefix_chars="@")
 
-    parser.add_argument(
-        "--bids_dir",
-        "-b",
-        type=Path,
-        required=True,
-        help="<Mandatory> Path to the root of the BIDS directory."
-    )
+    parser.add_argument("--bids_dir", type=Path, required=True, help="<Mandatory> Path to the root of the BIDS directory.")
 
     group = parser.add_mutually_exclusive_group(required=True)
-    group.add_argument(
-        "--subjects",
-        "-s",
-        metavar="SUBJECT_ID",
-        nargs="+",
-        help="<Mandatory> Preprocess a list of specific subject IDs. Mutually exclusive with --all."
-    )
-
-    group.add_argument(
-        '--all',
-        '-a',
-        action='store_true',
-        help="<Mandatory> Analyze all subjects. Mutually exclusive with --subjects."
-    )
+    group.add_argument("--subjects", metavar="SUBJECT_ID", nargs="+", help="<Mandatory> Preprocess a list of specific subject IDs. Mutually exclusive with --all.")
+    group.add_argument('--all', action='store_true', help="<Mandatory> Analyze all subjects. Mutually exclusive with --subjects.")
 
 
     # Parse command-line args and make an empty list to store subject ids in. -----------------------
@@ -628,7 +648,4 @@ if __name__ == "__main__":
 
     # Preprocess the subjects we've selected. ------------------------
     for subject_id in subject_ids:
-        Pipeline(
-            bids_dir=args.bids_dir,
-            subject_id=subject_id,
-        )
+        Pipeline(bids_dir=args.bids_dir, subject_id=subject_id)
