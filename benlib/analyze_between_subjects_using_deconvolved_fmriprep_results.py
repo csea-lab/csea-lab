@@ -69,9 +69,10 @@ class SecondLevel():
             self.mema(task_name)
 
         # Run our regressions compared against each other.
-        for i in range(0, len(self.tasks_to_compare), 2):
-            self.ttest(self.tasks_to_compare[i], comparison_task=self.tasks_to_compare[i+1])
-            self.mema(self.tasks_to_compare[i], comparison_task=self.tasks_to_compare[i+1])
+        if self.tasks_to_compare:
+            for i in range(0, len(self.tasks_to_compare), 2):
+                self.ttest(self.tasks_to_compare[i], comparison_task=self.tasks_to_compare[i+1])
+                self.mema(self.tasks_to_compare[i], comparison_task=self.tasks_to_compare[i+1])
 
         # Record end time and write our report.
         self.end_time = datetime.now()
@@ -283,16 +284,23 @@ if __name__ == "__main__":
 
     # Parse args from the command line and create an empty list to store the subject ids we picked.
     args = parser.parse_args()
+    print(f"Arguments: {args}")
     subject_ids = []
 
-    # Option 1: Process all subjects.
-    if args.all or args.all_except:
+    # Option 1: Process all subjects except some.
+    if args.all_except:
         bids_root = Path(args.bids_dir)
         for subject_dir in bids_root.glob("sub-*"):
             if subject_id_of(subject_dir) not in args.all_except:
                 subject_ids.append(subject_id_of(subject_dir))
 
-    # Option 2: Process specific subjects.
+    # Option 2: Process all subjects.
+    elif args.all:
+        bids_root = Path(args.bids_dir)
+        for subject_dir in bids_root.glob("sub-*"):
+            subject_ids.append(subject_id_of(subject_dir))
+
+    # Option 3: Process specific subjects.
     else:
         subject_ids = args.subjects
 
