@@ -39,11 +39,11 @@ def fix_markerfile(path_to_header):
         content = eeg_file.read()
 
     # Replace the DataFile attribute.
-    old_datafile = search(pattern=r"(?<=MarkerFile=).+?(?=\n)", string=content).group(0)
-    new_datafile = path_to_header.with_suffix(".eeg").name
-    new_content = content.replace(old_datafile, new_datafile)
+    old_markerfile = search(pattern=r"(?<=MarkerFile=).+?(?=\n)", string=content).group(0)
+    new_markerfile = path_to_header.with_suffix(".vmrk").name
+    new_content = content.replace(old_markerfile, new_markerfile)
 
-    print(f"In {path_to_header} changing MarkerFile attribute from {old_datafile} to {new_datafile}")
+    print(f"In {path_to_header} changing MarkerFile attribute from {old_markerfile} to {new_markerfile}")
 
     # Write our changes to the file.
     with open(path_to_header, "w") as eeg_file:
