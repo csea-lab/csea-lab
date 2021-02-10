@@ -627,25 +627,30 @@ if __name__ == "__main__":
     group = parser.add_mutually_exclusive_group(required=True)
     group.add_argument("--subjects", metavar="SUBJECT_ID", nargs="+", help="<Mandatory> Preprocess a list of specific subject IDs. Mutually exclusive with --all.")
     group.add_argument('--all', action='store_true', help="<Mandatory> Analyze all subjects. Mutually exclusive with --subjects.")
+    group.add_argument("--all_except", metavar="SUBJECT_ID", nargs="+", help="<Mandatory> Analyze all subjects but exclude those specified here. Example: '--all_except 109 111'")
 
-
-    # Parse command-line args and make an empty list to store subject ids in. -----------------------
+    # Parse args from the command line and create an empty list to store the subject ids we picked.
     args = parser.parse_args()
+    print(f"Arguments: {args}")
     subject_ids = []
 
+    # Option 1: Process all subjects except some.
+    if args.all_except:
+        bids_root = Path(args.bids_dir)
+        for subject_dir in bids_root.glob("sub-*"):
+            if subject_id_of(subject_dir) not in args.all_except:
+                subject_ids.append(subject_id_of(subject_dir))
 
-    # Option 1: Select all subjects. ---------------------------
-    if args.all:
+    # Option 2: Process all subjects.
+    elif args.all:
         bids_root = Path(args.bids_dir)
         for subject_dir in bids_root.glob("sub-*"):
             subject_ids.append(subject_id_of(subject_dir))
 
-
-    # Option 2: Select specific subjects. -------------------------
+    # Option 3: Process specific subjects.
     else:
         subject_ids = args.subjects
 
-
-    # Preprocess the subjects we've selected. ------------------------
+    # Preprocess the subjects we've selected.
     for subject_id in subject_ids:
         Pipeline(bids_dir=args.bids_dir, subject_id=subject_id)
