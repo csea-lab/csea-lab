@@ -37,6 +37,14 @@ class Atlas():
         return self.translate_coordinates(thruple[0], thruple[1], thruple[2])
 
 
+    def get_region(self, region: str):
+        """
+        Returns a tuple containing each coordinate of the specified region. Coordinates are specified as thruples (x, y, z).
+        """
+        coordinate_array = numpy.where(self.atlas_array == region)
+        return tuple(zip(*coordinate_array))
+
+
     def translate_coordinates(self, x, y, z):
         """
         Given X, Y, Z coordinates, returns the name of the spot in the brain.
