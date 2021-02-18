@@ -10,6 +10,7 @@ from pathlib import Path
 import pandas
 import nibabel
 import numpy
+from copy import deepcopy
 
 
 class Atlas():
@@ -39,10 +40,13 @@ class Atlas():
 
     def get_region(self, region: str):
         """
-        Returns a tuple containing each coordinate of the specified region. Coordinates are specified as thruples (x, y, z).
+        Returns an array where each coordinate of the specified region equals 1, and all other values are the numpy null value.
         """
-        coordinate_array = numpy.where(self.atlas_array == region)
-        return tuple(zip(*coordinate_array))
+        working_array = deepcopy(self.atlas_array)
+        working_array[working_array != region] = numpy.NaN
+        working_array[working_array == region] = 1
+
+        return working_array
 
 
     def translate_coordinates(self, x, y, z):
