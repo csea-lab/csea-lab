@@ -38,13 +38,33 @@ class Atlas():
         return self.translate_coordinates(thruple[0], thruple[1], thruple[2])
 
 
+    def get_4d_region(self, region: str, fourth_dimension_length: int):
+        """
+        Returns a 4d array where each coordinate of the specified region equals 1, and all other values are the numpy null value.
+
+        Use this for atlasing EPI images or other 4d structures.
+        """
+        third_dimensional_array = self.get_region(region)
+        fourth_dimensional_array = numpy.repeat(third_dimensional_array[..., numpy.newaxis], fourth_dimension_length, axis=-1)
+
+        print(f"4d atlas of {region}:")
+        print(fourth_dimensional_array)
+        print(f"Shape of 4d atlas of {region}: {fourth_dimensional_array.shape}")
+        
+        return fourth_dimensional_array
+
+
     def get_region(self, region: str):
         """
-        Returns an array where each coordinate of the specified region equals 1, and all other values are the numpy null value.
+        Returns a 3d array where each coordinate of the specified region equals 1, and all other values are the numpy null value.
         """
         working_array = deepcopy(self.atlas_array)
         working_array[working_array != region] = numpy.NaN
         working_array[working_array == region] = 1
+
+        print(f"3d atlas of {region}:")
+        print(working_array)
+        print(f"Shape of 3d atlas of {region}: {working_array.shape}")
 
         return working_array
 
@@ -63,7 +83,7 @@ class Atlas():
         lookup_dict = self.get_lookup_dict()
         nifti_path = self.get_MNI_dir() / "tpl-MNI152NLin2009cAsym_res-01_desc-carpet_dseg.nii.gz"
         image = nibabel.load(nifti_path)
-        unsorted_array = image.get_data()
+        unsorted_array = image.get_fdata()
         return self._replace_using_dict(unsorted_array, lookup_dict)
 
 
