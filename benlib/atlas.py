@@ -37,32 +37,44 @@ class Atlas():
         return self.translate_coordinates(thruple[0], thruple[1], thruple[2])
 
 
+    def mask_image(self, image, region: str) -> numpy.ma.masked_array:
+        """
+        Given a NiBabel image, returns a masked array for a region of interest.
+        """
+        image_array = image.get_fdata()
+        number_of_dimensions = image_array.ndim
+
+        assert number_of_dimensions == 3 or number_of_dimensions == 4, "Image must be 3-dimensional or 4-dimensional."
+
+        if number_of_dimensions == 3:
+            mask = self.get_3d_mask(region)
+        else:
+            fourth_dimension_length=image_array.shape[3]
+            mask = self.get_4d_mask(region, fourth_dimension_length)
+
+        masked_image = numpy.ma.masked_array(image_array, mask=mask)
+
+        return masked_image
+
+
     def get_4d_mask(self, region: str, fourth_dimension_length: int) -> numpy.array:
         """
         Returns a 4d array where each coordinate of the specified region equals False, and all other values are True.
 
         Use this for atlasing EPI images or other 4d structures.
         """
-        third_dimensional_array = self.get_mask(region)
+        third_dimensional_array = self.get_3d_mask(region)
         fourth_dimensional_array = numpy.repeat(third_dimensional_array[..., numpy.newaxis], fourth_dimension_length, axis=-1)
-
-        print(f"4d atlas of {region}:")
-        print(fourth_dimensional_array)
-        print(f"Shape of 4d atlas of {region}: {fourth_dimensional_array.shape}")
         
         return fourth_dimensional_array
 
 
-    def get_mask(self, region: str) -> numpy.array:
+    def get_3d_mask(self, region: str) -> numpy.array:
         """
         Returns a 3d array where each coordinate of the specified region is False, and all other values are True.
         """
 
         mask = self.atlas_array != region
-
-        print(f"3d atlas of {region}:")
-        print(mask)
-        print(f"Shape of 3d atlas of {region}: {mask.shape}")
 
         return mask
 
