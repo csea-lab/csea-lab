@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Contains a class to use an atlas to look up your location inside a brain using an atlas.
+Contains a class to use an atlas to look up your location inside a brain.
 
 Created 2/8/2021 by Benjamin Velie.
 """
