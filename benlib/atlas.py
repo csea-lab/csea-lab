@@ -39,7 +39,7 @@ class Atlas():
 
     def get_4d_region(self, region: str, fourth_dimension_length: int):
         """
-        Returns a 4d array where each coordinate of the specified region equals 1, and all other values are the numpy null value.
+        Returns a 4d array where each coordinate of the specified region equals True, and all other values are False.
 
         Use this for atlasing EPI images or other 4d structures.
         """
@@ -55,17 +55,16 @@ class Atlas():
 
     def get_region(self, region: str):
         """
-        Returns a 3d array where each coordinate of the specified region equals 1, and all other values are the numpy null value.
+        Returns a 3d array where each coordinate of the specified region is True, and all other values are False.
         """
-        working_array = self.atlas_array.copy()
-        working_array[working_array != region] = numpy.NaN
-        working_array[working_array == region] = 1
+
+        mask = self.atlas_array == region
 
         print(f"3d atlas of {region}:")
-        print(working_array)
-        print(f"Shape of 3d atlas of {region}: {working_array.shape}")
+        print(mask)
+        print(f"Shape of 3d atlas of {region}: {mask.shape}")
 
-        return working_array
+        return mask
 
 
     def translate_coordinates(self, x, y, z):
