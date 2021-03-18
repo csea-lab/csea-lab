@@ -39,7 +39,7 @@ class Atlas():
 
     def get_4d_mask(self, region: str, fourth_dimension_length: int) -> numpy.array:
         """
-        Returns a 4d array where each coordinate of the specified region equals True, and all other values are False.
+        Returns a 4d array where each coordinate of the specified region equals False, and all other values are True.
 
         Use this for atlasing EPI images or other 4d structures.
         """
@@ -55,10 +55,10 @@ class Atlas():
 
     def get_mask(self, region: str) -> numpy.array:
         """
-        Returns a 3d array where each coordinate of the specified region is True, and all other values are False.
+        Returns a 3d array where each coordinate of the specified region is False, and all other values are True.
         """
 
-        mask = self.atlas_array == region
+        mask = self.atlas_array != region
 
         print(f"3d atlas of {region}:")
         print(mask)
