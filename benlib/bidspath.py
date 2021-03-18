@@ -23,7 +23,6 @@ class BIDSpath:
     is_afni: bool
         True if path leads to something named like an AFNI file.
     """
-    __slots__ = ["_path", "dictionary", "is_afni"]
     _path: Path
     dictionary: Dict[str, str] = field(init=False)
     is_afni: bool = field(init=False) 
