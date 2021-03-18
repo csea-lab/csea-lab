@@ -10,7 +10,6 @@ from pathlib import Path
 import pandas
 import nibabel
 import numpy
-from copy import deepcopy
 
 
 class Atlas():
@@ -58,7 +57,7 @@ class Atlas():
         """
         Returns a 3d array where each coordinate of the specified region equals 1, and all other values are the numpy null value.
         """
-        working_array = deepcopy(self.atlas_array)
+        working_array = numpy.copy(self.atlas_array)
         working_array[working_array != region] = numpy.NaN
         working_array[working_array == region] = 1
 
