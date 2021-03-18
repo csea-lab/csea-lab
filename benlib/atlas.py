@@ -40,6 +40,8 @@ class Atlas():
     def mask_image(self, image, region: str) -> numpy.ma.masked_array:
         """
         Given a NiBabel image, returns a masked array for a region of interest.
+        
+        Image must be in the same space as the atlas.
         """
         image_array = image.get_fdata()
         number_of_dimensions = image_array.ndim
