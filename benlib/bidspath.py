@@ -32,7 +32,7 @@ class BIDSpath:
         """
         This method calls after the __init__ method.
         """
-        self.path = Path(self.path)
+        self.path = Path(self.path).absolute()
         self._update_attributes()
 
 
@@ -49,7 +49,7 @@ class BIDSpath:
 
     @path.setter
     def path(self, _path: Path) -> None:
-        self._path = Path(_path)
+        self._path = Path(_path).absolute()
         self._update_attributes()
 
 
