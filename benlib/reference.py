@@ -9,7 +9,6 @@ veliebm@gmail.com
 
 from re import search
 from pathlib import Path
-import pandas
 import json
 
 

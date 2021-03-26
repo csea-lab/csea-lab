@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Contains a class to use an atlas to look up your location inside a brain using an atlas.
+Contains a class to use an atlas to look up your location inside a brain.
 
 Created 2/8/2021 by Benjamin Velie.
 """
@@ -37,6 +37,50 @@ class Atlas():
         return self.translate_coordinates(thruple[0], thruple[1], thruple[2])
 
 
+    def mask_image(self, image, region: str) -> numpy.ma.masked_array:
+        """
+        Given a NiBabel image, returns a masked array for a region of interest.
+        
+        Image must be in the same space as the atlas.
+        """
+        image_array = image.get_fdata()
+        number_of_dimensions = image_array.ndim
+
+        assert number_of_dimensions == 3 or number_of_dimensions == 4, "Image must be 3-dimensional or 4-dimensional."
+
+        if number_of_dimensions == 3:
+            mask = self.get_3d_mask(region)
+        else:
+            fourth_dimension_length=image_array.shape[3]
+            mask = self.get_4d_mask(region, fourth_dimension_length)
+
+        masked_image = numpy.ma.masked_array(image_array, mask=mask)
+
+        return masked_image
+
+
+    def get_4d_mask(self, region: str, fourth_dimension_length: int) -> numpy.array:
+        """
+        Returns a 4d array where each coordinate of the specified region equals False, and all other values are True.
+
+        Use this for atlasing EPI images or other 4d structures.
+        """
+        third_dimensional_array = self.get_3d_mask(region)
+        fourth_dimensional_array = numpy.repeat(third_dimensional_array[..., numpy.newaxis], fourth_dimension_length, axis=-1)
+        
+        return fourth_dimensional_array
+
+
+    def get_3d_mask(self, region: str) -> numpy.array:
+        """
+        Returns a 3d array where each coordinate of the specified region is False, and all other values are True.
+        """
+
+        mask = self.atlas_array != region
+
+        return mask
+
+
     def translate_coordinates(self, x, y, z):
         """
         Given X, Y, Z coordinates, returns the name of the spot in the brain.
@@ -51,7 +95,7 @@ class Atlas():
         lookup_dict = self.get_lookup_dict()
         nifti_path = self.get_MNI_dir() / "tpl-MNI152NLin2009cAsym_res-01_desc-carpet_dseg.nii.gz"
         image = nibabel.load(nifti_path)
-        unsorted_array = image.get_data()
+        unsorted_array = image.get_fdata()
         return self._replace_using_dict(unsorted_array, lookup_dict)
 
 

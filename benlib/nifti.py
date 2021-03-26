@@ -9,7 +9,6 @@ veliebm@gmail.com
 
 from pathlib import Path
 import nibabel
-import re
 
 
 class Nifti():
