@@ -1,5 +1,7 @@
 """
-Class to ease working with BIDS-named paths.
+Class to ease working with path archetypes we see at CSEA a lot.
+
+Especially AFNI or BIDS paths.
 
 Created on 3/18/2021 by Ben Velie
 veliebm@gmail.com
@@ -13,12 +15,11 @@ from functools import cached_property
 
 
 @dataclass
-class BIDSpath:
+class Neuropath:
     """
-    Attributes
-    ----------
-    path: Path
-        Path to something named according to BIDS.
+    Eases working with path archetypes we see at CSEA a lot.
+
+    Especially AFNI or BIDS paths.
     """
     _path: Path
 
@@ -31,12 +32,15 @@ class BIDSpath:
 
     def __getitem__(self, key: str) -> str:
         """
-        Let us access our inner dictionary.
+        Accesses our inner dictionary.
         """
         return self.dictionary[key]
 
     @property
     def path(self) -> Path:
+        """
+        Path to a file.
+        """
         return self._path
 
     @path.setter
@@ -49,7 +53,7 @@ class BIDSpath:
     @cached_property
     def prefix(self) -> str:
         """
-        Returns the stem. If our path is an AFNI path, removes the view.
+        Returns the prefix of our AFNI file.
         """
         prefix = self.path.stem
 
@@ -61,7 +65,7 @@ class BIDSpath:
     @cached_property
     def view(self) -> str:
         """
-        If we have an AFNI path, then return its view, else return None.
+        Returns the view of our AFNI file.
         """
         view = None
 
@@ -74,7 +78,7 @@ class BIDSpath:
     @cached_property
     def dictionary(self) -> Dict[str, Union[str, bool]]:
         """
-        Parses keys and values from the name of self.path. Keys without values are assigned True.
+        Returns a dict with keys and values from the name of self.path. Keys without values are assigned True.
         """
         prefix = self.prefix
         dictionary = {}
@@ -93,7 +97,7 @@ class BIDSpath:
     @cached_property
     def is_afni(self) -> bool:
         """
-        Determine whether this is an AFNI path.
+        Returns true if this is an AFNI path.
         """
         is_afni = False
 
