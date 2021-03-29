@@ -95,13 +95,5 @@ class NeuroPath:
 
     @cached_property
     def is_afni(self) -> bool:
-        """
-        Returns true if this is an AFNI path.
-        """
-        is_afni = False
-
-        stem = self.path.stem
-        if re.search(pattern=r"(\+tlrc|\+orig)$", string=stem):
-            is_afni = True
-
-        return is_afni
+        """Returns true if this is an AFNI path."""
+        return True if re.search(pattern=r"(\+tlrc|\+orig)$", string=self.path.stem) else False
