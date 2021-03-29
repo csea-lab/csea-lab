@@ -43,6 +43,9 @@ class NeuroPath:
         return self.dictionary[key]
 
     def __str__(self) -> str:
+        """
+        What to do when we must represent this object as a string.
+        """
         return str(self.path)
 
     @property
