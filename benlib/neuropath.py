@@ -32,7 +32,7 @@ class NeuroPath:
 
     def __getitem__(self, key: str) -> str:
         """
-        Accesses our inner dictionary.
+        Accesses our inner BIDS-naming dictionary.
         """
         return self.dictionary[key]
 
