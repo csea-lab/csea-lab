@@ -43,13 +43,6 @@ class NeuroPath:
         """
         return self._path
 
-    @path.setter
-    def path(self, _) -> None:
-        """
-        Make it impossible to change self.path.
-        """
-        pass
-
     @cached_property
     def prefix(self) -> str:
         """
