@@ -15,7 +15,7 @@ from functools import cached_property
 
 
 @dataclass
-class Neuropath:
+class NeuroPath:
     """
     Eases working with path archetypes we see at CSEA a lot.
 
