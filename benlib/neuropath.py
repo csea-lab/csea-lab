@@ -53,37 +53,31 @@ class Neuropath:
     @cached_property
     def prefix(self) -> str:
         """
-        Returns the prefix of our AFNI file.
+        Returns the prefix of your AFNI file.
         """
-        prefix = self.path.stem
-
-        if self.is_afni:
-            prefix = re.search(pattern=f"(.+)\\+{self.view}$", string=prefix).group(1)
-        
-        return prefix
+        assert self.is_afni, "This isn't an AFNI file"
+        return re.search(pattern=f"(.+)\\+{self.view}$", string=self.path.stem).group(1)
 
     @cached_property
     def view(self) -> str:
         """
-        Returns the view of our AFNI file.
+        Returns the view of your AFNI file.
         """
-        view = None
-
-        if self.is_afni:
-            stem = self.path.stem
-            view = re.search(pattern=r"\+(\w+?)$", string=stem).group(1)
-
-        return view
+        assert self.is_afni, "This isn't an AFNI file"
+        return re.search(pattern=r"\+(\w+?)$", string=self.path.stem).group(1)
 
     @cached_property
     def dictionary(self) -> Dict[str, Union[str, bool]]:
         """
         Returns a dict with keys and values from the name of self.path. Keys without values are assigned True.
         """
-        prefix = self.prefix
+        stem = self.path.stem
+        if self.is_afni:
+            stem = self.prefix
+        
         dictionary = {}
 
-        segments = prefix.split("_")
+        segments = stem.split("_")
         for segment in segments:
             try:
                 key, value = segment.split("-")
