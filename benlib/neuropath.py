@@ -42,6 +42,9 @@ class NeuroPath:
         """
         return self.dictionary[key]
 
+    def __str__(self) -> str:
+        return str(self.path)
+
     @property
     def path(self) -> Path:
         """
