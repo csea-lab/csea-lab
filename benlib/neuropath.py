@@ -25,57 +25,41 @@ class NeuroPath:
 
 
     def __post_init__(self) -> None:
-        """
-        This method calls after the __init__ method.
-        """
+        """This method calls after the __init__ method."""
         self._path = Path(self.path).absolute()
 
     def __fspath__(self):
-        """
-        Makes our class officially PathLike.
-        """
+        """Makes our class officially PathLike."""
         return str(self.path)
 
     def __getitem__(self, key: str) -> str:
-        """
-        Accesses our inner BIDS-naming dictionary.
-        """
+        """Accesses our inner BIDS-naming dictionary."""
         return self.dictionary[key]
 
     def __str__(self) -> str:
-        """
-        What to do when we must represent this object as a string.
-        """
+        """What to do when we need to represent this object is a string."""
         return str(self.path)
 
     @property
     def path(self) -> Path:
-        """
-        Path to a file.
-        """
+        """Path to a file."""
         return self._path
 
     @cached_property
     def prefix(self) -> str:
-        """
-        Returns the prefix of your AFNI file.
-        """
+        """Returns the prefix of your AFNI file."""
         assert self.is_afni, "This isn't an AFNI file"
         return re.search(pattern=f"(.+)\\+{self.view}$", string=self.path.stem).group(1)
 
     @cached_property
     def view(self) -> str:
-        """
-        Returns the view of your AFNI file.
-        """
+        """Returns the view of your AFNI file."""
         assert self.is_afni, "This isn't an AFNI file"
         return re.search(pattern=r"\+(\w+?)$", string=self.path.stem).group(1)
 
     @cached_property
     def dictionary(self) -> Dict[str, Union[str, bool]]:
-        """
-        Returns a dict with keys and values from the name of self.path. Keys without values are assigned True.
-        """
+        """Returns a dict with keys and values from the name of self.path. Keys without values are assigned True."""
         stem = self.path.stem
         if self.is_afni:
             stem = self.prefix
@@ -96,4 +80,10 @@ class NeuroPath:
     @cached_property
     def is_afni(self) -> bool:
         """Returns true if this is an AFNI path."""
-        return True if re.search(pattern=r"(\+tlrc|\+orig)$", string=self.path.stem) else False
+        is_afni = False
+
+        stem = self.path.stem
+        if re.search(pattern=r"(\+tlrc|\+orig)$", string=stem):
+            is_afni = True
+
+        return is_afni
