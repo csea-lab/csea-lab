@@ -1,3 +1,9 @@
+"""
+Contains tools to log CSEA python scripts.
+
+Created 4/5/21 by Benjamin Velie.
+veliebm@ufl.edu
+"""
 from os import PathLike
 import logging
 from types import FunctionType
