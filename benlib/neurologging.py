@@ -6,7 +6,9 @@ from functools import lru_cache, wraps
 
 @lru_cache
 def get_log(log_path: PathLike, logger_name: str) -> logging.Logger:
-    """Returns a configured log. Memoizable function."""
+    """
+    Returns a configured log. Memoizable function.
+    """
     # Create logger.
     log = logging.getLogger(logger_name)
     log.setLevel(logging.DEBUG)
@@ -31,7 +33,9 @@ def get_log(log_path: PathLike, logger_name: str) -> logging.Logger:
 
 
 def logged(function: FunctionType, log_path="default.log"):
-    """Decorator to log a function."""
+    """
+    Decorator to log a function.
+    """
     # Get our logger object.
     log_name = f"{function.__module__}.{function.__name__}"
     log = get_log(log_path, log_name)
