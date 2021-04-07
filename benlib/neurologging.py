@@ -12,7 +12,7 @@ import json
 from pathlib import Path
 
 
-def logged(function: FunctionType, log_path: PathLike="log.json"):
+def log(function: FunctionType, log_path: PathLike="log.json"):
     """
     Wrapper to log a Python function.
     """
