@@ -9,6 +9,10 @@ import logging
 from types import FunctionType
 import sys
 from functools import lru_cache, wraps
+from datetime import datetime
+import json
+from pathlib import Path
+
 
 @lru_cache
 def get_log(log_path: PathLike, logger_name: str) -> logging.Logger:
@@ -60,5 +64,41 @@ def logged(function: FunctionType, log_path="default.log"):
         # Log exceptions.
         except Exception as some_exception:
             log.exception(some_exception)
+
+    return wrapper
+
+
+def json_logged(function: FunctionType, log_path: PathLike="log.json"):
+    """
+    Wrapper to log a Python function.
+    """
+    @wraps(function)
+    def wrapper(*args, **kwargs):
+
+        start_time = datetime.now()
+        potential_exception = None
+
+        try:
+            result = function(*args, **kwargs)
+            return result
+
+        except Exception as e:
+            potential_exception = e
+
+        finally:
+            end_time = datetime.now()
+            writing_dictionary = {
+                "Start time": start_time,
+                "End time": end_time,
+                "Working directory": Path().absolute(),
+                "Module": function.__module__,
+                "Function": function.__name__,
+                "Arguments": args,
+                "Keyword arguments": kwargs,
+                "Result": result,
+                "Exception": potential_exception,
+            }
+            with open(log_path, "w") as file_writer:
+                json.dump(writing_dictionary, file_writer, default=str, indent="\t")
 
     return wrapper
