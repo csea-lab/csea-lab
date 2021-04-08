@@ -50,7 +50,7 @@ def logged(log_path) -> FunctionType:
                     "Function": function.__name__,
                     "Arguments": args,
                     "Keyword arguments": kwargs,
-                    "Result": result,
+                    "Returned": result,
                     "Exception": potential_exception,
                 }
                 with open(log_path, "w") as file_writer:
