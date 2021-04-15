@@ -10,6 +10,7 @@ from pathlib import Path
 import pandas
 import nibabel
 import numpy
+from functools import cached_property
 
 
 class Atlas():
@@ -28,14 +29,23 @@ class Atlas():
     'Right Cerebral White Matter'
     """
     def __init__(self):
-        self.atlas_array = self.get_atlas_array()
-
+        pass
 
     def __getitem__(self, thruple):
         if len(thruple) != 3:
             raise TypeError("You must pass a tuple with exactly 3 coordinates, i.e. (x, y, z)")
         return self.translate_coordinates(thruple[0], thruple[1], thruple[2])
 
+    @cached_property
+    def atlas_array(self):
+        """
+        Returns an array. Contains an atlas location at each coordinate in the array.
+        """
+        lookup_dict = self.get_lookup_dict()
+        nifti_path = self.get_MNI_dir() / "tpl-MNI152NLin2009cAsym_res-01_desc-carpet_dseg.nii.gz"
+        image = nibabel.load(nifti_path)
+        unsorted_array = image.get_fdata()
+        return self._replace_using_dict(unsorted_array, lookup_dict)
 
     def mask_image(self, image, region: str) -> numpy.ma.masked_array:
         """
@@ -58,7 +68,6 @@ class Atlas():
 
         return masked_image
 
-
     def get_4d_mask(self, region: str, fourth_dimension_length: int) -> numpy.array:
         """
         Returns a 4d array where each coordinate of the specified region equals False, and all other values are True.
@@ -70,7 +79,6 @@ class Atlas():
         
         return fourth_dimensional_array
 
-
     def get_3d_mask(self, region: str) -> numpy.array:
         """
         Returns a 3d array where each coordinate of the specified region is False, and all other values are True.
@@ -80,24 +88,11 @@ class Atlas():
 
         return mask
 
-
     def translate_coordinates(self, x, y, z):
         """
         Given X, Y, Z coordinates, returns the name of the spot in the brain.
         """
         return self.atlas_array[x, y, z]
-
-
-    def get_atlas_array(self):
-        """
-        Returns an array. Contains an atlas location at each coordinate in the array.
-        """
-        lookup_dict = self.get_lookup_dict()
-        nifti_path = self.get_MNI_dir() / "tpl-MNI152NLin2009cAsym_res-01_desc-carpet_dseg.nii.gz"
-        image = nibabel.load(nifti_path)
-        unsorted_array = image.get_fdata()
-        return self._replace_using_dict(unsorted_array, lookup_dict)
-
 
     def _replace_using_dict(self, array, dictionary):
         """
@@ -114,7 +109,6 @@ class Atlas():
         value_sort = values[sidx]
         return value_sort[numpy.searchsorted(key_sort, array)]
 
-
     def get_lookup_dict(self):
         """
         Returns a dict containing the code for each area of the brain recorded in 
@@ -126,7 +120,6 @@ class Atlas():
         tsv_lookup = MNI_dir / "tpl-MNI152NLin2009cAsym_desc-carpet_dseg.tsv"
         dataframe_lookup = pandas.read_csv(tsv_lookup, delimiter="\t")
         return dict(zip(dataframe_lookup["index"], dataframe_lookup["name"]))
-
 
     def get_MNI_dir(self):
         """
