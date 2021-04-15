@@ -6,7 +6,6 @@ Created 2/8/2021 by Benjamin Velie.
 """
 
 import templateflow.api
-from pathlib import Path
 import pandas
 import nibabel
 import numpy
