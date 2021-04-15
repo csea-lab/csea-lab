@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Run a t-test on four regions of interest in the contrascan data set: R/L intracalcarine cortex and R/L occipital pole.
+Run a t-test on four regions of interest in the contrascan dataset: R/L intracalcarine cortex and R/L occipital pole.
 
 Created on 2/15/2021 by Benjamin Velie.
 veliebm@gmail.com
