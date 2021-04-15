@@ -17,7 +17,7 @@ from dataclasses import field, dataclass
 
 # Import custom CSEA libraries.
 from atlas import Atlas
-from bidspath import BIDSpath
+from neuropath import NeuroPath
 from reference import the_path_that_matches
 
 # Set constants.
@@ -30,14 +30,14 @@ class IRF:
     """
     Attributes
     ----------
-    bids_path : BIDSpath
-        BIDSpath to the location of the IRF.
+    bids_path : NeuroPath
+        NeuroPath to the location of the IRF.
     image : NiBabel image
         Representation of the IRF's data.
     means : dict[str, List]
         Stores any means we calculate. Key=region, value=list where each item is the mean of a timepoint of the IRF.
     """
-    bids_path: BIDSpath
+    bids_path: NeuroPath
     image: Any
     means: Dict[str, list] = field(default_factory=dict)
     
@@ -122,7 +122,7 @@ def get_irfs(directory: Path, subjects: Subject_ids) -> List[IRF]:
     """
     Returns a list of IRF objects for the target subjects.
     """
-    bids_paths = [BIDSpath(path) for path in directory.glob("*_IRF_res-01*.HEAD")]
+    bids_paths = [NeuroPath(path) for path in directory.glob("*_IRF_res-01*.HEAD")]
     return [IRF(bids_path, nibabel.load(bids_path.path)) for bids_path in bids_paths]
 
 
@@ -131,7 +131,7 @@ def list_subjects_in(directory: Path, exclude: Subject_ids=[]) -> Subject_ids:
     Returns a list of all subjects in a directory.
     """
     subdirectories = directory.glob("sub-*")
-    subject_list = [BIDSpath(path)["sub"] for path in subdirectories]
+    subject_list = [NeuroPath(path)["sub"] for path in subdirectories]
     filtered_subject_list = [subject for subject in subject_list if subject not in exclude]
     
     return filtered_subject_list
