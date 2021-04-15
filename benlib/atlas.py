@@ -92,7 +92,7 @@ class Atlas():
         """
         Given X, Y, Z coordinates, returns the name of the spot in the brain.
         """
-        return self.atlas_array[x, y, z]
+        return self[x, y, z]
 
     def _replace_using_dict(self, array, dictionary):
         """
