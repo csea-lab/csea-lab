@@ -47,9 +47,11 @@ class NeuroPath:
 
     @cached_property
     def prefix(self) -> str:
-        """Returns the prefix of your AFNI file."""
-        assert self.is_afni, "This isn't an AFNI file"
-        return re.search(pattern=f"(.+)\\+{self.view}$", string=self.path.stem).group(1)
+        """Returns the prefix of your AFNI file. If this isn't an AFNI file, return stem."""
+        if self.is_afni:
+            return re.search(pattern=f"(.+)\\+{self.view}$", string=self.path.stem).group(1)
+        else:
+            return self.path.stem
 
     @cached_property
     def view(self) -> str:
