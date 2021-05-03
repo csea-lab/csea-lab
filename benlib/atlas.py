@@ -14,11 +14,10 @@ from functools import cached_property
 
 class Atlas():
     """
-    Looks up atlas coordinates for you. Currently uses the MNI152NLin2009cAsym brain.
-    This is NOT meant to work with the AFNI viewer. This coordinate system is for the matrices you
-    get by extracting raw data from nifti files.
+    Looks up atlas coordinates for you. All coordinates are in voxel space, NOT scanner space.
+    Your data MUST be aligned and resampled to the 1mm MNI152NLin2009cAsym brain.
 
-    Use the lookup just like a Python dictionary. For example,
+    You may use the lookup like a Python dictionary if you'd like. For example,
 
     >>> coordinate_lookup = Atlas()
     >>> print(coordinate_lookup[100, 100, 100])
