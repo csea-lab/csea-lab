@@ -42,7 +42,7 @@ class Atlas():
         lookup_dict = self.get_lookup_dict()
         nifti_path = self.get_MNI_dir() / "tpl-MNI152NLin2009cAsym_res-01_desc-carpet_dseg.nii.gz"
         image = nibabel.load(nifti_path)
-        unsorted_array = image.get_fdata()
+        unsorted_array = image.get_fdata().astype(int)
         return self._replace_using_dict(unsorted_array, lookup_dict)
 
     def mask_image(self, image, region: str) -> numpy.ma.masked_array:
@@ -96,16 +96,12 @@ class Atlas():
         """
         Replace all keys in target array with their specified values.
         """
-        # Extract out keys and values
         keys = numpy.array(list(dictionary.keys()))
         values = numpy.array(list(dictionary.values()))
 
-        # Get argsort indices
-        sidx = keys.argsort()
-
-        key_sort = keys[sidx]
-        value_sort = values[sidx]
-        return value_sort[numpy.searchsorted(key_sort, array)]
+        mapping_array = numpy.zeros(keys.max()+1, dtype=values.dtype)
+        mapping_array[keys] = values
+        return mapping_array[array]
 
     def get_lookup_dict(self):
         """
