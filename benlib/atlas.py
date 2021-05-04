@@ -5,6 +5,8 @@ Contains a class to use an atlas to look up your location inside a brain.
 Created 2/8/2021 by Benjamin Velie.
 """
 
+from pathlib import Path
+from typing import Dict, Tuple
 import templateflow.api
 import pandas
 import nibabel
@@ -20,7 +22,7 @@ class Atlas():
     You may use the lookup like a Python dictionary if you'd like. For example,
 
     >>> coordinate_lookup = Atlas()
-    >>> print(coordinate_lookup[100, 100, 100])
+    >>> print(coordinate_lookup[(100, 100, 100)])
 
     prints the following:
 
@@ -29,21 +31,45 @@ class Atlas():
     def __init__(self):
         pass
 
-    def __getitem__(self, thruple):
-        if len(thruple) != 3:
-            raise TypeError("You must pass a tuple with exactly 3 coordinates, i.e. (x, y, z)")
-        return self.translate_coordinates(thruple[0], thruple[1], thruple[2])
+    def __getitem__(self, thruple: Tuple[int, int, int]) -> str:
+        assert len(thruple) == 3, "You must pass a tuple with exactly 3 coordinates, i.e. (x, y, z)"
+        x, y, z = thruple
+        return self.translation_array[x, y, z]
 
     @cached_property
-    def atlas_array(self):
+    def _image(self) -> nibabel.nifti1.Nifti1Image:
+        """
+        Returns raw atlas image to be translated.
+        """
+        nifti_path = self._MNI_dir / "tpl-MNI152NLin2009cAsym_res-01_desc-carpet_dseg.nii.gz"
+        return nibabel.load(nifti_path)
+    
+    @cached_property
+    def _translation_dictionary(self) -> Dict[int, str]:
+        """
+        Returns a dict containing the code for each area of the brain recorded in 
+        {MNI_dir}/"tpl-MNI152NLin2009cAsym_desc-carpet_dseg.tsv"
+
+        Each key is an index, and each value is a brain region.
+        """
+        tsv_lookup = self._MNI_dir / "tpl-MNI152NLin2009cAsym_desc-carpet_dseg.tsv"
+        dataframe_lookup = pandas.read_csv(tsv_lookup, delimiter="\t")
+        return dict(zip(dataframe_lookup["index"], dataframe_lookup["name"]))
+
+    @cached_property
+    def _MNI_dir(self) -> Path:
+        """
+        Uses templateflow to download MNI brain stuff. Returns directory in which it's downloaded.
+        """
+        return templateflow.api.get("MNI152NLin2009cAsym")[0].parent
+
+    @cached_property
+    def translation_array(self) -> numpy.array:
         """
         Returns an array. Contains an atlas location at each coordinate in the array.
         """
-        lookup_dict = self.get_lookup_dict()
-        nifti_path = self.get_MNI_dir() / "tpl-MNI152NLin2009cAsym_res-01_desc-carpet_dseg.nii.gz"
-        image = nibabel.load(nifti_path)
-        unsorted_array = image.get_fdata().astype(int)
-        return self._replace_using_dict(unsorted_array, lookup_dict)
+        untranslated_array = numpy.asarray(self._image.dataobj).astype(int)
+        return self._replace_using_dict(untranslated_array, self._translation_dictionary)
 
     def mask_image(self, image, region: str) -> numpy.ma.masked_array:
         """
@@ -86,13 +112,7 @@ class Atlas():
 
         return mask
 
-    def translate_coordinates(self, x, y, z):
-        """
-        Given X, Y, Z coordinates, returns the name of the spot in the brain.
-        """
-        return self.atlas_array[x, y, z]
-
-    def _replace_using_dict(self, array, dictionary):
+    def _replace_using_dict(self, array: numpy.array, dictionary: Dict) -> numpy.array:
         """
         Replace all keys in target array with their specified values.
         """
@@ -101,22 +121,5 @@ class Atlas():
 
         mapping_array = numpy.zeros(keys.max()+1, dtype=values.dtype)
         mapping_array[keys] = values
+
         return mapping_array[array]
-
-    def get_lookup_dict(self):
-        """
-        Returns a dict containing the code for each area of the brain recorded in 
-        {MNI_dir}/"tpl-MNI152NLin2009cAsym_desc-carpet_dseg.tsv"
-
-        Each key is an index, and each value is a brain region.
-        """
-        MNI_dir = self.get_MNI_dir()
-        tsv_lookup = MNI_dir / "tpl-MNI152NLin2009cAsym_desc-carpet_dseg.tsv"
-        dataframe_lookup = pandas.read_csv(tsv_lookup, delimiter="\t")
-        return dict(zip(dataframe_lookup["index"], dataframe_lookup["name"]))
-
-    def get_MNI_dir(self):
-        """
-        Uses templateflow to download MNI brain stuff. Returns directory in which it's downloaded.
-        """
-        return templateflow.api.get("MNI152NLin2009cAsym")[0].parent
