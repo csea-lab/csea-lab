@@ -12,14 +12,17 @@ import pandas
 import nibabel
 import numpy
 from functools import cached_property
+from dataclasses import dataclass
 
 
+@dataclass
 class Atlas():
     """
     Looks up atlas coordinates for you. All coordinates are in voxel space, NOT scanner space.
-    Your data MUST be aligned and resampled to the 1mm MNI152NLin2009cAsym brain.
+    Your data MUST be aligned and resampled to the 1mm or 2mm MNI152NLin2009cAsym brain.
+    When constructing an Atlas object, you can set lower_resolution=True if you'd like the atlas to use 2mm resolution.
 
-    You may use the lookup like a Python dictionary if you'd like. For example,
+    You may use the Atlas like a Python dictionary if you'd like. For example,
 
     >>> coordinate_lookup = Atlas()
     >>> print(coordinate_lookup[(100, 100, 100)])
@@ -28,8 +31,7 @@ class Atlas():
 
     'Right Cerebral White Matter'
     """
-    def __init__(self):
-        pass
+    lower_resolution: bool=False
 
     def __getitem__(self, thruple: Tuple[int, int, int]) -> str:
         assert len(thruple) == 3, "You must pass a tuple with exactly 3 coordinates, i.e. (x, y, z)"
@@ -39,9 +41,11 @@ class Atlas():
     @cached_property
     def _image(self) -> nibabel.nifti1.Nifti1Image:
         """
-        Returns raw atlas image to be translated.
+        Returns raw atlas image to be translated. If self.lower_resolution = True, raw atlas image will be 2mm resolution.
         """
         nifti_path = self._MNI_dir / "tpl-MNI152NLin2009cAsym_res-01_desc-carpet_dseg.nii.gz"
+        if self.lower_resolution == True:
+            nifti_path = self._MNI_dir / "tpl-MNI152NLin2009cAsym_res-02_desc-carpet_dseg.nii.gz"
         return nibabel.load(nifti_path)
     
     @cached_property
