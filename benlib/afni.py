@@ -97,7 +97,7 @@ class AFNI():
             "End time": self.end_time,
             "Total time to run program": str(self.end_time - self.start_time),
             "Complete command executed": self.process.args,
-            "stdout and stderr": self.stdout_and_stderr
+            "stdout and stderr": self.stdout_and_stderr.splitlines()
         }
 
         # Write the log info dict to a json file.
