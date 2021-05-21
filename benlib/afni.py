@@ -10,6 +10,7 @@ veliebm@gmail.com
 
 # Import external libraries and modules.
 from datetime import datetime
+from functools import cached_property
 import subprocess
 from pathlib import Path
 import yaml
@@ -18,9 +19,7 @@ import re
 import nibabel
 from dataclasses import dataclass
 from os import PathLike
-
-# Import lean and mean CSEA modules.
-from reference import the_path_that_matches
+from typing import Dict, List
 
 @dataclass
 class AFNI():
@@ -32,7 +31,7 @@ class AFNI():
     working_directory: PathLike
     write_matrix_lines_to: PathLike=None
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         """
         Runs after self.__init__()
         """
@@ -50,7 +49,7 @@ class AFNI():
         with subprocess.Popen([self.program] + self.args, cwd=self.working_directory, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, universal_newlines=True) as process:
 
             # Immediately kill the process if it doesn't need to be run.
-            if self.has_run_before:
+            if self.has_ran_before:
                 process.kill()
                 print(f"Killing {self.program} because we've already run it before in {self.working_directory}. Delete its log file if you wish to rerun it.")
 
@@ -65,46 +64,47 @@ class AFNI():
         self.end_time = datetime.now()
         
         # Save logs.
-        if not self.has_run_before:
+        if not self.has_ran_before:
             if self.write_matrix_lines_to:
                 self._write_matrix()
-            self.write_logs()
+            self.write_logs(self.log_path)
 
-    @property
-    def has_run_before(self):
+    @cached_property
+    def has_ran_before(self) -> bool:
         """
         Returns true if the program has already run before.
 
-        We infer this by checking whether log files are present. If log files exist, then
-        the program has probably already ran to completion before.
+        We infer this by checking whether log files are present in which we've run the program with the same args.
         """
+        has_ran = False
         try:
-            assert self.log_path.exists()
-            return True
+            assert not self.log_path.exists(), f"{self.log_path}: Log already exists."
+            log = read_yaml(self.log_path)
+            assert log["__repr__"] != self.__repr__(), f"{self.log_path}: Log contains same __repr__ as the object running this method."
         except AssertionError:
-            return False
+            has_ran = True
 
-    def write_logs(self):
+        return has_ran
+
+    def write_logs(self, log_path: PathLike) -> None:
         """
-        Write program info and logs to working directory.
+        Write program log.
         """
         # Store log info into a dict.
         log_data = {
-            "Program name": self.program,
-            "Return code": self.process.returncode,
-            "Working directory": str(self.working_directory),
             "Start time": self.start_time,
             "End time": self.end_time,
             "Total time to run program": str(self.end_time - self.start_time),
-            "Complete command executed": self.process.args,
-            "stdout and stderr": self.stdout_and_stderr.splitlines()
+            "Return code": self.process.returncode,
+            "__repr__": self.__repr__(),
+            "stdout and stderr": self.stdout_and_stderr.splitlines(),
         }
 
-        # Write the log info dict to a json file.
-        print(f"Writing {self.log_path}")
-        save_yaml(log_data, self.log_path)
+        # Write the log data to a yaml file.
+        print(f"Writing {log_path}")
+        save_yaml(log_data, log_path)
 
-    def _write_matrix(self):
+    def _write_matrix(self) -> None:
         """
         Writes ALL lines in stdout resembling a matrix to disk.
 
@@ -123,7 +123,7 @@ class AFNI():
         with open(self.write_matrix_lines_to, "w") as file:
             file.writelines(matrix_lines)
 
-def subbrick_labels_of(path_to_afni_dataset):
+def subbrick_labels_of(path_to_afni_dataset) -> List[str]:
     """
     Returns a list. Each element is the label of a sub-brick within the target dataset.
     """
@@ -139,3 +139,10 @@ def save_yaml(data, write_path: PathLike) -> None:
     """
     with open(write_path, "w") as write_file:
         yaml.dump(data, write_file, default_flow_style=False)
+
+def read_yaml(path: PathLike) -> Dict:
+    """
+    Decode a yaml file.
+    """
+    with open(path, "r") as read_file:
+        return yaml.load(read_file, Loader=yaml.UnsafeLoader)
