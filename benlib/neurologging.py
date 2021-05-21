@@ -1,14 +1,14 @@
 """
 Contains tools to log CSEA python scripts.
 
-Created 4/5/2021 by Benjamin Velie.
-veliebm@ufl.edu
+Created 4/5/2021 by Ben Velie.
+Last updated 5/21/2021 by Ben Velie.
 """
 from os import PathLike
 from types import FunctionType
 from functools import wraps
 from datetime import datetime
-import json
+import yaml
 from pathlib import Path
 
 
@@ -45,7 +45,7 @@ def logged(log_path) -> FunctionType:
                 writing_dictionary = {
                     "Start time": start_time,
                     "End time": end_time,
-                    "Working directory": Path().absolute(),
+                    "Working directory": str(Path().absolute()),
                     "Module": function.__module__,
                     "Function": function.__name__,
                     "Arguments": args,
@@ -53,14 +53,19 @@ def logged(log_path) -> FunctionType:
                     "Returned": result,
                     "Exception": potential_exception,
                 }
-                with open(log_path, "w") as file_writer:
-                    json.dump(writing_dictionary, file_writer, default=str, indent="\t")
+                save_yaml(writing_dictionary, log_path)
     
         return wrapper
     return decorator
 
+def save_yaml(data, write_path: PathLike) -> None:
+    """
+    Save some data (probably a dictionary) as a pleasant and cheerful yaml file.
+    """
+    with open(write_path, "w") as write_file:
+        yaml.dump(data, write_file, default_flow_style=False)
 
-@logged("log.json")
+@logged("log.yaml")
 def _test_logged(*args, **kwargs):
     """
     Test the logged decorator.
