@@ -44,7 +44,7 @@ def create_dictionary_of_old_and_new_paths(input_dir: Path, bids_dir: Path) -> d
     """
 
     old_and_new_paths = {}
-    old_paths = list(input_dir.rglob("*"))
+    old_paths = [path for path in input_dir.rglob("*") if not path.is_dir()]
     print(f"Sorting {len(old_paths)} paths.")
     for old_path in old_paths:
 
@@ -61,7 +61,7 @@ def create_dictionary_of_old_and_new_paths(input_dir: Path, bids_dir: Path) -> d
             new_path = bids_dir / "sourcedata" / f"sub-{subject_id_of(old_path)}_task-bop{old_path.suffix}"
 
         elif filetype_of(old_path) == "unsorted":
-            new_path = old_path
+            new_path = bids_dir / "sourcedata" / old_path.name
 
         old_and_new_paths[old_path] = new_path
 
@@ -97,7 +97,7 @@ def filetype_of(path: Path) -> str:
     elif path.suffix == ".nii":
         if "sT1W" in path.stem:
             return "anat"
-        elif "EPI" in path.stem:
+        elif "EPI" and "Bop" in path.stem:
             return "func"
 
     else:
