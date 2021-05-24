@@ -52,7 +52,6 @@ class Vmrk():
 
         # From the list of lists birth a glorious DataFrame with column names extracted from the header.
         dataframe = pandas.DataFrame(split_line_list, columns=self.column_names)
-        dataframe.index += 1    # Make index numbers match marker numbers
 
         return dataframe
 
