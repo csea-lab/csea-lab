@@ -76,13 +76,13 @@ class AFNI():
 
         We infer this by checking whether log files are present in which we've run the program with the same args.
         """
-        has_ran = False
+        has_ran = True
         try:
-            assert not self.log_path.exists(), f"{self.log_path}: Log already exists."
+            assert self.log_path.exists(), f"{self.log_path}: Log doesn't exist."
             log = read_yaml(self.log_path)
-            assert log["__repr__"] != self.__repr__(), f"{self.log_path}: Log contains same __repr__ as the object running this method."
+            assert log["__repr__"] == self.__repr__(), f"{self.log_path}: Log doesn't contain same __repr__ as the AFNI program you're running."
         except AssertionError:
-            has_ran = True
+            has_ran = False
 
         return has_ran
 
