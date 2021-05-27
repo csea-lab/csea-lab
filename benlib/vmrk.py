@@ -115,9 +115,11 @@ class Vmrk():
 
         return re.findall(pattern=r"(?<=\<).+?(?=\>)", string=self.header_string) + ["Special"]
 
-    def write_onsets_to(self, path: PathLike):
+    def write_onsets_to(self, path: PathLike, add_to_onsets: float=0):
         """
         A file of onsets converted to seconds and adjusted to the start time outputs into the target path.
+
+        You may also optionally specify a value for add_to_onsets that will then be added to all onsets.
 
         Very handy to get your stimulus onsets all in one place, lemme tell ya.
         """
@@ -125,7 +127,7 @@ class Vmrk():
         output_path = Path(path)
 
         with output_path.open(mode='w') as txt_file:
-            txt_file.writelines((f"{onset}\n" for onset in self.onsets))
+            txt_file.writelines((f"{onset + add_to_onsets}\n" for onset in self.onsets))
 
     def _converted_to_seconds_and_adjusted_to_start_time(self, timing):
         """
