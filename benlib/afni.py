@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
-
 """
-This module includes a class to run AFNI programs and write and store info about them.
+This module includes a class to run AFNI programs and write and store info about them. Caches program output so you don't need to run the same step twice.
 
 It also includes some helper functions to assist you in your travels with AFNI.
 
@@ -9,36 +8,36 @@ Created 10/13/2020 by Benjamin Velie.
 veliebm@gmail.com
 """
 
-# Import standard Python modules.
+# Import external libraries and modules.
 from datetime import datetime
+from functools import cached_property
 import subprocess
 from pathlib import Path
-import json
+import yaml
 import sys
 import re
-import nibabel 
+import nibabel
+from dataclasses import dataclass
+from os import PathLike
+from typing import Dict, List
 
-# Import some lean and mean CSEA modules.
-from reference import the_path_that_matches
-
-
+@dataclass
 class AFNI():
     """
     Class to run AFNI programs and store information about them.
     """
+    program: str
+    args: list
+    working_directory: PathLike
+    write_matrix_lines_to: PathLike=None
 
-    def __init__(self, program: str, args: list, working_directory, write_matrix_lines_to=None):
-
+    def __post_init__(self) -> None:
+        """
+        Runs after self.__init__()
+        """
         self.start_time = datetime.now()
-
-        # Store input parameters of the object.
-        self.program = program
-        self.args = args
-        self.working_directory = Path(working_directory).absolute()
-        self.write_matrix_lines_to = write_matrix_lines_to
-
-        # Figure out if program has run before. If yes, we'll kill the process later.
-        self.program_has_run_before = self._program_has_run_before()
+        self.working_directory = Path(self.working_directory).absolute()
+        self.log_path = self.working_directory / f"{self.program}_log.yaml"
 
         # Tell user that we're executing this object.
         print(f"Executing {self.__repr__()}")
@@ -50,9 +49,9 @@ class AFNI():
         with subprocess.Popen([self.program] + self.args, cwd=self.working_directory, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, universal_newlines=True) as process:
 
             # Immediately kill the process if it doesn't need to be run.
-            if self.program_has_run_before:
+            if self.has_ran_before:
                 process.kill()
-                print(f"Killing {self.program} because we've already run it before in {self.working_directory}. Delete its log files if you wish to rerun it.")
+                print(f"Killing {self.program} because we've already run it before in {self.working_directory}. Delete its log file if you wish to rerun it.")
 
             # Print stdout/stderr and store them in a string.
             self.process = process
@@ -64,23 +63,48 @@ class AFNI():
 
         self.end_time = datetime.now()
         
-        if not self.program_has_run_before:
+        # Save logs.
+        if not self.has_ran_before:
             if self.write_matrix_lines_to:
                 self._write_matrix()
-            self.write_logs()
+            self.write_logs(self.log_path)
 
-
-    def __repr__(self):
+    @cached_property
+    def has_ran_before(self) -> bool:
         """
-        Defines how the class represents itself internally as a string.
+        Returns true if the program has already run before.
 
-        To learn more, consider reading https://docs.python.org/3/reference/datamodel.html#basic-customization
+        We infer this by checking whether log files are present in which we've run the program with the same args.
         """
+        has_ran = True
+        try:
+            assert self.log_path.exists(), f"{self.log_path}: Log doesn't exist."
+            log = read_yaml(self.log_path)
+            assert log["__repr__"] == self.__repr__(), f"{self.log_path}: Log doesn't contain same __repr__ as the AFNI program you're running."
+        except AssertionError:
+            has_ran = False
 
-        return f"{self.__class__.__name__}(program='{self.program}', args={self.args}, working_directory='{self.working_directory}')"
+        return has_ran
 
+    def write_logs(self, log_path: PathLike) -> None:
+        """
+        Write program log.
+        """
+        # Store log info into a dict.
+        log_data = {
+            "Start time": self.start_time,
+            "End time": self.end_time,
+            "Total time to run program": str(self.end_time - self.start_time),
+            "Return code": self.process.returncode,
+            "__repr__": self.__repr__(),
+            "stdout and stderr": self.stdout_and_stderr.splitlines(),
+        }
 
-    def _write_matrix(self):
+        # Write the log data to a yaml file.
+        print(f"Writing {log_path}")
+        save_yaml(log_data, log_path)
+
+    def _write_matrix(self) -> None:
         """
         Writes ALL lines in stdout resembling a matrix to disk.
 
@@ -99,52 +123,7 @@ class AFNI():
         with open(self.write_matrix_lines_to, "w") as file:
             file.writelines(matrix_lines)
 
-
-    def write_logs(self):
-        """
-        Write program info and logs to working directory.
-        """
-
-        # Store program info into a dict.
-        program_info = {
-            "Program name": self.program,
-            "Return code (if 0, then in theory the program threw no errors)": self.process.returncode,
-            "Working directory": str(self.working_directory),
-            "Start time": str(self.start_time),
-            "End time": str(self.end_time),
-            "Total time to run program": str(self.end_time - self.start_time),
-            "Complete command executed": [str(arg) for arg in self.process.args]
-        }
-
-        # Write the program info dict to a json file.
-        output_json_path = self.working_directory / f"{self.program}_info.json"
-        print(f"Writing {output_json_path}")
-        with open(output_json_path, "w") as json_file:
-            json.dump(program_info, json_file, indent="\t")
-
-        # Write the program's stdout and stderr to a text file. 
-        stdout_stderr_log_path = self.working_directory / f"{self.program}_stdout+stderr.log"
-        print(f"Writing {stdout_stderr_log_path}")
-        stdout_stderr_log_path.write_text(self.stdout_and_stderr)
-
-
-    def _program_has_run_before(self):
-        """
-        Returns true if the program has already run before.
-
-        We infer this by checking whether log files are present. If log files exist, then
-        the program has probably already ran to completion before.
-        """
-
-        try:
-            the_path_that_matches(f"{self.program}_info.json", in_directory=self.working_directory).exists()
-            the_path_that_matches(f"{self.program}_stdout+stderr.log", in_directory=self.working_directory).exists()
-            return True
-        except OSError:
-            return False
-
-
-def subbrick_labels_of(path_to_afni_dataset):
+def subbrick_labels_of(path_to_afni_dataset) -> List[str]:
     """
     Returns a list. Each element is the label of a sub-brick within the target dataset.
     """
@@ -153,3 +132,17 @@ def subbrick_labels_of(path_to_afni_dataset):
     labels = raw_label_string.split("~")
 
     return labels
+
+def save_yaml(data, write_path: PathLike) -> None:
+    """
+    Save some data (probably a dictionary) as a pleasant and cheerful yaml file.
+    """
+    with open(write_path, "w") as write_file:
+        yaml.dump(data, write_file, default_flow_style=False)
+
+def read_yaml(path: PathLike) -> Dict:
+    """
+    Decode a yaml file.
+    """
+    with open(path, "r") as read_file:
+        return yaml.load(read_file, Loader=yaml.UnsafeLoader)

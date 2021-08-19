@@ -87,7 +87,7 @@ def write_func_tsvs(distilled_paths):
         return [onset for onset in unfixed_onsets]
 
     for subject in distilled_paths:
-        unfixed_onsets = distilled_paths[subject]["vmrk"].onsets()
+        unfixed_onsets = distilled_paths[subject]["vmrk"].onsets
         onsets = fixed(unfixed_onsets)
         duration = 2.5
         trial_types = distilled_paths[subject]["dat"].trial_codes
