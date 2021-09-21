@@ -38,6 +38,9 @@ for x = 1:length(epochstartindex)
     % transform everything to seconds, so can use existing code
       secbins = secbins./1000; 
       Rwavestamps = epoch./1000;
+
+
+% from here it is much better ti use IBI2HRchange_halfsec.m below is the original fran graham algorithm from the 1980s, but it can be replaced by linear interpolation in matlab with onel line of code...
     
     IBIvec = diff(Rwavestamps);
   
