@@ -44,7 +44,7 @@ class Dat():
         Automatically converts times into seconds.
         """
 
-        raw_durations = self.dataframe[self.dataframe.columns[3]]
+        raw_durations = self.dataframe[self.dataframe.columns[4]]
 
         # Clean the raw durations into standard float numbers, then return them.
         return [float(duration) for duration in raw_durations]
