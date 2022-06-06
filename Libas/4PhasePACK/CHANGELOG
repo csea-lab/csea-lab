@@ -1,0 +1,43 @@
+/***   Version 1.2.0
+\***   November 29, 2004
+
+Fixed calculation of Kuiper statistic and p-value in 'kuiper.m'
+
+Added new script 'test_kuiper.m' verifying functionality with 
+Fisher (1993)
+
+
+/***   Version 1.1.1
+\***   April 19, 2004
+
+Released PhasePACK under the GNU Public License v2.
+
+Added file 'LICENSE.txt' to package.
+
+
+/***   Version 1.1.0
+\***   April 7, 2004
+
+Added circular dispersion calculation to 'circmean.m'.
+
+Added test functions 'test_circmean' and 'test_cmean_test' in
+directory 'test_scripts' to verify functionality with Fisher (1993).
+
+Bugfix: Fixed calculation of statistic 'Yr' in 'cmean_test.m' for case
+of uneven dispersions.
+
+Removed 'rbar.m' from package due to redundant functionality with
+'circmean.m'
+
+
+/***   Version 1.0.1
+\***   Feb. 18, 2003
+
+Bugfix: Added 'ordrank.m' to package, a dependency of 'circcor.m'. 
+
+
+
+/***   Version 1.0.0
+\***   Nov. 13, 2002
+
+First release.

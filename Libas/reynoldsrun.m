@@ -18,7 +18,7 @@ for X11 = .02:0.02:1;
              
 weightindex = weightindex+1;   
         end
-biasindex = biasindex +1;  plot(vector), pause(.2)
+biasindex = biasindex +1;  plot(vector), pause(.02)
     end
 X11index = X11index +1; 
     if X11index/1 == round(X11index/1), fprintf('.'), end, 

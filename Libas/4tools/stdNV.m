@@ -1,0 +1,1 @@
+% plotted normalverteilung N(100,10)function [dichte] = stdNV(input)mu = 0var = 1count = 1for x	= -10:0.01:10		f(count) = (1/sqrt(2*pi*var)) * 2.72^(-(x-mu)^2/(2*var));		count = count+1;		endround(input .* 100 + 1000)plot (f) dichte = f(round(input .* 100 + 1000))

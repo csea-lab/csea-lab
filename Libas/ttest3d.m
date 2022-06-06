@@ -5,22 +5,28 @@ if nargin < 3, downsamp = 1; end
 
 structest = load(deblank(filemat1(1,:))); %to know the size
 
-mat4d1 = zeros(size(structest.powbsl, 1), size(structest.powbsl, 2), size(structest.powbsl, 3), size(filemat1,1));
-mat4d2 = zeros(size(structest.powbsl, 1), size(structest.powbsl, 2), size(structest.powbsl, 3), size(filemat1, 1));
+mat = eval(['structest.' char(fieldnames(structest))]);
+
+mat4d1 = zeros(size(mat, 1), size(mat, 2), size(mat, 3), size(filemat1,1));
+mat4d2 = zeros(size(mat, 1), size(mat, 2), size(mat, 3), size(filemat1, 1));
 
 
 for x = 1:size(filemat1,1)
     
     struc1 = load(deblank(filemat1(x,:)));
     
+    mat1 = eval(['struc1.' char(fieldnames(struc1))]);
+    
     struc2 = load(deblank(filemat2(x,:))); 
     
+    mat2 = eval(['struc2.' char(fieldnames(struc2))]);
+    
     if isempty(bslvec)
-          mat4d1(:, :, :, x) = struc1.powbsl; 
-          mat4d2(:, :, :, x) = struc2.powbsl; 
+          mat4d1(:, :, :, x) = mat1; 
+          mat4d2(:, :, :, x) = mat2; 
     else
-         mat4d1(:, :, :, x) = bslcorrWAMat_div(struc1.powbsl, bslvec); 
-         mat4d2(:, :, :, x) = bslcorrWAMat_div(struc2.powbsl, bslvec); 
+         mat4d1(:, :, :, x) = bslcorrWAMat_div(mat1, bslvec); 
+         mat4d2(:, :, :, x) = bslcorrWAMat_div(mat2, bslvec); 
     end
    
    fprintf('.')

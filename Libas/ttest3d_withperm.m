@@ -47,7 +47,7 @@ disp('done downsampling, calculating ttests')
 
 
 % draw loop
-for draw = 1:4000
+for draw = 1:800
     
 
     % flip the condition membership for random people

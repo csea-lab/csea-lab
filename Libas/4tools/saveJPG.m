@@ -1,0 +1,1 @@
+% saveJPG% prints actual graph to jpg with quality 100 %function[] = saveJPG(Filepath)if nargin < 1	[File, Path] = uiputfile('*')	Filepath = [Path File];endeval(['print -djpeg100 ' Filepath])

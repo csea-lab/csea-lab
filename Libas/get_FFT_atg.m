@@ -1,6 +1,6 @@
-function [spec] = get_FFT_atg(folder, timewinSP);
+function [spec] = get_FFT_atg(folder, timewinSP)
 
-infilemat = dir([folder '/*.rad2*']); 
+infilemat = dir([folder '/*.at*']); 
 
 for fileindex = 1:size(infilemat,1)
     

@@ -14,16 +14,16 @@ function [ inmat3d, badindex, NGoodtrials ] = scadsAK_3dtrials(inmat3d)
      
      actualdistribution = qualindex(qualindex < cutoff); 
      
-     plot(qualindex)
+     plot(qualindex), yline(1.5.* median(actualdistribution))
     
-    badindex = find(qualindex > 1.2.* median(actualdistribution));
+    badindex = find(qualindex > 1.5.* median(actualdistribution));
     
     inmat3d(:, :, badindex) = []; 
     
     % calculate remaining number of trials
-    qualindex(qualindex > 1.2.* median(qualindex)) = [];
+    qualindex(qualindex > 1.5.* median(qualindex)) = [];
     
-    NGoodtrials = length(qualindex)
+    NGoodtrials = size(inmat3d,3)
 
 
 

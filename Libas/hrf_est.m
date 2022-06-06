@@ -1,4 +1,4 @@
-function [h] = hrf_est(BOLDvec, scanonsets, hrflength); 
+function [h] = hrf_est(BOLDvec, scanonsets, hrflength)
 % bold vector needs to be row vector, scanonsets is stim onset times as
 % indices into BOLD vector 
 %hrflength is a scalar (a number) indicating how many scans should be

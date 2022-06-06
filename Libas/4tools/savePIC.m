@@ -1,0 +1,1 @@
+% savePIC% prints actual graph to Mac pict function[] = savePIC(Filepath)if nargin < 1	[File, Path] = uiputfile('*')	Filepath = [Path File];endeval(['print -dpict ' Filepath])

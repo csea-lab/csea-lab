@@ -383,7 +383,7 @@ end
 disp('start bootstrapping....')
 
  Boot_paramsValues = []; 
-
+pause
 for iteration = 1:2000   
     if iteration/50 == round (iteration/50), fprintf('.'), end
     subvec = ceil(rand(18,1).*18); % Randomize subjects with replacement, aka bootstrapping
@@ -531,7 +531,7 @@ for iteration = 1:2000
 
         for condi = 1:2       
         GM_numsCorr(condi,:) = GMmat(condi,:); % stores # correct for each condition
-        GM_percentCorr(condi,:) = GMmat(condi,:)./OutOfNum_tot; % same for %        
+        GM_percentCorr(condi,:) = GMmat(condi,:)./OutOfNum_tot; % same for %         2321
         % Fit and get the log-liklihood value for each GM condition
         [Boot_paramsValues(condi,:, iteration), Boot_LL(condi, iteration), Boot_exitflag(condi, iteration)]... 
          = PAL_PFML_Fit(StimLevels, GM_numsCorr(condi,:), OutOfNum_tot,searchGrid, paramsFree,PF);

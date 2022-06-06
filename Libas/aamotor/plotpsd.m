@@ -1,0 +1,1 @@
+% plotroutinefunction [] = plotpsd(FilePath)load(FilePath) axis = [0.0244:0.0244:50];  plot(axis, psdmatrix)  figure   plot(axis(1:400), psdmatrix(1:400)) 

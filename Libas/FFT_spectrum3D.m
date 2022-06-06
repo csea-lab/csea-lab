@@ -16,7 +16,7 @@ freqs = 0:fRes:SampRate./2;
         Mag = Mag*2;   
 
         Mag(1) = Mag(1)/2;                                                    % DC trat aber nicht doppelt auf
-        if ~rem(NFFT,2),                                                    % Nyquist Frequenz (falls vorhanden) auch nicht doppelt
+        if ~rem(NFFT,2)                                                    % Nyquist Frequenz (falls vorhanden) auch nicht doppelt
             Mag(length(Mag))=Mag(length(Mag))/2;
         end
 

@@ -1,0 +1,1 @@
+% aamove% simple moving average for a matix, % applies algorithm to each row of inmatfunction[movemat] = aamove(inmat);sizemat = size(inmat)movmat = zeros(sizemat); 	for row = 1: sizemat(1)		for step = 1:sizemat(2) -1						movemat(row,step) = mean(inmat(row,[step:step+1]));					end	end											
