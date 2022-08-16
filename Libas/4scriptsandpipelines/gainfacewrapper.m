@@ -255,7 +255,7 @@ for x = 1:18, cellmat4fit{x} = (cellmat4fit{x}./(max(max(cellmat4fit{x})))),  en
 % now run appropriate field in palamedesgainesface for this condition
 
 %%
-%%%% 8. MAIN EFFECTS of content in IAPS in 8 conditions, with 18 people 144 files (18 * 8) 
+%%%% 8. MAIN EFFECTS of content in IAPS in 4 conditions, with 18 people 144 files (18 * 8) 
 % get filemat of all hamp files, then do ROI
 clear
 filemat = getfilesindir(pwd, '*hamp12');
@@ -367,7 +367,8 @@ for param = 1:4
     bar(bins(con,:), N(con,:)), hold on, pause(.5)
     end
     title(['parameter: ' num2str(parameter)]),  legend
-    hold off
+    hold off 
+    
 
     % use bootstrapped confidence intervals to look for robust ("significant")
     % differences, with high Bayes factors, posterior odds over prior odds (0.5) 

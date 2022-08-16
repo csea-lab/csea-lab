@@ -1,0 +1,1 @@
+%caRes2plotmatfunction [plotmat] = caRes2plotmat( CohVec, ComparMat);%for fileindex = 1 : size (filemat, 1)	MaxSensnum = max(max(ComparMat))	neumat = zeros(MaxSensnum+1, MaxSensnum+1);		for index = 1 : length(ComparMat);				plotmat(ComparMat(index,1),ComparMat(index,2))  = CohVec(index);					end	%end

@@ -83,11 +83,11 @@ for fileindex = 1:size(igfilemat,1)
         end % timepoints
         
               disp(fileindex) 
-        save([appmatfilemat(fileindex,1:end-4) '.Tmodel.mat'], 'alpha_model', '-mat');%%saves modeled alpha per participant
-         SaveAvgFile([appmatfilemat(fileindex,:) '.at.Tcorrmat'], corrmat)
-         SaveAvgFile([appmatfilemat(fileindex,:) '.at.TBayescorrmat'], Bayescorrmat)
-         SaveAvgFile([appmatfilemat(fileindex,:) '.at.Tbetamat'], Betamat)
-         SaveAvgFile([appmatfilemat(fileindex,:) '.at.TMSE'], MSE)
-%         SaveAvgFile([appmatfilemat(fileindex,:) '.at.TBIC'], BICmat)
+%         save([appmatfilemat(fileindex,1:end-4) '.Tmodel.mat'], 'alpha_model', '-mat');%%saves modeled alpha per participant
+%          SaveAvgFile([appmatfilemat(fileindex,:) '.at.Tcorrmat'], corrmat)
+%          SaveAvgFile([appmatfilemat(fileindex,:) '.at.TBayescorrmat'], Bayescorrmat)
+%          SaveAvgFile([appmatfilemat(fileindex,:) '.at.Tbetamat'], Betamat)
+%          SaveAvgFile([appmatfilemat(fileindex,:) '.at.TMSE'], MSE)
+         SaveAvgFile([appmatfilemat(fileindex,:) '.at.TBIC'], BICmat)
         
 end % files

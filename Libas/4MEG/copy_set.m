@@ -1,0 +1,1 @@
+% copy_set: copies MSI-set file into destination file in same directoryfunction [] = copy_set(source_file, target_file);fid_alt = fopen(source_file)fid_new = fopen(target_file, 'w')count = 0a = ['los']while  ~strcmp(a, 'MSI.Position_Information.End:') a = fgetl(fid_alt)count = count + 1fprintf(fid_new, a)endfclose ('all')

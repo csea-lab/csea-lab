@@ -1,4 +1,4 @@
-%difference_atg
+%divide_atg
 function [diffmat] = difference_atg(filemat_1, filemat_2, outnamebase); 
 
  

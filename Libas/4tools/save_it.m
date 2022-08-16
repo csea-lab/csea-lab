@@ -1,0 +1,1 @@
+% fragt nach namen eines files im Workspace, fragt namen ab und specihert es% dort 	Path = pwdX = input('variable name?    ','s')while  ~isempty(X)		 eval(['cd ' Path])		[File,Path]=uiputfile('*', 'save as');	FilePath=[Path,File];	eval(['save ' FilePath ' ' X ' -ascii'])		X = input('variable name?    ','s')	end

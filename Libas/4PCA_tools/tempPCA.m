@@ -1,0 +1,1 @@
+% tmpPca% computes temporal PCA% => assumes that subjects/electrodes% are observations and time samples are variables function [compmat, Varvec] = tempPCA(inMat, pcatimevec)[U, S, compmat] = svds(inMat(:,pcatimevec));Varvec = (diag(S)).^2/sum(diag(S).^2);

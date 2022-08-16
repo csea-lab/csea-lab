@@ -677,6 +677,7 @@ filemat6 = getfilesindir(pwd, '*002.mat.pow4*');
 mat3d3 = [];
 mat3d6 = [];
 
+freq = 10
 
 channels =  [1:129];
 %channels =  [55 54 53 52 58 79 86 92 96 72 71 76 75 70 83 69 89 95 64 50 101 30 105 46 102 ];
@@ -689,7 +690,7 @@ faxis = faxisfull(10:5:104);
  
 % now make a matrix for alpha frequency
 
-for freq = 1:17
+%for freq = 1:1
         
 mat3d3 = [];
 mat3d6 = [];
@@ -702,11 +703,11 @@ mat3d6 = [];
          a3 = load(filemat3(x,:)); 
         temp = a3.WaPower4d; 
        %mat3d3 = cat(3, mat3d3, squeeze(mean(temp(:, :, 8:13, :), 3))); %alpha only
-       mat3d3 = cat(3, mat3d3, squeeze(mean(temp(:, :, freq:freq+2, :), 3))); 
+       mat3d3 = cat(3, mat3d3, squeeze(mean(temp(:, :, 10:12, :), 3))); 
         a6 = load(filemat6(x,:)); 
         temp = a6.WaPower4d; 
        %mat3d6 = cat(3, mat3d6, squeeze(mean(temp(:, :, 8:13, :), 3))); %alpha only
-       mat3d6 = cat(3, mat3d6, squeeze(mean(temp(:, :, freq:freq+2, :), 3)));
+       mat3d6 = cat(3, mat3d6, squeeze(mean(temp(:, :, 10:12, :), 3)));
         fprintf('-_'), if x/10 == round(x/10), disp(x), end
     end
     
@@ -756,15 +757,15 @@ for timepoint = 1:size(mat3d3avg,2)
 
 end % timepoint
 % 
- meanaccuracy(freq,:) = movingavg_flip(meanaccuracy(freq,:), 14); 
- erroraccuracy(freq,:) = movingavg_flip(abs(erroraccuracy(freq,:)-0.5),14);
+ meanaccuracy(freq,:) = movmean(meanaccuracy(freq,:), 14); 
+ erroraccuracy(freq,:) = movmean(abs(erroraccuracy(freq,:)-0.5),14);
 
 pause(.5)
 figure
 shadedErrorBar(taxis, meanaccuracy(freq,:), erroraccuracy(freq,:))
 pause(.5)
 
-end % frequencies
+%end % frequencies
 
 %%
 % 9) do training AND test to averaged topographies, December 2019
@@ -794,7 +795,8 @@ faxis = faxisfull(10:5:104);
  
 % now make a matrix for alpha frequency
 
-for freq = 1:19-2
+freq = 10
+%for freq = 1:1
         
 mat3d3 = [];
 mat3d6 = [];
@@ -807,11 +809,11 @@ mat3d6 = [];
         a3 = load(filemat3(x,:)); 
         temp = a3.WaPower4d; 
        %mat3d3 = cat(3, mat3d3, squeeze(mean(temp(:, :, 8:13, :), 3))); %alpha only
-       mat3d3 = cat(3, mat3d3, squeeze(mean(temp(:, :, freq:freq+2, :), 3))); 
+       mat3d3 = cat(3, mat3d3, squeeze(mean(temp(:, :, 10, :), 3))); 
         a6 = load(filemat6(x,:)); 
         temp = a6.WaPower4d; 
        %mat3d6 = cat(3, mat3d6, squeeze(mean(temp(:, :, 8:13, :), 3))); %alpha only
-       mat3d6 = cat(3, mat3d6, squeeze(mean(temp(:, :, freq:freq+2, :), 3)));
+       mat3d6 = cat(3, mat3d6, squeeze(mean(temp(:, :, 10, :), 3)));
         fprintf('-_'), if x/10 == round(x/10), disp(x), end
         
     end
@@ -862,15 +864,15 @@ for timepoint = 1:size(mat3d3avg,2)
 
 end % timepoint
 % 
- meanaccuracy(freq,:) = movingavg_as(meanaccuracy(freq,:), 14); 
- erroraccuracy(freq,:) = movingavg_as(abs(erroraccuracy(freq,:)-0.5),14);
+meanaccuracy(freq,:) = movmean(meanaccuracy(freq,:), 20); 
+ erroraccuracy(freq,:) = movmean(abs(erroraccuracy(freq,:)-0.5),20);
 
 pause(.5)
 figure
 shadedErrorBar(taxis, meanaccuracy(freq,:), erroraccuracy(freq,:))
 pause(.5)
 
-end % frequencies
+%end % frequencies
 
 
 

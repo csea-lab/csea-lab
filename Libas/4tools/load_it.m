@@ -1,0 +1,1 @@
+% fragt nach namen eines files im Workspace, fragt namen ab und laedt escount = 1;while count == 1 			[File,Path]=uigetfile('*', 'file to load');	FilePath=[Path,File]		if length (FilePath) == 2, count = 0; return, end		eval(['load ' FilePath])	eval(['cd ' Path])		endclear count clear FilePathclear File

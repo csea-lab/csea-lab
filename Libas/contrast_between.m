@@ -1,5 +1,5 @@
 function [ Fcontvec, rcontvec ] = contrast_between( data, groupvector, weights )
-%contrast_between calculates fs for a contrast in groups with unequal n
+%  contrast_between calculates fs for a contrast in groups with unequal n
 %  data needs to be arranged such that rows are subjects
 
 %1 find how many groups there are and their ns
@@ -12,7 +12,7 @@ function [ Fcontvec, rcontvec ] = contrast_between( data, groupvector, weights )
 % if there are channels or time points (= 2nd dimension)
 % loop over those
 
-for loopindex = 1:size(data,2); 
+for loopindex = 1:size(data,2)
 
     % calulate group means and stats for each loppindex (time or channel)
 
