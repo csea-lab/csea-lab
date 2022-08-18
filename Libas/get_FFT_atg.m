@@ -12,7 +12,7 @@ for fileindex = 1:size(infilemat,1)
   
     AvgMat = AvgMat(:,timewinSP); 
    
-     AvgMat = AvgMat .* cosinwin(20,size(AvgMat,2), size(AvgMat,1));  
+     AvgMat = AvgMat .* cosinwin(10,size(AvgMat,2), size(AvgMat,1));  
   
     NFFT = size(AvgMat,2); 
 	NumUniquePts = ceil((NFFT+1)/2); 
@@ -21,7 +21,7 @@ for fileindex = 1:size(infilemat,1)
 	Mag = Mag*2;   
 	
 	Mag(1) = Mag(1)/2;                                                    % DC trat aber nicht doppelt auf
-	if ~rem(NFFT,2),                                                    % Nyquist Frequency not twice
+	if ~rem(NFFT,2)                                                  % Nyquist Frequency not twice
         Mag(length(Mag))=Mag(length(Mag))/2;
 	end
 	
