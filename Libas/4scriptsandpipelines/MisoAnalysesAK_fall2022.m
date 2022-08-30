@@ -20,13 +20,16 @@ SaveAvgFile('GM59.evoked.at.spec',sumspec,[],[], 10000,[],[],[],[],1)
 % OK that worked well, it is exactly at 41.2 Hz. Now to the slide win
 %% compute the sliding window stuff
 cd('/Users/andreaskeil/Desktop/misophonia0822/generaudi_matfiles')
-filemat = getfilesindir(pwd, '*.app??mat'); 
+filemat = getfilesindir(pwd, '*.mat'); 
+filemat = filemat(1:2:end,:); 
 
 for x = 1:size(filemat,1)
     a = load(deblank(filemat(x,:))); 
     data = a.outmat; 
     [trialamp,winmat3d,phasestabmat,trialSNR] = flex_slidewin(data, 0, 200:300, 551:1800 , 41.2, 600, 500, deblank(filemat(x,:)));
 end
+
+SaveAvgFile('GM59.meanslideamp.at',meanamp,[],[], 1,[],[],[],[],1)
 %% look at the sliding window stuff
 cd('/Users/andreaskeil/Desktop/misophonia0822/generaudi_matfiles')
 filemat = getfilesindir(pwd, '*win.mat'); 
@@ -38,11 +41,12 @@ for xcon = 1:6
     sumamp = zeros(129,1);
     for x = 1:size(filematcon,1)
         a = load(deblank(filematcon(x,:)));
-        data = a.outmat.fftamp;
+        data = a.outmat.trialSNR;
         sumamp = sumamp + mean(data,2);
     end % x
-    meanamp(:, xcon) = sumamp./(size(filematcon,1));
+    meanSNR(:, xcon) = sumamp./(size(filematcon,1));
 
 end % xcon
 
+SaveAvgFile('GM59.meanslideSNR.at',meanSNR,[],[], 1,[],[],[],[],1)
 
