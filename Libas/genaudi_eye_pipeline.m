@@ -1,12 +1,8 @@
-function [matcorr, matout] = genaudi_pipeline(edffile, datfile)
+function [matcorr, matout] = genaudi_eye_pipeline(edffile, datfile)
 
-datamat = 
+datamat = Edf2Mat(edffile);
 
-pupilbycond = [];
-
-filepath = matfile; 
-
-load(matfile)
+matfile = [edffile];
 
 %to get the indices of a given message: here it is "cue on"
 
@@ -14,7 +10,7 @@ load(matfile)
  
  for x = 1:length(datamat.Events.Messages.info)
      if findstr('cue_on', char(datamat.Events.Messages.info(x)))
-         trialindexinMSGvec = [trialindexinMSGvec datamat.Events.Messages.time(x)], 
+         trialindexinMSGvec = [trialindexinMSGvec datamat.Events.Messages.time(x)]; 
      end
  end
 
@@ -52,7 +48,7 @@ end
 
 
 disp('artifact correction about to commence')
-pause
+pause(1)
 
 
 % %%%%%%%%%%%%%
@@ -107,12 +103,4 @@ pause
  end
  
  eval(['save ' matfile '.pup.out matout -mat'])
- 
- 
- 
- 
- 
- 
-
- 
  

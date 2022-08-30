@@ -1,4 +1,4 @@
-% misophonia analyses Fall 2022
+%% misophonia analyses Fall 2022
 
 %% first establish the tagging frequency was as expected, from the mat files
 
@@ -18,6 +18,7 @@ plot(freqs(205:500), sumspec(:, 205:500)')
 xline(41.2)
 SaveAvgFile('GM59.evoked.at.spec',sumspec,[],[], 10000,[],[],[],[],1)
 % OK that worked well, it is exactly at 41.2 Hz. Now to the slide win
+
 %% compute the sliding window stuff
 cd('/Users/andreaskeil/Desktop/misophonia0822/generaudi_matfiles')
 filemat = getfilesindir(pwd, '*.mat'); 
@@ -30,7 +31,9 @@ for x = 1:size(filemat,1)
 end
 
 SaveAvgFile('GM59.meanslideamp.at',meanamp,[],[], 1,[],[],[],[],1)
+
 %% look at the sliding window stuff
+
 cd('/Users/andreaskeil/Desktop/misophonia0822/generaudi_matfiles')
 filemat = getfilesindir(pwd, '*win.mat'); 
 
@@ -50,3 +53,4 @@ end % xcon
 
 SaveAvgFile('GM59.meanslideSNR.at',meanSNR,[],[], 1,[],[],[],[],1)
 
+%% 
