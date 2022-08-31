@@ -53,4 +53,23 @@ end % xcon
 
 SaveAvgFile('GM59.meanslideSNR.at',meanSNR,[],[], 1,[],[],[],[],1)
 
-%% 
+%% make helpful movies 1: generalization
+for x = 1:50
+aha = modelFun1([0 5], -30:30).*x/50;
+plot(-30:30, aha, 'r', 'linewidth', 4), axis([ -11 11 -.3 1.1]), pause(.1), flipbook(x) = getframe;
+end
+vidObj = VideoWriter('generalization.mp4', 'mp4');
+vidObj.FrameRate = 15;
+vidObj.Quality = 95;
+open(vidObj) 
+writeVideo(vidObj,flipbook)
+%% make helpful movies 2: lateral inhibition
+for x = 1:50
+aha = Ricker(.1, -30:30).*x/50;
+plot(-30:30, aha, 'r', 'linewidth', 4), axis([ -11 11 -.5 1.1]), pause(.1), flipbook2(x) = getframe;
+end
+vidObj = VideoWriter('mexhat.avi', 'Motion JPEG AVI');
+vidObj.FrameRate = 15;
+vidObj.Quality = 95;
+open(vidObj) 
+writeVideo(vidObj,flipbook2)

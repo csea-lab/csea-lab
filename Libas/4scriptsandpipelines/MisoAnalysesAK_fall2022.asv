@@ -18,6 +18,7 @@ plot(freqs(205:500), sumspec(:, 205:500)')
 xline(41.2)
 SaveAvgFile('GM59.evoked.at.spec',sumspec,[],[], 10000,[],[],[],[],1)
 % OK that worked well, it is exactly at 41.2 Hz. Now to the slide win
+
 %% compute the sliding window stuff
 cd('/Users/andreaskeil/Desktop/misophonia0822/generaudi_matfiles')
 filemat = getfilesindir(pwd, '*.mat'); 
@@ -32,6 +33,7 @@ end
 SaveAvgFile('GM59.meanslideamp.at',meanamp,[],[], 1,[],[],[],[],1)
 
 %% look at the sliding window stuff
+
 cd('/Users/andreaskeil/Desktop/misophonia0822/generaudi_matfiles')
 filemat = getfilesindir(pwd, '*win.mat'); 
 
@@ -51,4 +53,23 @@ end % xcon
 
 SaveAvgFile('GM59.meanslideSNR.at',meanSNR,[],[], 1,[],[],[],[],1)
 
-%% 
+%% make helpful movies 1: generalization
+for x = 1:50
+aha = modelFun1([0 5], -30:30).*x/50;
+plot(-30:30, aha, 'r', 'linewidth', 4), axis([ -11 11 -.3 1.1]), pause(.1), flipbook(x) = getframe;
+end
+vidObj = VideoWriter('generalization.mp4', 'mp4');
+vidObj.FrameRate = 15;
+vidObj.Quality = 95;
+open(vidObj) 
+writeVideo(vidObj,flipbook)
+%% make helpful movies 2: lateral inhibition
+for x = 1:50
+aha = Ricker(.1, -30:30).*x/50;
+plot(-30:30, aha, 'r', 'linewidth', 4), axis([ -11 11 -.5 1.1]), pause(.1), flipbook2(x) = getframe;
+end
+vidObj = VideoWriter('mexhat.mp4', 'MPEG-4'');
+vidObj.FrameRate = 15;
+vidObj.Quality = 95;
+open(vidObj) 
+writeVideo(vidObj,flipbook2)

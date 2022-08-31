@@ -39,6 +39,7 @@ cfg                         = ft_definetrial(cfg);
 % end
 % end
 % cfg.event(initialbadtrials) = [];
+% cfg.trl(initialbadtrials) = [];
 % 
 % outtaketrials = []; 
 % for x = 2:length(cfg.event)
