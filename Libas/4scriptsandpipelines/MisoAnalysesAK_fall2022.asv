@@ -30,8 +30,6 @@ for x = 1:size(filemat,1)
     [trialamp,winmat3d,phasestabmat,trialSNR] = flex_slidewin(data, 0, 200:300, 551:1800 , 41.2, 600, 500, deblank(filemat(x,:)));
 end
 
-SaveAvgFile('GM59.meanslideamp.at',meanamp,[],[], 1,[],[],[],[],1)
-
 %% look at the sliding window stuff
 
 cd('/Users/andreaskeil/Desktop/misophonia0822/generaudi_matfiles')
@@ -44,14 +42,39 @@ for xcon = 1:6
     sumamp = zeros(129,1);
     for x = 1:size(filematcon,1)
         a = load(deblank(filematcon(x,:)));
-        data = a.outmat.trialSNR;
+        data = a.outmat.trialamp;
         sumamp = sumamp + mean(data,2);
     end % x
     meanSNR(:, xcon) = sumamp./(size(filematcon,1));
 
 end % xcon
 
-SaveAvgFile('GM59.meanslideSNR.at',meanSNR,[],[], 1,[],[],[],[],1)
+SaveAvgFile('GM59.meanslideamp.at',meanSNR,[],[], 1,[],[],[],[],1)
+
+%% time course of single trials
+
+cd('/Users/andreaskeil/Desktop/misophonia0822/generaudi_matfiles')
+filemat = getfilesindir(pwd, '*win.mat'); 
+
+for xcon = 1:6
+    
+    filematcon = filemat(xcon:6:end,:);
+    
+    singtrialsum = zeros(129,60);
+    for x = 1:size(filematcon,1)
+        a = load(deblank(filematcon(x,:)));
+        data = a.outmat.fftamp;
+        
+        data2 = resample(data, 60, size(data,2), 'Dimension', 2); 
+        singtrialsum = singtrialsum + data2;
+    end % x
+    
+    singtrialmean(:, :, xcon) = singtrialsum./(size(filematcon,1));
+
+end % xcon
+
+SaveAvgFile('GM59.trialtimecourse.at1',squeeze(singtrialmean(:, 1:58, 1)),[],[], 1,[],[],[],[],1);
+
 
 %% make helpful movies 1: generalization
 for x = 1:50
@@ -68,7 +91,7 @@ for x = 1:50
 aha = Ricker(.1, -30:30).*x/50;
 plot(-30:30, aha, 'r', 'linewidth', 4), axis([ -11 11 -.5 1.1]), pause(.1), flipbook2(x) = getframe;
 end
-vidObj = VideoWriter('mexhat.mp4', 'MPEG-4'');
+vidObj = VideoWriter('mexhat3.mp4', 'MPEG-4');
 vidObj.FrameRate = 15;
 vidObj.Quality = 95;
 open(vidObj) 
