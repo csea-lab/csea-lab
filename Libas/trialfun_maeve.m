@@ -9,7 +9,7 @@ hdr   = ft_read_header(cfg.dataset);
 event = ft_read_event(cfg.dataset);
 
 % search for DIN3 marker events
-sample = [event(find(strcmp('DIN3', {event.type}))).sample]';
+sample = [event(find(strcmp('DIN4', {event.value}))).sample]';
 
 % determine the number of samples before and after the trigger
 pretrig  = -round(cfg.trialdef.pre  * hdr.Fs);

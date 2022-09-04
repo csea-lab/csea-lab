@@ -11,7 +11,7 @@ rawfile                     = filemat(fileindex,:);
 cfg                         = [];
 cfg.dataset                 = rawfile;
 
-cfg.trialdef.eventtype      = 'DIN3';
+cfg.trialdef.eventtype      = 'DIN4';
 cfg.trialdef.pre            = pretrig; % seconds
 cfg.trialdef.post            = posttrig; % seconds
 cfg.trialfun                = 'trialfun_maeve'
