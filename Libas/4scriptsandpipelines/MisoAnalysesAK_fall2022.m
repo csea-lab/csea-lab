@@ -26,9 +26,11 @@ filemat = filemat(1:2:end,:);
 
 for x = 1:size(filemat,1)
     a = load(deblank(filemat(x,:))); 
-    data = a.outmat; 
+    data = a.outmat;   
     [trialamp,winmat3d,phasestabmat,trialSNR] = flex_slidewin(data, 0, 200:300, 551:1800 , 41.2, 600, 500, deblank(filemat(x,:)));
 end
+
+% todo figure out this:   data = Mat2Csd(data, .5, 'HC1-129.ecfg');
 
 %% look at the sliding window stuff
 
