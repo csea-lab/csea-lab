@@ -13,6 +13,7 @@ for x = 1:size(filemat,1)
     sumtime = sumtime+ data; 
 end
 
+SaveAvgFile('GM7.timedomain.at',sumtime,[],[], 500,[],[],[],[],1)
 
 %% compute sliding window stuff
 cd('/Users/andreaskeil/Desktop/gaborgen24_summer22/appandmat/Gaborgen24_pilot200_appFiles')
