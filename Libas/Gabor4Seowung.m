@@ -1,5 +1,5 @@
-contrast = 60/100; 
-spatfreq = 0.09; 
+contrast = 70/100; 
+spatfreq = 0.04; 
 tiltangle = 45;
 gray = 128;
 inc = 64; 
