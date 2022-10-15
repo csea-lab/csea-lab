@@ -29,7 +29,6 @@ for index = 1:length(reinforcement)
     
     R(:, index) = VM*input'; % figure(11), plot(R(:, index)), hold on, plot(input), title(num2str(reinforcement(index))), hold off
 
-
 end
 
 amygdala(:, 1:5) = 0; 
@@ -37,6 +36,6 @@ amygdala(:, 1:5) = 0;
  figure(10), 
  subplot(3,1,3), colormap('jet'), contourf(R, 12), title('visual cortex'), colorbar
  subplot(3,1,2),colormap('jet'), contourf(A, 12), title('attention systems'),colorbar
- subplot(3,1,1),colormap('jet'), contourf(amygdala, 12), tile('amygdala'), colorbar
+ subplot(3,1,1),colormap('jet'), contourf(amygdala, 12), title('amygdala'), colorbar
 
 Rvec = mat2vec(R); 
