@@ -3,7 +3,7 @@ function [repmat] = makerepmat(filemat, Nsubjects, Nconditions)
 % makes  4-D array for contrast_rep 
 % if each person/condition file has 2-D 
 % (elec by time or elec by freq)
-% if it is only elecs, wil lmake a 3-D array
+% if it is only elecs, will make a 3-D array
 
 
 for con = 1:Nconditions
