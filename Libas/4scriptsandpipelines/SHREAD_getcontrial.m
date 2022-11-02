@@ -11,12 +11,12 @@ a = 1;
 
 while a > 0
 	
-     a = fgetl(fid)
+     a = fgetl(fid);
      
      if a < 0, break, return, end
          
        
-    book = str2num(a(4)) % looks like it has to be the 4th not the 3rd
+    book = str2num(a(4)); % looks like it has to be the 4th not the 3rd
     
         index1 = findstr(a, '.jpg');
         imgname1 = strtok(a(index1(1)-4:index1(1)-1)); % deblank only removes blanks at the end
