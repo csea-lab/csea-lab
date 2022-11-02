@@ -1,7 +1,5 @@
 function [convec] = SHREAD_getcontrial(filepath)
 
-
-
 %filepath ='/Users/nicholasdroche-cerdan/Dropbox (UFL)/SHREAD/SHREAD_dat files/SHREAD_SSVEP_01.dat'
 
 condition = []; 
@@ -13,17 +11,17 @@ a = 1;
 
 while a > 0
 	
-     a = fgetl(fid)
+     a = fgetl(fid);
      
      if a < 0, break, return, end
          
        
-    book = str2num(a(4)) % looks like it has to be the 4th not the 3rd
+    book = str2num(a(4)); % looks like it has to be the 4th not the 3rd
     
-        index1 = findstr(a, '.jpg')
-        imgname1 = strtok(a(index1(1)-4:index1(1)-1)) % deblank only removes blanks at the end
-        index2 = index1(2)
-        imgname2 = strtok(a(index2-4:index2-1)) % deblank only removes blanks at the end
+        index1 = findstr(a, '.jpg');
+        imgname1 = strtok(a(index1(1)-4:index1(1)-1)); % deblank only removes blanks at the end
+        index2 = index1(2);
+        imgname2 = strtok(a(index2-4:index2-1)); % deblank only removes blanks at the end
 
 % this won't work: if imgname1 == 'sh2f' && imgname2 == 'sh6', end % just to illustrate that using == is not good for strings. If they have unequal length, will result in  
 % one logical outputr per letter, try strcmp(imgname1,  'sh2f' for example. 
@@ -137,7 +135,7 @@ while a > 0
                  ||strcmp(imgname1,  'aj3f') && strcmp(imgname2,'aa1') || strcmp(imgname1,  'aj3f') && strcmp(imgname2,'aa2')...
                  ||strcmp(imgname1,  'aj3f') && strcmp(imgname2,'aa3'), condition(trialcount) = 203; %within trained: individual vs category
              
-            elseif strcmp(imgname1,  'aj1f') && strcmp(imgname2,'sa1') || strcmp(imgname1,  'aj1f') && strcmp(imgname2,'sa')...
+            elseif strcmp(imgname1,  'aj1f') && strcmp(imgname2,'sa1') || strcmp(imgname1,  'aj1f') && strcmp(imgname2,'sa2')...
                  ||strcmp(imgname1,  'aj1f') && strcmp(imgname2,'sa3')...
                  ||strcmp(imgname1,  'aj2f') && strcmp(imgname2,'sa1') || strcmp(imgname1,  'aj2f') && strcmp(imgname2,'sa2')...
                  ||strcmp(imgname1,  'aj2f') && strcmp(imgname2,'sa3')... 
@@ -179,11 +177,11 @@ while a > 0
                  ||strcmp(imgname1,  'sh3f') && strcmp(imgname2,'sg1') || strcmp(imgname1,  'sh3f') && strcmp(imgname2,'sg2')...
                  ||strcmp(imgname1,  'sh3f') && strcmp(imgname2,'sg3'), condition(trialcount) = 209; %trained vs untrained similar: no label
              
-           elseif strcmp(imgname1,  'aj1f') && strcmp(imgname2,'aj4') || strcmp(imgname1,  'ajf1') && strcmp(imgname2,'aj5')...
+                elseif strcmp(imgname1,  'aj1f') && strcmp(imgname2,'aj4') || strcmp(imgname1,  'aj1f') && strcmp(imgname2,'aj5')...
                  ||strcmp(imgname1,  'aj1f') && strcmp(imgname2,'aj6')...
-                 ||strcmp(imgname1,  'aj2f') && strcmp(imgname2,'aj4') || strcmp(imgname1,  'ajf2') && strcmp(imgname2,'aj5')...
+                 ||strcmp(imgname1,  'aj2f') && strcmp(imgname2,'aj4') || strcmp(imgname1,  'aj2f') && strcmp(imgname2,'aj5')...
                  ||strcmp(imgname1,  'aj2f') && strcmp(imgname2,'aj6')... 
-                 ||strcmp(imgname1,  'aj3f') && strcmp(imgname2,'aj4') || strcmp(imgname1,  'ajf3') && strcmp(imgname2,'aj5')...
+                 ||strcmp(imgname1,  'aj3f') && strcmp(imgname2,'aj4') || strcmp(imgname1,  'aj3f') && strcmp(imgname2,'aj5')...
                  ||strcmp(imgname1,  'aj3f') && strcmp(imgname2,'aj6'), condition(trialcount) = 210; %trained vs untrained within species: invidual
              
            elseif strcmp(imgname1,  'aa1f') && strcmp(imgname2,'aa4') || strcmp(imgname1,  'aa1f') && strcmp(imgname2,'aa5')...
@@ -287,7 +285,7 @@ while a > 0
              
             end %if loop book 3
         end %block loop
-        
+        condition(trialcount);
         trialcount = trialcount + 1;
 
     
