@@ -118,7 +118,7 @@ delete *.log
 %% make a matrix for repmat: amplitude
 
 filematamp = getfilesindir(pwd, '*.amp.at.ses.at');  % should be 177 files
-[repmatamp] = makerepmat(filematamp, 59, 3);
+[repmatamp] = makerepmat(filematamp, 59, 3, 1:6);
 %%
 generalization = [2 .5 -2.5]; 
 latinihib = [2 -2.5 .5];

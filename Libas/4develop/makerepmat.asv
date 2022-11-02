@@ -14,10 +14,6 @@ for con = 1:Nconditions
     
       a = ReadAvgFile(filemat(index,:)); 
       
-      if ~isempty(optionalbaseline)
-          a = bslcorr(a, optionalbaseline); 
-      end
-      
       if ndims(a) == 2
       
             repmat(:, :, sub, con) = a; 
