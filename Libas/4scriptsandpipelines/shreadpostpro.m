@@ -1,4 +1,4 @@
-function [dataout] = shreadpostpro(datfilepath, setfilepath_p, setfilepath_i)
+function [dataout, datastruc4winmat] = shreadpostpro(datfilepath, setfilepath_p, setfilepath_i)
 
 %eeglab  % open eeglab
 
@@ -23,13 +23,17 @@ for x2 = 1:trialsinEEG_i
 indexinEEG_i(x2) = str2num(EEG_i.epoch(x2).eventdescription);
 end
 
-commontrials = intersect(indexinEEG_p, indexinEEG_i)
+% find the trials that are available
+commontrials = intersect(indexinEEG_p, indexinEEG_i); 
+
+ % find the conditions of the trials that are available
+conditionscommontrials = convec(commontrials);
 
 % now find these common trials in each file and make into one matrix
 dataout = []; 
 for x3 = 1:size(commontrials, 2)
 
-    %find trials with that original index, i.e trials tha belong together
+    %find trials with that original index, i.e trials that belong together
      index_p = find(commontrials(x3)==indexinEEG_p)
      index_i = find(commontrials(x3)==indexinEEG_i)
 
@@ -41,6 +45,19 @@ for x3 = 1:size(commontrials, 2)
 end
 
 % find conditions for each trial and make submatrices
+conditions = unique(convec)
+
+for con = 1:length(conditions)
+    
+   trialselectindex = find(conditionscommontrials == conditions(con));
+     
+   datastruc4winmat(con).con3d = dataout(:, :, trialselectindex); 
+   
+   [outmat] = freqtag_slidewin_intersite(dataout(:, :, trialselectindex), 0, 1:51, 50:1550, 5, 600, 500, 75, ['test5Hz.' num2str(conditions(con))]);
+    
+end
+
+
 
 
 

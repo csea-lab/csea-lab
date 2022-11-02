@@ -1,4 +1,4 @@
-function [PLImat] = shreadpostpro(datfilepath, setfilepath_p, setfilepath_i)
+function [dataout, datastruc4winmat] = shreadpostpro(datfilepath, setfilepath_p, setfilepath_i)
 
 %eeglab  % open eeglab
 
@@ -23,21 +23,36 @@ for x2 = 1:trialsinEEG_i
 indexinEEG_i(x2) = str2num(EEG_i.epoch(x2).eventdescription);
 end
 
-commontrials = intersect(indexinEEG_p, indexinEEG_i)
+commontrials = intersect(indexinEEG_p, indexinEEG_i); 
+conditionscommontrials = convec(commontrials); % find the conditions of the trials that are available
 
 % now find these common trials in each file and make into one matrix
 dataout = []; 
 for x3 = 1:size(commontrials, 2)
-    %find trials with that original index, i.e trials tha belong together
+
+    %find trials with that original index, i.e trials that belong together
      index_p = find(commontrials(x3)==indexinEEG_p)
      index_i = find(commontrials(x3)==indexinEEG_i)
 
-     temp_p = EEG_p.data(:, :, )
+     temp_p = EEG_p.data(:, :, index_p); 
+     temp_i = EEG_i.data(:, :, index_i); 
 
-
-%dataout(:, :, x3) = [temp1;temp2]; 
+     dataout(:, :, x3) = [temp_p;temp_i]; 
 
 end
+
+% find conditions for each trial and make submatrices
+conditions = unique(convec)
+
+for con = 1:length(conditions)
+    
+   trialselectindex = find(convec == conditions(con));
+   
+   
+   datastruc4winmat(con).con3d = dataout(:, :, trialselectindex); 
+    
+end
+
 
 
 
