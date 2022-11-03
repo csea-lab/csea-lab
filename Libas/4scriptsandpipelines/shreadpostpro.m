@@ -34,8 +34,8 @@ dataout = [];
 for x3 = 1:size(commontrials, 2)
 
     %find trials with that original index, i.e trials that belong together
-     index_p = find(commontrials(x3)==indexinEEG_p)
-     index_i = find(commontrials(x3)==indexinEEG_i)
+     index_p = find(commontrials(x3)==indexinEEG_p);
+     index_i = find(commontrials(x3)==indexinEEG_i);
 
      temp_p = EEG_p.data(:, :, index_p); 
      temp_i = EEG_i.data(:, :, index_i); 
@@ -53,8 +53,9 @@ for con = 1:length(conditions)
      
    datastruc4winmat(con).con3d = dataout(:, :, trialselectindex); 
    
-   [outmat] = freqtag_slidewin_intersite(dataout(:, :, trialselectindex), 0, 1:51, 50:1550, 5, 600, 500, 75, ['test5Hz.' num2str(conditions(con))]);
-    
+   [outmat5Hz] = freqtag_slidewin_intersite(dataout(:, :, trialselectindex), 0, 1:51, 50:1550, 5, 600, 500, 75, [setfilepath_p(1:13) '.5Hz.' num2str(conditions(con))]);
+   [outmat6Hz] = freqtag_slidewin_intersite(dataout(:, :, trialselectindex), 0, 1:51, 50:1550, 6, 600, 500, 75, [setfilepath_p(1:13) '.6Hz.' num2str(conditions(con))]); 
+   
 end
 
 
