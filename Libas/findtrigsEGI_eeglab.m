@@ -17,7 +17,7 @@ temp(loseindices) = [];
  
 end
 
-EEG.event = temp
+EEG.event = temp;
 
 
 
