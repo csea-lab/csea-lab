@@ -1,0 +1,15 @@
+    EEG = pop_fileio('/Users/andreaskeil/Desktop/SSVEP test files/MIMIC3_Facebor_900.1.vhdr', 'dataformat','auto');
+     EEG.setname='t';
+     EEG = eeg_checkset( EEG );
+     EEG = pop_eegfiltnew(EEG, 'locutoff',3,'hicutoff',34,'plotfreqz',1);
+     EEG = eeg_checkset( EEG );
+     EEG=pop_chanedit(EEG, 'lookup','/Users/andreaskeil/matlab_as/eeglab2019_0/plugins/dipfit/standard_BESA/standard-10-5-cap385.elp');
+     EEG = eeg_checkset( EEG );
+     EEG = pop_epoch( EEG, {  'S239'  }, [-0.6         5.6], 'newname', 't epochs', 'epochinfo', 'yes');
+     EEG = eeg_checkset( EEG );
+     EEG = pop_rmbase( EEG, [-600 0] ,[]);
+     EEG = eeg_checkset( EEG );
+     EEG = pop_autorej(EEG, 'nogui','on','threshold',500,'electrodes',[1:31] ,'eegplot','on');
+     EEG = eeg_checkset( EEG );
+     EEG = pop_rejepoch( EEG, 13,0);
+     pop_eegplot( EEG, 1, 1, 1);
