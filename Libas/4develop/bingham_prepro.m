@@ -25,7 +25,7 @@ function [EEG_happy, EEG_angry, EEG_sad] =  bingham_prepro (datapath, logpath)
       end
 
      % happy
-     EEG_happy = pop_epoch( EEG, {  '1'  }, [-0.6         5.6], 'newname', 't epochs', 'epochinfo', 'yes');
+     EEG_happy = pop_epoch( EEG, {  '1'  }, [-0.6 5.6], 'newname', 't epochs', 'epochinfo', 'yes');
      EEG_happy = eeg_checkset( EEG_happy );
      EEG_happy = pop_rmbase( EEG_happy, [-600 0] ,[]);
      EEG_happy = eeg_checkset( EEG_happy );
@@ -34,7 +34,7 @@ function [EEG_happy, EEG_angry, EEG_sad] =  bingham_prepro (datapath, logpath)
      EEG_happy = pop_rejepoch( EEG_happy, 13,0);
      
      % angry
-     EEG_angry = pop_epoch( EEG, {  '2'  }, [-0.6         5.6], 'newname', 't epochs', 'epochinfo', 'yes');
+     EEG_angry = pop_epoch( EEG, {  '2'  }, [-0.6 5.6], 'newname', 't epochs', 'epochinfo', 'yes');
      EEG_angry = eeg_checkset( EEG_angry );
      EEG_angry = pop_rmbase( EEG_angry, [-600 0] ,[]);
      EEG_angry = eeg_checkset( EEG_angry );
@@ -43,11 +43,13 @@ function [EEG_happy, EEG_angry, EEG_sad] =  bingham_prepro (datapath, logpath)
      EEG_angry = pop_rejepoch( EEG_angry, 13,0);
      
      % sad
-     EEG_sad = pop_epoch( EEG, {  '3'  }, [-0.6         5.6], 'newname', 't epochs', 'epochinfo', 'yes');
+     EEG_sad = pop_epoch( EEG, {  '3'  }, [-0.6 5.6], 'newname', 't epochs', 'epochinfo', 'yes');
      EEG_sad = eeg_checkset( EEG_sad );
      EEG_sad = pop_rmbase( EEG_sad, [-600 0] ,[]);
      EEG_sad = eeg_checkset( EEG_sad );
      EEG_sad = pop_autorej(EEG_sad, 'nogui','on','threshold',500,'electrodes',[1:31] ,'eegplot','on');
      EEG_sad = eeg_checkset( EEG_sad );
      EEG_sad = pop_rejepoch( EEG_sad, 13,0);
+
+     save([logpath(1:end-4) '.cleaneeg.mat'],  'EEG_angry', 'EEG_sad', 'EEG_happy', '-mat')
 
