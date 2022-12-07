@@ -8,13 +8,13 @@ warning('off')
       subjects2 = randi(length(vector2),1,length(vector2));
       boots(draw) = mean(vector1(subjects1))-mean(vector2(subjects2));    
  
- if draw/100 == round(draw./100), disp(['draw: ' num2str(draw)]), end
+ if draw/1000 == round(draw./1000), disp(['draw: ' num2str(draw)]), end
 
  end
 
 warning('on')
 
-posteriorsignedlikelyhood = sum(find(boots < 0)) ./ draw;
+posteriorsignedlikelyhood = sum(boots < 0) ./ draw;
     
 
 BF = posteriorsignedlikelyhood ./(1-posteriorsignedlikelyhood);
