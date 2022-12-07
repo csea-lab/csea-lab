@@ -7,15 +7,14 @@ warning('off')
       subjects1 = randi(length(vector1),1,length(vector1));
       subjects2 = randi(length(vector2),1,length(vector2));
       boots(draw) = mean(vector1(subjects1))-mean(vector2(subjects2));    
- end
  
- if draw/100 == round(draw./100), fprintf('.'), end
+ if draw/100 == round(draw./100), disp(['draw: ' num2str(draw)]), end
 
+ end
 
 warning('on')
 
-
-posteriorsignedOdds = sum(find(boots < 0)) ./ draw;
+posteriorsignedlikelyhood = sum(find(boots < 0)) ./ draw;
     
 
-BF = posteriorsignedOdds ./(1-posteriorsignedOdds);
+BF = posteriorsignedlikelyhood ./(1-posteriorsignedlikelyhood);
