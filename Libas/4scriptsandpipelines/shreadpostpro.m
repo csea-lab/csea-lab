@@ -1,5 +1,7 @@
 function [dataout, datastruc4winmat] = shreadpostpro(datfilepath, setfilepath_p, setfilepath_i)
 
+ cd '/Volumes/G-RAID Thunderbolt 3/As_Exps/SHREAD_epoch_setfiles4AK'
+
 %eeglab  % open eeglab
 
 PLImat = [];
