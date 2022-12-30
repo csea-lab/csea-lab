@@ -5,7 +5,7 @@ clc
 cd ('/Users/andreaskeil/Desktop/COARD/COARD_NEW HC allcond wavelet files')
 filemat1 = getfilesindir(pwd, '*a.pow3.mat')
 size(filemat1) % should be 35 people
-
+ 
 cd ('/Users/andreaskeil/Desktop/COARD/COARD_NEW OCD allcond wavelet files')
 filemat2 = getfilesindir(pwd, '*a.pow3.mat')
 size(filemat2) % should be 26 people
@@ -19,7 +19,8 @@ pause
 %%
 % make submatrices and then combine
 
-bsl = 300:500; 
+bsl = [300:550]; 
+
 clc
 disp(' ')
 disp('Healthy Controls')
@@ -62,19 +63,22 @@ end
 
 allmat4stats = cat(4, manymat1, manymat2, manymat3); 
 %% compute correlations 
+peoplevec = 36:94;
 disp(' ')
-disp('correlations')
-corrmatBDI = []; 
+disp('correlations with sensor: ')
+corrmat = []; 
 for elec = 1:64
     for time = 1:1433
         for freq = 1:62
-            temp = corrcoef(squeeze(allmat4stats(elec,time,freq,:)), saveInv);
+            temp = corrcoef(squeeze(allmat4stats(elec, time, freq, peoplevec)), BAI(peoplevec));
             
-            corrmatBDI(elec, time, freq) = temp(2,1); 
+            corrmat(elec, time, freq) = temp(2,1); 
             
         end
     end
-    fprintf('.')
+    if elec/10 == round(elec/10)
+    fprintf([num2str(elec) ' '])
+    end
 end
 
 %% plots
@@ -82,8 +86,8 @@ clc
 taxis = -600:1000/1024:800-1000/1024;
 faxis = 5*(1000/1400):1000/1400:66*(1000/1400);
 
-for elec = 1:size(corrmatBDI,1)
-    contourf(taxis, faxis, squeeze(corrmatBDI(elec, :, :))'); caxis([-.4 .4]), colorbar, title(num2str(elec)), pause
+for elec = 1:size(corrmat,1)
+    contourf(taxis, faxis, squeeze(corrmat(elec, :, :))'); caxis([-.4 .4]), colorbar, title(num2str(elec)), pause
 end
 
 
