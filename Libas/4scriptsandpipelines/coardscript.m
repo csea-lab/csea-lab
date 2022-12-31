@@ -19,7 +19,7 @@ pause
 %%
 % make submatrices and then combine
 
-bsl = [300:550]; 
+bsl = [400:550]; 
 
 clc
 disp(' ')
@@ -30,7 +30,7 @@ cd ('/Users/andreaskeil/Desktop/COARD/COARD_NEW HC allcond wavelet files')
 for x = 1:size(filemat1,1)   
     a = load(deblank(filemat1(x,:))); 
     mat = eval(['a.' char(fieldnames(a))]);
-    mat = bslcorrWAMat_div(mat, bsl);  % bsl
+    mat = bslcorrWAMatFast(mat, bsl, 'subtract');  % bsl
     manymat1(: , :, :, x) = mat;   
     fprintf([num2str(x) ' '])
 end
@@ -43,7 +43,7 @@ cd ('/Users/andreaskeil/Desktop/COARD/COARD_NEW OCD allcond wavelet files')
 for x = 1:size(filemat2,1)   
     a = load(deblank(filemat2(x,:))); 
     mat = eval(['a.' char(fieldnames(a))]);
-    mat = bslcorrWAMat_div(mat, bsl);
+    mat = bslcorrWAMatFast(mat, bsl, 'subtract');  % bsl
     manymat2(: , :, :, x) = mat;   
     fprintf([num2str(x) ' '])
 end
@@ -56,7 +56,7 @@ cd ('/Users/andreaskeil/Desktop/COARD/COARD_NEW HD allcond wavelet files')
 for x = 1:size(filemat3,1)   
     a = load(deblank(filemat3(x,:))); 
     mat = eval(['a.' char(fieldnames(a))]);
-    mat = bslcorrWAMat_div(mat, bsl);
+    mat = bslcorrWAMatFast(mat, bsl, 'subtract');  % bsl
     manymat3(: , :, :, x) = mat;   
     fprintf([num2str(x) ' '])
 end
@@ -67,7 +67,7 @@ peoplevec = 36:94;
 disp(' ')
 disp('correlations with sensor: ')
 corrmat = []; 
-for elec = 1:64
+for elec = 1:size(allmat4stats,1)
     for time = 1:1433
         for freq = 1:62
             temp = corrcoef(squeeze(allmat4stats(elec, time, freq, peoplevec)), BAI(peoplevec));
@@ -84,7 +84,7 @@ end
 %% plots
 clc
 taxis = -600:1000/1024:800-1000/1024;
-faxis = 5*(1000/1400):1000/1400:66*(1000/1400);
+faxis = 3*(1000/1400):1000/1400:64*(1000/1400);
 
 for elec = 1:size(corrmat,1)
     contourf(taxis, faxis, squeeze(corrmat(elec, :, :))'); caxis([-.4 .4]), colorbar, title(num2str(elec)), pause
