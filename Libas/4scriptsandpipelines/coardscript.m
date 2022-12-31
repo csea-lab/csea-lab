@@ -19,7 +19,7 @@ pause
 %%
 % make submatrices and then combine
 
-bsl = [400:550]; 
+bsl = 100:600; 
 
 clc
 disp(' ')
@@ -83,6 +83,7 @@ end
 
 %% plots
 clc
+figure
 taxis = -600:1000/1024:800-1000/1024;
 faxis = 3*(1000/1400):1000/1400:64*(1000/1400);
 
@@ -90,7 +91,18 @@ for elec = 1:size(corrmat,1)
     contourf(taxis, faxis, squeeze(corrmat(elec, :, :))'); caxis([-.4 .4]), colorbar, title(num2str(elec)), pause
 end
 
+%% plot ERP correlation (lowest freq as line plot 
+clc 
+figure
+taxis = -600:1000/1024:800-1000/1024;
+freqselect  = 45
 
+for elec = 1:size(corrmat,1)
+    subplot(2,1,1), plot(taxis, squeeze(corrmat(elec, :, freqselect))'); title(num2str(elec))
+    subplot(2,1,2), plot(BAI(peoplevec), squeeze(allmat4stats(elec, 800, freqselect, peoplevec)), 'ro'), lsline
+    pause
+end
 
+ plot(BAI(peoplevec), squeeze(allmat4stats(42, 800, freqselect, peoplevec)), 'ko', 'MarkerFaceColor','r')
 
             
