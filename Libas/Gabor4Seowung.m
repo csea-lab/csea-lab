@@ -1,8 +1,8 @@
-contrast = 70/100; 
-spatfreq = 0.04; 
+contrast = 90/100; 
+spatfreq = 0.10; 
 tiltangle = 45;
-gray = 128;
-inc = 64; 
+gray = 10;
+inc = 200; 
 colormap('gray')
 
 [x,y] = meshgrid(-100:100, -100:100);

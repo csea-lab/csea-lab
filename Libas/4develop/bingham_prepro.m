@@ -5,12 +5,12 @@ function [EEG_happy, EEG_angry, EEG_sad] =  bingham_prepro (datapath, logpath)
      EEG.setname='temp';
      EEG = eeg_checkset( EEG );
      
-     % badnpass filter
+     % bandpass filter
      EEG = pop_eegfiltnew(EEG, 'locutoff',3,'hicutoff',34,'plotfreqz',1);
      EEG = eeg_checkset( EEG );
 
      % add electrode locations
-     EEG=pop_chanedit(EEG, 'lookup','/Users/andreaskeil/matlab_as/eeglab2019_0/plugins/dipfit/standard_BESA/standard-10-5-cap385.elp');
+     EEG=pop_chanedit(EEG, 'lookup','/Users/andreaskeil/matlab_as/eeglab2022.1/plugins/dipfit/standard_BEM/elec/standard_1005.elc');
      EEG = eeg_checkset( EEG );
     
      %read conditions from log file
