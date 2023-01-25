@@ -30,8 +30,8 @@ for fileindex = 1:size(infilemat,1)
     Mag = Mag'; 
     
     spec = Mag(:,1:round(NFFT./2)); 
-    
-    fsmapnew = 1000./(SampRate./NFFT);
+    SampRate
+    fsmapnew = 1000./(SampRate./NFFT)
     
     [File,Path,FilePath]=SaveAvgFile([infilemat(fileindex).name '.spec'],spec,NTrialAvgVec,StdChanTimeMat, fsmapnew);
 	
