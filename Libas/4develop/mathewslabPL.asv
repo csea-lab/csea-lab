@@ -29,13 +29,9 @@ conditionvec =[];
 for x = 1: size(events,2)    
    if strcmp(events(x).value, 'stm+')
       segmentvec = [segmentvec events(x).sample]; 
-      % conditionvec = [conditionvec; events(x+1).value]; this works on
-      % some select few subjects
-      conditionvec = [conditionvec; str2num(events(x).mffkey_cel)];
+      conditionvec = [conditionvec; events(x+1).value];
    end
 end
-
-hist(conditionvec)
 
 
 % now find the data segments and get the ERP data
@@ -46,8 +42,8 @@ end
 
 
 % split in two conditions
-mat_std_tmp  = mat(:, :, conditionvec==1); % attention have to change to 2222 and 1111 for the first few subjects
-mat_target_tmp  = mat(:, :, conditionvec==2); 
+mat_std_tmp  = mat(:, :, conditionvec==1111); 
+mat_target_tmp  = mat(:, :, conditionvec==2222); 
  
 
 % do artifact correction
@@ -59,15 +55,13 @@ mat_target_tmp  = mat(:, :, conditionvec==2);
 % average
 erp_std = mean(mat_std,3);
 erpbsl_std = bslcorr(erp_std, 400:500);
-erpbsl_std = avg_ref(erpbsl_std);
 
 erp_target = mean(mat_target,3);
 erpbsl_target = bslcorr(erp_target, 400:500);
-erpbsl_target = avg_ref(erpbsl_target);
 
 if plotflag
-    subplot(2,1,1), plot(taxis(400:end), erpbsl_std(:, 400:end)'), hold on, plot(taxis(400:end), erpbsl_std(19, 400:end), 'r', 'LineWidth', 3), title('standard')
-    subplot(2,1,2), plot(taxis(400:end), erpbsl_target(:, 400:end)'), hold on, plot(taxis(400:end), erpbsl_target(19, 400:end), 'r', 'LineWidth', 3),title('target')
+    subplot(2,1,1), plot(taxis, erpbsl_std'),  title('standard')
+    subplot(2,1,2), plot(taxis, erpbsl_target'), title('target')
 end
 
 
