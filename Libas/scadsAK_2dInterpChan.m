@@ -1,12 +1,12 @@
 %% Input EEGlab .set file (for a specific condition). Identifies and replaces bad channels for each trial. Output is 3-D matrix.
 % To run this script alone, must load dataset into EEGLab, then use following command before running this function: 
 % inmat3d = ALLEEG.data; 
-function [outmat2d, interpvec] = scadsAK_2dInterpChan(inmat2d, locations)
+function [outmat2d, interpvec] = scadsAK_2dInterpChan(inmat2d, locations, threshold)
 
 % find XYZ from eeglab format locations matrix in workspace (2nd argin),
-% put in 3d matrix elocsXYZ
+% put in 3d matrix elocsXYZ - this is eeglba forma, NOT fieldtrip
 
- for elec = 1:size(inmat2d, 1);      
+ for elec = 1:size(inmat2d, 1) 
        elocsXYZ(elec,1) =  locations((elec)).X;
        elocsXYZ(elec,2) =  locations((elec)).Y;
        elocsXYZ(elec,3) =  locations((elec)).Z;
@@ -38,8 +38,12 @@ function [outmat2d, interpvec] = scadsAK_2dInterpChan(inmat2d, locations)
      
     % detect indices of bad channels; currently anything farther than 3 SD
     % from the median quality index value 
+    
+   criterion = median(qualindex) + threshold.* std(actualdistribution);
+   
+   yline(criterion)
            
-   interpvec =  find(qualindex > median(qualindex) + 3.* std(actualdistribution)); 
+   interpvec =  find(qualindex > criterion); 
     
          % set bad data channels nan, so that they are not used for inerpolating each other  
         cleandata = trialdata2d; 
@@ -49,7 +53,7 @@ function [outmat2d, interpvec] = scadsAK_2dInterpChan(inmat2d, locations)
         
     for badsensor = 1:length(interpvec)
        
-        for elec2 = 1:size(inmat2d,1); 
+        for elec2 = 1:size(inmat2d,1)
             distvec(elec2) = sqrt((elocsXYZ(elec2,1)-elocsXYZ(interpvec(badsensor),1)).^2 + (elocsXYZ(elec2,2)-elocsXYZ(interpvec(badsensor),2)).^2 + (elocsXYZ(elec2,3)-elocsXYZ(interpvec(badsensor),3)).^2);
         end
     
