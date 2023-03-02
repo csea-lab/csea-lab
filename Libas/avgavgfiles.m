@@ -1,18 +1,30 @@
-function [] = avgavgfiles(inmat1, inmat2, outname); 
+function [avgmat] = avgavgfiles(filemat, outname) 
 
-for index = 1:size(inmat1,1); 
+if nargin < 2
+    outmat = []; 
+end
+
+avgmat = []; 
+
+for index = 1:size(filemat,1)
     
-     [AvgMat1,File,Path,FilePath,NTrialAvgVec,StdMat,SampRate,AvgRef,Version,MedMedRawVec,MedMedAvgVec,...
-     EegMegStatus,NChanExtra,TrigPoint,HybridFactor,HybridDataCell,DataTypeVal]=ReadAvgFile(deblank(inmat1(index,:)));
+     [AvgMat,File,Path,FilePath,NTrialAvgVec,StdMat,SampRate,AvgRef,Version,MedMedRawVec,MedMedAvgVec,...
+     EegMegStatus,NChanExtra,TrigPoint,HybridFactor,HybridDataCell,DataTypeVal]=ReadAvgFile(deblank(filemat(index,:)));
  
-    [AvgMat2,File,Path,FilePath,NTrialAvgVec,StdMat,SampRate,AvgRef,Version,MedMedRawVec,MedMedAvgVec,...
-     EegMegStatus,NChanExtra,TrigPoint,HybridFactor,HybridDataCell,DataTypeVal]=ReadAvgFile(deblank(inmat2(index,:)));
 
+         if index ==1 
+             avgmat = AvgMat; 
 
-     avgmat = ((AvgMat1)+(AvgMat2))./2; 
+         else
+             avgmat = avgmat + AvgMat; 
 
-    
-    SaveAvgFile([outname '.at' num2str(index)],avgmat,NTrialAvgVec,StdMat,SampRate,MedMedRawVec,MedMedAvgVec,...
-EegMegStatus,NChanExtra,TrigPoint,HybridFactor,HybridDataCell,DataTypeVal);
+         end 
 
 end
+
+avgmat = avgmat ./ index; 
+
+ if ~isempty(outmat)
+    SaveAvgFile(outname,avgmat,NTrialAvgVec,StdMat,SampRate,MedMedRawVec,MedMedAvgVec,...
+    EegMegStatus,NChanExtra,TrigPoint,HybridFactor,HybridDataCell,DataTypeVal);
+ end
