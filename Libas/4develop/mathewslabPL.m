@@ -1,19 +1,19 @@
-function [erpbsl_std, erpbsl_target] = mathewslabPL(filemat, plotflag)
+function [erpbsl_std, erpbsl_target, mat_std, mat_target] = mathewslabPL(filemat, plotflag)
 
 % sample rate is 1000 Hz
 
 disp('new file:')
 
-
 for fileindex = 1:size(filemat,1)
+
+    disp(fileindex)
     
-    fileindex
-    
-    filepath = deblank(filemat(fileindex,:))
+    filepath = deblank(filemat(fileindex,:));
 
     taxis = -500:1:1000; 
 
     data = ft_read_data(filepath);  % filepath is an mff file
+    
     events = ft_read_event(filepath);
 
     % build a lowpass filter
