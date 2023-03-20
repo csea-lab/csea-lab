@@ -15,29 +15,29 @@ function [] = filterpics(filemat, suffix)
 % 
 % % 
 % % % normalize for color pic
- for fileindex = 1:size(filemat,1)
- I = imread(deblank(filemat(fileindex,:)));
- imshow(I), title('old Image')
-pause(1)
+%  for fileindex = 1:size(filemat,1)
+%  I = imread(deblank(filemat(fileindex,:)));
+%  imshow(I), title('old Image')
+% pause(1)
+% % 
+% I = double(I);
+% I2 = I; 
+% for x = 1:3
+% I2(:, :, x)  =( I2(:, :, x) - mean2(I2(:, :, x) ))/std2(I2(:, :, x));
+% end
+% size(I2)
 % 
-I = double(I);
-I2 = I; 
-for x = 1:3
-I2(:, :, x)  =( I2(:, :, x) - mean2(I2(:, :, x) ))/std2(I2(:, :, x));
-end
-size(I2)
-
- I3 =((I2*60) + 125); 
- I3 = uint8(I3);
+%  I3 =((I2*60) + 125); 
+%  I3 = uint8(I3);
+% % 
+%  disp('mean brightness of this picture:  '), disp(mean2(I3))
+% % 
+%  imshow(I3), title('new Image')
+%  pause(1)
+%  
+%  imwrite(I3,[deblank(filemat(fileindex,:)) suffix ], 'jpg')
 % 
- disp('mean brightness of this picture:  '), disp(mean2(I3))
-% 
- imshow(I3), title('new Image')
- pause(1)
- 
- imwrite(I3,[deblank(filemat(fileindex,:)) suffix ], 'jpg')
-
- end
+%  end
 
 
 % 
@@ -234,13 +234,13 @@ size(I2)
 % 
 
 
-%%%  resize ... %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% 
-% for x = 1:size(filemat,1)
-%     a = imread(deblank(filemat(x,:)));
-%     I = imresize(a,0.6);
-%     imwrite(I,[deblank(filemat(x,:)) suffix], 'jpg')
-% end
+%%  resize ... %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+for x = 1:size(filemat,1)
+    a = imread(deblank(filemat(x,:)));
+    I = imresize(a,[256,320]);
+    imwrite(I,[deblank(filemat(x,1:5)) suffix], 'jpg')
+end
 
 % % % % % % %%%  resize to new dimensions... %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % % % 
