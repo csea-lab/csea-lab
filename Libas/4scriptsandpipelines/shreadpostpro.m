@@ -47,7 +47,7 @@ for x3 = 1:size(commontrials, 2)
 end
 
 % find conditions for each trial and make submatrices
-conditions = unique(convec)
+conditions = unique(convec);
 
 for con = 1:length(conditions)
     
@@ -55,8 +55,8 @@ for con = 1:length(conditions)
      
    datastruc4winmat(con).con3d = dataout(:, :, trialselectindex); 
    
-   [outmat5Hz] = freqtag_slidewin_intersite(dataout(:, :, trialselectindex), 0, 1:51, 50:1550, 5, 600, 500, 75, [setfilepath_p(1:13) '.5Hz.' num2str(conditions(con))]);
-   [outmat6Hz] = freqtag_slidewin_intersite(dataout(:, :, trialselectindex), 0, 1:51, 50:1550, 6, 600, 500, 75, [setfilepath_p(1:13) '.6Hz.' num2str(conditions(con))]); 
+   [outmat5Hz] = freqtag_slidewin_intersite(dataout(:, :, trialselectindex), 0, 1:51, 50:1550, 5, 600, 500, 75, [setfilepath_p(1:16) '.5Hz.' num2str(conditions(con))]);
+   [outmat6Hz] = freqtag_slidewin_intersite(dataout(:, :, trialselectindex), 0, 1:51, 50:1550, 6, 600, 500, 75, [setfilepath_p(1:16) '.6Hz.' num2str(conditions(con))]); 
    
 end
 
