@@ -22,7 +22,7 @@ time = 0.001:0.001:5; % Five seconds of discrete time, sampled at 1000 Hz
     
         testigfilt = filtfilt(a,b, testsig2')';
     
-        [D, MPP(:, x), th_opt] = PhEv_Learn_fast_2(testigfilt, 400, 4);
+        [D, MPP(:, x), th_opt] = PhEv_Learn_fast_2(testigfilt, 200, 4);
     
     
     end
@@ -44,4 +44,4 @@ time = 0.001:0.001:5; % Five seconds of discrete time, sampled at 1000 Hz
 
 end % loop
 %%
-bar(mean(SNR), outvec)
+plot((100.*mean(outmat')./60)), xticks(1:20), xticklabels(mean(SNR))
