@@ -49,8 +49,8 @@ RESS_time = [];
         subplot(2,1,2), plot(freqsing(5:70), powsing(1, 5:70)); pause(1)
         end
         
-      eval([' save  ' deblank(filemat(index,1:8)) '6Hz.RESStime.mat RESS_time -mat']);
-      eval([' save  ' deblank(filemat(index,1:8)) '6Hz.pow.mat powsing -mat']);
+      %eval([' save  ' deblank(filemat(index,1:end-3)) 'RESStim.mat RESS_time -mat']);
+      eval([' save  ' deblank(filemat(index,1:end-3)) 'RESSpow.mat powsing -mat']);
 
 end % loop over files
 
