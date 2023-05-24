@@ -1,0 +1,39 @@
+% cd /Users/andreaskeil/Desktop/Gaborgen_Laura/StartingPoint/Gaborgen24/CSDfiles
+
+filemat = getfilesindir(pwd, '*app*.mat');
+
+timewinSP = 1001:1501; %start after onset ERP
+    
+[spec] = get_FFT_mat3d(filemat, timewinSP, 500);
+
+
+%%
+filemat = getfilesindir(pwd, '*.spec');
+mergemulticons(filemat, 14, 'GM31.3dspec.spec')
+
+[repmat] = makerepmat(filemat, 31, 14, []);
+
+mat4plot = squeeze(repmat(52,31,:, [1 2 3 4 5 7 8 9 11 12 13 14]))
+
+[Fcontmat,rcontmat,MScont,MScs, dfcs]=contrast_rep_sign(squeeze(repmat(:,31, :, [5 7 8 9])), [ 1.5 0.5 -.5 -1.5]);
+
+ gener = [1.75 1.25 0.25 -3.25]
+
+figure, plot(Fcontmat)
+
+%%
+
+for index = 1:size(filemat,1)
+    
+    name = deblank(filemat(index,:));
+    
+    load(name);
+    
+    % data = CSDarray; 
+
+    data = outmat; 
+    
+
+ 
+  
+end
