@@ -49,6 +49,16 @@ elseif size(datamat,1) == 31;
      
        h= figure; set(h,'Position', [time*150 898 560 420]);  topoplot( datamat(:,time) , MRI_EEG31Locs, 'maplimits', MAPLIMITS, 'electrodes', 'labels'), colorbar
       
+     end      
+
+elseif size(datamat,1) == 33;
+    
+     load ('GSN-HydroCel-32.sfp.mat')
+     
+     for time = 1:size(datamat,2)
+     
+       h= figure; set(h,'Position', [time*150 898 560 420]);  topoplot( datamat(:,time) , locations, 'maplimits', MAPLIMITS, 'electrodes', 'labels'), colorbar
+      
       end       
 else
     
