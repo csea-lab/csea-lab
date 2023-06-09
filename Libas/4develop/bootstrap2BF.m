@@ -1,4 +1,4 @@
-function [] = bootstrap2BF(dist1,dist2, plotflag)
+function [BF] = bootstrap2BF(dist1,dist2, plotflag)
 % This function takes two bootstrapped distributions (>1000 draws needed)
 % dist1 and dist2, which reflect an effect model (dist1) and a null model
 % (dist2). It computes then the BF as posterior oddsover prior odds foe the
@@ -20,9 +20,20 @@ if plotflag
 subplot(2,1,1), histogram(dist1, 100, 'Normalization','pdf')
 hold on
 plot(x_values, y1, 'LineWidth',3)
+xline(0)
 
 subplot(2,1,2), histogram(dist2, 100, 'Normalization','pdf')
 hold on
 plot(x_values, y2, 'LineWidth',3)
+xline(0)
 end
 
+
+posteriorsignedlikelyhood_effect = sum(y1(x_values > 0))./100;
+signedlikelyhood_null = sum(y2(x_values > 0))./100;
+
+odds_posterior = posteriorsignedlikelyhood_effect ./(1-posteriorsignedlikelyhood_effect);
+odds_prior = signedlikelyhood_null ./(1-signedlikelyhood_null);
+    
+
+BF = odds_posterior/odds_prior; 
