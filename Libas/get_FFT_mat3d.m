@@ -4,7 +4,7 @@ for fileindex = 1:size(infilemat,1)
     
     Datatmp = load(deblank(infilemat(fileindex,:)));
     
-    Data3d = Datatmp.outmat; 
+    Data3d = eval(['Datatmp.' char(fieldnames(Datatmp))]);
 
         for trial = 1: size(Data3d,3)
 
