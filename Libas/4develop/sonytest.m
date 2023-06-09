@@ -2,7 +2,6 @@
 clear 
 
 for loop = 1:10
-
 time = 0.001:0.001:5; % Five seconds of discrete time, sampled at 1000 Hz
 
 [a, b] = butter(5, 0.028);
@@ -27,7 +26,7 @@ time = 0.001:0.001:5; % Five seconds of discrete time, sampled at 1000 Hz
     
     end
 
-
+end
     %%
     for x = 1:60,
         for y = 1:20,
@@ -42,6 +41,6 @@ time = 0.001:0.001:5; % Five seconds of discrete time, sampled at 1000 Hz
         outmat(x, loop) = length(find(abs(aha(:, x)-3500) < 400));
     end
 
-end % loop
+
 %%
 plot((100.*mean(outmat')./60)), xticks(1:20), xticklabels(mean(SNR))
