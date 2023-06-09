@@ -28,7 +28,6 @@ plot(x_values, y2, 'LineWidth',3)
 xline(0)
 end
 
-
 posteriorsignedlikelyhood_effect = sum(y1(x_values > 0))./100;
 signedlikelyhood_null = sum(y2(x_values > 0))./100;
 
