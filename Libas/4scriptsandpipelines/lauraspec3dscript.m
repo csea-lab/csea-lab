@@ -55,10 +55,48 @@ mat4plot = squeeze(repmat(81, bin,:, :));
 figure
 bar(mean(mat4plot))
 
-[Fcontmat,rcontmat,MScont,MScs, dfcs]=contrast_rep_sign(squeeze(repmat(:,bin, :, 5:8)), generGauss);
+[Fcontmat,rcontmat,MScont,MScs, dfcs]=contrast_rep_sign(squeeze(repmat(:,bin, :, 5:8)), sharp);
 
 figure, plot(Fcontmat)
 
 %% Bootstrapping
+% the models
+generMcteague = [1.75 1.25 0.25 -3.25];
+generGauss = [1.5 .25 -0.75 -1.0];
+sharp = [1.5 -1.0 -0.75 .25];
 
+bin = 31;
+
+ndraws = 5000; 
+
+% make bootstrap distributions of inner products: ACQUISITION
+for draw = 1:ndraws
+
+    if draw./100 == round(draw./100), sprintf('%s', ['draw: ' num2str(draw) ' of ' num2str(ndraws)]), end
+
+    %for nullmodel:
+    repmat_null = repmat; 
+    for sub = 1:31 
+        repmat_null(:, bin, sub, :) = repmat_null(:, bin, sub, randperm(12)) ;
+    end
+
+    innerprod_null(:, draw) = squeeze(mean(repmat_null(:, bin, randi(31, 1,31), 1:4), 3)) * generGauss(randperm(4))';
+
+    % habituation
+    innerprod_hab_sharp(:, draw) = squeeze(mean(repmat(:, bin, randi(31, 1,31), 1:4), 3)) * sharp';
+    innerprod_hab_gauss(:, draw) = squeeze(mean(repmat(:, bin, randi(31, 1,31), 1:4), 3)) * generGauss';
+    innerprod_hab_genMcTea(:, draw) = squeeze(mean(repmat(:, bin, randi(31, 1,31), 1:4), 3)) * generMcteague';
+
+     % acquisition
+    innerprod_acq_sharp(:, draw) = squeeze(mean(repmat(:, bin, randi(31, 1,31), 5:8), 3)) * sharp';
+    innerprod_acq_gauss(:, draw) = squeeze(mean(repmat(:, bin, randi(31, 1,31), 5:8), 3)) * generGauss';
+    innerprod_acq_genMcTea(:, draw) = squeeze(mean(repmat(:, bin, randi(31, 1,31), 5:8), 3)) * generMcteague';
+    
+     % extinction
+    innerprod_ext_sharp(:, draw) = squeeze(mean(repmat(:, bin, randi(31, 1,31), 9:12), 3)) * sharp';
+    innerprod_ext_gauss(:, draw) = squeeze(mean(repmat(:, bin, randi(31, 1,31), 9:12), 3)) * generGauss';
+    innerprod_ext_genMcTea(:, draw) = squeeze(mean(repmat(:, bin, randi(31, 1,31), 9:12), 3)) * generMcteague';
+
+
+end
 
