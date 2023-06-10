@@ -1,6 +1,6 @@
 %%
 clear
-cd '/Users/andreaskeil/Desktop/MPP_atFiles/gamma'
+cd '/Users/andreaskeil/Desktop/MPP_atFiles/beta'
 
 searchstring = '*long.at11.ar'
 
@@ -16,9 +16,15 @@ for sub = 1:29
 
     dataPP = ReadAvgFile(deblank(filemat(sub,:)));
 
-        for sens = 1:128
+    if size(dataPP,1) == 128;
+        dataPP = [dataPP; dataPP(55,:)]; 
+    end
+
+        for sens = 1:129
             dataConv(sens,:) = conv(dataPP(sens,:), gausswin(300));        
         end
+
+        SaveAvgFile(['Conv_' deblank(filemat(sub,:))], dataConv, [], [], 500);
 
        if sub ==1
         datasum = dataConv; 
@@ -30,10 +36,10 @@ for sub = 1:29
 
 end
 
-datasum = [datasum; datasum(55,:)];
+%datasum = [datasum; datasum(55,:)];
 
 eval(['sum' savestring ' = datasum;'])
 
-SaveAvgFile(['sumgam' searchstring(2:end)], datasum, [], [], 500);
+%SaveAvgFile(['sumgam' searchstring(2:end)], datasum, [], [], 500);
 
 %%
