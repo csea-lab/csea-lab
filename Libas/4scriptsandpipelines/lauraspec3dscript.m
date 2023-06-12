@@ -100,3 +100,12 @@ for draw = 1:ndraws
 
 end
 
+%% convert to BFs for each model and channel
+
+for chan = 1:129
+
+    BF_acq_gauss(chan) = bootstrap2BF(innerprod_acq_gauss(chan,:),innerprod_null(chan,:), 0);
+    BF_acq_sharp(chan) = bootstrap2BF(innerprod_acq_sharp(chan,:),innerprod_null(chan,:), 0);
+
+end
+
