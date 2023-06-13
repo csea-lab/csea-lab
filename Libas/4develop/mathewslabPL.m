@@ -4,8 +4,11 @@ function [erpbsl_std, erpbsl_target, mat_std, mat_target] = mathewslabPL(filemat
 
 disp('new file:')
 
+
 for fileindex = 1:size(filemat,1)
 
+    disp(filemat(fileindex,:))
+    
     disp(fileindex)
     
     filepath = deblank(filemat(fileindex,:));
@@ -79,8 +82,11 @@ for fileindex = 1:size(filemat,1)
         subplot(2,1,2), plot(taxis(400:end), erpbsl_target(:, 400:end)'), hold on, plot(taxis(400:end), erpbsl_target(19, 400:end), 'r', 'LineWidth', 3),title('target')
    pause(2)
     end
+    hold off
     
-    eval(['save ' filepath(1:14) 'ERPs.mat erpbsl_std erpbsl_target -mat'])
+    % eval(['save ' filepath(1:14) 'ERPs.mat erpbsl_std erpbsl_target -mat'])
+
+    eval(['save ' filepath(1:14) 'EEG3D.mat mat_target mat_std -mat'])
     
     fprintf('.')
     
