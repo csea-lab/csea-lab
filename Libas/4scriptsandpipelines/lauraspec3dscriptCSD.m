@@ -41,7 +41,7 @@ mat4plot = squeeze(repmat(1, bin,:, [1 2 3 4 5 7 8 9 11 12 13 14]))
 filemat = getfilesindir(pwd, '*.spec');
 mergemulticons(filemat, 14, 'GM31.3dspec.spec')
 
-generMcteague = [1.75 1.25 0.25 -3.25];
+generMcteague = [1.25 .75 -0.75 -1.25];
 generGauss = [1.5 .25 -0.75 -1.0];
 sharp = [1.5 -1.0 -0.75 .25];
 
@@ -55,13 +55,17 @@ mat4plot = squeeze(repmat(81, bin,:, :));
 figure
 bar(mean(mat4plot))
 
-[Fcontmat,rcontmat,MScont,MScs, dfcs]=contrast_rep_sign(squeeze(repmat(:,bin, :, 5:8)), sharp);
+[Fcontmat_gauss,rcontmat,MScont,MScs, dfcs]=contrast_rep_sign(squeeze(repmat(:,bin, :, 5:8)), sharp);
+[Fcontmat_sharp,rcontmat,MScont,MScs, dfcs]=contrast_rep_sign(squeeze(repmat(:,bin, :, 5:8)), generGauss);
+[Fcontmat_mcteag,rcontmat,MScont,MScs, dfcs]=contrast_rep_sign(squeeze(repmat(:,bin, :, 5:8)), generMcteague);
 
-figure, plot(Fcontmat)
+figure(1), plot(Fcontmat_gauss), title('generalization')
+figure(2), plot(Fcontmat_sharp),  title('sharpening')
+figure(3), plot(Fcontmat_mcteag), title('McTeague')
 
 %% Bootstrapping
 % the models
-generMcteague = [1.75 1.25 0.25 -3.25];
+generMcteague = [1.25 .75 -0.75 -1.25];
 generGauss = [1.5 .25 -0.75 -1.0];
 sharp = [1.5 -1.0 -0.75 .25];
 
@@ -106,6 +110,23 @@ for chan = 1:129
 
     BF_acq_gauss(chan) = bootstrap2BF(innerprod_acq_gauss(chan,:),innerprod_null(chan,:), 0);
     BF_acq_sharp(chan) = bootstrap2BF(innerprod_acq_sharp(chan,:),innerprod_null(chan,:), 0);
-
+    BF_acq_genMcTea(chan) = bootstrap2BF(innerprod_acq_genMcTea(chan,:),innerprod_null(chan,:), 0);
 end
+
+
+for chan = 1:129
+
+    BF_ext_gauss(chan) = bootstrap2BF(innerprod_ext_gauss(chan,:),innerprod_null(chan,:), 0);
+    BF_ext_sharp(chan) = bootstrap2BF(innerprod_ext_sharp(chan,:),innerprod_null(chan,:), 0);
+    BF_ext_genMcTea(chan) = bootstrap2BF(innerprod_ext_genMcTea(chan,:),innerprod_null(chan,:), 0);
+end
+
+
+%%
+SaveAvgFile('BF_acq_gauss.at.ar', BF_acq_gauss');
+SaveAvgFile('BF_acq_sharp.at.ar', BF_acq_sharp');
+SaveAvgFile('BF_acq_genMcTea.at.ar', BF_acq_genMcTea');
+SaveAvgFile('BF_ext_gauss.at.ar', BF_ext_gauss');
+SaveAvgFile('BF_ext_sharp.at.ar', BF_ext_sharp');
+SaveAvgFile('BF_ext_genMcTea.at.ar', BF_ext_genMcTea');
 
