@@ -1,19 +1,26 @@
-% script for matfiles 3-d spec
-cd /Users/andreaskeil/Desktop/Gaborgen_Laura/StartingPoint/Gaborgen24/MATFiles
-
-filemat = getfilesindir(pwd, '*app*.mat');
-
-timewinSP = 501:1500; %start after onset ERP
-    
-[spec] = get_FFT_mat3d(filemat, timewinSP, 500);
-
-%[RESS_time] = RESS_mat(filemat, 51:97, timewinSP, 500, 15, 1);
-% RESS does not seem to work well with extinction because few trials
-
-% filemat = getfilesindir(pwd, '*RESSpow.mat');
-
 %% script for CSD 3-d spec
+% if needed, make the csd files
 cd /Users/andreaskeil/Desktop/Gaborgen_Laura/StartingPoint/Gaborgen24/CSDFiles
+
+clear 
+
+filemat = getfilesindir(pwd, '*.mat')
+
+filemat = filemat(1:end,:);
+
+for index = 1:size(filemat,1) 
+
+    deblank(filemat(index,:))
+    
+    a = load(deblank(filemat(index,:))); 
+    
+    CSDarray = Array2Csd(a.outmat, 5, 'HC1-129.ecfg');
+    
+    eval(['save ' deblank(filemat(index,:)) '.csd.mat CSDarray -mat'])
+    
+end
+
+%%
 
 filemat = getfilesindir(pwd, '*csd.mat');
 
@@ -27,23 +34,21 @@ timewinSP = 501:1500; %start after onset ERP
 % filemat = getfilesindir(pwd, '*RESSpow.mat');
 
 
-%% pipeline for RESS files
-filemat = getfilesindir(pwd, '*.RESSpow.at');
-mergemulticons(filemat, 14, 'GM31.RESSpow')
-bin = 31
-
-[repmat] = makerepmat(filemat, bin, 14, []);
-
-mat4plot = squeeze(repmat(1, bin,:, [1 2 3 4 5 7 8 9 11 12 13 14]))
-
-
 %% pipeline for mat and CSD spec files
 filemat = getfilesindir(pwd, '*.spec');
 mergemulticons(filemat, 14, 'GM31.3dspec.spec')
 
-generMcteague = [1.25 .75 -0.75 -1.25];
+% the old models
+%generMcteague = [1.25 .75 -0.75 -1.25];
+%generGauss = [1.5 .25 -0.75 -1.0];
+%sharp = [1.5 -1.0 -0.75 .25];
+
+% the new models
+allno = [3 -1 -1 -1];
+gener = [1.75 1.25 -0.25 -2.75];
 generGauss = [1.5 .25 -0.75 -1.0];
-sharp = [1.5 -1.0 -0.75 .25];
+sharp = [1.75 -2.75 -0.25 1.25];
+
 
 bin = 31;
 
@@ -51,23 +56,31 @@ bin = 31;
 
 repmat = repmat(:, :, :, [1 2 3 4 5 7 8 9 11 12 13 14]);
 
-mat4plot = squeeze(repmat(81, bin,:, :));
-figure
+mat4plot = squeeze(repmat(74, bin,:, :));
+figure(99)
 bar(mean(mat4plot))
 
-[Fcontmat_gauss,rcontmat,MScont,MScs, dfcs]=contrast_rep_sign(squeeze(repmat(:,bin, :, 5:8)), sharp);
-[Fcontmat_sharp,rcontmat,MScont,MScs, dfcs]=contrast_rep_sign(squeeze(repmat(:,bin, :, 5:8)), generGauss);
-[Fcontmat_mcteag,rcontmat,MScont,MScs, dfcs]=contrast_rep_sign(squeeze(repmat(:,bin, :, 5:8)), generMcteague);
+[Fcontmat_allno,rcontmat,MScont,MScs, dfcs]=contrast_rep_sign(squeeze(repmat(:,bin, :, 5:8)), allno);
+[Fcontmat_generGauss,rcontmat,MScont,MScs, dfcs]=contrast_rep_sign(squeeze(repmat(:,bin, :, 5:8)), generGauss);
+[Fcontmat_gener,rcontmat,MScont,MScs, dfcs]=contrast_rep_sign(squeeze(repmat(:,bin, :, 5:8)), gener);
+[Fcontmat_sharp,rcontmat,MScont,MScs, dfcs]=contrast_rep_sign(squeeze(repmat(:,bin, :, 5:8)), sharp);
 
-figure(1), plot(Fcontmat_gauss), title('generalization')
-figure(2), plot(Fcontmat_sharp),  title('sharpening')
-figure(3), plot(Fcontmat_mcteag), title('McTeague')
+figure(1), plot(Fcontmat_allno), title('all-nothing')
+figure(2), plot(Fcontmat_gener),  title('generalization')
+figure(3), plot(Fcontmat_sharp), title('sharpening')
+figure(4), plot(Fcontmat_generGauss), title('Gaussian')
 
 %% Bootstrapping
-% the models
-generMcteague = [1.25 .75 -0.75 -1.25];
+% the old models
+%generMcteague = [1.25 .75 -0.75 -1.25];
+%generGauss = [1.5 .25 -0.75 -1.0];
+%sharp = [1.5 -1.0 -0.75 .25];
+
+% the new models
+allno = [3 -1 -1 -1];
+gener = [1.75 1.25 -0.25 -2.75];
 generGauss = [1.5 .25 -0.75 -1.0];
-sharp = [1.5 -1.0 -0.75 .25];
+sharp = [1.75 -2.75 -0.25 1.25];
 
 bin = 31;
 
@@ -84,22 +97,22 @@ for draw = 1:ndraws
         repmat_null(:, bin, sub, :) = repmat_null(:, bin, sub, randperm(12)) ;
     end
 
-    innerprod_null(:, draw) = squeeze(mean(repmat_null(:, bin, randi(31, 1,31), 1:4), 3)) * generGauss(randperm(4))';
+    innerprod_null(:, draw) = squeeze(mean(repmat_null(:, bin, randi(31, 1,31), 1:4), 3)) * gener(randperm(4))';
 
     % habituation
     innerprod_hab_sharp(:, draw) = squeeze(mean(repmat(:, bin, randi(31, 1,31), 1:4), 3)) * sharp';
-    innerprod_hab_gauss(:, draw) = squeeze(mean(repmat(:, bin, randi(31, 1,31), 1:4), 3)) * generGauss';
-    innerprod_hab_genMcTea(:, draw) = squeeze(mean(repmat(:, bin, randi(31, 1,31), 1:4), 3)) * generMcteague';
+    innerprod_hab_gener(:, draw) = squeeze(mean(repmat(:, bin, randi(31, 1,31), 1:4), 3)) * gener';
+    innerprod_hab_allno(:, draw) = squeeze(mean(repmat(:, bin, randi(31, 1,31), 1:4), 3)) * allno';
 
      % acquisition
     innerprod_acq_sharp(:, draw) = squeeze(mean(repmat(:, bin, randi(31, 1,31), 5:8), 3)) * sharp';
-    innerprod_acq_gauss(:, draw) = squeeze(mean(repmat(:, bin, randi(31, 1,31), 5:8), 3)) * generGauss';
-    innerprod_acq_genMcTea(:, draw) = squeeze(mean(repmat(:, bin, randi(31, 1,31), 5:8), 3)) * generMcteague';
+    innerprod_acq_gener(:, draw) = squeeze(mean(repmat(:, bin, randi(31, 1,31), 5:8), 3)) * gener';
+    innerprod_acq_allno(:, draw) = squeeze(mean(repmat(:, bin, randi(31, 1,31), 5:8), 3)) * allno';
     
      % extinction
     innerprod_ext_sharp(:, draw) = squeeze(mean(repmat(:, bin, randi(31, 1,31), 9:12), 3)) * sharp';
-    innerprod_ext_gauss(:, draw) = squeeze(mean(repmat(:, bin, randi(31, 1,31), 9:12), 3)) * generGauss';
-    innerprod_ext_genMcTea(:, draw) = squeeze(mean(repmat(:, bin, randi(31, 1,31), 9:12), 3)) * generMcteague';
+    innerprod_ext_gener(:, draw) = squeeze(mean(repmat(:, bin, randi(31, 1,31), 9:12), 3)) * gener';
+    innerprod_ext_allno(:, draw) = squeeze(mean(repmat(:, bin, randi(31, 1,31), 9:12), 3)) * allno';
 
 
 end
@@ -108,25 +121,25 @@ end
 
 for chan = 1:129
 
-    BF_acq_gauss(chan) = bootstrap2BF(innerprod_acq_gauss(chan,:),innerprod_null(chan,:), 0);
     BF_acq_sharp(chan) = bootstrap2BF(innerprod_acq_sharp(chan,:),innerprod_null(chan,:), 0);
-    BF_acq_genMcTea(chan) = bootstrap2BF(innerprod_acq_genMcTea(chan,:),innerprod_null(chan,:), 0);
+    BF_acq_gener(chan) = bootstrap2BF(innerprod_acq_gener(chan,:),innerprod_null(chan,:), 0);
+    BF_acq_allno(chan) = bootstrap2BF(innerprod_acq_allno(chan,:),innerprod_null(chan,:), 0);
 end
 
 
 for chan = 1:129
 
-    BF_ext_gauss(chan) = bootstrap2BF(innerprod_ext_gauss(chan,:),innerprod_null(chan,:), 0);
     BF_ext_sharp(chan) = bootstrap2BF(innerprod_ext_sharp(chan,:),innerprod_null(chan,:), 0);
-    BF_ext_genMcTea(chan) = bootstrap2BF(innerprod_ext_genMcTea(chan,:),innerprod_null(chan,:), 0);
+    BF_ext_gener(chan) = bootstrap2BF(innerprod_ext_gener(chan,:),innerprod_null(chan,:), 0);
+    BF_ext_allno(chan) = bootstrap2BF(innerprod_ext_allno(chan,:),innerprod_null(chan,:), 0);
 end
 
 
 %%
-SaveAvgFile('BF_acq_gauss.at.ar', BF_acq_gauss');
-SaveAvgFile('BF_acq_sharp.at.ar', BF_acq_sharp');
-SaveAvgFile('BF_acq_genMcTea.at.ar', BF_acq_genMcTea');
-SaveAvgFile('BF_ext_gauss.at.ar', BF_ext_gauss');
-SaveAvgFile('BF_ext_sharp.at.ar', BF_ext_sharp');
-SaveAvgFile('BF_ext_genMcTea.at.ar', BF_ext_genMcTea');
+SaveAvgFile('BF_acq_gener.at.csd', BF_acq_gener');
+SaveAvgFile('BF_acq_sharp.at.csd', BF_acq_sharp');
+SaveAvgFile('BF_acq_allno.at.csd', BF_acq_allno');
+SaveAvgFile('BF_ext_gener.at.csd', BF_ext_gener');
+SaveAvgFile('BF_ext_sharp.at.csd', BF_ext_sharp');
+SaveAvgFile('BF_ext_allno.csd', BF_ext_allno');
 
