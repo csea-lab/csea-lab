@@ -43,3 +43,30 @@ eval(['sum' savestring ' = datasum;'])
 %SaveAvgFile(['sumgam' searchstring(2:end)], datasum, [], [], 500);
 
 %%
+
+filemat_11 = getfilesindir(pwd, 'Con*11.ar')
+filemat_12 = getfilesindir(pwd, 'Con*12.ar')
+[topo_tmat, mat3d_1, mat3d_2] = topottest(filemat_12, filemat_11, [300:1300], 'test.at');
+
+data2 = cat(1, mat3d_1, mat3d_2);
+labels = [ones(129,1); ones(129,1).*2];
+meandata = squeeze(mean(data([61:100 189:228], : , :), 3));
+
+%%
+for x = 1:2900
+    VMdl = fitclinear(meandata(:,x)',labels3,'ObservationsIn','columns','KFold',10,...
+    'Learner','logistic','Solver','sparsa','Regularization','lasso');
+    ce(x) = kfoldLoss(VMdl);
+    if round(x./100) == x./100, fprintf(num2str(x)), end
+end
+%%
+for subject = 1:87
+meandata = squeeze((data(:, :, subject)));
+    for x = 1:2900
+        VMdl = fitclinear(meandata(:,x)',labels,'ObservationsIn','columns','KFold',5,...
+        'Learner','logistic','Solver','sparsa','Regularization','lasso');
+        ce(subject, x) = kfoldLoss(VMdl);
+        if round(x./100) == x./100, fprintf(num2str(x)), end
+    end
+    subject
+end
