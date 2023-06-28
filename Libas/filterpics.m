@@ -239,7 +239,7 @@ function [] = filterpics(filemat, suffix)
 for x = 1:size(filemat,1)
     a = imread(deblank(filemat(x,:)));
     I = imresize(a,[384,512]);
-    imwrite(I,[deblank(filemat(x,1:5)) suffix], 'jpg')
+    imwrite(I,[deblank(filemat(x,:)) suffix], 'jpg')
 end
 
 % % % % % % %%%  resize to new dimensions... %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
