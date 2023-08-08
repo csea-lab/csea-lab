@@ -24,6 +24,6 @@ lateinterference = [zeros(1, ramp.*3) cosinwin(ramp,length(taxis)-ramp.*3)].*par
 ssvep_distractor = a + earlyinterference + lateinterference;  
 ssvep_task = b + earlyinterference.*params(4) - lateinterference; 
 
-ssveptotal = [ssvep_distractor ssvep_task]; 
+ssveptotal = [ssvep_distractor; ssvep_task]; 
 
 
