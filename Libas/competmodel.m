@@ -1,7 +1,6 @@
 function [ssveptotal] = competmodel(params,taxis)
 
-ramp = 200
-%ramp = int8(abs(round(params(6))));
+ramp = 200;
 
 % params(1) = level1
 % params(2) = level2
