@@ -1,11 +1,10 @@
-function [BPM_mat]  = app2HR2023(filemat); 
+function [BPM_mat]  = app2HR2023(filemat) 
 
 % first define useful stuff: 
 [B,A] = butter(6,.05, 'high'); 
 
 % secbins are the 1 second segments that are being considereed
-secbins = [0:10];
-
+secbins = 0:10;
 
 for fileindex = 1:size(filemat,1); 
    
@@ -15,13 +14,13 @@ for fileindex = 1:size(filemat,1);
 
 [dummy,Version,LHeader,ScaleBins,NChan,NPoints,NTrials,SampRate,AvgRefStatus,File,Path,FilePath,EegMegStatus,NChanExtra,AppFileFormatVal]=...
 	ReadAppData(deblank(filemat(fileindex,:)));
+
 time = 0:1000/SampRate:size(dummy,2).*1000/SampRate-1000/SampRate; 
 
 figure
 
-for trial = 1: NTrials; 
-    % read, calculate and plot
-   
+for trial = 1: NTrials 
+    % read, calculate and plot   
     [a]=ReadAppData(deblank(filemat(fileindex,:)), trial);
     % ECG =filtfilt(B, A, a(121,:) - a(228,:)); 
     ECG =filtfilt(B, A, a(73,:) - a(121,:)); 
@@ -49,7 +48,7 @@ for trial = 1: NTrials;
                 
 
 
-    artifact
+    % artifact handling
                  
 
        
