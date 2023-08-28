@@ -1,4 +1,4 @@
-function [ssveptotal] = competmodel(params,taxis)
+function [ssveptotal] = DUCmodel(params,taxis)
 
 ramp = 600;
 baseline1 = zeros(1,6000);
