@@ -1,0 +1,1 @@
+function ref = avg_ref_add_contingent(matrix)if size(matrix,1) ==128        mean_col = mean(matrix', 2);                ref = bsxfun(@minus, matrix, mean_col');                ref = [ref; mean_col'];else    ref = matrix;end
