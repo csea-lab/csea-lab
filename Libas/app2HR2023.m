@@ -45,19 +45,25 @@ for trial = 1: NTrials
  
     
     pause(1)
+
+      % convert to IBIs
+    Rwavestamps = time(Rstamps)./1000; 
+    IBIvec = diff(Rwavestamps);
                 
 
-
     % artifact handling
-                 
+
+    index1 = find(abs(IBIvec) > .5) + 1;
+    HRchange20sec(index1) = mean(HRchange20sec); 
+    HRchange20sec(HRchange20sec<.5) = HRchange20sec(HRchange20sec<.5).*2; 
+    HRchange20sec(HRchange20sec<.5) = HRchange20sec(HRchange20sec<.5).*2;
+    HRchange20sec(HRchange20sec<.5) = HRchange20sec(HRchange20sec<.5).*2;
+    HRchange20sec(HRchange20sec>2) = log(HRchange20sec(HRchange20sec>2));
+                
 
        
-    % convert to IBIs
-     Rwavestamps = time(Rstamps)./1000; 
-    IBIvec = diff(Rwavestamps);
-    leftfornext = 0; 
-    BPMvec = zeros(1,length(secbins)-1);
-    
+  
+
    
    
 end %trial
