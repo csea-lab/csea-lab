@@ -1,4 +1,4 @@
-function [Rwavecorrect]  = app2HR2023(filemat) 
+function [Rwavecorrect, BPMmat]  = app2HR2023(filemat, plotflag) 
 
 % first define useful stuff: 
 [B,A] = butter(6,.05, 'high'); 
@@ -19,37 +19,41 @@ time = 0:1000/SampRate:size(dummy,2).*1000/SampRate-1000/SampRate;
 
 Rwavecorrect = zeros(1, size(dummy,2));
 
-figure
 
 for trial = 1: NTrials 
     % read, calculate and plot   
     [a]=ReadAppData(deblank(filemat(fileindex,:)), trial);
     % ECG =filtfilt(B, A, a(121,:) - a(228,:)); 
     ECG =filtfilt(B, A, a(73,:) - a(121,:)); 
-    ECGsquare = ((ECG.^2)) 
-    
-    figure(1)
-    
+    ECGsquare = ((ECG.^2)); 
+
+    if plotflag
+    figure(1)    
     subplot(2,1,1)
     plot(time, ECG), title('raw')
     subplot(2,1,2)
     plot(time, ECGsquare), title('square')   
     hold on
+    end
     
     % find and plot R-peaks
     stdECG = std(ECGsquare); 
     threshold = 4*stdECG; 
     Rchange=  find(ECGsquare > threshold);
     Rstamps = [Rchange(find(diff(Rchange)>10)) Rchange(end)];
+   
+    if plotflag
     subplot(2,1,2)
     plot(time(Rstamps), 1000, 'r*')
     hold off
+    pause(1)
+    end
  
     
-    pause(1)
+
 
     % convert to IBIs
-    Rwavestamps = time(Rstamps)./1000; 
+    Rwavestamps = time(Rstamps)./500; 
     IBIvec = diff(Rwavestamps);
                 
 
@@ -57,15 +61,15 @@ for trial = 1: NTrials
 
    [IBIvecClean, IBIvecClean1, correctedflag] = HR_artifact(IBIvec);
 
-   if sum(correctedflag)> 0
+   while sum(correctedflag)> 0
        [IBIvecClean, IBIvecClean1, correctedflag] = HR_artifact(IBIvecClean);
    end
       
-   stamps = round(cumsum(IBIvecClean.*SampRate)); 
+   stamps = round(cumsum(IBIvecClean)); 
 
    Rwavecorrect(trial, stamps) = 1; 
   
-   [BPMvec]  = IBI2HRchange_halfsec(IBIvecClean*SampRate, 12); 
+   BPMmat(trial,:)  = IBI2HRchange_halfsec(IBIvecClean, 11); 
 
    
    
