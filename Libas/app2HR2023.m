@@ -6,7 +6,7 @@ function [Rwavecorrect]  = app2HR2023(filemat)
 % secbins are the 1 second segments that are being considereed
 secbins = 0:10;
 
-for fileindex = 1:size(filemat,1); 
+for fileindex = 1:size(filemat,1)
    
     BPM_mat = [];
 
@@ -61,10 +61,11 @@ for trial = 1: NTrials
        [IBIvecClean, IBIvecClean1, correctedflag] = HR_artifact(IBIvecClean);
    end
       
-   stamps = round(cumsum(IBIvecClean.*1000)), pause
+   stamps = round(cumsum(IBIvecClean.*SampRate)); 
 
    Rwavecorrect(trial, stamps) = 1; 
   
+   [BPMvec]  = IBI2HRchange_halfsec(IBIvecClean*SampRate, 12); 
 
    
    
