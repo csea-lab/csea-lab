@@ -17,7 +17,7 @@ for fileindex = 1:size(filemat,1);
 
 time = 0:1000/SampRate:size(dummy,2).*1000/SampRate-1000/SampRate; 
 
-Rwavecorrect = zeros(1, size(dummy,2));
+Rwavecorrect = zeros(size(dummy,1), s);
 
 figure
 
@@ -61,7 +61,7 @@ for trial = 1: NTrials
        [IBIvecClean, IBIvecClean1, correctedflag] = HR_artifact(IBIvecClean);
    end
       
-   stamps = round(cumsum(IBIvecClean.*1000)), pause
+   stamps = round(cumsum(IBIvecClean.*1000));
 
    Rwavecorrect(trial, stamps) = 1; 
   
