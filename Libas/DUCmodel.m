@@ -1,8 +1,8 @@
 function [ssveptotal] = DUCmodel(params,taxis)
 
-ramp = 600;
-baseline1 = zeros(1,6000);
-baseline2 = zeros(1,6000); 
+ramp = 600; % a meta parameter for the duration on the onset
+baseline1 = zeros(1,6000); % duration of distractor bsl 
+baseline2 = zeros(1,6000); % duration of task bsl 
 
 % params(1) = level1
 % params(2) = level2
