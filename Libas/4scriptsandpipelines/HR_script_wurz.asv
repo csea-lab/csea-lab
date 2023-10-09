@@ -12,23 +12,23 @@ for fileindex = 1:size(filemat,1)
 
     temp = load(deblank(filemat(fileindex,:))); 
 
-    trialBPM = movmean(temp.BPMmat(:, 2:end), 5, 2);
+    trialBPM = movmean(temp.BPMmat(:, 3:end), 5, 2);
 
-    stdvec = std(trialBPM');
+    stdvec = std(trialBPM') 
 
-    badindex = find(stdvec>4);  
+    badindex = find(stdvec>5);  
     
     avgBPM = mean(trialBPM); 
 
     trialBPM(badindex, :) = nan(size(trialBPM(badindex, :))); 
 
-    trialBPM(end+1, :) = ones(size(trialBPM(1,:))).* 60; 
+    trialBPM(end+1, :) = ones(size(trialBPM(1,:)).* 60; 
     
     avgBPM = nanmean(trialBPM); 
 
     groupBPM(fileindex,:) = avgBPM; 
 
-   % plot(trialBPM'), title(deblank(filemat(fileindex,:))), hold on, plot(avgBPM, 'k', 'LineWidth', 4), pause, hold off
+    plot(trialBPM'), title(deblank(filemat(fileindex,:))), hold on, plot(avgBPM, 'k', 'LineWidth', 4), pause, hold off
 
 end
    disp('done')
@@ -36,7 +36,7 @@ end
 groupBPM1 = groupBPM;
 
 %% this is for plotting and baseline correction 
-taxis = -1:.5:9.5;
+taxis = -.5:.5:9.5;
 groupBPM1bsl = bslcorr(groupBPM1, 1);
 groupBPM2bsl = bslcorr(groupBPM2, 1);
 groupBPM3bsl = bslcorr(groupBPM3, 1);
