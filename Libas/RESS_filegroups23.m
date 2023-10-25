@@ -54,7 +54,7 @@ end
             if plotflag, figure(99)
                 subplot(2,1,1), plot(squeeze(mean(RESS_time, 2)))
                 title(deblank(filemat(index,1:end-3)))
-                subplot(2,1,2), bar(freqsing(5:70), powsing(1, 5:70)); pause
+                subplot(2,1,2), bar(freqsing(5:200), powsing(1, 5:200)); pause
             end
 
        %eval([' save  ' deblank(filemat(index,1:end-3)) 'RESStim.mat RESS_time -mat']);
