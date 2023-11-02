@@ -21,9 +21,29 @@ EEG.data = single(temp3);
 EEG = eeg_checkset( EEG );
 %EEG=pop_chanedit(EEG, 'load',{'/Users/cseauf/Documents/Arash/BOP_experiment/GSN-HydroCel-128.sfp' 'filetype' 'autodetect'});
 
-EEG=pop_chanedit(EEG, 'load',{'GSN-HydroCel-129.sfp' 'filetype' 'autodetect'},'changefield',{132 'datachan' 0},'setref',{'132' 'Cz'});
+EEG=pop_chanedit(EEG, 'load',{'GSN-HydroCel-257.sfp' 'filetype' 'autodetect'},'changefield',{132 'datachan' 0},'setref',{'132' 'Cz'});
 
 EEG = eeg_checkset( EEG );
+
+%% now the trigger issue
+for index1 = 1:length(EEG.event)
+temptrigs(index1) = EEG.event(index1).latency;
+end
+
+newtrigvec = []; 
+indiceswithtrigs = find(diff(temptrigs) > 9); 
+newtrigvec_temp = temptrigs(indiceswithtrigs+1);
+
+newtrigvec = [temptrigs(1); newtrigvec_temp']; 
+
+%replace trigger structures in EEG structure with actual triggers
+EEG.event = []; 
+for index2 = 1:length(newtrigvec)
+
+end
+
+
+
 EEG = pop_epoch( EEG, {  'DIN4'  }, [-.1  3.5], 'newname', 'test epochs', 'epochinfo', 'yes');
 
 EEG = eeg_checkset( EEG );

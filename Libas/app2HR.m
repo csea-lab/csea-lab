@@ -4,7 +4,7 @@ function [BPM_mat]  = app2HR(filemat);
 [B,A] = butter(6,.05, 'high'); 
 
 % secbins are the 1 second segments that are being considereed
-secbins = [0:9];
+secbins = [0:10];
 
 
 for fileindex = 1:size(filemat,1); 
@@ -23,7 +23,8 @@ for trial = 1: NTrials;
     % read, calculate and plot
    
     [a]=ReadAppData(deblank(filemat(fileindex,:)), trial);
-    ECG =filtfilt(B, A, a(121,:) - a(228,:)); 
+    % ECG =filtfilt(B, A, a(121,:) - a(228,:)); 
+    ECG =filtfilt(B, A, a(73,:) - a(121,:)); 
     ECGsquare = ((ECG.^2)) 
     
     figure(1)

@@ -28,8 +28,8 @@ time = 0.001:0.001:5; % Five seconds of discrete time, sampled at 1000 Hz
 
 end
     %%
-    for x = 1:60,
-        for y = 1:20,
+    for x = 1:60
+        for y = 1:20
             if ~isempty(MPP(x,y).Trials)
                 aha(x,y) = MPP(x,y).Trials(1).tau; 
             end

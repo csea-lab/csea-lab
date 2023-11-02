@@ -32,10 +32,10 @@ for fileindex = 1:size(filemat,1)
     % interpolate bad channels throughout
     [data, interpvecthroughout] = scadsAK_2dInterpChan(data, locations, 3);
 
+    % Segmentation
     % this is the first step after reading stuff in: 
     % find the times (in sample points) where a stm+ event happened
     % we think that this may be the stiimulus but estelle will find out
-
     segmentvec = []; 
     conditionvec =[]; 
     for x = 1: size(events,2)    
@@ -47,7 +47,7 @@ for fileindex = 1:size(filemat,1)
        end
     end
 
-    hist(conditionvec)
+    %hist(conditionvec)
 
 
     % now find the data segments and get the ERP data
