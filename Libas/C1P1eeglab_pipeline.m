@@ -50,29 +50,24 @@ end
 
 
 EEG = pop_epoch( EEG, {  'DIN3'  }, [-.2  .3], 'newname', 'test epochs', 'epochinfo', 'yes');
-
 EEG = eeg_checkset( EEG );
-
 EEG = pop_rmbase( EEG, [-100     0]);
 
 
 % take care of bad channels
-% [outmat3d, interpsensvec] = scadsAK_3dchan(EEG.data, EEG.chanlocs);
-
-% EEG.data = single(outmat3d); 
-
-% outmat3d_afterchan = EEG.data;
+ [outmat3d, interpsensvec] = scadsAK_3dchan(EEG.data, EEG.chanlocs);
+ EEG.data = single(outmat3d); 
 
 
 % run the ICA and save  output
-% EEG = pop_runica(EEG,  'icatype', 'sobi');
-% EEG = eeg_checkset( EEG );
-% EEG = pop_saveset( EEG, 'filename',[EEGfilepath '.EEG.set'],'filepath',pwd);
-% EEG = eeg_checkset( EEG );
+ EEG = pop_runica(EEG,  'icatype', 'sobi');
+ EEG = eeg_checkset( EEG );
+ EEG = pop_saveset( EEG, 'filename',[EEGfilepath '.EEG.set'],'filepath',pwd);
+ EEG = eeg_checkset( EEG );
 % 
 % 
-% warning('off');
-% pop_topoplot(EEG,0, [1:64] ,'component topographies',[8 8] ,0,'electrodes','off');
-% warning('on');
+ warning('off');
+ pop_topoplot(EEG,0, [1:64] ,'component topographies',[8 8] ,0,'electrodes','off');
+ warning('on');
 
 
