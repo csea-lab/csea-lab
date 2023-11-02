@@ -8,11 +8,11 @@ EEG = eeg_checkset( EEG );
 % filter the data
 temp = EEG.data'; 
 
-[fila,filb] = butter(4, 0.12); 
+[fila,filb] = butter(4, 0.08); 
 
 temp2 = filtfilt(fila, filb, double(temp)); 
 
-[filaH,filbH] = butter(2, 0.016, 'high');
+[filaH,filbH] = butter(2, 0.002, 'high');
 
 temp3 =  filtfilt(filaH, filbH, temp2)'; 
 
