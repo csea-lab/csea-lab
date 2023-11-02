@@ -4,8 +4,8 @@ ramp = 600; % a meta parameter for the duration on the onset
 baseline1 = zeros(1,6000); % duration of distractor bsl 
 baseline2 = zeros(1,6000); % duration of task bsl 
 
-% params(1) = level1
-% params(2) = level2
+% params(1) = maximum level1
+% params(2) = maximum level2
 % params(3) = early response
 % params(4) = early interference from distractor
 % params(5) = late reciprocal interference
