@@ -58,16 +58,16 @@ EEG = pop_rmbase( EEG, [-100     0]);
  [outmat3d, interpsensvec] = scadsAK_3dchan(EEG.data, EEG.chanlocs);
  EEG.data = single(outmat3d); 
 
-
-% run the ICA and save  output
- EEG = pop_runica(EEG,  'icatype', 'sobi');
- EEG = eeg_checkset( EEG );
- EEG = pop_saveset( EEG, 'filename',[EEGfilepath '.EEG.set'],'filepath',pwd);
- EEG = eeg_checkset( EEG );
 % 
-% 
- warning('off');
- pop_topoplot(EEG,0, [1:64] ,'component topographies',[8 8] ,0,'electrodes','off');
- warning('on');
+% % run the ICA and save  output
+%  EEG = pop_runica(EEG,  'icatype', 'sobi');
+%  EEG = eeg_checkset( EEG );
+%  EEG = pop_saveset( EEG, 'filename',[EEGfilepath '.EEG.set'],'filepath',pwd);
+%  EEG = eeg_checkset( EEG );
+%  
+% % 
+%  warning('off');
+%  pop_topoplot(EEG,0, [1:64] ,'component topographies',[8 8] ,0,'electrodes','off');
+%  warning('on');
 
 
