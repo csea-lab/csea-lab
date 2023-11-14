@@ -1,5 +1,6 @@
 function [outmat] = get_tagbins(filemat, binindex, suffix);
 
+outmat = []; 
 
 for fileindex = 1:size(filemat,1); 
     
