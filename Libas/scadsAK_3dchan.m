@@ -1,7 +1,7 @@
 %% Input EEGlab .set file (for a specific condition). Identifies and replaces bad channels for each trial. Output is 3-D matrix.
 % To run this script alone, must load dataset into EEGLab, then use following command before running this function: 
 % inmat3d = ALLEEG.data; 
-function [outmat3d, interpsensvec] = scadsAK_3dchan(inmat3d, locations); 
+function [outmat3d, interpsensmat] = scadsAK_3dchan(inmat3d, locations); 
 
 
 interpsensvec = []; 
@@ -13,7 +13,7 @@ outmat3d = inmat3d; % Creates a new matrix the same size as the input matrix
 % find XYZ from eeglab format locations matrix in workspace (2nd argin),
 % put in 3d matrix elocsXYZ
 
- for elec = 1:a1      
+   for elec = 1:a1      
        elocsXYZ(elec,1) =  locations((elec)).X;
        elocsXYZ(elec,2) =  locations((elec)).Y;
        elocsXYZ(elec,3) =  locations((elec)).Z;
@@ -67,21 +67,21 @@ outmat3d = inmat3d; % Creates a new matrix the same size as the input matrix
         cleandata(interpvec,:) = nan; 
     
     
-    for badsensor = 1:length(interpvec)
-       
-        for elec2 = 1:size(inmat3d,1); 
-            distvec(elec2) = sqrt((elocsXYZ(elec2,1)-elocsXYZ(interpvec(badsensor),1)).^2 + (elocsXYZ(elec2,2)-elocsXYZ(interpvec(badsensor),2)).^2 + (elocsXYZ(elec2,3)-elocsXYZ(interpvec(badsensor),3)).^2);
-        end
-    
-           [dist, index]= sort(distvec); 
+        for badsensor = 1:length(interpvec)
            
-           size( trialdata2d(interpvec(badsensor),:)); size(mean(trialdata2d(index(2:7), :),1));                 
-           
-           trialdata2d(interpvec(badsensor),:) = nanmean(cleandata(index(2:7), :),1); 
-           
-           outmat3d(:, :, trial) = trialdata2d; % Creates output file where bad channels have been replaced with interpolated data
-    
-    end    
+            for elec2 = 1:size(inmat3d,1); 
+                distvec(elec2) = sqrt((elocsXYZ(elec2,1)-elocsXYZ(interpvec(badsensor),1)).^2 + (elocsXYZ(elec2,2)-elocsXYZ(interpvec(badsensor),2)).^2 + (elocsXYZ(elec2,3)-elocsXYZ(interpvec(badsensor),3)).^2);
+            end
+        
+               [dist, index]= sort(distvec); 
+               
+               size( trialdata2d(interpvec(badsensor),:)); size(mean(trialdata2d(index(2:round(a1/15)), :),1));                 
+               
+               trialdata2d(interpvec(badsensor),:) = nanmean(cleandata(index(2:round(a1/15)), :),1); 
+               
+               outmat3d(:, :, trial) = trialdata2d; % Creates output file where bad channels have been replaced with interpolated data
+        
+        end    
+        interpsensmat{trial} = unique(interpsensvec); 
 
-    end
-interpsensvec = unique(interpsensvec) 
+    end % trial

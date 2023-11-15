@@ -10,17 +10,16 @@ for fileindex = 1:size(filemat,1)
    
     BPM_mat = [];
 
-% read  file and chekc how many trials 
-
-[dummy,Version,LHeader,ScaleBins,NChan,NPoints,NTrials,SampRate,AvgRefStatus,File,Path,FilePath,EegMegStatus,NChanExtra,AppFileFormatVal]=...
+    % read  file and check how many trials 
+    [dummy,Version,LHeader,ScaleBins,NChan,NPoints,NTrials,SampRate,AvgRefStatus,File,Path,FilePath,EegMegStatus,NChanExtra,AppFileFormatVal]=...
 	ReadAppData(deblank(filemat(fileindex,:)));
 
-time = 0:1000/SampRate:size(dummy,2).*1000/SampRate-1000/SampRate; 
+    time = 0:1000/SampRate:size(dummy,2).*1000/SampRate-1000/SampRate; 
 
-Rwavecorrect = zeros(1, size(dummy,2));
+    Rwavecorrect = zeros(1, size(dummy,2));
 
 
-for trial = 1: NTrials 
+ for trial = 1: NTrials 
     % read, calculate and plot   
     [a]=ReadAppData(deblank(filemat(fileindex,:)), trial);
     % ECG =filtfilt(B, A, a(121,:) - a(228,:)); 
@@ -49,8 +48,6 @@ for trial = 1: NTrials
     pause(1)
     end
  
-    
-
 
     % convert to IBIs
     Rwavestamps = time(Rstamps)./500; 
@@ -58,7 +55,6 @@ for trial = 1: NTrials
                 
 
     % artifact handling
-
    [IBIvecClean, IBIvecClean1, correctedflag] = HR_artifact(IBIvec);
 
    while sum(correctedflag)> 0
@@ -73,7 +69,9 @@ for trial = 1: NTrials
 
    
    
-end %trial
+ end %trial
+
+eval(['save ' deblank(filemat(fileindex,:)) 'HR.mat BPMmat -mat'])
 
 fclose('all'); 
 end % fileindex

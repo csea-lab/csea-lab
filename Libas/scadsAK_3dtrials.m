@@ -8,7 +8,7 @@ function [ inmat3d, badindex, NGoodtrials ] = scadsAK_3dtrials(inmat3d)
     maxtransvalvec = squeeze(median(max(diff(inmat3d, 2),[], 2))); % Max diff (??) of voltage values
     
     % calculate compound quality index and discard outlier trials
-    qualindex = absvalvec./max(absvalvec)+ stdvalvec./max(stdvalvec)+ maxtransvalvec./max(maxtransvalvec) 
+    qualindex = absvalvec./max(absvalvec)+ stdvalvec./max(stdvalvec)+ maxtransvalvec./max(maxtransvalvec); 
     
      cutoff = quantile(qualindex, .95)
      
