@@ -1,4 +1,4 @@
-function [FileMat,Path,NFiles,FilePathMat]=GetFilesInDir_as(Path);
+function [FileMat,Path,NFiles,FilePathMat]=getfilesindir_as(Path);
 %	GetFilesInDir
 	
 %   EMEGS - Electro Magneto Encephalography Software                           
