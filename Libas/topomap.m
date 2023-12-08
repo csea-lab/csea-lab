@@ -1,4 +1,4 @@
-function[h] = topomap(datamat, minmaxvec); 
+function [h] = topomap(datamat, minmaxvec); 
 
 % uses eeglab function eeg_topoplot to quickly (and dirtily) map one vector as a
 % topography, assumes hydrocel eeg systems, or brain products 32 chan
