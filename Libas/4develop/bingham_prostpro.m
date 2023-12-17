@@ -35,4 +35,3 @@ SNRsad12HzO1OzO2 = SNRtemp(15:17, 61)'
 SNRsad15HzO1OzO2 = SNRtemp(15:17, 76)'
 
 save([datapath(1:end-4) '.ERPs.mat'], 'ERP_happy', 'ERP_angry', 'ERP_sad', '-mat')
-

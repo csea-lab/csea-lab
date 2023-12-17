@@ -1,16 +1,16 @@
 function [EEG_happy, EEG_angry, EEG_sad] =  bingham_prepro (datapath, logpath)
 
      %read data into eeglab
-     EEG = pop_fileio(datapath, 'dataformat','auto');
+     EEG = pop_fileio(datapath);
      EEG.setname='temp';
      EEG = eeg_checkset( EEG );
      
      % bandpass filter
-     EEG = pop_eegfiltnew(EEG, 'locutoff',3,'hicutoff',34,'plotfreqz',1);
+     EEG = pop_eegfiltnew(EEG,3,34);
      EEG = eeg_checkset( EEG );
 
      % add electrode locations
-     EEG=pop_chanedit(EEG, 'lookup','/Users/andreaskeil/matlab_as/eeglab2022.1/plugins/dipfit/standard_BEM/elec/standard_1005.elc');
+     EEG=pop_chanedit(EEG, 'lookup','/Users/admin/Documents/eeglab2022.1/plugins/dipfit/standard_BESA/standard-10-5-cap385.elp');
      EEG = eeg_checkset( EEG );
     
      %read conditions from log file
@@ -18,7 +18,7 @@ function [EEG_happy, EEG_angry, EEG_sad] =  bingham_prepro (datapath, logpath)
 
       % now replace the 239 triggers with the actual events
       counter =1; 
-      for x = 1:size(EEG.event,2)
+      for x = 1:min(size(EEG.event,2), 94) % this is a change by ak 10/18/23 to accomodate extra markers
           if strcmp(EEG.event(x).type, 'S239'), EEG.event(x).type = num2str(conditionvec(counter)); 
               counter = counter+1; 
           end
