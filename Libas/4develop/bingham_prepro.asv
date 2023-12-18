@@ -1,4 +1,4 @@
-function [EEG, EEG_happy, EEG_angry, EEG_sad, string, checktimevec] =  bingham_prepro (datapath, logpath)
+function [EEG_happy, EEG_angry, EEG_sad, checksum] =  bingham_prepro (datapath, logpath)
 
      %read data into eeglab
      EEG = pop_fileio(datapath);
@@ -26,17 +26,11 @@ function [EEG, EEG_happy, EEG_angry, EEG_sad, string, checktimevec] =  bingham_p
       [string, checktimevec] = bingham_findgoodtrig(EEG);
       if checktimevec(1) < 60000
           conditionvec = [0; conditionvec]; 
-          maxcount = 94;
-      else 
-          maxcount = 93;
       end
-
-      disp(['a total of ' num2str(length(checktimevec)+1) ' markers of type ' string ' were found in the file'])
 
       counter =1; 
       for x = 1:size(EEG.event,2) %  
-          if strcmp(EEG.event(x).type, string) && counter < maxcount+1 
-              EEG.event(x).type = num2str(conditionvec(counter)); 
+          if strcmp(EEG.event(x).type, string) && counter < EEG.event(x).type = num2str(conditionvec(counter)); 
               counter = counter+1; 
           end
       end
@@ -46,28 +40,27 @@ function [EEG, EEG_happy, EEG_angry, EEG_sad, string, checktimevec] =  bingham_p
      EEG_happy = eeg_checkset( EEG_happy );
      EEG_happy = pop_rmbase( EEG_happy, [-600 0] ,[]);
      EEG_happy = eeg_checkset( EEG_happy );
-     [EEG_happy, reject_happy] = pop_autorej(EEG_happy, 'nogui','on','threshold',200, 'maxrej', 15,'startprob',3, 'electrodes',[1:31] ,'eegplot','off');
+     EEG_happy = pop_autorej(EEG_happy, 'nogui','on','threshold',500,'electrodes',[1:31] ,'eegplot','on');
      EEG_happy = eeg_checkset( EEG_happy );
-     EEG_happy = pop_rejepoch( EEG_happy, reject_happy,0);
+     EEG_happy = pop_rejepoch( EEG_happy, 13,0);
      
-
      % angry
      EEG_angry = pop_epoch( EEG, {  '2'  }, [-0.6 5.6], 'newname', 't epochs', 'epochinfo', 'yes');
      EEG_angry = eeg_checkset( EEG_angry );
      EEG_angry = pop_rmbase( EEG_angry, [-600 0] ,[]);
      EEG_angry = eeg_checkset( EEG_angry );
-     [EEG_angry, reject_angry] = pop_autorej(EEG_angry, 'nogui','on','threshold',200, 'maxrej', 15, 'startprob',3, 'electrodes',[1:31] ,'eegplot','on');
+     EEG_angry = pop_autorej(EEG_angry, 'nogui','on','threshold',500,'electrodes',[1:31] ,'eegplot','on');
      EEG_angry = eeg_checkset( EEG_angry );
-     EEG_angry = pop_rejepoch( EEG_angry, reject_angry,0);
+     EEG_angry = pop_rejepoch( EEG_angry, 13,0);
      
      % sad
      EEG_sad = pop_epoch( EEG, {  '3'  }, [-0.6 5.6], 'newname', 't epochs', 'epochinfo', 'yes');
      EEG_sad = eeg_checkset( EEG_sad );
      EEG_sad = pop_rmbase( EEG_sad, [-600 0] ,[]);
      EEG_sad = eeg_checkset( EEG_sad );
-     [EEG_sad, reject_sad] = pop_autorej(EEG_sad, 'nogui','on','threshold',200, 'maxrej', 15,'startprob',3, 'electrodes',[1:31] ,'eegplot','off');
+     EEG_sad = pop_autorej(EEG_sad, 'nogui','on','threshold',500,'electrodes',[1:31] ,'eegplot','on');
      EEG_sad = eeg_checkset( EEG_sad );
-     EEG_sad = pop_rejepoch( EEG_sad, reject_sad,0);
+     EEG_sad = pop_rejepoch( EEG_sad, 13,0);
 
      save([logpath(1:end-4) '.cleaneeg.mat'],  'EEG_angry', 'EEG_sad', 'EEG_happy', '-mat')
 
