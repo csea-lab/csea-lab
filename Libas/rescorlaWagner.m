@@ -1,4 +1,4 @@
-opfunction rescorlaWagner
+function rescorlaWagner
 % Demonstration of the Rescorla Wagner (1972) model.
 %
 % Jochen Triesch, November 2006
