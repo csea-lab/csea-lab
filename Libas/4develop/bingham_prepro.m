@@ -7,12 +7,21 @@ function [EEG, EEG_happy, EEG_angry, EEG_sad, string, checktimevec] =  bingham_p
      
      % bandpass filter
      EEG = pop_eegfiltnew(EEG,3,34);
-     EEG = eeg_checkset( EEG );
+     EEG = eeg_checkset( EEG );bingham_prepro.m
+bingham_postpro.m
+bingham_findgoodtrig.m
+bingham_prostpro.m
+bingham_calcspec.m
+bingham_avgsubj.m
 
      % add electrode locations
-     % swap for different labs/computers
-     %EEG=pop_chanedit(EEG, 'lookup','/Users/admin/Documents/eeglab2022.1/plugins/dipfit/standard_BESA/standard-10-5-cap385.elp');
-     EEG=pop_chanedit(EEG, 'lookup','/Users/andreaskeil/matlab_as/eeglab2019_0/plugins/dipfit/standard_BESA/standard-10-5-cap385.elp');
+     % this should work universally:
+     temppath = which( 'eeglab');
+     [filepath,~] = fileparts(temppath); 
+     EEG=pop_chanedit(EEG, 'lookup', [filepath '/plugins/dipfit/standard_BESA/standard-10-5-cap385.elp']);
+     % OR: swap for different labs/computers
+     % EEG=pop_chanedit(EEG, 'lookup','/Users/admin/Documents/eeglab2022.1/plugins/dipfit/standard_BESA/standard-10-5-cap385.elp');
+      % EEG=pop_chanedit(EEG, 'lookup','/Users/andreaskeil/matlab_as/eeglab2019_0/plugins/dipfit/standard_BESA/standard-10-5-cap385.elp');
      EEG = eeg_checkset( EEG );
     
      %read conditions from log file; there should be 90 trials logged. the
