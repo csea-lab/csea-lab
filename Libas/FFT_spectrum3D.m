@@ -1,4 +1,4 @@
-function [specavg, freqs] = FFT_spectrum3D(Data3d, timewinSP, SampRate);
+function [specavg, freqs] = FFT_spectrum3D(Data3d, timewinSP, SampRate)
    
 fRes = 1000./(size(Data3d(:, timewinSP, :), 2).*(1000/SampRate));
 

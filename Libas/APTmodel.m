@@ -7,7 +7,7 @@ stimnum = 7; % pick an odd number so that CS+ can be in the middle
 
 [w, delta] = rescorlaWagnerLearnMod([BETA 1], reinforcement'); % execute rescorla wagner model, get assoc. strength and pred error
 
-delta_smooth = movingavg_as_forward(delta, LAG); 
+delta_smooth = movmean(delta, LAG); 
 
 for index = 1:length(reinforcement)
     
