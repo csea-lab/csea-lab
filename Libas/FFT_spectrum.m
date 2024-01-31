@@ -1,4 +1,4 @@
-function [pow, phase, freqs] = FFT_spectrum(data, fsamp);
+function [pow, phase, freqs] = FFT_spectrum(data, fsamp)
 % takes "data", which can be a vector or a matrix (in which time points are columns and sensors
 % are rows) and calculates a normalized spectrum using a cosine window with
 % 20 sample points rise time at the beginning and end, based on matlab FFT
@@ -8,7 +8,7 @@ function [pow, phase, freqs] = FFT_spectrum(data, fsamp);
 
     AvgMat = data; 
     
-    AvgMat = AvgMat .* cosinwin(20,size(AvgMat,2), size(AvgMat,1));  % window data
+    % AvgMat = AvgMat .* cosinwin(20,size(AvgMat,2), size(AvgMat,1));  % window data
   
     NFFT = size(AvgMat,2); 
 	NumUniquePts = ceil((NFFT+1)/2); 
@@ -18,7 +18,7 @@ function [pow, phase, freqs] = FFT_spectrum(data, fsamp);
 	Mag = Mag*2;   
 	
 	Mag(1) = Mag(1)/2;                                                    % DC Frequency not twice
-	if ~rem(NFFT,2),                                                    % Nyquist Frequency not twice
+	if ~rem(NFFT,2)                                                    % Nyquist Frequency not twice
         Mag(length(Mag))=Mag(length(Mag))/2;
 	end
 	
