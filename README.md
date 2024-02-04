@@ -5,4 +5,3 @@ A collection of the many scripts we use here at CSEA.
 
 [benlib](benlib) is a mostly Python library written by Ben Velie for fMRI (fMRIPrep, AFNI, afni_proc.py, helper modules), BIDS (scripts to BIDSify datasets), and Docker/Singularity (Scripts to launch containers at home or via high herformance computing).
 
-I was here
