@@ -1,13 +1,13 @@
 %% 1.) Initialize important parameters
-nLoops = 10; %sets number of training iterations for each SNR value
-SNR = linspace(0,.9,20); %sets the range of SNR from .1 to nSNR/10 in steps of .1
+nLoops = 3; %sets number of training iterations for each SNR value
+SNR = linspace(0,.9,10); %sets the range of SNR from .1 to nSNR/10 in steps of .1
 nSNR = length(SNR); 
-nTrials = 20; %sets number of trials per SNR value per loop - need ~20 trials for MPP training
+nTrials = 10; %sets number of trials per SNR value per loop - need ~20 trials for MPP training
 trialsPerSNR = nTrials*nLoops;
 sawFlag = 0; %determines shape of signal; if 0, generates sine wave; if 1, generates sawtooth wave
 
 %MPP hyperparameters
-M = 200; %length of detection window
+M = 300; %length of detection window
 K = 3; %number of dictionaries
 
 %% 2.) Determine signal shape, create filters for MPP processing
@@ -41,7 +41,7 @@ for loop = 1:nLoops
             brownsig = cumsum(temp1);  % Brownian noise is the cumulative sum of white noise
             scaledSignal = signal.* SNR(x); % a 10.1Hz sine or sawtooth wave scaled by SNR
             testsig2(trial,:)  = detrend(brownsig-mean(brownsig)); % zero-centered Brownian noise
-            SNR(trial, x) = x./range(testsig2(trial, :));
+            SNRempirical(trial, x) = x./range(testsig2(trial, :));
             testsig2(trial, 3001:4000) =  testsig2(trial, 3001:4000) + scaledSignal; % add the sine wave to part of the Brownian noise
             %plot(time, testsig2(trial,:)), pause(1) %plots each generated signal
   
