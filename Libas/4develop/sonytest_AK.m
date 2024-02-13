@@ -1,4 +1,5 @@
 %% 1.) Initialize important parameters
+clear
 nLoops = 3; %sets number of training iterations for each SNR value
 SNR = linspace(0,.9,10); %sets the range of SNR from .1 to nSNR/10 in steps of .1
 nSNR = length(SNR); 
