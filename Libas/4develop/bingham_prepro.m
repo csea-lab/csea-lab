@@ -7,12 +7,7 @@ function [EEG, EEG_happy, EEG_angry, EEG_sad, string, checktimevec] =  bingham_p
      
      % bandpass filter
      EEG = pop_eegfiltnew(EEG,3,34);
-     EEG = eeg_checkset( EEG );bingham_prepro.m
-bingham_postpro.m
-bingham_findgoodtrig.m
-bingham_prostpro.m
-bingham_calcspec.m
-bingham_avgsubj.m
+     EEG = eeg_checkset( EEG );
 
      % add electrode locations
      % this should work universally:
