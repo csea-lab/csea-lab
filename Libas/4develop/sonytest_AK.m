@@ -1,6 +1,6 @@
 %% 1.) Initialize important parameters
 clear
-nLoops = 2; %sets number of training iterations for each SNR value
+nLoops = 3; %sets number of training iterations for each SNR value
 SNR = linspace(0,3,20); %sets the range of SNR 
 nSNR = length(SNR); 
 nTrials = 20; %sets number of trials per SNR value per loop - need ~20 trials for MPP training
@@ -109,8 +109,8 @@ outmat_loops = zeros(nSNR,nLoops); %number of detected events that occur during 
 
 for x = 1:nSNR
     for loop = 1:nLoops
-        %counts number of events with latencies between 3000 and 4000, inclusive
-        outmat_loops(x,loop) = length(find(taus_all{x,loop}-3000 >= 0 & taus_all{x,loop}-3000 <= 1000));
+        %counts number of events with latencies between 3200 and 4000, inclusive
+        outmat_loops(x,loop) = length(find(taus_all{x,loop}-3000 >= M & taus_all{x,loop}-3000 <= 1000-M));
     end
 end
 
