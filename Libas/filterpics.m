@@ -234,11 +234,17 @@ function [] = filterpics(filemat, suffix)
 % 
 
 
-%%  resize ... %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%  resize .1.. %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% for x = 1:size(filemat,1)
+%     a = imread(deblank(filemat(x,:)));
+%     I = imresize(a,[384,512]);
+%     imwrite(I,[deblank(filemat(x,:)) suffix], 'jpg')
+% end
 
+%%  resize 2... %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 for x = 1:size(filemat,1)
     a = imread(deblank(filemat(x,:)));
-    I = imresize(a,[384,512]);
+    I = imresize(a,.8);  % 80% size 
     imwrite(I,[deblank(filemat(x,:)) suffix], 'jpg')
 end
 
