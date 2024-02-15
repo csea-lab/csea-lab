@@ -1,6 +1,6 @@
 %% 1.) Initialize important parameters
 clear
-nLoops = 3; %sets number of training iterations for each SNR value
+nLoops = 10; %sets number of training iterations for each SNR value
 SNR = linspace(0,3,20); %sets the range of SNR 
 nSNR = length(SNR); 
 nTrials = 20; %sets number of trials per SNR value per loop - need ~20 trials for MPP training
@@ -42,7 +42,7 @@ for loop = 1:nLoops
             brownsig = cumsum(temp1);  % Brownian noise is the cumulative sum of white noise
             scaledSignal = signal.* SNR(x); % a 10.1Hz sine or sawtooth wave scaled by SNR
             testsig2(trial,:)  = detrend(brownsig-mean(brownsig)); % zero-centered Brownian noise
-            SNRempirical(trial, x) = x./std(testsig2(trial, 3000:4000));
+            SNRempirical(trial, x) = x./(2*std(testsig2(trial, 3000:4000)));
             testsig2(trial, 3001:4000) =  testsig2(trial, 3001:4000) + scaledSignal; % add the sine wave to part of the Brownian noise
             %plot(time, testsig2(trial,:)), pause(1) %plots each generated signal
   
@@ -117,12 +117,14 @@ end
 figure, 
 for l = 1:nLoops
     %plots number of true detected events as a function of SNR
-    plot(mean(SNRempirical), outmat_loops(:,l)) %plots all loops
+    plot(outmat_loops(:,l)) %plots all loops
     hold on
 end
 xlabel('SNR')
+xticks(1:20)
+xticklabels((mean(SNRempirical)))
 ylabel('Number of detected events')
 %plots number of true detected events as a function of SNR, averaged across
 %loops
 avgOutmat = mean(outmat_loops,2); 
-plot(mean(SNRempirical), avgOutmat,'m','lineWidth',4)
+plot(avgOutmat,'m','lineWidth',4)
