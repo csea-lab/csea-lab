@@ -9,6 +9,7 @@ function [EEG, EEG_happy, EEG_angry, EEG_sad, string, checktimevec] =  bingham_p
      EEG = pop_eegfiltnew(EEG,3,34);
      EEG = eeg_checkset( EEG );
 
+
      % add electrode locations
      % this should work universally:
      temppath = which( 'eeglab');
