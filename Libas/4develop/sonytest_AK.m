@@ -8,7 +8,7 @@ trialsPerSNR = nTrials*nLoops;
 sawFlag = 0; %determines shape of signal; if 0, generates sine wave; if 1, generates sawtooth wave
 
 %MPP hyperparameters
-M = 300; %length of detection window
+M = 400; %length of detection window
 K = 3; %number of dictionaries
 
 %% 2.) Determine signal shape, create filters for MPP processing
@@ -128,3 +128,5 @@ ylabel('Number of detected events')
 %loops
 avgOutmat = mean(outmat_loops,2); 
 plot(avgOutmat,'m','lineWidth',4)
+
+save outmat_loops400.mat outmat_loops SNRempirical -mat
