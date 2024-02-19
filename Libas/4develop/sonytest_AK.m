@@ -1,7 +1,12 @@
 %% 1.) Initialize important parameters
 clear
+<<<<<<< Updated upstream
 nLoops = 10; %sets number of training iterations for each SNR value
 SNR = linspace(0,3,20); %sets the range of SNR 
+=======
+nLoops = 3; %sets number of training iterations for each SNR value
+SNR = linspace(0,3,20); %sets the range of SNR from .1 to nSNR/10 in steps of .1
+>>>>>>> Stashed changes
 nSNR = length(SNR); 
 nTrials = 20; %sets number of trials per SNR value per loop - need ~20 trials for MPP training
 trialsPerSNR = nTrials*nLoops;
