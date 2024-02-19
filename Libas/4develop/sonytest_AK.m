@@ -1,19 +1,14 @@
 %% 1.) Initialize important parameters
 clear
-<<<<<<< Updated upstream
 nLoops = 10; %sets number of training iterations for each SNR value
 SNR = linspace(0,3,20); %sets the range of SNR 
-=======
-nLoops = 3; %sets number of training iterations for each SNR value
-SNR = linspace(0,3,20); %sets the range of SNR from .1 to nSNR/10 in steps of .1
->>>>>>> Stashed changes
 nSNR = length(SNR); 
 nTrials = 20; %sets number of trials per SNR value per loop - need ~20 trials for MPP training
 trialsPerSNR = nTrials*nLoops;
 sawFlag = 0; %determines shape of signal; if 0, generates sine wave; if 1, generates sawtooth wave
 
 %MPP hyperparameters
-M = 400; %length of detection window
+M = 300; %length of detection window
 K = 3; %number of dictionaries
 
 %% 2.) Determine signal shape, create filters for MPP processing
@@ -133,5 +128,3 @@ ylabel('Number of detected events')
 %loops
 avgOutmat = mean(outmat_loops,2); 
 plot(avgOutmat,'m','lineWidth',4)
-
-save outmat_loops400.mat outmat_loops SNRempirical -mat
