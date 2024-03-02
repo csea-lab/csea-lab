@@ -51,9 +51,9 @@ function [EEG, EEG_happy, EEG_angry, EEG_sad, string, checktimevec] =  bingham_p
      EEG_happy = eeg_checkset( EEG_happy );
      EEG_happy = pop_rmbase( EEG_happy, [-600 0] ,[]);
      EEG_happy = eeg_checkset( EEG_happy );
-     [EEG_happy, reject_happy] = pop_autorej(EEG_happy, 'nogui','on','threshold',200, 'maxrej', 15,'startprob',3, 'electrodes',[1:31] ,'eegplot','off');
+     [EEG_happy, reject_happy] = pop_autorej(EEG_happy, 'nogui','on','threshold',100, 'maxrej', 10,'startprob',3, 'electrodes',[1:31] ,'eegplot','off');
      EEG_happy = eeg_checkset( EEG_happy );
-     EEG_happy = pop_rejepoch( EEG_happy, reject_happy,0);
+
      
 
      % angry
@@ -61,18 +61,17 @@ function [EEG, EEG_happy, EEG_angry, EEG_sad, string, checktimevec] =  bingham_p
      EEG_angry = eeg_checkset( EEG_angry );
      EEG_angry = pop_rmbase( EEG_angry, [-600 0] ,[]);
      EEG_angry = eeg_checkset( EEG_angry );
-     [EEG_angry, reject_angry] = pop_autorej(EEG_angry, 'nogui','on','threshold',200, 'maxrej', 15, 'startprob',3, 'electrodes',[1:31] ,'eegplot','on');
+     [EEG_angry, reject_angry] = pop_autorej(EEG_angry, 'nogui','on','threshold',100, 'maxrej', 10, 'startprob',3, 'electrodes',[1:31] ,'eegplot','off');
      EEG_angry = eeg_checkset( EEG_angry );
-     EEG_angry = pop_rejepoch( EEG_angry, reject_angry,0);
+
      
      % sad
      EEG_sad = pop_epoch( EEG, {  '3'  }, [-0.6 5.6], 'newname', 't epochs', 'epochinfo', 'yes');
      EEG_sad = eeg_checkset( EEG_sad );
      EEG_sad = pop_rmbase( EEG_sad, [-600 0] ,[]);
      EEG_sad = eeg_checkset( EEG_sad );
-     [EEG_sad, reject_sad] = pop_autorej(EEG_sad, 'nogui','on','threshold',200, 'maxrej', 15,'startprob',3, 'electrodes',[1:31] ,'eegplot','off');
+     [EEG_sad, reject_sad] = pop_autorej(EEG_sad, 'nogui','on','threshold',100, 'maxrej', 10,'startprob',3, 'electrodes',[1:31] ,'eegplot','off');
      EEG_sad = eeg_checkset( EEG_sad );
-     EEG_sad = pop_rejepoch( EEG_sad, reject_sad,0);
 
      save([logpath(1:end-4) '.cleaneeg.mat'],  'EEG_angry', 'EEG_sad', 'EEG_happy', '-mat')
 
