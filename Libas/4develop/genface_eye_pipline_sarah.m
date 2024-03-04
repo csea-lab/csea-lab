@@ -11,7 +11,7 @@ trialindexinMSGvec = [];
  for x = 1:length(datamat.Events.Messages.info)
      if findstr('cue_on', char(datamat.Events.Messages.info(x)))
          trialindexinMSGvec = [trialindexinMSGvec datamat.Events.Messages.time(x)]; 
-     
+     end
  end
 
 startbins = trialindexinMSGvec; 
@@ -160,7 +160,7 @@ avgCond = mean(matoutbsl, 1);
 end
  
   
-%genface_eye_pipline_sarah('GeF301.edf', 'genface_301', 'GeF301'); - trial run with function 
+%genface_eye_pipline_sarah('GeF301.edf', 'genface_301.dat', 'GeF301'); - trial run with function 
 
  
  
