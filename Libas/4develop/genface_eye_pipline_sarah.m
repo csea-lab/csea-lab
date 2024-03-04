@@ -18,19 +18,19 @@ startbins = trialindexinMSGvec;
  
 datavec = datamat.Samples.pupilSize;
 
-% % % plot pupil vs trials: 
-% figure
-% plot(datamat.Samples.time, datavec)
-% hold on
-% plot(startbins, 200, '*')
-% 
-% %%%Added by Sarah%%%
-% % Add labels for the x-axis and y-axis
-% xlabel('Time (milliseconds)')
-% ylabel('Pupil Size')
-% % Add a title to the plot
-% title('Pupil Size vs. Time and Trials')
-% %%%End of addition%%%
+% % plot pupil vs trials: 
+figure
+plot(datamat.Samples.time, datavec)
+hold on
+plot(startbins, 200, '*')
+
+%%%Added by Sarah%%%
+% Add labels for the x-axis and y-axis
+xlabel('Time (milliseconds)')
+ylabel('Pupil Size')
+% Add a title to the plot
+title('Pupil Size vs. Time and Trials')
+%%%End of addition%%%
 
 
 timestamps = datamat.Samples.time; % these are the time stamps in ms that match where the data are
@@ -52,12 +52,12 @@ for x = 1:size(startbins,2)
     mat(:, x) = datavec(indices(x)-500:indices(x)+1800);  
 end
 
-% % plot the data
-% figure
-% for x = 1:291
-% plot(taxis, mat(:,x)'), title (['trial number:' num2str(x)]), 
-%     xlabel('Time (milliseconds)'), ylabel('Pupil Size'), pause(.1)
-% end 
+% plot the data
+figure
+for x = 1:291
+plot(taxis, mat(:,x)'), title (['trial number:' num2str(x)]), 
+    xlabel('Time (milliseconds)'), ylabel('Pupil Size'), pause(.1)
+end 
 
 disp('artifact correction about to commence')
 pause(.5)
@@ -101,14 +101,14 @@ pause(.5)
  for x = 1:size(indices,2)
  matcorr(:, x) = datavec_corr(indices(x)-500:indices(x)+1800);  
  end
- % 
- % % plot the data
- % figure
- % for x = 1:291
- % plot(taxis, matcorr(:,x)'), title (['CORRECTED - trial number:' num2str(x)]), 
- % xlabel('Time (milliseconds)'), ylabel('Pupil Size'), pause(.1)
- % end
- % 
+
+ % plot the data
+ figure
+ for x = 1:291
+ plot(taxis, matcorr(:,x)'), title (['CORRECTED - trial number:' num2str(x)]), 
+ xlabel('Time (milliseconds)'), ylabel('Pupil Size'), pause(.1)
+ end
+
  % now assign the conditions
  datfilemat = readmatrix(datafile); 
  conditionvec = datfilemat(1:291, 4);
@@ -138,19 +138,19 @@ pause(.5)
  save([edffile '.bsl.mat'], 'matoutbsl', '-mat')
 
 
-% %%condition averaged across trials by time for 14 conditions
-% figure(101)
-% subplot(2,1,1), plot(matout(:, 1:7)), legend
-% title('14 Conditions')
-% subplot(2,1,2), plot(matout(:, 8:14)), legend
-% 
-% 
-% 
-% %%baseline corrected averaged 14 conditions across trials  
-% figure (102)
-% subplot(2,1,1), plot(taxis, matoutbsl(:, 1:7)), legend
-% title('14 Conditions Baseline Corrected')
-% subplot(2,1,2), plot(taxis, matoutbsl(:, 8:14)), legend
+%%condition averaged across trials by time for 14 conditions
+figure(101)
+subplot(2,1,1), plot(matout(:, 1:7)), legend
+title('14 Conditions')
+subplot(2,1,2), plot(matout(:, 8:14)), legend
+
+
+
+%%baseline corrected averaged 14 conditions across trials  
+figure (102)
+subplot(2,1,1), plot(taxis, matoutbsl(:, 1:7)), legend
+title('14 Conditions Baseline Corrected')
+subplot(2,1,2), plot(taxis, matoutbsl(:, 8:14)), legend
 
 avgCond = mean(matoutbsl, 1);
 
