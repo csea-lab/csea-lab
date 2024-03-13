@@ -4,7 +4,7 @@
 function [outmat2d, interpvec] = scadsAK_2dInterpChan(inmat2d, locations, threshold)
 
 % find XYZ from eeglab format locations matrix in workspace (2nd argin),
-% put in 3d matrix elocsXYZ - this is eeglba forma, NOT fieldtrip
+% put in 3d matrix elocsXYZ - this is eeglab forma, NOT fieldtrip
 
  for elec = 1:size(inmat2d, 1) 
        elocsXYZ(elec,1) =  locations((elec)).X;
