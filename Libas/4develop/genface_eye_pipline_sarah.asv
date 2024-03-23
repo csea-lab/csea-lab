@@ -1,4 +1,4 @@
-function [matcorr, matout, matoutbsl, matoutbsldiv, percentbadvec, percentbadsub, percentbadcond, avgCond] = genface_eye_pipline_sarah(edffull, datafile, edffile)
+function [matcorr, matout, matoutbsl, percentbadvec, percentbadsub, percentbadcond, avgCond] = genface_eye_pipline_sarah(edffull, datafile, edffile)
 
 datamat = Edf2Mat(edffull);
 
@@ -18,18 +18,19 @@ startbins = trialindexinMSGvec;
  
 datavec = datamat.Samples.pupilSize;
 
-% % plot pupil vs trials: 
-figure
-plot(datamat.Samples.time, datavec)
-hold on
-plot(startbins, 200, '*')
-
-% Add labels for the x-axis and y-axis
-xlabel('Time (milliseconds)')
-ylabel('Pupil Size')
-% Add a title to the plot
-title('Pupil Size vs. Time and Trials')
-%%%End of addition%%%
+% % % plot pupil vs trials: 
+% figure
+% plot(datamat.Samples.time, datavec)
+% hold on
+% plot(startbins, 200, '*')
+% 
+% %%%Added by Sarah%%%
+% % Add labels for the x-axis and y-axis
+% xlabel('Time (milliseconds)')
+% ylabel('Pupil Size')
+% % Add a title to the plot
+% title('Pupil Size vs. Time and Trials')
+% %%%End of addition%%%
 
 
 timestamps = datamat.Samples.time; % these are the time stamps in ms that match where the data are
@@ -129,17 +130,19 @@ pause(.5)
  matout(:, condition) = mean(matcorr(:, conditionvec==condvec(condition)), 2); 
  end
  
-
  for condition = 1:14
- matoutbsl = bslcorr(matout', 300:500)'; %300 to 500 represents samplepoints before stimulus onset to average for baseline; 400 ms
- matoutbsldiv = bslcorrdivide(matout', 300:500)';
+ matout_mm = puptomm(matout); %300 to 500 represents samplepoints before stimulus onset to average for baseline; 400 ms
+end
+ 
+ for condition = 1:14
+ matoutbsl = bslcorr(matout_mm, 300:500)'; %300 to 500 represents samplepoints before stimulus onset to average for baseline; 400 ms
  end
  
  save([edffile '.pup.out.mat'], 'matout', '-mat')
  save([edffile '.corr.mat'], 'matcorr', '-mat')
  save([edffile '.percentbad.mat'], 'percentbadvec', 'percentbadsub', 'percentbadcond', '-mat') 
- save([edffile '.bsl.mat'], 'matoutbsl', '-mat')
- save([edffile '.bsldiv.mat'], 'matout', '-mat')
+ % save([edffile '.bsl.mat'], 'matoutbsl', '-mat')
+
 
 %%condition averaged across trials by time for 14 conditions
 figure(101)
@@ -154,14 +157,6 @@ figure (102)
 subplot(2,1,1), plot(taxis, matoutbsl(:, 1:7)), legend
 title('14 Conditions Baseline Corrected')
 subplot(2,1,2), plot(taxis, matoutbsl(:, 8:14)), legend
-xlabel('Time (milliseconds)'), ylabel('Pupil Size')
-
-%%baseline corrected w/division averaged 14 conditions across trials
-figure (103)
-subplot(2,1,1), plot(taxis, matoutbsldiv(:, 1:7)), legend
-title('14 Conditions Baseline Corrected with Division')
-subplot(2,1,2), plot(taxis, matoutbsldiv(:, 8:14)), legend
-xlabel('Time (milliseconds)'), ylabel('Pupil Size')
 
 avgCond = mean(matoutbsl, 1);
 
