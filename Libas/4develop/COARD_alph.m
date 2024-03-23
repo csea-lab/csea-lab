@@ -1,6 +1,5 @@
 function COARD_alph(subNo)
 
-subNo
 
 % Initialize Psychtoolbox
 PsychDefaultSetup(2);
@@ -41,19 +40,19 @@ for trial = 1:2
     sound(sin(2*pi*440*(0:1/44100:2)), 44100);
     DrawFormattedText(window, 'Please close your eyes now', 'center', 'center', [255 255 255]);
     Screen('Flip', window);
-    WaitSecs(90);
+    WaitSecs(60);
     
     
     % Play soft tone and display text
     sound(sin(2*pi*440*(0:1/44100:2)), 44100);
     DrawFormattedText(window, 'Please open your eyes and keep your gaze on the central fixation cross', 'center', 'center', [255 255 255]);
     Screen('Flip', window);
-    WaitSecs(90);
+    WaitSecs(60);
       
 end
 
 % End of experiment
-DrawFormattedText(window, 'End of Task 1', 'center', 'center', [255 255 255]);
+DrawFormattedText(window, 'End of Task 1. Thank you!', 'center', 'center', [255 255 255]);
 Screen('Flip', window);
 WaitSecs(3);
 
