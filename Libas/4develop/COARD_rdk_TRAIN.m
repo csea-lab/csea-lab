@@ -263,8 +263,8 @@ try
             temp2 = randperm(150); subset1 = temp2(1:75); subset2= temp2(76:150);
             
             % determine the direction of the targets
-            factor1 = rafz(rand(1,1)-.5).*5;
-            factor2 = rafz(rand(1,1)-.5).*5;
+            factor1 = rafz(rand(1,1)-.5).*6;
+            factor2 = rafz(rand(1,1)-.5).*6;
             
             ppd = pi * (wRect(3)-wRect(1)) / atan(mon_width/v_dist/2) / 360;    % pixels per degree
             pfs = dot_speed * ppd / fps;                            % dot speed (pixels/frame)
@@ -391,7 +391,7 @@ try
     ShowCursor;
     fclose('all');
     Priority(0);
-    %psychrethrow(psychlasterror);
+    psychrethrow(psychlasterror);
     
 catch
     

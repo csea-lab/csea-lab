@@ -1,14 +1,16 @@
 function COARD_spat(subNo)
-
+Screen('Preference', 'SkipSyncTests', 1);
  clc;
  if ~isempty(instrfind), fclose(instrfind); end
  rng('shuffle'); % reseed the random-number generator for each expt.% reseed the random-number generator for each expt.
 
 %serial port for trigger
-
 % open serial port for trigger writing
-s3 = serial('/dev/ttyUSB0', 'BaudRate', 4800, 'Terminator', 'CR/LF');
-fopen(s3);
+%s3 = serial('/dev/ttyUSB0', 'BaudRate', 4800, 'Terminator', 'CR/LF');
+%fopen(s3);
+
+% wherw are the pics
+   stimdir = ('/Users/andreaskeil/As_Docs/stimuli/IAPS 1-20/IAPS 1-20 Images/');
 
 % Defining the base messages
 WellcomeMsg1=['Please get ready. remember that your task is to press the mouse key whenever the central cross changes to red.'];
@@ -34,8 +36,6 @@ else
 end
 
 % picture files
-
-    stimdir = ('/home/psychlab-stim/Desktop/Matlab_files/exp_stimuli/COARD_rdk/');
     filemat = dir([stimdir '*.jpg']); %reads in pics from folder
     ntrials = size(filemat, 1); %gets the size of the folder
     newindices = randperm(size(filemat,1));  %creates a new index the same size as the original folder
@@ -53,8 +53,8 @@ try
     center = [centerX, centerY];
 
     % locations
-    leftloc = [centerX-400 centerY-200 centerX centerY+200]
-    rightloc = [centerX+400 centerY-200 centerX centerY+200]
+    leftloc = [centerX-400 centerY-200 centerX centerY+200];
+    rightloc = [centerX+400 centerY-200 centerX centerY+200];
 
 
     % set priority - also set after Screen init
@@ -78,16 +78,14 @@ try
     Screen('Flip', w);
     
     % wait a bit before starting experiment
-    WaitSecs(rand(1,1) + 1);
-    Screen('DrawText', w, 'Welcome to the experiment. In each trial, you will focus on a fixation cross while two pictures are presented.', 20, 20, 1275, BlackIndex(w));
-    Screen('DrawText', w, 'Sometimes the cross will change color.', 20, 70, 1275, BlackIndex(w));
-    Screen('DrawText', w, 'Please pay attention to these changes.', 20, 120, 1275);
-    Screen('DrawText', w, 'Click the mouse key if cross changes color, Thanks!.', 20, 170, 1275);
+    WaitSecs(.5);
+    Screen('DrawText', w, 'Welcome to the experiment. In each trial, you will focus on a fixation cross while two pictures are presented.', 20, 20, 1275, WhiteIndex(w));
+    Screen('DrawText', w, 'Sometimes the cross will change color.', 20, 70, 1275, WhiteIndex(w));
+    Screen('DrawText', w, 'Please pay attention to these changes.', 20, 120, 1275, WhiteIndex(w));
+    Screen('DrawText', w, 'Click the mouse key if cross changes color, Thanks!.', 20, 170, 1275, WhiteIndex(w)););
 
     Screen('DrawText', w, 'Please press any key to start the experiment...', 20, 900, 1275);
     Screen('Flip', w); % show text
-    
-   KbWait ;  
     
     % clear screen
     Screen('Flip', w);

@@ -273,9 +273,9 @@ try
             
         elseif convector(trial) == 2 % if it is a target
             
-            % dtermine random onset of the target flickers
+            % dtermine random onset of the 4 target
+            % flickers
             temp1 = randperm(49); targonset = temp1(1)+10;
-            coherDuration = 18;
             
             % detrmine the points that move
             % coherently % does not yet work ....@@@
@@ -354,7 +354,7 @@ try
                 WaitSecs(.05)
                 
                 
-                if ismember(flickindex, targonset:targonset+coherDuration)
+                if ismember(flickindex, targonset:targonset+6)
                     xy = [xymatrix(1,:) + factor1; xymatrix(2,:) + factor2]';
                     
                 else
