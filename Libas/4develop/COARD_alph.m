@@ -34,11 +34,14 @@ for trial = 1:2
     % Display fixation cross
     Screen('DrawLines', window, fixCrossCoords, 2, [255 255 255], [xCenter yCenter]);
     Screen('Flip', window);
-    WaitSecs(1);
+    WaitSecs(2);
     
     % Play soft tone and display text
     sound(sin(2*pi*440*(0:1/44100:2)), 44100);
     DrawFormattedText(window, 'Please close your eyes now', 'center', 'center', [255 255 255]);
+    Screen('Flip', window);
+    WaitSecs(2);
+    Screen('DrawLines', window, fixCrossCoords, 2, [255 255 255], [xCenter yCenter]);
     Screen('Flip', window);
     WaitSecs(60);
     
@@ -46,6 +49,9 @@ for trial = 1:2
     % Play soft tone and display text
     sound(sin(2*pi*440*(0:1/44100:2)), 44100);
     DrawFormattedText(window, 'Please open your eyes and keep your gaze on the central fixation cross', 'center', 'center', [255 255 255]);
+    Screen('Flip', window);
+    WaitSecs(2);
+    Screen('DrawLines', window, fixCrossCoords, 2, [255 255 255], [xCenter yCenter]);
     Screen('Flip', window);
     WaitSecs(60);
       
