@@ -39,7 +39,6 @@ for fileindex = 1:size(filemat,1)
         GMspectrum.amphappy = Sumamphappy / fileindex;
         GMspectrum.ampangry = Sumampangry / fileindex;
         GMspectrum.ampsad = Sumampsad / fileindex;
-        GMspectrum.ampsad = Sumampsad / fileindex;
         GMspectrum.freqs = spectrum.freqs;
         
 

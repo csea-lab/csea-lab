@@ -18,7 +18,7 @@ for fileindex = 1:size(filemat,1)
   [spectrum.ampsad, phase, freqs, fftcomp] = freqtag_FFT(ERP_sad(:, 601:5600), 1000); 
   
 
-  save([filemat(fileindex,1:end-9) '.Spec.mat'], 'spectrum')
+  save([filemat(fileindex,1:end-9) 'Spec.mat'], 'spectrum')
   
        
 end
