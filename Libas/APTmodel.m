@@ -3,7 +3,7 @@ function [Rvec] = APTmodel(params, reinforcement)
 BETA =  params(1); 
 LAG = params(2); 
 
-stimnum = 7; % pick an odd number so that CS+ can be in the middle
+stimnum = 9; % pick an odd number so that CS+ can be in the middle
 
 [w, delta] = rescorlaWagnerLearnMod([BETA 1], reinforcement'); % execute rescorla wagner model, get assoc. strength and pred error
 
@@ -11,8 +11,8 @@ delta_smooth = movmean(delta, LAG);
 
 for index = 1:length(reinforcement)
     
-    I1 = -.1 -w(index); % lateral inhibition weights, changing with associative strength
-    I2 = -1 -w(index);
+    I1 = -.01 -w(index); % lateral inhibition weights, changing with associative strength
+    I2 = -.01 -w(index);
     
     latvec = ones(1, stimnum); 
     latvec(1) = 2; 
@@ -21,9 +21,9 @@ for index = 1:length(reinforcement)
     
     VM = shiftLam(latvec)'; % lateral inhibition matrix
     
-    input = rand(1,stimnum)./10+gaussPro(-(stimnum-1)/2:(stimnum-1)/2, 1./(w(index).*3)) *sign(delta_smooth(index)) *w(index); % generalization to surrounding stimuli, width changes with assoc strength, magnitide with prediction error
+    input = ones(1,stimnum)./10+gaussPro(-(stimnum-1)/2:(stimnum-1)/2, 1./(w(index)/delta_smooth(index))) *sign(delta_smooth(index)) *w(index); % generalization to surrounding stimuli, width changes with assoc strength, magnitide with prediction error
     
-    amygdala(:, index) = gaussPro(-(stimnum-1)/2:(stimnum-1)/2, 1./(w(index).*3)) *(delta(index)); 
+    amygdala(:, index) = gaussPro(-(stimnum-1)/2:(stimnum-1)/2, 1./(w(index).*3)) *(delta_smooth(index)); 
     
     A(:, index) = input'; 
     
@@ -34,8 +34,8 @@ end
 amygdala(:, 1:5) = 0; 
 
  figure(10), 
- subplot(3,1,3), colormap('jet'), contourf(R, 12), title('visual cortex'), colorbar
- subplot(3,1,2),colormap('jet'), contourf(A, 12), title('attention systems'),colorbar
- subplot(3,1,1),colormap('jet'), contourf(amygdala, 12), title('amygdala'), colorbar
+ subplot(3,1,3), colormap('jet'), contourf(R, 12), title('visual cortex'), caxis([max(max(R)).*-1 max(max(R))]); colorbar
+ subplot(3,1,2),colormap('jet'), contourf(A, 12), title('attention systems'),caxis([max(max(A)).*-1 max(max(A))]); colorbar
+ subplot(3,1,1),colormap('jet'), contourf(amygdala, 12), title('amygdala'), caxis([max(max(amygdala)).*-1 max(max(amygdala))]); colorbar
 
 Rvec = mat2vec(R); 
