@@ -61,16 +61,7 @@ elseif size(datamat,1) == 33;
       
      end       
       
-elseif size(datamat,1) == 34
-    
-    load ('binghamelcpos34.mat')
-     
-     for time = 1:size(datamat,2)
-     
-       h= figure; set(h,'Position', [time*150 898 560 420]);  topoplot( datamat(:,time) , binghamelcpos34, 'maplimits', MAPLIMITS, 'electrodes', 'labels'), colorbar
-      
-     end       
-        
+elseif 
 else
     
     error('datavec size unknown')

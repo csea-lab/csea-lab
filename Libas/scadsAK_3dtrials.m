@@ -1,4 +1,4 @@
-function [ inmat3d, badindex, NGoodtrials ] = scadsAK_3dtrials(inmat3d)
+function [ inmat3d, badindex, NGoodtrials ] = scadsAK_3dtrials(inmat3d, threshold)
 % caluclate three metrics of data quality at the trial level
 
     absvalvec = squeeze(median(median(abs(inmat3d),2'))); % Median absolute voltage value for each trial
@@ -10,18 +10,18 @@ function [ inmat3d, badindex, NGoodtrials ] = scadsAK_3dtrials(inmat3d)
     % calculate compound quality index and discard outlier trials
     qualindex = absvalvec./max(absvalvec)+ stdvalvec./max(stdvalvec)+ maxtransvalvec./max(maxtransvalvec); 
     
-     cutoff = quantile(qualindex, .95)
+     cutoff = quantile(qualindex, .95);
      
-     actualdistribution = qualindex(qualindex < cutoff) 
+     actualdistribution = qualindex(qualindex < cutoff) ;
      
-     plot(qualindex), yline(1.5.* median(actualdistribution))
+     plot(qualindex), yline(threshold.* median(actualdistribution));
     
-    badindex = find(qualindex > 1.5.* median(actualdistribution));
+    badindex = find(qualindex > threshold.* median(actualdistribution));
     
     inmat3d(:, :, badindex) = []; 
     
     % calculate remaining number of trials
-    qualindex(qualindex > 1.5.* median(qualindex)) = [];
+    qualindex(qualindex > threshold.* median(qualindex)) = [];
     
     NGoodtrials = size(inmat3d,3)
 

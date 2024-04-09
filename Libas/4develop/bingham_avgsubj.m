@@ -10,7 +10,7 @@ function [GMspectrum] = bingham_avgsubj(filemat, outname)
 % 
 % you can also utilize the plot function by plotting GMspectrum.your variable
 % of interest 
-% e.g., plot(GMspectrum.freqs(1:100), GMspectrum.amphappy(20, 1:100)) plots
+% e.g., plot(GMspectrum.freqs(1:100), GMspectrum.amphappy(17, 1:100)) plots
 % the frequency from 1-100 with the amplitude for happy face from sensor 20
 % for frequencies 1-100
 
@@ -38,7 +38,6 @@ for fileindex = 1:size(filemat,1)
         
         GMspectrum.amphappy = Sumamphappy / fileindex;
         GMspectrum.ampangry = Sumampangry / fileindex;
-        GMspectrum.ampsad = Sumampsad / fileindex;
         GMspectrum.ampsad = Sumampsad / fileindex;
         GMspectrum.freqs = spectrum.freqs;
         

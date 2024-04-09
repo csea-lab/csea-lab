@@ -1,13 +1,14 @@
 %% 1.) Initialize important parameters
+clear
 nLoops = 10; %sets number of training iterations for each SNR value
-SNR = linspace(0,.9,20); %sets the range of SNR from .1 to nSNR/10 in steps of .1
+SNR = linspace(0,3,20); %sets the range of SNR 
 nSNR = length(SNR); 
 nTrials = 20; %sets number of trials per SNR value per loop - need ~20 trials for MPP training
 trialsPerSNR = nTrials*nLoops;
 sawFlag = 0; %determines shape of signal; if 0, generates sine wave; if 1, generates sawtooth wave
 
 %MPP hyperparameters
-M = 200; %length of detection window
+M = 300; %length of detection window
 K = 3; %number of dictionaries
 
 %% 2.) Determine signal shape, create filters for MPP processing
@@ -41,7 +42,7 @@ for loop = 1:nLoops
             brownsig = cumsum(temp1);  % Brownian noise is the cumulative sum of white noise
             scaledSignal = signal.* SNR(x); % a 10.1Hz sine or sawtooth wave scaled by SNR
             testsig2(trial,:)  = detrend(brownsig-mean(brownsig)); % zero-centered Brownian noise
-            SNR(trial, x) = x./range(testsig2(trial, :));
+            SNRempirical(trial, x) = x./(2*std(testsig2(trial, 3000:4000)));
             testsig2(trial, 3001:4000) =  testsig2(trial, 3001:4000) + scaledSignal; % add the sine wave to part of the Brownian noise
             %plot(time, testsig2(trial,:)), pause(1) %plots each generated signal
   
@@ -108,8 +109,8 @@ outmat_loops = zeros(nSNR,nLoops); %number of detected events that occur during 
 
 for x = 1:nSNR
     for loop = 1:nLoops
-        %counts number of events with latencies between 3000 and 4000, inclusive
-        outmat_loops(x,loop) = length(find(taus_all{x,loop}-3000 >= 0 & taus_all{x,loop}-3000 <= 1000));
+        %counts number of events with latencies between 3200 and 4000, inclusive
+        outmat_loops(x,loop) = length(find(taus_all{x,loop}-3000 >0 & taus_all{x,loop}-3000 <= 1000));
     end
 end
 
@@ -120,6 +121,8 @@ for l = 1:nLoops
     hold on
 end
 xlabel('SNR')
+xticks(1:20)
+xticklabels((mean(SNRempirical)))
 ylabel('Number of detected events')
 %plots number of true detected events as a function of SNR, averaged across
 %loops
