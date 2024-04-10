@@ -18,19 +18,18 @@ startbins = trialindexinMSGvec;
  
 datavec = datamat.Samples.pupilSize;
 
-% % % plot pupil vs trials: 
-% figure
-% plot(datamat.Samples.time, datavec)
-% hold on
-% plot(startbins, 200, '*')
-% 
-% %%%Added by Sarah%%%
-% % Add labels for the x-axis and y-axis
-% xlabel('Time (milliseconds)')
-% ylabel('Pupil Size')
-% % Add a title to the plot
-% title('Pupil Size vs. Time and Trials')
-% %%%End of addition%%%
+% % plot pupil vs trials: 
+figure
+plot(datamat.Samples.time, datavec)
+hold on
+plot(startbins, 200, '*')
+
+% Add labels for the x-axis and y-axis
+xlabel('Time (milliseconds)')
+ylabel('Pupil Size')
+% Add a title to the plot
+title('Pupil Size vs. Time and Trials')
+%%%End of addition%%%
 
 
 timestamps = datamat.Samples.time; % these are the time stamps in ms that match where the data are
@@ -155,6 +154,13 @@ figure (102)
 subplot(2,1,1), plot(taxis, matoutbsl(:, 1:7)), legend
 title('14 Conditions Baseline Corrected')
 subplot(2,1,2), plot(taxis, matoutbsl(:, 8:14)), legend
+xlabel('Time (milliseconds)'), ylabel('Pupil Size')
+
+%%baseline corrected w/division averaged 14 conditions across trials
+figure (103)
+subplot(2,1,1), plot(taxis, matoutbsldiv(:, 1:7)), legend
+title('14 Conditions Baseline Corrected with Division')
+subplot(2,1,2), plot(taxis, matoutbsldiv(:, 8:14)), legend
 xlabel('Time (milliseconds)'), ylabel('Pupil Size')
 
 avgCond = mean(matoutbsl, 1);

@@ -1,0 +1,26 @@
+function [outputArg1,outputArg2] = hannah_ezDDM(filepath)
+%
+%first, read in a new_wurz log file with RTs and everything
+table = readtable(filepath);
+
+  RTvec_shock = [];
+  RTvec_reward = [];
+  correctvec_shock = [];
+  correctvec_reward = [];
+  
+for row = 1:size(table,1)
+    cue = table2cell(table(row, 2)); 
+    rt = table(row, 4);
+    key = table(row, 7);
+    counterbalanced = table(1, 10);
+
+    % now, discard neutral and keep
+    if strcmp(cue, 'C1') || strcmp(cue, 'C2')
+        RTvec_shock = [RTvec_shock ]
+    end
+
+
+
+end
+
+
