@@ -23,12 +23,15 @@ EEG.data = single(temp3);
 EEG = eeg_checkset( EEG );
 %EEG=pop_chanedit(EEG, 'load',{'/Users/cseauf/Documents/Arash/BOP_experiment/GSN-HydroCel-128.sfp' 'filetype' 'autodetect'});
 
-EEG=pop_chanedit(EEG, 'load',{'GSN-HydroCel-257.sfp' 'filetype' 'autodetect'},'changefield',{132 'datachan' 0},'setref',{'132' 'Cz'});
+EEG=pop_chanedit(EEG, 'load',{'GSN-HydroCel-257.sfp' 'filetype' 'autodetect'},'changefield',{260 'datachan' 0},'setref',{'260' 'Cz'});
+
+% re-reference to average reference
+EEG = pop_reref(EEG, [], 'keepref', 'on');
 
 EEG = eeg_checkset( EEG );
 
-EEG = pop_eegchanoperator( EEG, '/Volumes/My Passport/c1p1/equations_list.txt');
-
+% re-reference right mastoid & read back in channel locations 
+%EEG = pop_eegchanoperator( EEG, '/Volumes/My Passport/c1p1/Right_Mastoid_Reference.txt');
 EEG=pop_chanedit(EEG, 'load',{'GSN-HydroCel-257.sfp' 'filetype' 'autodetect'});
 
 
