@@ -1,6 +1,5 @@
 function [  EEG_CerThreat,   EEG_PoThreat,  EEG_Safe] =  eeglab_EGI129_prepro (datapath, logpath, flag180)
 
-
     %read data into eeglab
      EEG = pop_fileio(datapath, 'dataformat','auto');
      EEG.setname='temp';
@@ -25,17 +24,17 @@ conditionvec = table2array(conditionvec);
 
         if flag180
 
-             for index1 = 1:length(EEG.event)
-                temptrigs(index1) = EEG.event(index1).latency;
-             end
-                
-                newtrigvec = []; 
-                indiceswithtrigs = find(diff(temptrigs) > 9); 
-                newtrigvec_temp = temptrigs(indiceswithtrigs+1);
-                newtrigvec = [temptrigs(1); newtrigvec_temp']; 
-
-            newtrigvec = newtrigvec(1:180);
-        else
+%              for index1 = 1:length(EEG.event)
+%                 temptrigs(index1) = EEG.event(index1).latency;
+%              end
+%                 
+%                 newtrigvec = []; 
+%                 indiceswithtrigs = find(diff(temptrigs) > 9); 
+%                 newtrigvec_temp = temptrigs(indiceswithtrigs+1);
+%                 newtrigvec = [temptrigs(1); newtrigvec_temp']; 
+% 
+%             newtrigvec = newtrigvec(1:180);
+%         else
             EEG_temp = pop_epoch( EEG, {  'DIN1'  }, [-0.4 10], 'newname', 't epochs', 'epochinfo', 'yes');
             EEG_temp = pop_rmbase( EEG_temp, [-400 0] ,[]);
             EEG_temp = eeg_checkset( EEG_temp);            
@@ -46,8 +45,8 @@ conditionvec = table2array(conditionvec);
         end
 
      % Certain Threat
-      EEG_CerThreat = pop_epoch( EEemp, {  '1'  }, [-0.4 10], 'newname', 't epochs', 'epochinfo', 'yes');
-      EEG_CerThreat = eeg_checkset( EEG_tG_CerThreat);
+      EEG_CerThreat = pop_epoch( EEG_temp, {  '1'  }, [-0.4 10], 'newname', 't epochs', 'epochinfo', 'yes');
+      EEG_CerThreat = eeg_checkset( EEG_CerThreat);
       EEG_CerThreat = pop_rmbase( EEG_CerThreat, [-400 0] ,[]);
       [outmat3d, interpsensmat] = scadsAK_3dchan(double(EEG_CerThreat.data), EEG.chanlocs);
       EEG_CerThreat.data = single(outmat3d); 
@@ -56,21 +55,24 @@ conditionvec = table2array(conditionvec);
       EEG_CerThreat = eeg_checkset( EEG_CerThreat);
      
      % Potential Threat
-      EEG_PoThreat = pop_epoch( EEG, {  '2'  }, [-0.4 10], 'newname', 't epochs', 'epochinfo', 'yes');
-       EEG_PoThreat = eeg_checkset( EEG_PoThreat);
-      EEG_PoThreat = pop_rmbase( EEG_PoThreat, [-400 0] ,[]);
-      [outmat3d, interpsensmat] = scadsAK_3dchan(double(EEG_PoThreat.data), EEG.chanlocs);
-      EEG_PoThreat.data = single(outmat3d); 
-      EEG_PoThreat = eeg_checkset( EEG_PoThreat);
-      EEG_PoThreat = pop_autorej( EEG_PoThreat, 'nogui','on','threshold',100, 'maxrej', 20,'startprob',3, 'electrodes',[1:128] ,'eegplot','off');
-      EEG_PoThreat = eeg_checkset( EEG_PoThreat);
+     EEG_PoThreat = pop_epoch( EEG_temp, {  '2'  }, [-0.4 10], 'newname', 't epochs', 'epochinfo', 'yes');
+     EEG_PoThreat = eeg_checkset( EEG_PoThreat);
+     EEG_PoThreat = pop_rmbase( EEG_PoThreat, [-400 0] ,[]);
+     [outmat3d, interpsensmat] = scadsAK_3dchan(double(EEG_PoThreat.data), EEG.chanlocs);
+     EEG_PoThreat.data = single(outmat3d);
+     EEG_PoThreat = eeg_checkset( EEG_PoThreat);
+     EEG_PoThreat = pop_autorej( EEG_PoThreat, 'nogui','on','threshold',100, 'maxrej', 20,'startprob',3, 'electrodes',[1:128] ,'eegplot','off');
+     EEG_PoThreat = eeg_checkset( EEG_PoThreat);
+
      % Safe
-      EEG_Safe = pop_epoch( EEG, {  '3'  }, [-0.4 10], 'newname', 't epochs', 'epochinfo', 'yes');
-      EEG_Safe = eeg_checkset(EEG_Safe);
-      EEG_Safe = pop_rmbase(EEG_Safe, [-400 0] ,[]);
-      EEG_Safe = eeg_checkset(EEG_Safe);
-      EEG_Safe = pop_autorej(EEG_Safe, 'nogui','on','threshold',100, 'maxrej', 20,'startprob',3, 'electrodes',[1:128] ,'eegplot','off');
-      EEG_Safe = eeg_checkset(EEG_Safe);
+     EEG_Safe = pop_epoch( EEG_temp, {  '3'  }, [-0.4 10], 'newname', 't epochs', 'epochinfo', 'yes');
+     EEG_Safe = eeg_checkset( EEG_Safe);
+     EEG_Safe = pop_rmbase( EEG_Safe, [-400 0] ,[]);
+     [outmat3d, interpsensmat] = scadsAK_3dchan(double(EEG_Safe.data), EEG.chanlocs);
+     EEG_Safe.data = single(outmat3d);
+      EEG_Safe = eeg_checkset(  EEG_Safe);
+      EEG_Safe = pop_autorej(  EEG_Safe, 'nogui','on','threshold',100, 'maxrej', 20,'startprob',3, 'electrodes',[1:128] ,'eegplot','off');
+      EEG_Safe = eeg_checkset(  EEG_Safe);
 
 
      save([logpath(1:end-4) '.cleaneeg.mat'],  'EEG_PoThreat', 'EEG_Safe', 'EEG_CerThreat', '-mat')
