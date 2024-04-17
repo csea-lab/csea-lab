@@ -3,7 +3,7 @@
 %%outputs: matcorr - timepoints by trials; matout - timepoints by condition; matoutbsl - matout baseline corrected, percentbad(-vec,-sub,-cond) - contains
     %%several stats on bad trials; avgcond - average over all trials per condition
 
-function [matcorr, matout, matoutbsl, percentbadvec, percentbadsub, percentbadcond, avgCond] = eye_pipeline(edffull, sRate, convecfun, confile, trigname, pre_onsetSP, post_onsetSP)
+function [matcorr, matout, matoutbsl, percentbadvec, percentbadsub, percentbadcond] = eye_pipeline(edffull, sRate, convecfun, confile, trigname, pre_onsetSP, post_onsetSP, plotflag)
 
 datamat = Edf2Mat(edffull);
 
@@ -75,11 +75,13 @@ for x = 1:size(startbins,2)
 end
 
 % plot the data
-figure
-for x = 1:Ntrials
-plot(taxis, mat(:,x)'), title (['trial number:' num2str(x)]), 
-    xlabel('Time (milliseconds)'), ylabel('Pupil Size'), pause(.1)
-end 
+if plotflag
+    figure
+    for x = 1:Ntrials
+        plot(taxis, mat(:,x)'), title (['trial number:' num2str(x)]),
+        xlabel('Time (milliseconds)'), ylabel('Pupil Size'), pause(.1)
+    end
+end
 
 disp('artifact correction about to commence')
 pause(.2)
@@ -125,10 +127,12 @@ pause(.2)
  end
  
  % plot the data
- figure
- for x = 1:Ntrials
- plot(taxis, matcorr(:,x)'), title (['CORRECTED - trial number:' num2str(x)]), 
- xlabel('Time (milliseconds)'), ylabel('Pupil Size'), pause(.1)
+ if plotflag
+     figure
+     for x = 1:Ntrials
+         plot(taxis, matcorr(:,x)'), title (['CORRECTED - trial number:' num2str(x)]),
+         xlabel('Time (milliseconds)'), ylabel('Pupil Size'), pause(.1)
+     end
  end
  
 
@@ -151,12 +155,9 @@ numcond = length(unique(convec));
   end
 
 
-
-
 %%condition averaged across trials by time for conditions
 figure(101)
 plot(matout(:, 1:numcond)), legend
-
 
 
 %%baseline corrected averaged conditions across trials  
