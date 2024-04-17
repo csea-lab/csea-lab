@@ -32,7 +32,7 @@ trialindexinMSGvec = [];
  end
 
  % check number trials
- Ntrials_EDF = length(trialindexinMSGvec);
+ Ntrials_EDF = length(trialindexinMSGvec)
 
  if Ntrials_con ~= Ntrials_EDF, 
      error('trial counts in log file and in edf file do NOT match!')
@@ -76,7 +76,7 @@ end
 
 % plot the data
 figure
-for x = 1:trials
+for x = 1:Ntrials
 plot(taxis, mat(:,x)'), title (['trial number:' num2str(x)]), 
     xlabel('Time (milliseconds)'), ylabel('Pupil Size'), pause(.1)
 end 
@@ -119,21 +119,21 @@ pause(.2)
  datavec_corr(nans) = interp1(timestamps(~ nans), datavec_corr(~ nans), timestamps(nans), 'pchip');
  
  % put in mat format chan (3) by time by trials
- matcorr = zeros(timepoints, trials);
+ matcorr = zeros(timepoints, Ntrials);
  for x = 1:size(indices,2)
  matcorr(:, x) = datavec_corr(indices(x)-pre_onsetSP:indices(x)+post_onsetSP);  
  end
  
  % plot the data
  figure
- for x = 1:trials
+ for x = 1:Ntrials
  plot(taxis, matcorr(:,x)'), title (['CORRECTED - trial number:' num2str(x)]), 
  xlabel('Time (milliseconds)'), ylabel('Pupil Size'), pause(.1)
  end
  
 
  % % now assign the conditions
-connames = unique(convec); 
+connames = unique(convec) 
 numcond = length(unique(convec));
  
  % %find out how many NaNs per condition for this subject
@@ -141,15 +141,14 @@ numcond = length(unique(convec));
   for cond =  1:numcond
      percentbadcond(cond) = sum(totalbadvec(convec==connames(cond)))/(timepoints*sum(convec==connames(cond)));
   end
- % 
- % 
+ 
  % % average by condition
- % matout = zeros(timepoints, numcond); 
+  matout = zeros(timepoints, numcond); 
  % 
- % for condition = 1:numcond
- % matout(:, condition) = mean(matcorr(:, conditionvec==condvec(condition)), 2); 
- % matoutbsl = bslcorr(matout', 300:500)'; 
- % end
+  for condition = 1:numcond
+  matout(:, condition) = mean(matcorr(:, convec==connames(condition)), 2); 
+  matoutbsl = bslcorr(matout', 300:500)'; 
+  end
 
 
 
@@ -157,24 +156,15 @@ numcond = length(unique(convec));
 %%condition averaged across trials by time for conditions
 figure(101)
 plot(matout(:, 1:numcond)), legend
-title('14 Conditions')
+
 
 
 %%baseline corrected averaged conditions across trials  
 figure (102)
 plot(taxis, matoutbsl(:, 1:numcond)), legend
-title('14 Conditions Baseline Corrected')
 
+save([edffile '.pup.out.mat'], 'matout', '-mat')
+save([edffile '.percentbad.mat'], 'percentbadvec', 'percentbadsub', 'percentbadcond', '-mat') 
 
-avgCond = mean(matout, 1);
-
-[~, edffile] = fileparts(edffull); 
-
- % save([edffile '.avgCond.mat'], 'avgCond', '-mat')
- % save([edffile '.pup.out.mat'], 'matout', '-mat')
- % save([edffile '.corr.mat'], 'matcorr', '-mat')
- % save([edffile '.percentbad.mat'], 'percentbadvec', 'percentbadsub', 'percentbadcond', '-mat') 
- % 
-
-end
+end % function
  
