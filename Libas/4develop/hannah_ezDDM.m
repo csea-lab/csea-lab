@@ -1,4 +1,4 @@
-function [outputArg1,outputArg2] = hannah_ezDDM(filepath)
+function [RT] = hannah_ezDDM(filepath)
 %
 %first, read in a new_wurz log file with RTs and everything
 table = readtable(filepath);
@@ -17,15 +17,25 @@ for row = 1:size(table,1)
 
     % now, discard neutral and keep
     if strcmp(cue, 'C1') || strcmp(cue, 'C2')
-        RTvec_shock = [RTvec_shock rt];
+        RT.RTvec_shock = [RTvec_shock rt];
     elseif strcmp(cue, 'C3') || strcmp(cue, 'C4')
-        RTvec_reward = [RTvec_reward rt];
+        RT.RTvec_reward = [RTvec_reward rt];
     elseif strcmp(cue, 'C5')
-        RTvec_ntr = [RTvec_ntr rt];
+        RT.RTvec_ntr = [RTvec_ntr rt];
 
     end
 
 
 end
+
+meanRT_shock = mean(RT.RTvec_shock); 
+meanRT_reward = mean(RT.RTvec_reward); 
+meanRT_ntr = mean(RT.RTvec_ntr); 
+
+VarRT_shock = var(RT.RTvec_shock); 
+VarRT_reward = var(RT.RTvec_reward); 
+VarRT_ntr = var(RT.RTvec_ntr); 
+
+
 
 
