@@ -157,7 +157,7 @@ numcond = length(unique(convec));
 
 %%condition averaged across trials by time for conditions
 figure(101)
-plot(matout(:, 1:numcond)), legend
+plot(taxis, matout(:, 1:numcond)), legend
 
 
 %%baseline corrected averaged conditions across trials  
