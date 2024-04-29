@@ -14,33 +14,34 @@ function [] = filterpics(filemat, suffix)
 
 % 
 % % 
-% % % normalize for color pic
-%  for fileindex = 1:size(filemat,1)
-%  I = imread(deblank(filemat(fileindex,:)));
-%  imshow(I), title('old Image')
-% pause(1)
-% % 
-% I = double(I);
-% I2 = I; 
-% for x = 1:3
-% I2(:, :, x)  =( I2(:, :, x) - mean2(I2(:, :, x) ))/std2(I2(:, :, x));
+%% normalize for color pic
+% 
+% for fileindex = 1:size(filemat,1)
+%     I = imread(deblank(filemat(fileindex,:)));
+%     imshow(I), title('old Image')
+%     pause(1)
+%     %
+%     I = double(I);
+%     I2 = I;
+%     for x = 1:3
+%         I2(:, :, x)  =( I2(:, :, x) - mean2(I2(:, :, x) ))./std2(I2(:, :, x));
+%     end
+%     size(I2)
+% 
+%     I3 =((I2*50) + 120);
+%     I3 = uint8(I3);
+%     %
+%     disp('mean brightness of this picture:  '), disp(mean2(I3))
+%     %
+%     imshow(I3), title('new Image')
+%     pause(1)
+% 
+%     imwrite(I3,[deblank(filemat(fileindex,:)) suffix ], 'jpg')
+% 
 % end
-% size(I2)
-% 
-%  I3 =((I2*60) + 125); 
-%  I3 = uint8(I3);
-% % 
-%  disp('mean brightness of this picture:  '), disp(mean2(I3))
-% % 
-%  imshow(I3), title('new Image')
-%  pause(1)
-%  
-%  imwrite(I3,[deblank(filemat(fileindex,:)) suffix ], 'jpg')
-% 
-%  end
 
 
-% 
+%%
 % highpass + colorchannel + threshold for both pics
 % 
 % for x = 1:size(filemat,1)
@@ -234,19 +235,24 @@ function [] = filterpics(filemat, suffix)
 % 
 
 
-%%  resize .1.. %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%  cut and resize .1.. %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% offset = 100;
 % for x = 1:size(filemat,1)
 %     a = imread(deblank(filemat(x,:)));
-%     I = imresize(a,[384,512]);
+%     if size(a,2) > size(a,1)+offset
+%     a = a(:, 1+offset:size(a,1)+offset, :); 
+%     end
+%     I = imresize(a,[800,800]);
+%     imshow(I), title('new Image'), pause(1)
 %     imwrite(I,[deblank(filemat(x,:)) suffix], 'jpg')
 % end
 
 %%  resize 2... %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-for x = 1:size(filemat,1)
-    a = imread(deblank(filemat(x,:)));
-    I = imresize(a,.8);  % 80% size 
-    imwrite(I,[deblank(filemat(x,:)) suffix], 'jpg')
-end
+% for x = 1:size(filemat,1)
+%     a = imread(deblank(filemat(x,:)));
+%     I = imresize(a,.8);  % 80% size 
+%     imwrite(I,[deblank(filemat(x,:)) suffix], 'jpg')
+% end
 
 % % % % % % %%%  resize to new dimensions... %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % % % 
@@ -291,6 +297,15 @@ end
 %      I = a'; 
 %      imwrite(I,[deblank(filemat(x,:)) suffix], 'jpg')
 %  end
+
+
+%% rename
+
+for x = 1:size(filemat,1)
+     a = imread(deblank(filemat(x,:)));
+     I = a'; 
+     imwrite(I,[deblank(filemat(x,:)) suffix], 'jpg')
+ end
 
 
 
