@@ -52,6 +52,7 @@ outmat = data10{1,2};
         
         [pow, phase, freqs] = FFT_spectrum(mean(RESS_time(timewin,:),2)', 512);
         
+        SaveAvgFile('spatfilt.atg',W(:,comp2plot))
 
         
         if plotflag, figure(99)
