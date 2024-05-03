@@ -3,8 +3,8 @@ function [v a Ter] = ezDiffusion(Pc, VRT, MRT, s)
 % drift rate (v), boundary seperation (a), and non-decision time (Ter) 
 % 3 required inputs:
 % Pc, percentage correct
-% VRT, variance of response time
-% MRT, mean response time
+% VRT, variance of response time, only correct decisions
+% MRT, mean response time, only correct decisions
 % s(optional), defaults to 0.1
 
 %   References:

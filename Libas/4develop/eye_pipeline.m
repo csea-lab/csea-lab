@@ -3,7 +3,7 @@
 %%outputs: matcorr - timepoints by trials; matout - timepoints by condition; matoutbsl - matout baseline corrected, percentbad(-vec,-sub,-cond) - contains
     %%several stats on bad trials; avgcond - average over all trials per condition
 
-function [matcorr, matout, matoutbsl, percentbadvec, percentbadsub, percentbadcond] = eye_pipeline(edffull, sRate, convecfun, confile, trigname, pre_onsetSP, post_onsetSP, plotflag)
+function [matcorr, matout, matoutbsl, percentbadvec, percentbadsub, percentbadcond, avgCond] = eye_pipeline(edffull, sRate, convecfun, confile, trigname, pre_onsetSP, post_onsetSP)
 
 datamat = Edf2Mat(edffull);
 
@@ -32,7 +32,7 @@ trialindexinMSGvec = [];
  end
 
  % check number trials
- Ntrials_EDF = length(trialindexinMSGvec)
+ Ntrials_EDF = length(trialindexinMSGvec);
 
  if Ntrials_con ~= Ntrials_EDF, 
      error('trial counts in log file and in edf file do NOT match!')
@@ -75,13 +75,11 @@ for x = 1:size(startbins,2)
 end
 
 % plot the data
-if plotflag
-    figure
-    for x = 1:Ntrials
-        plot(taxis, mat(:,x)'), title (['trial number:' num2str(x)]),
-        xlabel('Time (milliseconds)'), ylabel('Pupil Size'), pause(.1)
-    end
-end
+figure
+for x = 1:trials
+plot(taxis, mat(:,x)'), title (['trial number:' num2str(x)]), 
+    xlabel('Time (milliseconds)'), ylabel('Pupil Size'), pause(.1)
+end 
 
 disp('artifact correction about to commence')
 pause(.2)
@@ -121,23 +119,21 @@ pause(.2)
  datavec_corr(nans) = interp1(timestamps(~ nans), datavec_corr(~ nans), timestamps(nans), 'pchip');
  
  % put in mat format chan (3) by time by trials
- matcorr = zeros(timepoints, Ntrials);
+ matcorr = zeros(timepoints, trials);
  for x = 1:size(indices,2)
  matcorr(:, x) = datavec_corr(indices(x)-pre_onsetSP:indices(x)+post_onsetSP);  
  end
  
  % plot the data
- if plotflag
-     figure
-     for x = 1:Ntrials
-         plot(taxis, matcorr(:,x)'), title (['CORRECTED - trial number:' num2str(x)]),
-         xlabel('Time (milliseconds)'), ylabel('Pupil Size'), pause(.1)
-     end
+ figure
+ for x = 1:trials
+ plot(taxis, matcorr(:,x)'), title (['CORRECTED - trial number:' num2str(x)]), 
+ xlabel('Time (milliseconds)'), ylabel('Pupil Size'), pause(.1)
  end
  
 
  % % now assign the conditions
-connames = unique(convec) 
+connames = unique(convec); 
 numcond = length(unique(convec));
  
  % %find out how many NaNs per condition for this subject
@@ -145,27 +141,40 @@ numcond = length(unique(convec));
   for cond =  1:numcond
      percentbadcond(cond) = sum(totalbadvec(convec==connames(cond)))/(timepoints*sum(convec==connames(cond)));
   end
- 
- % % average by condition
-  matout = zeros(timepoints, numcond); 
  % 
-  for condition = 1:numcond
-  matout(:, condition) = mean(matcorr(:, convec==connames(condition)), 2); 
-  matoutbsl = bslcorr(matout', 300:500)'; 
-  end
+ % 
+ % % average by condition
+ % matout = zeros(timepoints, numcond); 
+ % 
+ % for condition = 1:numcond
+ % matout(:, condition) = mean(matcorr(:, conditionvec==condvec(condition)), 2); 
+ % matoutbsl = bslcorr(matout', 300:500)'; 
+ % end
+
+
 
 
 %%condition averaged across trials by time for conditions
 figure(101)
-plot(taxis, matout(:, 1:numcond)), legend
+plot(matout(:, 1:numcond)), legend
+title('14 Conditions')
 
 
 %%baseline corrected averaged conditions across trials  
 figure (102)
 plot(taxis, matoutbsl(:, 1:numcond)), legend
+title('14 Conditions Baseline Corrected')
 
-save([edffull '.pup.out.mat'], 'matout', '-mat')
-save([edffull '.percentbad.mat'], 'percentbadvec', 'percentbadsub', 'percentbadcond', '-mat') 
 
-end % function
+avgCond = mean(matout, 1);
+
+[~, edffile] = fileparts(edffull); 
+
+ % save([edffile '.avgCond.mat'], 'avgCond', '-mat')
+ % save([edffile '.pup.out.mat'], 'matout', '-mat')
+ % save([edffile '.corr.mat'], 'matcorr', '-mat')
+ % save([edffile '.percentbad.mat'], 'percentbadvec', 'percentbadsub', 'percentbadcond', '-mat') 
+ % 
+
+end
  
