@@ -1,4 +1,4 @@
-function [RT, MN, Var, Pc, outvec] = hannah_ezDDMWed(filepath)
+function [RT, MN, Var, Pc, outvec] = hannah_ezDDM(filepath)
 %
 %first, read in a new_wurz log file with RTs and everything
 table = readtable(filepath);
