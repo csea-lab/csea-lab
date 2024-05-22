@@ -91,4 +91,4 @@ Pc.perCorr_ntr = -0.001 + length(RT.RTvec_ntr)./ (counterC5);
 
 
 
-outvec = [v_shock a_shock Ter_shock v_reward a_reward Ter_reward Pc.perCorr_shock Pc.perCorr_reward]
+outvec = [v_shock a_shock Ter_shock v_reward a_reward Ter_reward Pc.perCorr_shock Pc.perCorr_reward MN.meanRT_shock MN.meanRT_reward Var.VarRT_shock Var.VarRT_reward]
