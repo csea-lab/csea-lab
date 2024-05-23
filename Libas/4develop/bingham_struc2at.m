@@ -11,10 +11,10 @@ SaveAvgFile([filepath '.happy.at'], happy, [], [], 5000);
 
 angry = temp1.GMspectrum.ampangry(1:31,:); 
 
-SaveAvgFile([filepath '.angry.at'], happy, [], [], 5000);
+SaveAvgFile([filepath '.angry.at'], angry, [], [], 5000);
 
 sad = temp1.GMspectrum.ampsad(1:31,:); 
 
-SaveAvgFile([filepath '.sad.at'], happy, [], [], 5000);
+SaveAvgFile([filepath '.sad.at'], sad, [], [], 5000);
 
 end
