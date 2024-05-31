@@ -26,32 +26,32 @@ eta = 0.1;
 % hold off
 
 %-------------------------------------------------------------------
-% blocking
-figure(2)
-u1 = ones(trials,1);
-u2 = [ zeros(trials/2,1); ones(trials/2,1) ];
-u = [u1 u2];
-r = ones(trials,1);
-w = rescorlaWagnerLearn(u, r, eta);
-plot(0:trials,w(:,1),'b', 0:trials,w(:,2),'r');
-xlabel('trial number');
-ylabel('weight');
-title('blocking');
-legend('w_1', 'w_2');
-% 
-% %-------------------------------------------------------------------
-% % inhibitory conditioning
-% figure(3)
+% % blocking
+% figure(2)
 % u1 = ones(trials,1);
-% u2 = repmat([0; 1], trials/2, 1);
+% u2 = [ zeros(trials/2,1); ones(trials/2,1) ];
 % u = [u1 u2];
-% r = repmat([1; 0], trials/2, 1);
+% r = ones(trials,1);
 % w = rescorlaWagnerLearn(u, r, eta);
 % plot(0:trials,w(:,1),'b', 0:trials,w(:,2),'r');
 % xlabel('trial number');
 % ylabel('weight');
-% title('inhibitory conditioning');
+% title('blocking');
 % legend('w_1', 'w_2');
+% 
+% %-------------------------------------------------------------------
+% inhibitory conditioning
+figure(3)
+u1 = ones(trials,1);
+u2 = repmat([0; 1], trials/2, 1);
+u = [u1 u2];
+r = repmat([1; 0], trials/2, 1);
+w = rescorlaWagnerLearn(u, r, eta);
+plot(0:trials,w(:,1),'b', 0:trials,w(:,2),'r');
+xlabel('trial number');
+ylabel('weight');
+title('inhibitory conditioning');
+legend('w_1', 'w_2');
 % 
 %-------------------------------------------------------------------
 function w = rescorlaWagnerLearn(u, r, eta)

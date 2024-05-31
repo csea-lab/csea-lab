@@ -12,7 +12,7 @@ for con = 1:Nconditions
        
       index = con + (sub*Nconditions) - Nconditions;
     
-      a = ReadAvgFile(filemat(index,:)); 
+      a = ReadAvgFile(deblank(filemat(index,:))); 
       
       if ~isempty(optionalbaseline)
           a = bslcorr(a, optionalbaseline); 
