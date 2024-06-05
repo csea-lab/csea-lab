@@ -239,8 +239,8 @@ function [] = filterpics(filemat, suffix)
 % offset = 100;
 % for x = 1:size(filemat,1)
 %     a = imread(deblank(filemat(x,:)));
-%     if size(a,2) > size(a,1)+offset
-%     a = a(:, 1+offset:size(a,1)+offset, :); 
+%     if size(a,2) > size(a,1)-offset
+%     a = a(:, 1+offset:size(a,1)-offset, :); 
 %     end
 %     I = imresize(a,[800,800]);
 %     imshow(I), title('new Image'), pause(1)
@@ -299,12 +299,13 @@ function [] = filterpics(filemat, suffix)
 %  end
 
 
-%% rename
-
+% rename
+disp(suffix)
 for x = 1:size(filemat,1)
      a = imread(deblank(filemat(x,:)));
-     I = a'; 
-     imwrite(I,[deblank(filemat(x,:)) suffix], 'jpg')
+     I = a; 
+    % imwrite(I,deblank(filemat(x,1:9)))
+    imwrite(I,['D' deblank(filemat(x,:))])
  end
 
 
