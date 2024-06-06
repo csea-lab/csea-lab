@@ -6,7 +6,7 @@ time = 0.001:0.001:5; % Five seconds of discrete time, sampled at 1000 Hz
 nLoops = 1; 
 nSNR = 10;
 nTrials = 10; 
-SNR = linspace(0.1,3,30); %sets the range of SNR from .1 to nSNR/10 in steps of .1
+SNR = linspace(0.1,1,30); %sets the range of SNR from .1 to nSNR/10 in steps of .1
 nSNR = length(SNR); 
 
 
@@ -53,6 +53,28 @@ data_tmp = squeeze(testsigs);
 data = permute(data_tmp, [1 3 2]); 
 
 [WaPower4d] = wavelet_app_mat_singtrials(data, 1000, 51, 51, 1); 
+
+% loop ? 
+
+WaPower3d = squeeze(WaPower4d); 
+
+db_tr = []; 
+% this loop is for sensitivity
+for snr_index = 1:size(WaPower3d, 1)
+
+    for trial_index = 1:size(WaPower3d, 3)
+
+        tr_pow = squeeze(WaPower3d(snr_index,:, trial_index));
+
+       bslAvg = mean(tr_pow(1:1000)); 
+     
+       db_tr(snr_index, trial_index, :) = 10.*log10(tr_pow./bslAvg); %scales each column of f_all by bslAvg
+
+    end
+
+
+
+end
 
 
 
