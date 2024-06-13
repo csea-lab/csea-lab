@@ -157,11 +157,11 @@ subplot(2,1,2), plot(taxis, matoutbsl(:, 8:14)), legend
 xlabel('Time (milliseconds)'), ylabel('Pupil Size')
 
 %%baseline corrected w/division averaged 14 conditions across trials
-figure (103)
-subplot(2,1,1), plot(taxis, matoutbsldiv(:, 1:7)), legend
-title('14 Conditions Baseline Corrected with Division')
-subplot(2,1,2), plot(taxis, matoutbsldiv(:, 8:14)), legend
-xlabel('Time (milliseconds)'), ylabel('Pupil Size')
+% figure (103)
+% subplot(2,1,1), plot(taxis, matoutbsldiv(:, 1:7)), legend
+% title('14 Conditions Baseline Corrected with Division')
+% subplot(2,1,2), plot(taxis, matoutbsldiv(:, 8:14)), legend
+% xlabel('Time (milliseconds)'), ylabel('Pupil Size')
 
 avgCond = mean(matoutbsl, 1);
 
@@ -172,4 +172,3 @@ end
  
   
 %genface_eye_pipline_sarah('GeF301.edf', 'genface_301.dat', 'GeF301'); - trial run with function 
- 
