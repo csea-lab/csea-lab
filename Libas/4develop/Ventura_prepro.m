@@ -1,4 +1,4 @@
-function [specavg, freqs, mat_end] = Ventura_prepro(filemat, plotflag)
+function [specavg, freqs, mat_end, demodmat] = Ventura_prepro(filemat, plotflag)
 
 % sample rate is 250 Hz
 % mff files
@@ -60,10 +60,11 @@ for fileindex = 1:size(filemat,1)
     % average
     mat_end = avg_ref_add3d(mat_end); 
 
-    [specavg, freqs] = FFT_spectrum3D(mat_end, 100:1100, 250);
-
+    [specavg, freqs] = FFT_spectrum3D(mat_end, 600:1100, 250);
+    [demodmat, phasemat, complexmat]=steadyHilbertMat(mean(mat_end,3), 7.5, 1:100, 10, 1, 250);
 
     if plotflag
+    figure
     plot(freqs(1:80), specavg(:, 1:80)')
     pause(1)
     end
