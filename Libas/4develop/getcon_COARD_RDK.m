@@ -17,7 +17,7 @@ while a > 0
     
     blankindex = find(a == ' ');
 
-   letter =  a(blankindex(end)+1)
+   letter =  a(blankindex(7)+1);
 
    if strcmp(letter, 'p'), conditionvector  = [conditionvector 1]; 
    elseif strcmp(letter, 'n'), conditionvector  = [conditionvector 2]; 
