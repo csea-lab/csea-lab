@@ -1,11 +1,13 @@
 function OutMat = Scads2dSplineInterpChan(EEGMat, BadChanVec, ...
                                                                           EcfgFilePath, ScalpLambda);
 % EEGMat should be channels (rows) by sample points (columns)
-% BadChanRowIndices should be vector of row indices to interpolate
+% BadChanVec should be vector of row indices to interpolate
 % EcfgFilePath is string to .ecfg file
+% Example function call: OutMat = Scads2dSplineInterpChan(EEGMat, [2,5,20], 'emegs2.8/emegs2dUtil/SensorCfg/HC1-257.ecfg');
+
 % This code is highly dependent on EMEGS 2.8, will not run independently.
 % Does this need more error checking for like number of sensors?
-% Currently using Approx code status, not CSD or anything else
+% Currently using Approx code status (ScalpCsdIndex = 1), not CSD or anything else
 
 
 % Preperation path set up to load EEG configuration file and where to save
@@ -104,8 +106,8 @@ OutMat(1:NChanCalc,:)=OutMat(1:NChanCalc,:)+EEGMat;
 % 
 % 
 % 
-% % Calculate Spline 
-% % adapted from line 171 EmegsAvgRunAverage.m
+%
+% % from line 171 EmegsAvgRunAverage.m
 % 
 % 
 % 
