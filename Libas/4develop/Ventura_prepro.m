@@ -80,6 +80,7 @@ for fileindex = 1:size(filemat,1)
 
     fakesamplerate = 1000./(fsamp./(size(spec,2).*2));
     SaveAvgFile([filemat(fileindex,1:end-3) 'at.spec'],spec,[],[],fakesamplerate); 
+    SaveAvgFile([filemat(fileindex,1:end-3) 'at.ERP'],ERP,[],[],fsamp); 
 
     
 end
