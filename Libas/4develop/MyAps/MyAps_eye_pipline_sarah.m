@@ -7,7 +7,7 @@ end
 datamat = Edf2Mat(edffull);
 
 conditionnames = [11 12 13 14 21 22 23 24];
-conditionMapping = [1 2, 3, 4, 5, 6, 7, 8];
+conditionMapping = [1, 2, 3, 4, 5, 6, 7, 8];
 
 pupilbycond = [];
 
@@ -51,7 +51,6 @@ indices = loc1 + loc2;
 
 % put in mat format chan (3) by time by trials.. important: 
 %looks like ethernet message takes 200 ms to initialize and then send to eye link out of psychtoolbox
-%Genface: bsl is __ samples (___ms), trial is 2000 samples (4000ms), 240 trials
 %added 200ms to bsl
 taxis = -1000:2:3000; %this is in ms
 mat = zeros(2001, 240);
@@ -95,8 +94,8 @@ disp('artifact correction about to commence')
  
 % find out per trial how many NaNs
  for x = 1:size(indices,2);
- totalbadvec(x)= sum(isnan(datavec_corr(indices(x)-1000:indices(x)+1800)));
- percentbadvec(x)= (sum(isnan(datavec_corr(indices(x)-1000:indices(x)+1800)))./length(mat(:,1))).*100; 
+ totalbadvec(x)= sum(isnan(datavec_corr(indices(x)-500:indices(x)+1000)));
+ percentbadvec(x)= (sum(isnan(datavec_corr(indices(x)-500:indices(x)+1000)))./length(mat(:,1))).*100; 
  end
  
  %find out how many NaNs per subject
@@ -127,10 +126,8 @@ disp('artifact correction about to commence')
  for cond =  1:8
      percentbadcond(cond) = sum(totalbadvec(condvec==condvec(cond)))/(2001*sum(condvec==condvec(cond)));
  end
- 
 
-
-% Initialize matout: 2000 samplepoints & 8 conditions for each participant
+ % Initialize matout: 2000 samplepoints & 8 conditions for each participant
 matout = zeros(2001, 8);
 
 % Loop through conditions
@@ -143,19 +140,15 @@ for cond = 1:8;
         warning('No matching trials for condition %d', conditionMapping(cond));
     else
         % Calculate the mean across trials for the current condition
-        matout(:, cond) = mean(matcorr(:, indices), 2)
+        matout(:, cond) = mean(matcorr(:, indices), 2);
         matoutbsl = bslcorr_div(matout', 300:500)';
-
     end
 end
-
 
  save([outname '.pup.out.mat'], 'matout', '-mat');
  save([outname '.bsl.mat'], 'matoutbsl', '-mat');
  save([outname '.corr.mat'], 'matcorr', '-mat');
  save([outname '.percentbad.mat'], 'percentbadvec', 'percentbadsub', 'percentbadcond', '-mat') ;
-
-
 
 %%condition averaged across trials by time for 6 (8 - 2 removed) conditions
 figure(101)
