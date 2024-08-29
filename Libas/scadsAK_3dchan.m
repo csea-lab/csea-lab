@@ -48,6 +48,10 @@ outmat3d = inmat3d; % Creates a new matrix the same size as the input matrix
          
     
    interpvec =  find(qualindex > median(qualindex) + 3.* std(actualdistribution));
+
+   cutoff = median(qualindex) + 3.* std(actualdistribution);
+   yline(cutoff)
+
    
    % append channels that are bad so that we have them after going through
    % the trials
