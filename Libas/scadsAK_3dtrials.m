@@ -23,7 +23,7 @@ function [ inmat3d, badindex, NGoodtrials ] = scadsAK_3dtrials(inmat3d, threshol
     % calculate remaining number of trials
     qualindex(qualindex > threshold.* median(qualindex)) = [];
     
-    NGoodtrials = size(inmat3d,3)
+    NGoodtrials = size(inmat3d,3);
 
 
 
