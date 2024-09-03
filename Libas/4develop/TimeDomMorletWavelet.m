@@ -1,4 +1,7 @@
-function [amplitude] = TimeDomMorletWavelet(f0, sigma, t)
+function [amplitude] = TimeDomMorletWavelet(beta, t)
 
-amplitude = (pi^(-0.25)) * exp(2i * pi * f0 * t) .* exp(-t.^2 / (2 * sigma^2));
+f0 = beta(1);
+sigma = beta(2);
+
+amplitude = real(pi^(-0.25)) * exp(2i * pi * f0 * t) .* exp(-t.^2 / (2 * sigma^2));
 
