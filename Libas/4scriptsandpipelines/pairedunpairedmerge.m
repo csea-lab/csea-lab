@@ -8,9 +8,9 @@ for fileindex = 1:size(matfilemat1,1)
     matfile1 = matfilemat1(fileindex,:);
     matfile2 = matfilemat2(fileindex,:);
 
-    igfolder = '/home/laura/Documents/Gaborgen24/raw eeg files/';
+    igfolder = '/home/laura/Documents/Gaborgen24_Day1_Day2/Day2/raw_eeg_files/';
 
-    matfolder = '/home/laura/Documents/Gaborgen24/raw eeg files/app/';
+    matfolder = '/home/laura/Documents/Gaborgen24_Day1_Day2/Day2/raw_eeg_files/app_files/';
 
 
     igfid1 = fopen([igfolder igfile1]);

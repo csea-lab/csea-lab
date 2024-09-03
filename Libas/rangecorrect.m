@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 function [DataOut] = rangecorrect(DataIn)
 %  does a Lykken range correction for the input matrix or row vector
 
@@ -17,11 +16,11 @@ elseif size(DataIn, 2) == 1 % if it is a column vector
 end
 
 
-=======
-%rangecorr
-% transforms a vector of numbers into range-corrected values using lykken
-% range correction: (x-min)/(max-min) 
-function [out] = rangecorrect(invec) 
 
-out = (invec -mean(invec)) ./ (max(invec) - min(invec)); 
->>>>>>> a737f06392f84ed4a1470a6e0acf956f65ba6984
+%rangecorr
+% % transforms a vector of numbers into range-corrected values using lykken
+% % range correction: (x-min)/(max-min) 
+% function [out] = rangecorrect(invec) 
+% 
+% out = (invec -mean(invec)) ./ (max(invec) - min(invec)); 
+% >>>>>>> a737f06392f84ed4a1470a6e0acf956f65ba6984
