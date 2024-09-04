@@ -1,7 +1,10 @@
-function [EEG_allcond] =  prepro_scadsandspline(datapath, logpath, stringlength)
+function [EEG_allcond] =  prepro_scadsandspline(datapath, logpath, stringlength, skiptrials)
 
     thresholdChanTrials = 2.25; 
     thresholdTrials = 1.5; 
+    
+    % skip a few initial trials tyo accomodate learning experiments
+    if nargin < 4, skiptrials = 1; end % default no initial trials are skipped
 
     basename  = datapath(1:stringlength); 
 
@@ -97,10 +100,10 @@ function [EEG_allcond] =  prepro_scadsandspline(datapath, logpath, stringlength)
       Mat24 = avg_ref_add3d(double(EEG_24.data));
 
       %% compute ERPs
-     ERP21 = double(avg_ref_add(squeeze(mean(EEG_21.data, 3))));
-     ERP22 = double(avg_ref_add(squeeze(mean(EEG_22.data, 3))));
-     ERP23 = double(avg_ref_add(squeeze(mean(EEG_23.data, 3))));
-     ERP24 = double(avg_ref_add(squeeze(mean(EEG_24.data, 3)))); 
+     ERP21 = double(avg_ref_add(squeeze(mean(EEG_21.data(:, :, skiptrials:end), 3))));
+     ERP22 = double(avg_ref_add(squeeze(mean(EEG_22.data(:, :, skiptrials:end), 3))));
+     ERP23 = double(avg_ref_add(squeeze(mean(EEG_23.data(:, :, skiptrials:end), 3))));
+     ERP24 = double(avg_ref_add(squeeze(mean(EEG_24.data(:, :, skiptrials:end), 3)))); 
 
      %% save output
      % the ERPs
