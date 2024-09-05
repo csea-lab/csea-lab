@@ -1,7 +1,7 @@
 function [EEG_allcond] =  prepro_scadsandspline(datapath, logpath, stringlength, skiptrials)
 
     thresholdChanTrials = 2.25; 
-    thresholdTrials = 1.5; 
+    thresholdTrials = 1.25; 
     
     % skip a few initial trials tyo accomodate learning experiments
     if nargin < 4, skiptrials = 1; end % default no initial trials are skipped
