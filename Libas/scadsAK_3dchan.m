@@ -19,7 +19,7 @@ outmat3d = inmat3d; % Creates a new matrix the same size as the input matrix
 
     % calculate compound quality index
     qualindex = absvalvec+ stdvalvec+ maxtransvalvec;
-    figure(101)
+    figure(103)
     plot(qualindex)
 
 
