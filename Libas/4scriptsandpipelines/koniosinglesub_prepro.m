@@ -1,6 +1,7 @@
-% Get a list of all files and folders in the current directory
-files = dir;
 %% Script for analyzing all konio data
+% Get a list of all files and folders in the current directory
+files = dir("konio*");
+
 % Filter out the non-folder entries
 dirFlags = [files.isdir];
 
@@ -39,7 +40,7 @@ for subindex = 1:size(folderNames,2)
 
     cd ..
 
-    pause(1)
+    pause(.5)
     fclose('all');
 
 end
