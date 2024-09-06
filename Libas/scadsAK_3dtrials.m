@@ -5,7 +5,7 @@ function [ inmat3d, badindex, NGoodtrials ] = scadsAK_3dtrials(inmat3d, threshol
 
     stdvalvec = squeeze(median(std(inmat3d,[],2))); % SD of voltage values
     
-    maxtransvalvec = squeeze(median(max(diff(inmat3d, 2),[], 2))); % Max diff (??) of voltage values
+    maxtransvalvec = squeeze(median(max(diff(inmat3d, 2),[], 2))); % Max diff of voltage values
     
     % calculate compound quality index and discard outlier trials
     qualindex = absvalvec./max(absvalvec)+ stdvalvec./max(stdvalvec)+ maxtransvalvec./max(maxtransvalvec); 
@@ -23,7 +23,7 @@ function [ inmat3d, badindex, NGoodtrials ] = scadsAK_3dtrials(inmat3d, threshol
     % calculate remaining number of trials
     qualindex(qualindex > threshold.* median(qualindex)) = [];
     
-    NGoodtrials = size(inmat3d,3)
+    NGoodtrials = size(inmat3d,3);
 
 
 

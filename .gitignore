@@ -6,5 +6,14 @@ lib-ben/docker/config.json
 .DS_Store
 .DS_Store
 .DS_Store
+<<<<<<< HEAD
 Libas/4wavelettrans/wavelet_app_mat_singtrials.asv
 Libas/4wavelettrans/wavelet_app_mat_singtrials.m
+=======
+Libas/4develop/getcon_file_konio.m
+.DS_Store
+.DS_Store
+.DS_Store
+.DS_Store
+.DS_Store
+>>>>>>> e64427560cfbc3acf0ff05b0a09690fc4306a328
