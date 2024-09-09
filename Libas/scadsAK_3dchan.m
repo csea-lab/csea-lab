@@ -1,7 +1,7 @@
 %% Input EEGlab .set file (for a specific condition). Identifies and replaces bad channels for each trial. Output is 3-D matrix.
 % To run this script alone, must load dataset into EEGLab, then use following command before running this function:
 % inmat3d = ALLEEG.data;
-function [outmat3d, BadChanVec] = scadsAK_3dchan(inmat3d,  EcfgFilePath)
+function [outmat3d, BadChanVec] = scadsAK_3dchan(inmat3d,  EcfgFilePath, threshold)
 
 outmat3d = inmat3d; % Creates a new matrix the same size as the input matrix
 
@@ -31,7 +31,7 @@ outmat3d = inmat3d; % Creates a new matrix the same size as the input matrix
     % detect indices of bad channels; currently anything farther than 3 SD
     % from the median quality index value
 
-   BadChanVec =  find(qualindex > median(qualindex) + 3.* std(actualdistribution));
+   BadChanVec =  find(qualindex > median(qualindex) + threshold.* std(actualdistribution));
 
     % interpolate those channels from 6 nearest neighbors in the cleandata
     % find nearest neighbors
