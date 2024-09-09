@@ -15,17 +15,7 @@ folderNames = folderNames(~ismember(folderNames, {'.', '..'}));
 disp('Folders in the current working directory:');
 disp(folderNames);
 
-% info for spectrum
-spectime = 801:2200; 
-Fbin  = 22; 
-Hbin = 43; 
-
-% axes for plots: 
-% faxis=  0:0.3125:125;  % for 601:2200
-faxis=  0:1000/2800:125;  % for 801:2200
-taxis= -600:2:3800; 
-
-% loop pver subjects
+% loop over subjects
 for subindex = 1:size(folderNames,2)
 
     eval(['cd ' folderNames{subindex}])
@@ -36,7 +26,7 @@ for subindex = 1:size(folderNames,2)
     rawfile = getfilesindir(pwd, '*.RAW');
 
     % actual preprocessing
-    [EEG_allcond] =  prepro_scadsandspline(rawfile, datfile, 9);
+    [EEG_allcond] =  prepro_scadsandspline(rawfile, datfile, 9, 6);
 
     cd ..
 
