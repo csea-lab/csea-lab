@@ -1,7 +1,8 @@
 function [EEG_allcond] =  prepro_scadsandspline(datapath, logpath, stringlength, skiptrials)
 
-    thresholdChanTrials = 2.2; 
-    thresholdTrials = 1.33; 
+    thresholdChanTrials = 2.5; 
+    thresholdTrials = 1.25;
+    thresholdChan = 2.5;
     
     % skip a few initial trials tyo accomodate learning experiments
     if nargin < 4, skiptrials = 1; end % default no initial trials are skipped
@@ -60,7 +61,7 @@ function [EEG_allcond] =  prepro_scadsandspline(datapath, logpath, stringlength,
      inmat3d = double(EEG_allcond.data);
 
      % find generally bad channels
-     [outmat3d, BadChanVec] = scadsAK_3dchan(inmat3d, 'HC1-128.ecfg'); 
+     [outmat3d, BadChanVec] = scadsAK_3dchan(inmat3d, 'HC1-128.ecfg', thresholdChan); 
      EEG_allcond.data = single(outmat3d); 
      EEG_allcond = eeg_checkset( EEG_allcond );
 
