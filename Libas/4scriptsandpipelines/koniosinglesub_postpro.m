@@ -103,7 +103,7 @@ for subindex = 1:size(folderNames,2)
     load(artfname)
     disp(artifactlog)
 
-    pause(2)
+    pause
 
     output(subindex,:) = [outvecF outvecH];
 
