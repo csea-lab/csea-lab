@@ -1,11 +1,20 @@
-function [EEG_allcond] =  prepro_scadsandspline(datapath, logpath, stringlength, skiptrials)
+function [EEG_allcond] =  prepro_scadsandspline(datapath, logpath, convecfun, stringlength, conditions2select, timevec, skiptrials)
+% datapath is name of .raw file, this function rins only for 129channel EGI data
+% logpath is the name .dat file
+% convecfun is the name of a function that takes a dat file and generates a
+% condition vector
+% stringlength is the number of characters from the raw basename to be used
+% for output names
+% skiptrials is the starting point for any trials (skip trials at the beginning in learning studies) 
+% conditions2select is a cell array with condition names that we want e.g. {  '21' '22' '23' '24' }
+% timevec is time in seconds for segmentation e.g. [-0.6 3.802]
 
     thresholdChanTrials = 2.5; 
     thresholdTrials = 1.25;
     thresholdChan = 2.5;
     
     % skip a few initial trials tyo accomodate learning experiments
-    if nargin < 4, skiptrials = 1; end % default no initial trials are skipped
+    if nargin < 7, skiptrials = 1; end % default no initial trials are skipped
 
     basename  = datapath(1:stringlength); 
 
@@ -28,7 +37,7 @@ function [EEG_allcond] =  prepro_scadsandspline(datapath, logpath, stringlength,
      EEG = eeg_checkset( EEG );
     
      %read conditions from log file;
-     conditionvec = getcon_konio(logpath);
+     conditionvec = feval(convecfun, logpath);
 
       % now get rid of excess event markers 
       for indexlat = 1:size(EEG.event,2)
@@ -55,7 +64,7 @@ function [EEG_allcond] =  prepro_scadsandspline(datapath, logpath, stringlength,
       end
 
      % Epoch the EEG data 
-     EEG_allcond = pop_epoch( EEG, {  '21' '22' '23' '24' }, [-0.6 3.802], 'newname', 'allcond', 'epochinfo', 'yes');
+     EEG_allcond = pop_epoch( EEG, conditions2select, timevec, 'newname', 'allcond', 'epochinfo', 'yes');
      EEG_allcond = eeg_checkset( EEG_allcond );
      EEG_allcond = pop_rmbase( EEG_allcond, [-600 0] ,[]);
      inmat3d = double(EEG_allcond.data);
