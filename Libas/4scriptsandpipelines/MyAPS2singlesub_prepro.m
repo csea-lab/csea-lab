@@ -1,4 +1,6 @@
 %% Script for analyzing all konio data
+cd '/Users/andreaskeil/Desktop/MyAPS2_RawData'
+
 % Get a list of all files and folders in the current directory
 files = dir("MyAPS*");
 
@@ -22,11 +24,12 @@ for subindex = 1:size(folderNames,2)
 
    delete *.at*
 
-    datfile = getfilesindir(pwd, '*.dat');
-    rawfile = getfilesindir(pwd, '*.RAW');
+    logpath = getfilesindir(pwd, '*.dat');
+    datapath = getfilesindir(pwd, '*.RAW');
 
     % actual preprocessing
-    [EEG_allcond] =  prepro_scadsandspline(rawfile, datfile, 9, 6);
+    [EEG_allcond] = prepro_scadsandspline(datapath, logpath, convecfun, ...
+        10, conditions2select, [-0.6 3], 1); 
 
     cd ..
 
