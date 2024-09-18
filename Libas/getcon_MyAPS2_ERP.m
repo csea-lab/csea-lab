@@ -2,7 +2,7 @@ function [condvec4ERP, picvec, singpicvec_num] = getcon_MyAPS2_ERP(filepath)
 picvec = [];
 condvec4ERP = []; 
 
-trialindex = 1
+trialindex = 1;
 
  p = {'IAPSp01' ; 'IAPSp02' ; 'IAPSp03' ; 'IAPSp04' ; 'IAPSp05' ; 'IAPSp06' ; 'IAPSp07' ; 'IAPSp08' ; 'IAPSp09' ; 'IAPSp10' ; 'IAPSp11' ; 'IAPSp12' ; 'IAPSp13' ; 'IAPSp14' ; 'IAPSp15' ; 'IAPSp16' ; 'IAPSp17' ; 'IAPSp18' ; 'IAPSp19' ; 'IAPSp20' ; 'UGASp21' ; 'UGASp22' ; 'UGASp23' ; 'UGASp24' ; 'UGASp25' ; 'UGASp26' ; 'UGASp27' ; 'UGASp28' ; 'UGASp29' ; 'UGASp30' ; 'UGASp31' ; 'UGASp32' ; 'UGASp33' ; 'UGASp34' ; 'UGASp35' ; 'UGASp36' ; 'UGASp37' ; 'UGASp38' ; 'UGASp39' ; 'UGASp40' ; 'MYPSp01' ; 'MYPSp02' ; 'MYPSp03' ; 'MYPSp04' ; 'MYPSp05' ; 'MYPSp06' ; 'MYPSp07' ; 'MYPSp08' ; 'MYPSp09' ; 'MYPSp10' ; 'MYPSp11' ; 'MYPSp12' ; 'MYPSp13' ; 'MYPSp14' ; 'MYPSp15' ; 'MYPSp16' ; 'MYPSp17' ; 'MYPSp18' ; 'MYPSp19' ; 'MYPSp20' ; 'MYPSp21' ; 'MYPSp22' ; 'MYPSp23' ; 'MYPSp24' ; 'MYPSp25' ; 'MYPSp26' ; 'MYPSp27' ; 'MYPSp28' ; 'MYPSp29' ; 'MYPSp30' ; 'MYPSp31' ; 'MYPSp32' ; 'MYPSp33' ; 'MYPSp34' ; 'MYPSp35' ; 'MYPSp36' ; 'MYPSp37' ; 'MYPSp38' ; 'MYPSp39' ; 'MYPSp40'};
  
