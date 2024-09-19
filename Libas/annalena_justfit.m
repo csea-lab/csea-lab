@@ -47,12 +47,12 @@ function [ paramat, parameters ] = annalena_justfit(inmat)
                 
                 % change c50 parameter to ms
                  parameters(4) = parameters(4).*100; 
-                pause(.3), mse, index
-          
                 
-               outvec  = [real(parameters)' mse]; 
+                 pause(.3), mse, index
+          
+                 outvec  = [real(parameters)' mse]; 
                
-               paramat = [paramat; outvec]; 
+                 paramat = [paramat; outvec]; 
                        
                
 end

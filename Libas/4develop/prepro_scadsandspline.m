@@ -1,7 +1,20 @@
-function [EEG_allcond] =  prepro_scadsandspline(datapath, logpath, stringlength)
+function [EEG_allcond] =  prepro_scadsandspline(datapath, logpath, convecfun, stringlength, conditions2select, timevec, skiptrials)
+% datapath is name of .raw file, this function rins only for 129channel EGI data
+% logpath is the name .dat file
+% convecfun is the name of a function that takes a dat file and generates a
+% condition vector
+% stringlength is the number of characters from the raw basename to be used
+% for output names
+% skiptrials is the starting point for any trials (skip trials at the beginning in learning studies) 
+% conditions2select is a cell array with condition names that we want e.g. {  '21' '22' '23' '24' }
+% timevec is time in seconds for segmentation e.g. [-0.6 3.802]
 
-    thresholdChanTrials = 2.25; 
-    thresholdTrials = 1.5; 
+    thresholdChanTrials = 2.5; 
+    thresholdTrials = 1.25;
+    thresholdChan = 2.5;
+    
+    % skip a few initial trials tyo accomodate learning experiments
+    if nargin < 7, skiptrials = 1; end % default no initial trials are skipped
 
     basename  = datapath(1:stringlength); 
 
@@ -24,7 +37,7 @@ function [EEG_allcond] =  prepro_scadsandspline(datapath, logpath, stringlength)
      EEG = eeg_checkset( EEG );
     
      %read conditions from log file;
-     conditionvec = getcon_konio(logpath);
+     conditionvec = feval(convecfun, logpath);
 
       % now get rid of excess event markers 
       for indexlat = 1:size(EEG.event,2)
@@ -51,13 +64,13 @@ function [EEG_allcond] =  prepro_scadsandspline(datapath, logpath, stringlength)
       end
 
      % Epoch the EEG data 
-     EEG_allcond = pop_epoch( EEG, {  '21' '22' '23' '24' }, [-0.6 3.802], 'newname', 'allcond', 'epochinfo', 'yes');
+     EEG_allcond = pop_epoch( EEG, conditions2select, timevec, 'newname', 'allcond', 'epochinfo', 'yes');
      EEG_allcond = eeg_checkset( EEG_allcond );
      EEG_allcond = pop_rmbase( EEG_allcond, [-600 0] ,[]);
      inmat3d = double(EEG_allcond.data);
 
      % find generally bad channels
-     [outmat3d, BadChanVec] = scadsAK_3dchan(inmat3d, 'HC1-128.ecfg'); 
+     [outmat3d, BadChanVec] = scadsAK_3dchan(inmat3d, 'HC1-128.ecfg', thresholdChan); 
      EEG_allcond.data = single(outmat3d); 
      EEG_allcond = eeg_checkset( EEG_allcond );
 
@@ -70,52 +83,14 @@ function [EEG_allcond] =  prepro_scadsandspline(datapath, logpath, stringlength)
     [ outmat3d, badindexvec, NGoodtrials ] = scadsAK_3dtrials(outmat3d, thresholdTrials);
       EEG_allcond = pop_select( EEG_allcond, 'notrial', badindexvec);
 
-     %% select conditions
-     % 21
-     EEG_21 = pop_selectevent( EEG_allcond,  'type', '21' );
-     EEG_21 = eeg_checkset( EEG_21 );
-     % 22
-     EEG_22 = pop_selectevent( EEG_allcond,  'type', '22' );
-     EEG_22= eeg_checkset( EEG_22 );  
-     % 23
-     EEG_23 = pop_selectevent( EEG_allcond,  'type', '23' );
-     EEG_23= eeg_checkset( EEG_23 );
-     % 24
-     EEG_24 = pop_selectevent( EEG_allcond,  'type', '24' );
-     EEG_24 = eeg_checkset( EEG_24 );
 
       %% create output file for artifact summary. 
       artifactlog.globalbadchans = BadChanVec;
       artifactlog.epochbadchans = badindexmat;
       artifactlog.badtrialstotal = badindexvec; 
-      artifactlog.badtrialsbycondition = [size(EEG_21.data, 3),size(EEG_22.data, 3), size(EEG_23.data, 3),size(EEG_24.data, 3)];
+      %artifactlog.badtrialsbycondition = [size(EEG_21.data, 3),size(EEG_22.data, 3), size(EEG_23.data, 3),size(EEG_24.data, 3)];
 
-      %% create avg reference 3-D mats
-      Mat21 = avg_ref_add3d(double(EEG_21.data));
-      Mat22 = avg_ref_add3d(double(EEG_22.data));
-      Mat23 = avg_ref_add3d(double(EEG_23.data));
-      Mat24 = avg_ref_add3d(double(EEG_24.data));
-
-      %% compute ERPs
-     ERP21 = double(avg_ref_add(squeeze(mean(EEG_21.data, 3))));
-     ERP22 = double(avg_ref_add(squeeze(mean(EEG_22.data, 3))));
-     ERP23 = double(avg_ref_add(squeeze(mean(EEG_23.data, 3))));
-     ERP24 = double(avg_ref_add(squeeze(mean(EEG_24.data, 3)))); 
-
-     %% save output
-     % the ERPs
-     SaveAvgFile([basename '.at21.ar'],ERP21,[],[], 500, [], [], [], [], 301); 
-     SaveAvgFile([basename '.at22.ar'],ERP22,[],[], 500, [], [], [], [], 301); 
-     SaveAvgFile([basename '.at23.ar'],ERP23,[],[], 500, [], [], [], [], 301); 
-     SaveAvgFile([basename '.at24.ar'],ERP24,[],[], 500, [], [], [], [], 301); 
-
-     % the 3d mat files
-     save([basename '.trls.21.mat'], 'Mat21', '-mat')
-     save([basename '.trls.22.mat'], 'Mat22', '-mat')
-     save([basename '.trls.23.mat'], 'Mat23', '-mat')
-     save([basename '.trls.24.mat'], 'Mat24', '-mat')
-
-     % the artifact info
+     %% the artifact info
      save([basename '.artiflog.mat'], 'artifactlog', '-mat')
 
 
