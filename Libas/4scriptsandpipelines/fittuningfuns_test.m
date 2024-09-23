@@ -1,6 +1,8 @@
 % fittuningfuns_test
 clear all
-load('/Users/andreaskeil/Downloads/keegan.mat')
+cd '/home/laura/Documents/Gaborgen24'
+load('/home/laura/Documents/Gaborgen24/keegan.mat')
+
 options = statset('MaxIter', 100000, 'TolFun', 0.0001,  'Robust', 'off');
 
 % first fit the grand mean and get parameter estimates
@@ -8,6 +10,7 @@ meankeegan = rangecorrect(mean(keegan))';
 
 % first: ricker [amplitude] = Ricker(std, t)
 t = -7:7;
+%t = (-0.875:0.125:0.875).*5;
 [BETA_rick,R_rick,J,COVB,MSE_rick] = nlinfit(t,meankeegan,@Ricker, [0.4], options);
 [ricker_best_fit_amplitude] = Ricker(BETA_rick, t);
 figure(101)
@@ -16,7 +19,7 @@ hold on
 plot(t, ricker_best_fit_amplitude), legend('data', 'Ricker fit')
 
 % second: morlet [amplitude] = Ricker(std, t)
-[BETA_morl,R_morl,J,COVB,MSE_morl] = nlinfit(t,meankeegan',@TimeDomMorletWavelet, [0.4 1], options);
+[BETA_morl,R_morl,J,COVB,MSE_morl] = nlinfit(t,meankeegan,@TimeDomMorletWavelet, [0.4 1], options);
 [morlet_best_fit_amplitude] = TimeDomMorletWavelet(BETA_morl, t);
 figure(102)
 plot(t, meankeegan),
@@ -60,7 +63,7 @@ for b_index = 1:5000
     b_data = keegan(randi(9, 9, 1), :);
     b_mean = rangecorrect(mean(b_data))';
     [BETA_bmorl(:, b_index),R_bmorl(:,b_index),J,COVB,MSE_bmorl(b_index)] = ...
-        nlinfit(t,b_mean',@TimeDomMorletWavelet, [0.4 1], options);
+        nlinfit(t,b_mean,@TimeDomMorletWavelet, [0.4 1], options);
     % perm data
      b_mean_p = rangecorrect(mean(b_data))';
     % [BETA_brick_p(b_index),R_brick_p(:,b_index),J,COVB,MSE_brick_p(b_index)] = ...
