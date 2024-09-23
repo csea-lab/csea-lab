@@ -1,9 +1,12 @@
 function [amplitude] = TimeDomMorletWavelet(beta, t)
 
-f0 = beta(1);
-sigma = beta(2);
+% t represents the number of conditions or the time points
 
-temp = (pi^(-0.25)) * exp(2i * pi * f0 * t) .* exp(-t.^2 / (2 * sigma^2));
+% Parameters
+f0 = beta(1); % center frequency 
+sigma = beta(2); % standard deviation
+
+temp = ((pi^(-0.25)) .* exp(2i * pi * f0 * t) .* exp(-t.^2 / (2 * sigma^2)))';
 
 amplitude = real(temp); 
 
