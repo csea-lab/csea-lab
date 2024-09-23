@@ -26,7 +26,8 @@ function [EEG_allcond] =  prepro_scadsandspline(datapath, logpath, convecfun, st
      
      % bandpass filter
      filtord = 5; 
-     [B,A] = butter(filtord,[3 30]/(EEG.srate/2));
+     filtercoeffHz = 30;
+     [B,A] = butter(filtord,filtercoeffHz/(EEG.srate/2));
      filtereddata = filtfilt(B,A,double(EEG.data)')'; % 
      EEG.data =  single(filtereddata); 
      EEG = eeg_checkset( EEG );
@@ -90,12 +91,34 @@ function [EEG_allcond] =  prepro_scadsandspline(datapath, logpath, convecfun, st
       artifactlog.badtrialstotal = badindexvec; 
       %artifactlog.badtrialsbycondition = [size(EEG_21.data, 3),size(EEG_22.data, 3), size(EEG_23.data, 3),size(EEG_24.data, 3)];
 
-     %% the artifact info
+      %% select conditions; compute and write output
+     artifactlog.badtrialsbycondition = []; % remaining artifact info by condition will be populated
+
+    for con_index = 1:size(conditions2select,2)
+  
+     %select conditions   
+     EEG_temp = pop_selectevent( EEG_allcond,  'type', conditions2select{con_index} );
+     EEG_temp = eeg_checkset( EEG_temp );
+     
+     % compute ERPs
+     ERPtemp = double(avg_ref_add(squeeze(mean(EEG_temp.data(:, :, skiptrials:end), 3))));
+     
+     % compute single trial array in 3D
+     Mat3D = avg_ref_add3d(double(EEG_temp.data));
+
+     % save the ERP in emegs at format
+      SaveAvgFile([basename '.at' conditions2select{con_index} '.ar'],ERPtemp,[],[], 500, [], [], [], [], 301); 
+
+      % save the single trial array in 3D
+      save([basename '.trls.' conditions2select{con_index} '.mat'], 'Mat3D', '-mat')
+   
+      % complete artifact info
+      artifactlog.badtrialsbycondition = [artifactlog.badtrialsbycondition; size(EEG_temp.data, 3)];
+
+    end
+
+   %% save the artifact info
      save([basename '.artiflog.mat'], 'artifactlog', '-mat')
-
-
-
-
 
 
     
