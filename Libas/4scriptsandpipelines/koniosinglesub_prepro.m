@@ -27,6 +27,7 @@ for subindex = 1:size(folderNames,2)
 
     % actual preprocessing
    prepro_scadsandspline(rawfile, datfile, 'getcon_konio', 9, {'21' '22' '23' '24'}, [-.6 3.802], 5)
+   prepro_scadsandspline(datapath, logpath, convecfun, stringlength, conditions2select, timevec, skiptrials)
 
     cd ..
 
