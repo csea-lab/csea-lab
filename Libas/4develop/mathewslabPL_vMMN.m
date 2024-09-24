@@ -1,4 +1,4 @@
-function [erpbsl_std, erpbsl_target, mat_std, mat_target] = mathewslabPL_vMMN(filemat, plotflag)
+function [] = mathewslabPL_vMMN(filemat, plotflag)
 
 % sample rate is 1000 Hz
 
@@ -19,7 +19,7 @@ for fileindex = 1:size(filemat,1)
     events = ft_read_event(filepath);
 
     % build a lowpass filter
-    [a, b] = butter(4, .08); 
+    [a, b] = butter(6, .08); 
     data = filtfilt(a, b, double(data)')'; 
 
     % build a highpass filter
@@ -36,13 +36,20 @@ for fileindex = 1:size(filemat,1)
 
     % Segmentation
     % this is the first step after reading stuff in: 
-    % find the times (in sample points) where a stm+ event happened
-    % we think that this may be the stiimulus but estelle will find out
-    segmentvec_sst = []; 
+    % find the times (in sample points) where a stim event happened
+    % sst+ is the standards (in the MMN sense) and we only want those,
+    % staying away from MMN deviant trials which are rare and also have
+    % another event that draws attention cha 
+    % these mmff file keys are the non-targets in the P3 sense for the MMN
+    % standard trials: cell 1: there should be 140 per block
+    % these mmff file keys are the targets in the P3 sense for the MMN: 2
+    % and 3, there should be 10 per block
+
+    segmentvec_P3target = []; 
     conditionvec =[]; 
     for x = 1: size(events,2)    
-       if strcmp(events(x).value, 'sst+')
-          segmentvec_sst = [segmentvec_sst events(x).sample]; 
+       if strcmp(events(x).value, 'sst+') && strcmp(events(x).mffkey_cel, '1')
+          segmentvec_P3target = [segmentvec_P3target events(x).sample]; 
           % conditionvec = [conditionvec; events(x+1).value]; this works on
           % some select few subjects
           conditionvec = [conditionvec; str2num(events(x).mffkey_cel)];
