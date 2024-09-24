@@ -26,7 +26,7 @@ function [EEG_allcond] =  prepro_scadsandspline(datapath, logpath, convecfun, st
      
      % bandpass filter
      filtord = 5; 
-     filtercoeffHz = 30;
+     filtercoeffHz = [3 30];
      [B,A] = butter(filtord,filtercoeffHz/(EEG.srate/2));
      filtereddata = filtfilt(B,A,double(EEG.data)')'; % 
      EEG.data =  single(filtereddata); 
