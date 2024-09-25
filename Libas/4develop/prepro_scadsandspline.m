@@ -1,4 +1,4 @@
-function [EEG_allcond] =  prepro_scadsandspline(datapath, logpath, convecfun, stringlength, conditions2select, timevec, skiptrials)
+function [EEG_allcond] =  prepro_scadsandspline(datapath, logpath, convecfun, stringlength, conditions2select, timevec, filtercoeffHz, filtord, skiptrials)
 % datapath is name of .raw file, this function rins only for 129channel EGI data
 % logpath is the name .dat file
 % convecfun is the name of a function that takes a dat file and generates a
@@ -8,13 +8,17 @@ function [EEG_allcond] =  prepro_scadsandspline(datapath, logpath, convecfun, st
 % skiptrials is the starting point for any trials (skip trials at the beginning in learning studies) 
 % conditions2select is a cell array with condition names that we want e.g. {  '21' '22' '23' '24' }
 % timevec is time in seconds for segmentation e.g. [-0.6 3.802]
+% filtercoeffHz could be [1 30] for a 1 to 30 Hz bandpass filter - it *IS*
+% in Hertz
+% filtord is the order of the filter, if funny results make smaller, 4 is
+% good as a starting point. 
 
     thresholdChanTrials = 2.5; 
     thresholdTrials = 1.25;
     thresholdChan = 2.5;
     
     % skip a few initial trials tyo accomodate learning experiments
-    if nargin < 7, skiptrials = 1; end % default no initial trials are skipped
+    if nargin < 9, skiptrials = 1; end % default no initial trials are skipped
 
     basename  = datapath(1:stringlength); 
 
@@ -25,8 +29,6 @@ function [EEG_allcond] =  prepro_scadsandspline(datapath, logpath, convecfun, st
      EEG = eeg_checkset( EEG );
      
      % bandpass filter
-     filtord = 5; 
-     filtercoeffHz = [3 30];
      [B,A] = butter(filtord,filtercoeffHz/(EEG.srate/2));
      filtereddata = filtfilt(B,A,double(EEG.data)')'; % 
      EEG.data =  single(filtereddata); 
@@ -67,7 +69,7 @@ function [EEG_allcond] =  prepro_scadsandspline(datapath, logpath, convecfun, st
      % Epoch the EEG data 
      EEG_allcond = pop_epoch( EEG, conditions2select, timevec, 'newname', 'allcond', 'epochinfo', 'yes');
      EEG_allcond = eeg_checkset( EEG_allcond );
-     EEG_allcond = pop_rmbase( EEG_allcond, [-600 0] ,[]);
+     EEG_allcond = pop_rmbase( EEG_allcond, [-100 0] ,[]);
      inmat3d = double(EEG_allcond.data);
 
      % find generally bad channels
@@ -89,6 +91,8 @@ function [EEG_allcond] =  prepro_scadsandspline(datapath, logpath, convecfun, st
       artifactlog.globalbadchans = BadChanVec;
       artifactlog.epochbadchans = badindexmat;
       artifactlog.badtrialstotal = badindexvec; 
+      artifactlog.filtercoeffHz = filtercoeffHz; 
+      artifactlog.filtord = filtord; 
       %artifactlog.badtrialsbycondition = [size(EEG_21.data, 3),size(EEG_22.data, 3), size(EEG_23.data, 3),size(EEG_24.data, 3)];
 
       %% select conditions; compute and write output
