@@ -32,7 +32,7 @@ for subindex = 1:size(folderNames,2)
 
     % actual preprocessing
     [EEG_allcond] = prepro_scadsandspline(datapath, logpath, 'getcon_MyAPS2_ERP', ...
-        10, {'11' '12' '13' '21' '22' '23'}, [-0.6 2], 1); 
+        10, {'11' '12' '13' '21' '22' '23'}, [-0.6 2], [.2 20], 3, 1); 
 
     cd ..
 
