@@ -1,1 +1,1 @@
-function ref = avg_ref_add(matrix);mean_col = mean(matrix', 2);ref = bsxfun(@minus, matrix, mean_col');ref = [ref; mean_col'];
+function ref = avg_ref_add(matrix);mean_col = mean(matrix', 2);ref = bsxfun(@minus, matrix, mean_col');ref = [ref; -1.*mean_col'];
