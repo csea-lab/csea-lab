@@ -1,6 +1,6 @@
 %% Script for analyzing all konio data
 
-clear all
+clear
 
 cd '/Users/andreaskeil/Desktop/MyAPS2_RawData'
 
