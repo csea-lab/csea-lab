@@ -1,4 +1,4 @@
-function [RESS_time] = RESS_filegroups23(filemat, elcs, timewin, SampRate, Targetfreq, plotflag) 
+function [RESS_time] = RESS_filegroups23_CohenTopo(filemat, elcs, timewin, SampRate, Targetfreq, plotflag) 
 % gets a number of files that HAVE to be from one person, e.g. all
 % conditions for that person, to obtain many trials for stable RESS filter
 % estimate; it then aggregates all trials into ine matrix, and calculates
@@ -40,7 +40,16 @@ end
 
           [W,L]=eig(Sigcov, (RefcovUP+RefcovLO)./2);
           [~,comp2plot] = max(diag(L)); % find maximum component
-          SaveAvgFile([deblank(filemat(1,1:end-3)) 'spatfilt.atg'],W(:,comp2plot)) % SAVE TOPO, NEED TO BE REVIEW
+          %SaveAvgFile([deblank(filemat(1,1:end-3)) 'spatfilt.atg'],W(:,comp2plot)) % SAVE TOPO, NEED TO BE REVIEW
+
+          % COHEN topography
+          % extract components and force sign
+          % maps = inv(evecs'); % get maps (this is fine for full-rank matrices)
+          maps = Sigcov * W / (W' * Sigcov * W); % this works either way
+          [~,idx] = max(abs(maps(:,comp2plot))); % find biggest component
+          maps = maps * sign(maps(idx,comp2plot)); % force to positive sign
+          
+          SaveAvgFile([deblank(filemat(1,1:end-3)) 'CohenTopo.atg'],maps(:,comp2plot)) % SAVE TOPO, NEED TO BE REVIEW
 
   % 3. reconstruct RESS component time series for each trial and condition
        for index = 1:size(filemat,1)
@@ -51,7 +60,7 @@ end
             for trial = 1:size(mat,3)
             RESS_time( :, trial) = W(:,comp2plot)'*squeeze(mat(elcs,:, trial));
             %save([deblank(filemat(index,1:31)) ['.RESS_time_' deblank(filemat(index,33)) '.mat']],'RESS_time')
-            save([deblank(filemat(index,1:end-3)) 'RESS_time' '.mat'],'RESS_time')
+            %save([deblank(filemat(index,1:end-3)) 'RESS_time' '.mat'],'RESS_time')
             end % trial loop 
             
             [powsing, freqsing] = FFT_spectrum3D(reshape(RESS_time, 1, size(RESS_time, 1), size(RESS_time, 2)), timewin, SampRate);
@@ -63,7 +72,7 @@ end
             end
 
        %eval([' save  ' deblank(filemat(index,1:end-3)) 'RESStim.mat RESS_time -mat']);
-       SaveAvgFile([deblank(filemat(index,1:end-3)) 'RESSpow.at'],powsing,[],[], fsamp4save);
+       %SaveAvgFile([deblank(filemat(index,1:end-3)) 'RESSpow.at'],powsing,[],[], fsamp4save);
        %SaveAvgFile([deblank(filemat(index,1:31)) ['.RESSpow_' deblank(filemat(index,33)) '.at']],powsing,[],[], fsamp4save);
 
        end  % file loop

@@ -1,11 +1,8 @@
-function [spec] = get_FFT_atg(folder, timewinSP)
-
-infilemat = dir([folder '/*.at*']); 
+function [spec] = get_FFT_atg(infilemat, timewinSP)
 
 for fileindex = 1:size(infilemat,1)
     
-    [AvgMat,File,Path,FilePath,NTrialAvgVec,StdChanTimeMat,...
-	SampRate,AvgRef,Version,MedMedRawVec,MedMedAvgVec] = ReadAvgFile(infilemat(fileindex).name);
+    [AvgMat,File,Path,FilePath,NTrialAvgVec,StdChanTimeMat,SampRate,AvgRef,Version,MedMedRawVec,MedMedAvgVec] = ReadAvgFile(deblank(infilemat(fileindex,:)));
    
 %limit time series to desired interval (timewinSP) and then apply cosine
 %square window
@@ -33,7 +30,7 @@ for fileindex = 1:size(infilemat,1)
     SampRate
     fsmapnew = 1000./(SampRate./NFFT)
     
-    [File,Path,FilePath]=SaveAvgFile([infilemat(fileindex).name '.spec'],spec,NTrialAvgVec,StdChanTimeMat, fsmapnew);
+    [File,Path,FilePath]=SaveAvgFile([deblank(infilemat(fileindex,:)) '.spec'],spec,NTrialAvgVec,StdChanTimeMat, fsmapnew);
 	
 end
 	

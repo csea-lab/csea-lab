@@ -1,9 +1,8 @@
-function [erpbsl_std, erpbsl_target, mat_std, mat_target] = mathewslabPL(filemat, plotflag)
+function [] = mathewslabPL_vMMN(filemat, plotflag)
 
 % sample rate is 1000 Hz
 
 disp('new file:')
-
 
 for fileindex = 1:size(filemat,1)
 
@@ -20,7 +19,7 @@ for fileindex = 1:size(filemat,1)
     events = ft_read_event(filepath);
 
     % build a lowpass filter
-    [a, b] = butter(4, .08); 
+    [a, b] = butter(6, .08); 
     data = filtfilt(a, b, double(data)')'; 
 
     % build a highpass filter
@@ -37,13 +36,20 @@ for fileindex = 1:size(filemat,1)
 
     % Segmentation
     % this is the first step after reading stuff in: 
-    % find the times (in sample points) where a stm+ event happened
-    % we think that this may be the stiimulus but estelle will find out
-    segmentvec = []; 
+    % find the times (in sample points) where a stim event happened
+    % sst+ is the standards (in the MMN sense) and we only want those,
+    % staying away from MMN deviant trials which are rare and also have
+    % another event that draws attention cha 
+    % these mmff file keys are the non-targets in the P3 sense for the MMN
+    % standard trials: cell 1: there should be 140 per block
+    % these mmff file keys are the targets in the P3 sense for the MMN: 2
+    % and 3, there should be 10 per block
+
+    segmentvec_P3target = []; 
     conditionvec =[]; 
     for x = 1: size(events,2)    
-       if strcmp(events(x).value, 'stm+')
-          segmentvec = [segmentvec events(x).sample]; 
+       if strcmp(events(x).value, 'sst+') && strcmp(events(x).mffkey_cel, '1')
+          segmentvec_P3target = [segmentvec_P3target events(x).sample]; 
           % conditionvec = [conditionvec; events(x+1).value]; this works on
           % some select few subjects
           conditionvec = [conditionvec; str2num(events(x).mffkey_cel)];
@@ -54,14 +60,14 @@ for fileindex = 1:size(filemat,1)
 
 
     % now find the data segments and get the ERP data
-    mat = zeros(33, 1501, size(segmentvec,2));
-    for x = 1:size(segmentvec,2)
-    mat(:, :, x) = data(:, segmentvec(x)-500:segmentvec(x)+1000);  
+    mat = zeros(33, 1501, size(segmentvec_sst,2));
+    for x = 1:size(segmentvec_sst,2)
+    mat(:, :, x) = data(:, segmentvec_sst(x)-500:segmentvec_sst(x)+1000);  
     end
 
 
     % split in two conditions
-    mat_std_tmp  = mat(:, :, conditionvec==1); % attention have to change to 2222 and 1111 for the first few subjects
+    mat_std_tmp  = mat(:, :, conditionvec==1); % attention 
     mat_target_tmp  = mat(:, :, conditionvec==2); 
 
 

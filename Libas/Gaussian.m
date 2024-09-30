@@ -1,4 +1,9 @@
-function [amplitude] = Gaussian(std, t)
+function [amplitude] = Gaussian(beta, t)
 x = t; 
-p = [t(1) std];
-amplitude = exp(-(x-p(1)).^2/2/p(2).^2)-.5;  
+% beta(1) is the mode (center)
+% beta(2) is the std
+
+center = beta(1); 
+stdev = beta(2); 
+
+amplitude = exp(-(x-center).^2/2/stdev.^2)-.5;  
