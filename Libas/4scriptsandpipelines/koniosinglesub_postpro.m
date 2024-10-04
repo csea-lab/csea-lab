@@ -3,7 +3,7 @@
 % info for spectrum
 spectime = 201:2200; 
 Fbin  = 31; 
-Hbin = 61; 
+Hbin = 61;     
 
 % Get a list of all files and folders in the current directory
 files = dir('konio*');
