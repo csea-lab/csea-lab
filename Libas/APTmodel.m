@@ -3,7 +3,7 @@ function [Rvec] = APTmodel(params, reinforcement)
 BETA =  params(1); 
 LAG = params(2); 
 
-stimnum = 9; % pick an odd number so that CS+ can be in the middle
+stimnum = 7; % pick an odd number so that CS+ can be in the middle
 
 [w, delta] = rescorlaWagnerLearnMod([BETA 1], reinforcement'); % execute rescorla wagner model, get assoc. strength and pred error
 
@@ -21,11 +21,11 @@ for index = 1:length(reinforcement)
     
     VM = shiftLam(latvec)'; % lateral inhibition matrix
     
-<<<<<<< Updated upstream
+
     input = ones(1,stimnum)./10+gaussPro(-(stimnum-1)/2:(stimnum-1)/2, 1./(w(index)/delta_smooth(index))) *sign(delta_smooth(index)) *w(index); % generalization to surrounding stimuli, width changes with assoc strength, magnitide with prediction error
-=======
-    input = ones(1,stimnum)./10+gaussPro(-(stimnum-1)/2:(stimnum-1)/2, 1./(w(index).*3)) *sign(delta_smooth(index)) *w(index); % generalization to surrounding stimuli, width changes with assoc strength, magnitide with prediction error
->>>>>>> Stashed changes
+
+  %  input = ones(1,stimnum)./10+gaussPro(-(stimnum-1)/2:(stimnum-1)/2, 1./(w(index).*3)) *sign(delta_smooth(index)) *w(index); % generalization to surrounding stimuli, width changes with assoc strength, magnitide with prediction error
+
     
     amygdala(:, index) = gaussPro(-(stimnum-1)/2:(stimnum-1)/2, 1./(w(index).*3)) *(delta_smooth(index)); 
     
