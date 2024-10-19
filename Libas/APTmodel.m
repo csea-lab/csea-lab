@@ -3,7 +3,7 @@ function [Rvec, anterior_emotional,  A, R] = APTmodel(params, reinforcement)
 BETA =  params(1); 
 LAG = params(2); 
 
-stimnum = 9; % pick an odd number so that CS+ can be in the middle
+stimnum = 7; % pick an odd number so that CS+ can be in the middle
 
 [w, delta] = rescorlaWagnerLearnMod([BETA 1], reinforcement'); % execute rescorla wagner model, get assoc. strength and pred error
 
@@ -20,12 +20,22 @@ for index = 1:length(reinforcement)
     latvec(3) = I1; latvec(end-1) = I1; 
     
     VM = shiftLam(latvec)'; % lateral inhibition matrix
+<<<<<<< HEAD
+=======
+    
+>>>>>>> 001162502b9a2dc58df9bf9369ad86645d9ea8a2
 
     input = ones(1,stimnum)./10+gaussPro(-(stimnum-1)/2:(stimnum-1)/2, 1./(w(index)/delta_smooth(index))) *sign(delta_smooth(index)) *w(index); % generalization to surrounding stimuli, width changes with assoc strength, magnitide with prediction error
 
   %  input = ones(1,stimnum)./10+gaussPro(-(stimnum-1)/2:(stimnum-1)/2, 1./(w(index).*3)) *sign(delta_smooth(index)) *w(index); % generalization to surrounding stimuli, width changes with assoc strength, magnitide with prediction error
+<<<<<<< HEAD
    
     anterior_emotional(:, index) = gaussPro(-(stimnum-1)/2:(stimnum-1)/2, 1./(w(index).*3)) *(delta_smooth(index)); 
+=======
+
+    
+    amygdala(:, index) = gaussPro(-(stimnum-1)/2:(stimnum-1)/2, 1./(w(index).*3)) *(delta_smooth(index)); 
+>>>>>>> 001162502b9a2dc58df9bf9369ad86645d9ea8a2
     
     A(:, index) = input'; 
     
