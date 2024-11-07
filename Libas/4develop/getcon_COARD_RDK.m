@@ -1,6 +1,10 @@
-function [ conditionvector] = getcon_COARD_RDK(datfilepath)
+function [ conditionvector, targetpresent, reportvector] = getcon_COARD_RDK(datfilepath)
 
 conditionvector = []; 
+
+targetpresent = []; 
+
+reportvector = []; 
 
 fid = fopen(datfilepath);
 
@@ -19,6 +23,9 @@ while a > 0
 
    letter =  a(blankindex(7)+1);
 
+   targetpresent =  [targetpresent; str2num(a(blankindex(3)+1))];
+   reportvector = [reportvector; str2num(a(blankindex(5)+1))];
+
    if strcmp(letter, 'p'), conditionvector  = [conditionvector 1]; 
    elseif strcmp(letter, 'n'), conditionvector  = [conditionvector 2]; 
    elseif strcmp(letter, 'u'), conditionvector  = [conditionvector 3];
@@ -29,3 +36,7 @@ end
 
 
 conditionvector = column(conditionvector);
+
+
+
+
