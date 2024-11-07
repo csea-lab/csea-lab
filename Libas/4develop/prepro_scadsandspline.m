@@ -125,8 +125,11 @@ function [EEG_allcond] =  prepro_scadsandspline(datapath, getConArguments, conve
              % compute single trial array in 3D
              Mat3D = avg_ref_add3d(double(EEG_temp.data));
 
+             % Find trigger data point
+             [minimum triggerIndex] = min(abs(EEG_temp.times));
+
              % save the ERP in emegs at format
-             SaveAvgFile([basename '.at' conditions2select{con_index} '.ar'],ERPtemp,[],[], EEG_temp.srate, [], [], [], [], EEG_temp.event.latency);
+             SaveAvgFile([basename '.at' conditions2select{con_index} '.ar'],ERPtemp,[],[], EEG_temp.srate, [], [], [], [], triggerIndex);
 
              % save the single trial array in 3D
              save([basename '.trls.' conditions2select{con_index} '.mat'], 'Mat3D', '-mat')
