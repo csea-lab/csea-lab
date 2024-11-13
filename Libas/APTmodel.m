@@ -1,4 +1,4 @@
-function [Rvec] = APTmodel(params, reinforcement)
+function [Rvec, anterior_emotional,  A, R] = APTmodel(params, reinforcement)
  
 BETA =  params(1); 
 LAG = params(2); 
@@ -20,14 +20,22 @@ for index = 1:length(reinforcement)
     latvec(3) = I1; latvec(end-1) = I1; 
     
     VM = shiftLam(latvec)'; % lateral inhibition matrix
+<<<<<<< HEAD
+=======
     
+>>>>>>> 001162502b9a2dc58df9bf9369ad86645d9ea8a2
 
     input = ones(1,stimnum)./10+gaussPro(-(stimnum-1)/2:(stimnum-1)/2, 1./(w(index)/delta_smooth(index))) *sign(delta_smooth(index)) *w(index); % generalization to surrounding stimuli, width changes with assoc strength, magnitide with prediction error
 
   %  input = ones(1,stimnum)./10+gaussPro(-(stimnum-1)/2:(stimnum-1)/2, 1./(w(index).*3)) *sign(delta_smooth(index)) *w(index); % generalization to surrounding stimuli, width changes with assoc strength, magnitide with prediction error
+<<<<<<< HEAD
+   
+    anterior_emotional(:, index) = gaussPro(-(stimnum-1)/2:(stimnum-1)/2, 1./(w(index).*3)) *(delta_smooth(index)); 
+=======
 
     
     amygdala(:, index) = gaussPro(-(stimnum-1)/2:(stimnum-1)/2, 1./(w(index).*3)) *(delta_smooth(index)); 
+>>>>>>> 001162502b9a2dc58df9bf9369ad86645d9ea8a2
     
     A(:, index) = input'; 
     
@@ -35,11 +43,11 @@ for index = 1:length(reinforcement)
 
 end
 
-amygdala(:, 1:5) = 0; 
+anterior_emotional(:, 1:5) = 0; 
 
  figure(10), 
  subplot(3,1,3), colormap('jet'), contourf(R, 12), title('visual cortex'), caxis([max(max(R)).*-1 max(max(R))]); colorbar
  subplot(3,1,2),colormap('jet'), contourf(A, 12), title('attention systems'),caxis([max(max(A)).*-1 max(max(A))]); colorbar
- subplot(3,1,1),colormap('jet'), contourf(amygdala, 12), title('amygdala'), caxis([max(max(amygdala)).*-1 max(max(amygdala))]); colorbar
+ subplot(3,1,1),colormap('jet'), contourf(anterior_emotional, 12), title('anterior emotion-modulated structures'), caxis([max(max(anterior_emotional)).*-1 max(max(anterior_emotional))]); colorbar
 
 Rvec = mat2vec(R); 
