@@ -32,6 +32,9 @@ for fileindex = 1:size(filemat,1)
     % interpolate bad channels throughout
     [data, interpvecthroughout] = scadsAK_2dInterpChan(data, locations, 3);
 
+    [~,S2] = regress_eog(data', 1:32, sparse([32,31,1,29,2,30],[1,1,2,2,3,3],[1,-1,1,-1,1,-1]));
+    data = (S2');
+
     % Segmentation
     % this is the first step after reading stuff in: 
     % find the times (in sample points) where a stm+ event happened
@@ -64,8 +67,8 @@ for fileindex = 1:size(filemat,1)
 
     % do artifact correction
     % first bad channels within trials
-    [ mat_std, badindex, NGoodtrials ] = scadsAK_3dtrials(mat_std_tmp); 
-    [ mat_target, badindex, NGoodtrials ] = scadsAK_3dtrials(mat_target_tmp); 
+    [ mat_std, badindex, NGoodtrials ] = scadsAK_3dtrials(mat_std_tmp, 1.2); 
+    [ mat_target, badindex, NGoodtrials ] = scadsAK_3dtrials(mat_target_tmp, 1.2); 
 
 
     % average

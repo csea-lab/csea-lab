@@ -12,9 +12,11 @@ fsamp4save = 1000./(SampRate./length(timewin));
 outmat_all = []; 
 for index = 1:size(filemat,1)
     temp = load(deblank(filemat(index,:))); % loads 3D data
-    outmat_all = cat(3, outmat_all, temp.outmat(elcs,:,:)); 
+     mat = eval(['temp.' char(fieldnames(temp))]);
+    outmat_all = cat(3, outmat_all, mat(elcs,:,:)); 
 end
-    
+
+
 % 2. find the best spatial filter for the ssvep
         % filter 3d
         signal3d = filterFGx(outmat_all,SampRate,Targetfreq,.5);
@@ -38,15 +40,18 @@ end
 
           [W,L]=eig(Sigcov, (RefcovUP+RefcovLO)./2);
           [~,comp2plot] = max(diag(L)); % find maximum component
+          SaveAvgFile([deblank(filemat(1,1:end-3)) 'spatfilt.atg'],W(:,comp2plot)) % SAVE TOPO, NEED TO BE REVIEW
 
   % 3. reconstruct RESS component time series for each trial and condition
        for index = 1:size(filemat,1)
             RESS_time = [];
             temp = load(deblank(filemat(index,:))); % loads 3D data
-            outmat = temp.outmat(elcs,:,:); 
+            mat = eval(['temp.' char(fieldnames(temp))]);
       
-            for trial = 1:size(outmat,3)
-            RESS_time( :, trial) = W(:,comp2plot)'*squeeze(outmat(:,:, trial));
+            for trial = 1:size(mat,3)
+            RESS_time( :, trial) = W(:,comp2plot)'*squeeze(mat(elcs,:, trial));
+            %save([deblank(filemat(index,1:31)) ['.RESS_time_' deblank(filemat(index,33)) '.mat']],'RESS_time')
+            save([deblank(filemat(index,1:end-3)) 'RESS_time' '.mat'],'RESS_time')
             end % trial loop 
             
             [powsing, freqsing] = FFT_spectrum3D(reshape(RESS_time, 1, size(RESS_time, 1), size(RESS_time, 2)), timewin, SampRate);
@@ -54,11 +59,12 @@ end
             if plotflag, figure(99)
                 subplot(2,1,1), plot(squeeze(mean(RESS_time, 2)))
                 title(deblank(filemat(index,1:end-3)))
-                subplot(2,1,2), bar(freqsing(5:200), powsing(1, 5:200)); pause
+                subplot(2,1,2), bar(freqsing(5:400), powsing(1, 5:400)); pause
             end
 
        %eval([' save  ' deblank(filemat(index,1:end-3)) 'RESStim.mat RESS_time -mat']);
        SaveAvgFile([deblank(filemat(index,1:end-3)) 'RESSpow.at'],powsing,[],[], fsamp4save);
+       %SaveAvgFile([deblank(filemat(index,1:31)) ['.RESSpow_' deblank(filemat(index,33)) '.at']],powsing,[],[], fsamp4save);
 
        end  % file loop
     

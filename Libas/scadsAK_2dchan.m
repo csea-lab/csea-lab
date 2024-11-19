@@ -11,7 +11,7 @@ function [badindexvec] = scadsAK_2dchan(inmat,threshold)
    
     % calculate compound quality index
     qualindex = absvalvec+ stdvalvec+ maxtransvalvec; 
-    figure(101)
+    figure(102)
     plot(qualindex)
     
     

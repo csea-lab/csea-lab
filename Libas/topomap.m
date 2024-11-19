@@ -17,7 +17,7 @@ if size(datamat,1) == 129;
    
    for time = 1:size(datamat,2)
    
-h= figure; set(h,'Position', [time*150 898 560 420]), topoplot(datamat(:,time) , locsEEGLAB129HCL, 'maplimits', MAPLIMITS), colorbar
+h= figure; set(h,'Position', [time*400 898 560 420]), topoplot(datamat(:,time) , locsEEGLAB129HCL, 'maplimits', MAPLIMITS), colorbar
    
    end
    
@@ -27,7 +27,7 @@ elseif size(datamat,1) == 257;
      
      for time = 1:size(datamat,2)
      
-       h= figure; set(h,'Position', [time*350 898 560 420]);  topoplot( datamat(:,time) , locsEEGLAB257HCL, 'maplimits', MAPLIMITS), colorbar
+       h= figure; set(h,'Position', [time*200 898 560 420]);  topoplot( datamat(:,time) , locsEEGLAB257HCL, 'maplimits', MAPLIMITS), colorbar
       
      end
      
@@ -37,7 +37,7 @@ elseif size(datamat,1) == 16;
      
      for time = 1:size(datamat,2)
      
-       h= figure; set(h,'Position', [time*150 898 560 420]);  topoplot( datamat(:,time) , locsOlfaxis, 'maplimits', MAPLIMITS), colorbar
+       h= figure; set(h,'Position', [time*200 898 560 420]);  topoplot( datamat(:,time) , locsOlfaxis, 'maplimits', MAPLIMITS), colorbar
       
      end
      
@@ -47,7 +47,7 @@ elseif size(datamat,1) == 31;
      
      for time = 1:size(datamat,2)
      
-       h= figure; set(h,'Position', [time*150 898 560 420]);  topoplot( datamat(:,time) , MRI_EEG31Locs, 'maplimits', MAPLIMITS, 'electrodes', 'labels'), colorbar
+       h= figure; set(h,'Position', [time*200 898 560 420]);  topoplot( datamat(:,time) , MRI_EEG31Locs, 'maplimits', MAPLIMITS, 'electrodes', 'labels'), colorbar
       
      end      
 
@@ -57,7 +57,7 @@ elseif size(datamat,1) == 33;
      
      for time = 1:size(datamat,2)
      
-       h= figure; set(h,'Position', [time*150 898 560 420]);  topoplot( datamat(:,time) , locations, 'maplimits', MAPLIMITS, 'electrodes', 'labels'), colorbar
+       h= figure; set(h,'Position', [time*200 898 560 420]);  topoplot( datamat(:,time) , locations, 'maplimits', MAPLIMITS, 'electrodes', 'labels'), colorbar
       
      end       
       
@@ -67,7 +67,7 @@ elseif size(datamat,1) == 34
      
      for time = 1:size(datamat,2)
      
-       h= figure; set(h,'Position', [time*150 898 560 420]);  topoplot( datamat(:,time) , binghamelcpos34, 'maplimits', MAPLIMITS, 'electrodes', 'labels'), colorbar
+       h= figure; set(h,'Position', [time*200 898 560 420]);  topoplot( datamat(:,time) , binghamelcpos34, 'maplimits', MAPLIMITS, 'electrodes', 'labels'), colorbar
       
      end       
         
