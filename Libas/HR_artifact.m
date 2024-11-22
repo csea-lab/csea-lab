@@ -25,7 +25,7 @@ count1 = 1;
 count2 = 1;
 
 for index = 1:length(IBIvecClean1)-1
-   if IBIvecClean1(index) < .65
+   if IBIvecClean1(index) < .50
        IBIvecClean(count1) = IBIvecClean1(index) + IBIvecClean1(index+1); 
        IBIvecClean(count1+1) = nan;
        count1 = count1+2;
