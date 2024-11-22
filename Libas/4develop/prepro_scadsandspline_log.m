@@ -39,7 +39,12 @@ function [EEG_allcond] =  prepro_scadsandspline_log(datapath, logpath, convecfun
      EEG = eeg_checkset( EEG );
 
      % eye blink correction with Biosig
-     [~,S2] = regress_eog(double(EEG.data'), 1:128, sparse([125,128,25,127,8,126],[1,1,2,2,3,3],[1,-1,1,-1,1,-1]));
+     if size(EEG.data, 1)==128
+         [~,S2] = regress_eog(double(EEG.data'), 1:128, sparse([125,128,25,127,8,126],[1,1,2,2,3,3],[1,-1,1,-1,1,-1]));
+     elseif size(EEG.data, 1)==256
+         [~,S2] = regress_eog(double(EEG.data'), 1:256, sparse([252,226,37,241,18,238],[1,1,2,2,3,3],[1,-1,1,-1,1,-1]));
+     end
+
      EEG.data = single(S2');
      EEG = eeg_checkset( EEG );
     
