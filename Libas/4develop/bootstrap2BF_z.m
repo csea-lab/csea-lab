@@ -1,7 +1,7 @@
 function [BF] = bootstrap2BF_z(dist1,dist2, plotflag)
 % This function takes two bootstrapped distributions (>1000 draws needed)
 % dist1 and dist2, which reflect an effect model (dist1) and a null model
-% (dist2). It computes then the BF as posterior odds over prior odds foe the
+% (dist2). It computes then the BF as posterior odds over prior odds for the
 % model entering the bootstrap in dist1. in many cases dist2 will be a
 % permutation distribution representing the null model. 
 % dist1 and dist2 are vectors
