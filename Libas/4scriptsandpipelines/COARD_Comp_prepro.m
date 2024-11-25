@@ -23,6 +23,7 @@ for subindex = 1:size(folderNames,2)
     eval(['cd ' folderNames{subindex}])
 
    delete *.at*
+    delete *.trls*
 
     datfile = getfilesindir(pwd, '*.dat');
     rawfile = getfilesindir(pwd, '*.RAW');

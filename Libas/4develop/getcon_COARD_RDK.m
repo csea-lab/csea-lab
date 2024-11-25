@@ -45,11 +45,15 @@ conditionvector = column(conditionvector);
 
 crosstab(targetpresent, reportvector)
 
-percentcorrectoverall = 1-sum(diag( crosstab(targetpresent, reportvector)))./sum(sum(crosstab(targetpresent, reportvector)))
+percentcorrectoverall = 1-sum(diag( crosstab(targetpresent, reportvector)))./sum(sum(crosstab(targetpresent, reportvector)));
 
 
 for condition=1:4
     targvec =  targetpresent(conditionvector==condition);
     repvec = reportvector(conditionvector==condition);
-    percentcorrect(condition) =1-sum(diag( crosstab(targvec, repvec)))./sum(sum(crosstab(targvec, repvec)));
+    if size(crosstab(targvec, repvec)) == [2,2]
+        percentcorrect(condition) =1-sum(diag( crosstab(targvec, repvec)))./sum(sum(crosstab(targvec, repvec)));
+    else
+        percentcorrect(condition) = .5;
+    end
 end
