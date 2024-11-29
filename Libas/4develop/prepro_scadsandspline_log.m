@@ -1,4 +1,4 @@
-function [EEG_allcond] =  prepro_scadsandspline_log(datapath, logpath, convecfun, stringlength, conditions2select, timevec, filtercoeffHz, filtord, skiptrials)
+function [EEG_allcond] =  prepro_scadsandspline_log(datapath, logpath, convecfun, stringlength, conditions2select, timevec, filtercoeffHz, filtord, skiptrials, sfpfilename, ecfgfilename)
 % datapath is name of .raw file, this function rins only for 129channel EGI data
 % logpath is the name .dat file
 % convecfun is the name of a function that takes a dat file and generates a
@@ -12,6 +12,8 @@ function [EEG_allcond] =  prepro_scadsandspline_log(datapath, logpath, convecfun
 % in Hertz
 % filtord is the order of the filter, if funny results make smaller, 4 is
 % good as a starting point. 
+% the final two inputs are filenames for electrode confis files in .sfp
+% format and ecfg format. make sure these are in the matlab path
 
     thresholdChanTrials = 2.5; 
     thresholdTrials = 1.25;
@@ -24,9 +26,11 @@ function [EEG_allcond] =  prepro_scadsandspline_log(datapath, logpath, convecfun
 
      %read data into eeglab
      EEG = pop_readegi(datapath, [],[],'auto');
-     EEG=pop_chanedit(EEG, 'load',{'GSN-HydroCel-129.sfp','filetype','autodetect'});
+     %EEG=pop_chanedit(EEG, 'load',{'GSN-HydroCel-129.sfp','filetype','autodetect'});
+     EEG=pop_chanedit(EEG, 'load',{sfpfilename,'filetype','autodetect'});
      EEG.setname='temp';
      EEG = eeg_checkset( EEG );
+     
      
      % bandpass filter
      [B,A] = butter(filtord,filtercoeffHz/(EEG.srate/2));
@@ -35,7 +39,12 @@ function [EEG_allcond] =  prepro_scadsandspline_log(datapath, logpath, convecfun
      EEG = eeg_checkset( EEG );
 
      % eye blink correction with Biosig
-     [~,S2] = regress_eog(double(EEG.data'), 1:128, sparse([125,128,25,127,8,126],[1,1,2,2,3,3],[1,-1,1,-1,1,-1]));
+     if size(EEG.data, 1)==128
+         [~,S2] = regress_eog(double(EEG.data'), 1:128, sparse([125,128,25,127,8,126],[1,1,2,2,3,3],[1,-1,1,-1,1,-1]));
+     elseif size(EEG.data, 1)==256
+         [~,S2] = regress_eog(double(EEG.data'), 1:256, sparse([252,226,37,241,18,238],[1,1,2,2,3,3],[1,-1,1,-1,1,-1]));
+     end
+
      EEG.data = single(S2');
      EEG = eeg_checkset( EEG );
     
@@ -73,12 +82,12 @@ function [EEG_allcond] =  prepro_scadsandspline_log(datapath, logpath, convecfun
      inmat3d = double(EEG_allcond.data);
 
      % find generally bad channels
-     [outmat3d, BadChanVec] = scadsAK_3dchan(inmat3d, 'HC1-128.ecfg', thresholdChan); 
+     [outmat3d, BadChanVec] = scadsAK_3dchan(inmat3d, ecfgfilename, thresholdChan); 
      EEG_allcond.data = single(outmat3d); 
      EEG_allcond = eeg_checkset( EEG_allcond );
 
     % find bad channels in epochs
-    [ outmat3d, badindexmat] = scadsAK_3dtrialsbychans(outmat3d, thresholdChanTrials, 'HC1-128.ecfg');
+    [ outmat3d, badindexmat] = scadsAK_3dtrialsbychans(outmat3d, thresholdChanTrials, ecfgfilename);
      EEG_allcond.data = single(outmat3d);
      EEG_allcond = eeg_checkset( EEG_allcond );
 
@@ -96,7 +105,7 @@ function [EEG_allcond] =  prepro_scadsandspline_log(datapath, logpath, convecfun
       %artifactlog.badtrialsbycondition = [size(EEG_21.data, 3),size(EEG_22.data, 3), size(EEG_23.data, 3),size(EEG_24.data, 3)];
 
       %% select conditions; compute and write output
-     artifactlog.badtrialsbycondition = []; % remaining artifact info by condition will be populated
+     artifactlog.goodtrialsbycondition = []; % remaining artifact info by condition will be populated
 
     for con_index = 1:size(conditions2select,2)
   
@@ -111,13 +120,13 @@ function [EEG_allcond] =  prepro_scadsandspline_log(datapath, logpath, convecfun
      Mat3D = avg_ref_add3d(double(EEG_temp.data));
 
      % save the ERP in emegs at format
-      SaveAvgFile([basename '.at' conditions2select{con_index} '.ar'],ERPtemp,[],[], 500, [], [], [], [], 301); 
+      SaveAvgFile([basename '.at' conditions2select{con_index} '.ar'],ERPtemp,[],[], EEG.srate, [], [], [], [], abs(timevec(1) *EEG.srate)+1); 
 
       % save the single trial array in 3D
       save([basename '.trls.' conditions2select{con_index} '.mat'], 'Mat3D', '-mat')
    
       % complete artifact info
-      artifactlog.badtrialsbycondition = [artifactlog.badtrialsbycondition; size(EEG_temp.data, 3)];
+      artifactlog.goodtrialsbycondition = [artifactlog.goodtrialsbycondition; size(EEG_temp.data, 3)];
 
     end
 
