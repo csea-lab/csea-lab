@@ -23,13 +23,9 @@ figure
 plot(datamat.Samples.time, datavec)
 hold on
 plot(startbins, 200, '*')
-
-% Add labels for the x-axis and y-axis
 xlabel('Time (milliseconds)')
 ylabel('Pupil Size')
-% Add a title to the plot
 title('Pupil Size vs. Time and Trials')
-%%%End of addition%%%
 
 
 timestamps = datamat.Samples.time; % these are the time stamps in ms that match where the data are
@@ -98,10 +94,11 @@ pause(.5)
  % put in mat format chan (3) by time by trials
  matcorr = zeros(2301, 291);
  for x = 1:size(indices,2)
- matcorr(:, x) = datavec_corr(indices(x)-500:indices(x)+1800);  
+ matcorr(:, x) = datavec_corr(indices(x)-500:indices(x)+1800);
  end
+matcorr = puptomm(matcorr);
 
- % plot the data
+% plot the data
  figure
  for x = 1:291
  plot(taxis, matcorr(:,x)'), title (['CORRECTED - trial number:' num2str(x)]), 
@@ -130,16 +127,18 @@ pause(.5)
  end
  
 
+
  for condition = 1:14
- matoutbsl = bslcorr(matout', 300:500)'; %300 to 500 represents samplepoints before stimulus onset to average for baseline; 400 ms
+     %baseline corrected and converted to mm
+ matoutbsl= bslcorr(matout', 300:500)'; %300 to 500 represents samplepoints before stimulus onset to average for baseline; 400 ms
  matoutbsldiv = bslcorrdivide(matout', 300:500)';
  end
  
- save([edffile '.pup.out.mat'], 'matout', '-mat')
- save([edffile '.corr.mat'], 'matcorr', '-mat')
+ save([edffile '.corr.mat'], 'matcorr', '-mat') %converted to mm by trial
+ save([edffile '.pup.out.mat'], 'matout', '-mat') %converted to mm by condition
  save([edffile '.percentbad.mat'], 'percentbadvec', 'percentbadsub', 'percentbadcond', '-mat') 
- save([edffile '.bsl.mat'], 'matoutbsl', '-mat')
- save([edffile '.bsldiv.mat'], 'matout', '-mat')
+ save([edffile '.bsl.mat'], 'matoutbsl', '-mat') %bsl subtraction, mm, by condition
+ save([edffile '.bsldiv.mat'], 'matout', '-mat') %bsl division, mm, by condition
 
 %%condition averaged across trials by time for 14 conditions
 figure(101)
@@ -165,7 +164,7 @@ xlabel('Time (milliseconds)'), ylabel('Pupil Size')
 
 avgCond = mean(matoutbsl, 1);
 
- save([edffile '.avgCond.mat'], 'avgCond', '-mat')
+ % save([edffile '.avgCond.mat'], 'avgCond', '-mat')
 
 pause()
 end
