@@ -37,6 +37,13 @@ for index = 1:length(IBIvecClean1)-1
 
 end
 
+% change criterion
+tempdiff  = diff(IBIvecClean); 
+jumpindexvec = find(abs(tempdiff) > .333); 
+jumpcorrectindexvec = jumpindexvec+1; 
+IBIvecClean(jumpcorrectindexvec) = mean(IBIvecClean); 
+
+
 % get rid of nans and 0s
 IBIvecClean(isnan(IBIvecClean)) = []; 
 IBIvecClean(IBIvecClean==0) = []; 
