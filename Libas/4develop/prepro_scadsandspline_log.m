@@ -30,7 +30,7 @@ function [EEG_allcond] =  prepro_scadsandspline_log(datapath, logpath, convecfun
      EEG.setname='temp';
      EEG = eeg_checkset( EEG );
      
-     
+
      % bandpass filter
      [B,A] = butter(filtord,filtercoeffHz/(EEG.srate/2));
      filtereddata = filtfilt(B,A,double(EEG.data)')'; % 
