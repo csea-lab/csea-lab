@@ -26,7 +26,6 @@ function [EEG_allcond] =  prepro_scadsandspline_log(datapath, logpath, convecfun
 
      %read data into eeglab
      EEG = pop_readegi(datapath, [],[],'auto');
-     %EEG=pop_chanedit(EEG, 'load',{'GSN-HydroCel-129.sfp','filetype','autodetect'});
      EEG=pop_chanedit(EEG, 'load',{sfpfilename,'filetype','autodetect'});
      EEG.setname='temp';
      EEG = eeg_checkset( EEG );
