@@ -1,6 +1,6 @@
 % postprocessing4sarah
 
-% first do the wavelet analysis
+%% first do the wavelet analysis
 
 cd /Users/andreaskeil/Desktop/gaborgentone/trial3dmats/
 
@@ -85,6 +85,51 @@ contourf(taxis, faxis, squeeze(Fcontmat_linear(sensor,:, :))'), colorbar
 alphatFtests = squeeze(Fcontmat_linear(:, :, 8)); 
 
 plot(taxis, Fcontmat_linear(81, :, 8))
+
+%% spectra for the ssvep
+% the first method
+
+filemat = getfilesindir(pwd, '*trls*');
+
+get_FFT_mat3d(filemat, 301:1300, 500);
+
+filemat = getfilesindir(pwd, '*.spec');
+
+mergemulticons(filemat, 4, 'GM22.singletrialspec')
+
+% do the F test
+ [repmat] = makerepmat(filemat, 22, 4, []);
+
+for frequency = 1:500
+    [Fcontmat_linear(:,frequency),rcontmat,MScont,MScs, dfcs]=contrast_rep_sign(squeeze(repmat(:, frequency, :, :)),[-2 -1 1 2]); 
+end
+
+
+% the RESS is the second method
+filemat = getfilesindir(pwd, '*trls*');
+
+for filestart = 1:4:88
+    filemat_actual = filemat(filestart:filestart+3, :), pause(1)
+    RESS_filegroups23(filemat_actual, 1:120, 301:1300, 500, 15, 0) ;
+end
+
+filemat = getfilesindir(pwd, '*RESSpow*');
+mergemulticons(filemat, 4, 'GM22.RESSpow')
+
+
+con1 = ReadAvgFile('GM22.RESSpow.at1');
+con2 = ReadAvgFile('GM22.RESSpow.at2');
+con3 = ReadAvgFile('GM22.RESSpow.at3');
+con4 = ReadAvgFile('GM22.RESSpow.at4');
+
+ [repmatress] = makerepmat(filemat, 22, 4, []);
+
+
+for frequency = 1:500
+   temprep =  squeeze(repmatress(:, frequency, :, :)); 
+   repmatress2 = reshape(temprep, [1 22 4]);
+    [Fcontmat_linear_ress(:,frequency),rcontmat,MScont,MScs, dfcs]=contrast_rep_sign(repmatress2,[-2 -1 1 2]); 
+end
 
 
 
