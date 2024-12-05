@@ -36,9 +36,9 @@ function [cube_coords,r] = LB3_prepcoord_4clusters(coor3d)
 %     % add ref
 %     coor3d(129,:) = [0 0 8.899];
 %     no_elec = size(coor3d,1);
-%     if norm(coor3d(1,:)) < 1.1
-%         coor3d = coor3d.*4;
-%     end
+    % if norm(coor3d(1,:)) < 1.1
+    %     coor3d = coor3d.*4;
+    % end
 
 %     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %     %% - 256 EGI
