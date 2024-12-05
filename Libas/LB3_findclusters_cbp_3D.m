@@ -91,7 +91,7 @@ if teststat ==1 % t-value --> pos AND neg cluster
     for clusterindex = 1:CON2.NumObjects % number of clusters found
         clustersize2(clusterindex) = sum(sum(sum(sum(labelmat2 == clusterindex))));
         clusterSums2(clusterindex) = sum(mat2vec(volumeWithTs(labelmat2 == clusterindex)));
-        var2 = squeeze(sum(sum(labelmat1 == clusterindex)));  % this is of size tp
+        var2 = squeeze(sum(sum(labelmat2 == clusterindex)));  % this is of size tp
         varsum_time2(clusterindex,:) = sum(var2,1);
     end
 
