@@ -9,6 +9,8 @@ filemat22 = filemat(2:4:end,:);
 filemat23 = filemat(3:4:end,:);         
 filemat24 = filemat(4:4:end,:);
 
+BFmap_lumi = nan(size(mat3d_1,1), size(mat3d_1,2));
+
 % luminance stimuli
 % use topottest function to make 3d arrays: elec by time point by subject
 [~, mat3d_1, mat3d_2] = topottest(filemat22, filemat21, [], []);
