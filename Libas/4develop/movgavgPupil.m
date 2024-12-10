@@ -1,5 +1,6 @@
-function [outinnerprodvec] = movgavgPupil(conditionvec,matcorr, apriorimodel)
+function [outinnerprodvec] = movgavgPupil(conditionvec,matcorr, apriorimodel, datafile, timecsplus, studyconds)
 
+ 
 outinnerprodvec = [];
 
 apriorimodel = column(apriorimodel);
@@ -8,13 +9,13 @@ matcorrbsl = bslcorr(matcorr', 300:500)'; % baseline correction by subtraction
 
 for segment = 1:length(conditionvec)-12
 
-    meantrialbslpupil = mean(matcorrbsl(1251:1500, segment:segment+11)); %pupil dat for 12 cons trials
+    meantrialbslpupil = mean(matcorrbsl(timecsplus, segment:segment+11)); %pupil dat for 12 cons trials
 
     conditionvec12 = conditionvec(segment:segment+11);
     
     conditionspresent = unique(conditionvec12);
 
-    if length(conditionspresent) == 7
+    if length(conditionspresent) == studyconds 
 
         vec4innerprod =[]; 
 
@@ -23,13 +24,15 @@ for segment = 1:length(conditionvec)-12
         index = find(conditionvec12 == conditionspresent(conditionindex));
 
         vec4innerprod(conditionindex) = mean(meantrialbslpupil(index));
-   
+          
         end
-        outinnerprodvec = [outinnerprodvec; vec4innerprod*apriorimodel];
 
+       outinnerprodvec = [outinnerprodvec; vec4innerprod*apriorimodel];
+       
     end
-
+    
 end
 
 
-
+% 
+% save([edffile '.sel.innerprod.mat'], 'outinnerprodvec', '-mat');

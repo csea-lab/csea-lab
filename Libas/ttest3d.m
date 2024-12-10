@@ -41,7 +41,6 @@ mat4d2 = mat4d2(:, 1:downsamp:end, :, :);
 
 disp('done downsampling, calculating ttests') 
 
-
 [dummy, dummy, dummy, stats] = ttest(mat4d1, mat4d2, [], [], 4); 
 
 outmat = stats.tstat; 

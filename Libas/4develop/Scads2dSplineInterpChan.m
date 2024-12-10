@@ -10,7 +10,7 @@ function OutMat = Scads2dSplineInterpChan(EEGMat, BadChanVec, ...
 % Currently using Approx code status (ScalpCsdIndex = 1), not CSD or anything else
 
 
-% Preperation path set up to load EEG configuration file and where to save
+% Preparation path set up to load EEG configuration file and where to save
 % coefficients. 
 if(nargin <4)
     ScalpLambda = 0.0200;

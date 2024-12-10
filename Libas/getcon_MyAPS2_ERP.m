@@ -1,4 +1,9 @@
-function [condvec4ERP, picvec, singpicvec_num] = getcon_MyAPS2_ERP(filepath)
+function [condvec4ERP, picvec, singpicvec_num] = getcon_MyAPS2_ERP(filepath, singleTrial)
+
+if nargin < 2
+    singleTrial = 0;
+end
+
 picvec = [];
 condvec4ERP = []; 
 
@@ -52,4 +57,8 @@ a = 1;
  numvecStr = (picvec(:, end-1:end));
  singpicvec_string = [ num2str(condvec4ERP) numvecStr];
  singpicvec_num = str2num(singpicvec_string);
+
+ if singleTrial
+    condvec4ERP = singpicvec_num;
+ end
  
