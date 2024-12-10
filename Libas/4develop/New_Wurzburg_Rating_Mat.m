@@ -1,4 +1,4 @@
-pwd = '/Users/admin/Desktop/hengle/New_Wurzburg/SAM_Ratings'
+pwd = '/Volumes/TOSHIBA EXT/New_Wurzburg/Analyses/Indivdual SAM Ratings'
 filemat = getfilesindir(pwd, '*Sam*')
 
 subject_numbers = [];
