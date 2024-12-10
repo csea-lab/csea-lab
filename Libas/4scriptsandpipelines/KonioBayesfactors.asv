@@ -1,0 +1,47 @@
+
+cd '/Users/andreaskeil/Desktop/Konioproject 2024/hampfiles'
+clear
+
+filemat = getfilesindir(pwd, '*hamp8');
+
+filemat21 = filemat(1:4:end,:);
+filemat22 = filemat(2:4:end,:);
+filemat23 = filemat(3:4:end,:);         
+filemat24 = filemat(4:4:end,:);
+
+% luminance stimuli
+% use topottest function to make 3d arrays: elec by time point by subject
+[~, mat3d_1, mat3d_2] = topottest(filemat22, filemat21, [], []);
+
+[effect_dist_bootstrap, nullperm_dist_bootstrap] = bootstrap_diffs(mat3d_1,mat3d_2);
+
+for elec = 1:size(mat3d_1,1)
+    for timepoint = 1:size(mat3d_1,2)
+        BFmap_lumi(elec, timepoint) = bootstrap2BF_z(squeeze(effect_dist_bootstrap(elec,timepoint,:)),squeeze(nullperm_dist_bootstrap(elec,timepoint,:)), 0);
+    end
+   disp('elec: '), fprintf(num2str(elec))
+end
+
+
+% konio stimuli
+% use topottest function to make 3d arrays: elec by time point by subject
+
+[~, mat3d_1, mat3d_2] = topottest(filemat24, filemat23, [], []);
+
+[effect_dist_bootstrap, nullperm_dist_bootstrap] = bootstrap_diffs(mat3d_1,mat3d_2);
+
+for elec = 1:size(mat3d_1,1)
+    for timepoint = 1:size(mat3d_1,2)
+        BFmap_konio(elec, timepoint) = bootstrap2BF_z(squeeze(effect_dist_bootstrap(elec,timepoint,:)),squeeze(nullperm_dist_bootstrap(elec,timepoint,:)), 0);
+    end
+end
+
+
+
+
+
+
+
+
+
+
