@@ -3,11 +3,12 @@ function [effect_dist_bootstrap, nullperm_dist_bootstrap] = bootstrap_diffs(mat1
 % conditions, using paired t-tests.
 % input is 3D arrays  sensors, by timepoints, by participants
 
-ndraws = 800; 
+ndraws = 2000; 
 
 nsubjects = size(mat1,3);
 
 temparray4perm = cat(4,mat1, mat2); 
+temparray4perm_loop = nan(size(temparray4perm));
 
 nullperm_dist_bootstrap = nan( size(mat1,1),  size(mat1,2), ndraws);  
 effect_dist_bootstrap = nan( size(mat1,1),  size(mat1,2), ndraws); 
@@ -27,8 +28,11 @@ for draw = 1:ndraws
 
     %for bootstrapped distribution of the null model, scramble the
     %conditions for each subject
-    a = ceil(rand(1,nsubjects).*2); b = abs(a*-1 +3);
-    temparray4perm_loop= temparray4perm(:, :, :, [a' b']);
+   a = ceil(rand(1,nsubjects).*2)'; b = abs(a*-1 +3);
+    permindices = [a b];
+   for subindex_perm = 1:nsubjects
+    temparray4perm_loop(:, :, subindex_perm, 1:2)= temparray4perm(:, :, subindex_perm, permindices(subindex_perm,:));
+   end
 
    [~, ~, ~, stats_perm] = ttest(squeeze(temparray4perm_loop(:, :, :, 1)), squeeze(temparray4perm_loop(:, :, :, 2)), 'Dim', 3); 
     nullperm_dist_bootstrap(:, :, draw) = stats_perm.tstat;
