@@ -40,7 +40,15 @@ for elec = 1:size(mat3d_1,1)
     end
 end
 
+% BFmap_konio and BFmap_Lumi converted to log10
 
+BFmap_lumiLog10 = log10(BFmap_lumi);
+
+BFmap_konioLog10 = log10(BFmap_konio);
+
+SaveAvgFile('BFmap_lumiLog10.at', BFmap_lumiLog10, [], [], 500, [], [], [], [], 301);
+
+SaveAvgFile('BFmap_konioLog10.at', BFmap_konioLog10, [], [], 500, [], [], [], [], 301);
 
 
 
