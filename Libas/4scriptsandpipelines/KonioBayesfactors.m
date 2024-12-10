@@ -11,7 +11,9 @@ filemat24 = filemat(4:4:end,:);
 
 % luminance stimuli
 % use topottest function to make 3d arrays: elec by time point by subject
-[~, mat3d_1, mat3d_2] = topottest(filemat22, filemat21, [], []);
+[~, mat3d_1, mat3d_2] = topottest(filemat22, filemat21, [], [], 0);
+
+BFmap_lumi = nan(size(mat3d_1,1), size(mat3d_1,2));
 
 [effect_dist_bootstrap, nullperm_dist_bootstrap] = bootstrap_diffs(mat3d_1,mat3d_2);
 
@@ -26,7 +28,9 @@ end
 % konio stimuli
 % use topottest function to make 3d arrays: elec by time point by subject
 
-[~, mat3d_1, mat3d_2] = topottest(filemat24, filemat23, [], []);
+[~, mat3d_1, mat3d_2] = topottest(filemat24, filemat23, [], [], 0);
+
+BFmap_konio = nan(size(mat3d_1,1), size(mat3d_1,2));
 
 [effect_dist_bootstrap, nullperm_dist_bootstrap] = bootstrap_diffs(mat3d_1,mat3d_2);
 
