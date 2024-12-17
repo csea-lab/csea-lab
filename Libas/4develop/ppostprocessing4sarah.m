@@ -74,7 +74,7 @@ for time = 1:1800
     repeatmat = cat(3, squeeze(mat4d21(:, time, frequency, :)), squeeze(mat4d22(:, time, frequency, :)), ...
         squeeze(mat4d23(:, time, frequency, :)), squeeze(mat4d24(:, time, frequency, :))); 
 
-    [Fcontmat_linear(:,time, frequency),rcontmat,MScont,MScs, dfcs]=contrast_rep_sign(repeatmat,[3 -1 -1 -1]); 
+    [Fcontmat_linear(:,time, frequency),rcontmat,MScont,MScs, dfcs]=contrast_rep_sign(repeatmat,[-2 -1 1 2]); 
     
     end
     if time./100 == round(time./100), fprintf('.'), end
@@ -104,18 +104,19 @@ for frequency = 1:500
     [Fcontmat_linear(:,frequency),rcontmat,MScont,MScs, dfcs]=contrast_rep_sign(squeeze(repmat(:, frequency, :, :)),[-2 -1 1 2]); 
 end
 
+SaveAvgFile('Fcontmat_linear_spec3d.at',Fcontmat_linear,[],[],2000)
 
-% the RESS is the second method
+
+%% the RESS is the second method
 filemat = getfilesindir(pwd, '*trls*');
 
 for filestart = 1:4:88
-    filemat_actual = filemat(filestart:filestart+3, :), pause(1)
+    filemat_actual = filemat(filestart:filestart+3, :); pause(1)
     RESS_filegroups23(filemat_actual, 1:120, 301:1300, 500, 15, 0) ;
 end
 
 filemat = getfilesindir(pwd, '*RESSpow*');
 mergemulticons(filemat, 4, 'GM22.RESSpow')
-
 
 con1 = ReadAvgFile('GM22.RESSpow.at1');
 con2 = ReadAvgFile('GM22.RESSpow.at2');
@@ -124,7 +125,6 @@ con4 = ReadAvgFile('GM22.RESSpow.at4');
 
  [repmatress] = makerepmat(filemat, 22, 4, []);
 
-
 for frequency = 1:500
    temprep =  squeeze(repmatress(:, frequency, :, :)); 
    repmatress2 = reshape(temprep, [1 22 4]);
@@ -132,7 +132,56 @@ for frequency = 1:500
 end
 
 
+SaveAvgFile('Fcontmat_linear_ress.at',Fcontmat_linear_ress,[],[],2000)
+
+%% this cell is for the cluster based stuff
+
+% first, make the coordinates for the cube
+coor3d = ReadSfpFile('GSN-HydroCel-129.sfp');
+coor3d(129,:) = [0 0 8.899];
+
+if norm(coor3d(1,:)) < 1.1
+    coor3d = coor3d.*4;
+end
+[cube_coords,r] = LB3_prepcoord_4clusters(coor3d);
+
+% now run the cluster finding algorithm for the F test on the spec 3 D 
+% (not RESS) 
+
+frequency = 31; 
+
+cd /Users/andreaskeil/Desktop/gaborgentone/spec3D
+Fcontmatsigned = ReadAvgFile('Fcontmat_linear_spec3d.at');
+threshold = 3.08; % fpdf(3.08, 1, 21); 
+Fmat4test = Fcontmatsigned(:, frequency);
+[cluster_out_pos_spec, cluster_out_neg_spec] = LB3_findclusters_cbp_3D(Fmat4test, cube_coords, threshold, 1, 1, 1);
+
+% now do the actual permutation
+filemat = getfilesindir(pwd, '*.spec');
+[repmat] = makerepmat(filemat, 22, 4, []);
 
 
+distpos = []; 
+distneg = []; 
+
+for draw = 1:5000
+    repmat_perm = repmat; 
+    for subject = 1:22
+        repmat_perm(:, :, subject, :) = repmat(:, :, subject, randperm(4)); 
+    end
+    [Fcontmat_linear_perm,rcontmat,MScont,MScs, dfcs]=contrast_rep_sign(squeeze(repmat_perm(:, frequency, :, :)),[-2 -1 1 2]); 
+    [cluster_out_pos_spec_perm, cluster_out_neg_spec_perm] = LB3_findclusters_cbp_3D(Fcontmat_linear_perm, cube_coords, threshold, 1, 0, 0);
+   
+    if ~isempty(cluster_out_pos_spec_perm.sum)
+    distpos(draw) = max(cluster_out_pos_spec_perm.sum); 
+    end
+    
+    if ~isempty(cluster_out_neg_spec_perm.sum)
+    distneg(draw) = min(cluster_out_neg_spec_perm.sum); 
+    end
+
+    if draw./10 == round(draw./10), fprintf('.'), end
+
+end
 
 
