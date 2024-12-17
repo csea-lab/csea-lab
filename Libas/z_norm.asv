@@ -1,0 +1,25 @@
+function [normmat] = z_norm(a)
+% z-transfomr of matrix a
+% a = inmat: observations by variables
+
+
+if size(a, 2) > 1 % if it is a matrix or row vector; 
+	
+    for SubInd = 1 : size(a, 1)	
+         normmat(SubInd,:) = (a(SubInd,:) - mean(a(SubInd,:), "omitnans") ) ./ mean(a(SubInd,:), "omitnans");
+    end
+    
+elseif size(a, 2) == 1 % if it is a column vector
+        normmat = (a-mean(a, , "omitnans"))./nanstd(a); 
+end
+
+
+
+
+
+
+
+
+
+
+
