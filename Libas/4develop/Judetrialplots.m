@@ -40,7 +40,7 @@ end
 filemat4plots = getfilesindir(pwd, '*con_fft.mat');
 avg4plotmat = avgmats_mat(filemat4plots);
 
-contourf(avg4plotmat, 10), colorbar
+contourf(avg4plotmat, 10), colorbar, title('grand mean')
 
 
 
