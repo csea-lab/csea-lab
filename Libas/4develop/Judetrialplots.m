@@ -1,5 +1,4 @@
 % this is the single trial visualization script
-
 cd '/Users/andreaskeil/Desktop/JudeGaborgen'
 
 filemat = getfilesindir(pwd, '*win.mat');
@@ -28,7 +27,9 @@ for subject = 1:length(startfileindex)
 
      data4plot =  movmean(data4plot, 3,  2, 'omitnan');
 
-    eval(['save ' file2load(1:4) 'trial4con_fft.mat data4plot -mat'])
+     data4plot = z_norm(data4plot')';
+
+    eval(['save ' file2load(1:4) 'trial4con_fft.mat data4plot -mat']);
 
     contourf(data4plot), title(file2load), colorbar, pause
 
@@ -36,9 +37,10 @@ end
 
 
 % make a grand average
-
 filemat4plots = getfilesindir(pwd, '*con_fft.mat');
 avg4plotmat = avgmats_mat(filemat4plots); 
+
+contourf(avg4plotmat, 10), colorbar
 
 
 
