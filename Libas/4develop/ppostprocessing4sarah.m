@@ -180,7 +180,7 @@ for draw = 1:5000
     distneg(draw) = min(cluster_out_neg_spec_perm.sum); 
     end
 
-    if draw./10 == round(draw./10), fprintf('.'), end
+    if draw./100 == round(draw./100), fprintf('.'), end
 
 end
 
