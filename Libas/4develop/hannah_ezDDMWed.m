@@ -1,4 +1,4 @@
-function [RT, MN, Var, Pc, outvec] = hannah_ezDDM(filepath)
+function [RT, MN, Var, Pc, outvec] = hannah_ezDDMWed(filepath)
 %
 %first, read in a new_wurz log file with RTs and everything
 table = readtable(filepath);
@@ -13,8 +13,7 @@ table = readtable(filepath);
 
 % hannah script trying to calculate percentage correct responses
 % defining variables 
-% number trials should be 225 if all trials were completed
-
+num_trials = 225
 cue_identifiers = {'C1', 'C2', 'C3', 'C4', 'C5'};
 cues_counterbalance_1 = {'LeftArrow', 'RightArrow', 'LeftArrow', 'RightArrow', 'LeftArrow'};
 cues_counterbalance_2 = {'RightArrow', 'LeftArrow', 'RightArrow', 'LeftArrow', 'RightArrow'};
@@ -35,8 +34,6 @@ counterC2 = 0;
 counterC3 = 0;
 counterC4 = 0;
 counterC5 = 0;
-
-correct_shock = 0; 
 
 for row = 1:size(table,1)
     cue = table2cell(table(row, 2)); 
@@ -70,6 +67,7 @@ for row = 1:size(table,1)
         RTvec_ntr = [RTvec_ntr rt];
         end
     end
+
 end
 
 RT.RTvec_ntr = RTvec_ntr; 
@@ -82,7 +80,7 @@ MN.meanRT_ntr = mean(RT.RTvec_ntr);
 
 Var.VarRT_shock = var(RT.RTvec_shock); 
 Var.VarRT_reward = var(RT.RTvec_reward); 
-Var.VarRT_ntr = var(RT.RTvec_ntr); 
+Var.arRT_ntr = var(RT.RTvec_ntr); 
 
 Pc.perCorr_shock = -0.001 + length(RT.RTvec_shock)./ (counterC1 + counterC2);
 Pc.perCorr_reward = -0.001 + length(RT.RTvec_reward)./ (counterC3 + counterC4);
@@ -92,5 +90,5 @@ Pc.perCorr_ntr = -0.001 + length(RT.RTvec_ntr)./ (counterC5);
 [v_reward a_reward Ter_reward] = ezDiffusion(Pc.perCorr_reward, Var.VarRT_reward, MN.meanRT_reward, .1);
 
 
- outvec = [v_shock a_shock Ter_shock v_reward a_reward Ter_reward Pc.perCorr_shock Pc.perCorr_reward MN.meanRT_shock MN.meanRT_reward Var.VarRT_shock Var.VarRT_reward];
 
+outvec = [v_shock a_shock Ter_shock v_reward a_reward Ter_reward Pc.perCorr_shock Pc.perCorr_reward]

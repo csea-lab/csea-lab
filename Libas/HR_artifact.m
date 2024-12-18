@@ -7,7 +7,7 @@ correctedflag = 0;
 % missing R waves, too long IBIS
 count = 1; 
 for index = 1:length(IBIvecInSecs)
-   if IBIvecInSecs(index) > 1.65
+   if IBIvecInSecs(index) > 1.55
       IBIvecClean1(count)  = IBIvecInSecs(index)./2; 
        IBIvecClean1(count+1)  = IBIvecInSecs(index)./2;
       count = count+1;
@@ -25,7 +25,7 @@ count1 = 1;
 count2 = 1;
 
 for index = 1:length(IBIvecClean1)-1
-   if IBIvecClean1(index) < .50
+   if IBIvecClean1(index) < .60
        IBIvecClean(count1) = IBIvecClean1(index) + IBIvecClean1(index+1); 
        IBIvecClean(count1+1) = nan;
        count1 = count1+2;
@@ -39,7 +39,7 @@ end
 
 % change criterion
 tempdiff  = diff(IBIvecClean); 
-jumpindexvec = find(abs(tempdiff) > .333); 
+jumpindexvec = find(abs(tempdiff) > .25); 
 jumpcorrectindexvec = jumpindexvec+1; 
 IBIvecClean(jumpcorrectindexvec) = mean(IBIvecClean); 
 

@@ -1,11 +1,12 @@
 
 cd '/Users/andreaskeil/Desktop/Konioproject 2024/hampfiles'
+clear
 
 coor3d = ReadSfpFile('GSN-HydroCel-129.sfp');
 coor3d(129,:) = [0 0 8.899];
 no_elec = size(coor3d,1);
 
-% [cube_coords,r] = LB3_prepcoord_4clusters(coor3d);
+ [cube_coords,r] = LB3_prepcoord_4clusters(coor3d);
 
 elecvecexclude = [128 127];
 
