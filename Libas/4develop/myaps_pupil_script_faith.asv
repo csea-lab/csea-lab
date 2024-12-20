@@ -16,7 +16,7 @@ end
 filemat_edf = getfilesindir(pwd, 'MyA2*edf');
 filemat_dat = getfilesindir(pwd, 'myaps2*');
 
-for subject = 1:size(filemat_dat,1)
+for subject = 40:size(filemat_dat,1)
 
  [matcorr, matout, matoutbsl, percentbadvec, percentbadsub, percentbadcond] = eye_pipeline(filemat_edf(subject,:), 500, 'getcon_MyAPS2_ERP', filemat_dat(subject,:), 'cue_on', 250, 2000, 0);   
 
@@ -45,16 +45,16 @@ for subject = 1:size(filemat1,1)
         [data] = bslcorr(datatemp', 1:250)';
     end
 
-    % hold on
-    % plot(data(:, 1), 'b')
-    % plot(data(:, 2), 'k')
-    % plot(data(:, 3), 'r')
-    % plot(data(:, 5), 'b--')
-    % plot(data(:, 6), 'k--')
-    % plot(data(:, 7), 'r--')
-    % pause
-    % hold off
-    % clf
+    hold on
+    plot(data(:, 1), 'b')
+    plot(data(:, 2), 'k')
+    plot(data(:, 3), 'r')
+    plot(data(:, 5), 'b--')
+    plot(data(:, 6), 'k--')
+    plot(data(:, 7), 'r--')
+    pause
+    hold off
+    clf
 
       if subject ==1 
         v1grand_sum = data; 
@@ -70,24 +70,25 @@ v1grand_mean = v1grand_sum./size(filemat1,1);
 % Create matrix for pupil data + baseline correct
 pupilmat =[]; 
 filemat1 = getfilesindir(pwd, 'MyAp*out.mat');
-
 for x = 1:58
-temp = load(filemat1(x,:)); datatemp = temp.matout; cali1 = mean(mean(datatemp));
+temp = load(filemat1(x,:)); datatemp = temp.matout; cali1 = mean(mean(datatemp)); [matout_all] = bslcorr(temp.matout(:, 1:6)', 1:250)'
 
-    if x >= 25
+     
+    if subject >= 25
         datatransform = (datatemp./cali1).*1000;
-        [data] = bslcorr(datatransform(:, 1:8)', 1:250)';
-    else x < 25
-        [data] = bslcorr(datatemp(:, 1:8)', 1:250)';
+        [data] = bslcorr(datatransform', 1:250)';
+    else subject < 25
+        [data] = bslcorr(datatemp', 1:250)';
     end
 
-pupilmat(:, :, x) = data; 
+pupilmat(:, :, x) = matout_all; 
 
 end
+disp('done')
 
 % average across timepoints
 v1_gm_time = []
-v1_gm_time(:, :) = mean(pupilmat(751:1751, :, :));
+v1_gm_time(:, :) = mean(pupilmat(500:1300, :, :));
 v1_gm_time = v1_gm_time'
 
 
@@ -102,16 +103,16 @@ for subject = 1:size(filemat2,1)
     datatemp = temp.matout;     
     [data] = bslcorr(datatemp', 1:250)';
     
-    hold on
-    plot(data(:, 1), 'b')
-    plot(data(:, 2), 'k')
-    plot(data(:, 3), 'r')
-    plot(data(:, 4), 'b--')
-    plot(data(:, 5), 'k--')
-    plot(data(:, 6), 'r--')
-    pause
-    hold off
-    clf
+    % hold on
+    % plot(data(:, 1), 'b')
+    % plot(data(:, 2), 'k')
+    % plot(data(:, 3), 'r')
+    % plot(data(:, 4), 'b--')
+    % plot(data(:, 5), 'k--')
+    % plot(data(:, 6), 'r--')
+    % pause
+    % hold off
+    % clf
 
       if subject ==1 
         v2grand_sum = data; 
@@ -136,5 +137,5 @@ disp('done')
 
 % average across timepoints
 v2_gm_time = []
-v2_gm_time(:, :) = mean(pupilmat(751:1251, :, :));
+v2_gm_time(:, :) = mean(pupilmat(500:1300, :, :));
 v2_gm_time = v2_gm_time'
