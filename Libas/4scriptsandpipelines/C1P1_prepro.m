@@ -28,7 +28,7 @@ for subindex = 1:size(folderNames,2)
     rawfile = getfilesindir(pwd, '*.RAW');
 
     % actual preprocessing
-   prepro_scadsandspline_log(rawfile, datfile, 'getcon_C1P1', 8, {'1' '2' '11' '10' '21' '30'}, [-.4 .4], [.1  30], 3, 1, 'GSN-HydroCel-256.sfp', 'HC1-256.ecfg')
+   LB3_prepro_pipeline(rawfile, datfile, 'getcon_C1P1', 8, {'1' '2' '11' '10' '21' '30'}, [-.4 .4], [.1  30], [3 8], 1, 'GSN-HydroCel-256.sfp', 'HC1-256.ecfg',0);
    % prepro_scadsandspline_log(datapath, logpath, convecfun, stringlength, conditions2select, timevec, filtercoeffHz, filtord, skiptrials, sfpfilename, ecfgfilename)
     cd ..
 
