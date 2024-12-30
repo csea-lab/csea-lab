@@ -1,4 +1,4 @@
-function [GMspectrum] = bingham_avgsubj(filemat, outname)
+function [GMspectrum_15HzFace] = bingham_avgsubj(filemat, outname)
 % this function takes processed spectrum files ending in Spec.mat
 % and computes an avg spectrum across subjects
 % to run function you must have filemat defined
@@ -13,8 +13,10 @@ function [GMspectrum] = bingham_avgsubj(filemat, outname)
 % e.g., plot(GMspectrum.freqs(1:100), GMspectrum.amphappy(17, 1:100)) plots
 % the frequency from 1-100 with the amplitude for happy face from sensor 20
 % for frequencies 1-100
+filemat = getfilesindir(pwd, '*spec.mat');
+outname = 'GMspectrum_15HzFace.mat';
 
-GMspectrum = []; 
+GMspectrum_15HzFace = []; 
 
 for fileindex = 1:size(filemat,1)
     
@@ -36,13 +38,13 @@ for fileindex = 1:size(filemat,1)
         
  end
         
-        GMspectrum.amphappy = Sumamphappy / fileindex;
-        GMspectrum.ampangry = Sumampangry / fileindex;
-        GMspectrum.ampsad = Sumampsad / fileindex;
-        GMspectrum.freqs = spectrum.freqs;
+        GMspectrum_15HzFace.amphappy = Sumamphappy / fileindex;
+        GMspectrum_15HzFace.ampangry = Sumampangry / fileindex;
+        GMspectrum_15HzFace.ampsad = Sumampsad / fileindex;
+        GMspectrum_15HzFace.freqs = spectrum.freqs;
         
 
-  save(outname, 'GMspectrum')
+  save (outname, 'GMspectrum_15HzFace')
   
 end
 

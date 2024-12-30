@@ -1,5 +1,5 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%% LB3: permute clusters
+%% LB3: permute clusters - 3D
 %%% function to permute clusters to get the clusterthreshold in order to
 %%% define "significant" clusters (i.e., exceeding the threshold) 
 %%% (cluster defined based on BWconncomp) from LB3_findclusters
@@ -22,7 +22,7 @@
 % Version: 15.08.2024
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-function [clusterthreshold_pos, clusterthreshold_neg, clustersize_pos, clustersize_neg, no_of_clusters, max_t_values, min_t_values] = LB3_permute_clusters(no_draws, cube_coords, mat1t, mat2t, threshold, teststat, percentage)
+function [clusterthreshold_pos, clusterthreshold_neg, clustersize_pos, clustersize_neg, no_of_clusters, max_t_values, min_t_values] = LB3_permute_clusters_3D(no_draws, cube_coords, mat1t, mat2t, threshold, teststat, percentage)
 
 % mat1t --> cond 1
 % mat2t --> cond2 --> each (tp, elec, subj)

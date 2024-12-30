@@ -14,8 +14,8 @@ delta = zeros(trials, dim);
 
 for t=2:trials
     delta(t) = u .* eta .* (r(t)-w(t));
-    w(t+1) = w(t) + delta(t) + intcpt;
+    w(t+1) = w(t) + delta(t);
 end
 
 w(isinf(w)) = 1;
-w = w(2:end); 
+w = w(2:end) + intcpt; 

@@ -1,4 +1,4 @@
-function [EEG_allcond] =  prepro_scadsandspline_log(datapath, logpath, convecfun, stringlength, conditions2select, timevec, filtercoeffHz, filtord, skiptrials, sfpfilename, ecfgfilename)
+function [EEG_allcond] =  ClarkHillyardPipeline(datapath, logpath, convecfun, stringlength, conditions2select, timevec, filtercoeffHz, filtord, skiptrials, sfpfilename, ecfgfilename, eyecorrflag)
 % datapath is name of .raw file, this function rins only for 129channel EGI data
 % logpath is the name .dat file
 % convecfun is the name of a function that takes a dat file and generates a
@@ -29,9 +29,12 @@ function [EEG_allcond] =  prepro_scadsandspline_log(datapath, logpath, convecfun
      EEG=pop_chanedit(EEG, 'load',{sfpfilename,'filetype','autodetect'});
      EEG.setname='temp';
      EEG = eeg_checkset( EEG );
-     
 
-     % lowpass filter
+     % downsample to 500 Hz
+     EEG = pop_resample( EEG, 500);
+     EEG = eeg_checkset( EEG );
+     
+     % highpass filter
      if filtercoeffHz(1) > 0
      [B,A] = butter(filtord(1),filtercoeffHz(1)/(EEG.srate/2), 'high');
      filtereddata = filtfilt(B,A,double(EEG.data)')'; % 
@@ -47,30 +50,28 @@ function [EEG_allcond] =  prepro_scadsandspline_log(datapath, logpath, convecfun
 
      EEG = eeg_checkset( EEG );
 
-     % eye blink correction with Biosig
-     if size(EEG.data, 1)==128
-         [~,S2] = regress_eog(double(EEG.data'), 1:128, sparse([125,128,25,127,8,126],[1,1,2,2,3,3],[1,-1,1,-1,1,-1]));
-     elseif size(EEG.data, 1)==256
-         [~,S2] = regress_eog(double(EEG.data'), 1:256, sparse([252,226,37,241,18,238],[1,1,2,2,3,3],[1,-1,1,-1,1,-1]));
-     end
-
+     if eyecorrflag
+         % eye blink correction with Biosig
+         if size(EEG.data, 1)==128
+             [~,S2] = regress_eog(double(EEG.data'), 1:128, sparse([125,128,25,127,8,126],[1,1,2,2,3,3],[1,-1,1,-1,1,-1]));
+         elseif size(EEG.data, 1)==256
+             [~,S2] = regress_eog(double(EEG.data'), 1:256, sparse([252,226,37,241,18,238],[1,1,2,2,3,3],[1,-1,1,-1,1,-1]));
+         end
      EEG.data = single(S2');
      EEG = eeg_checkset( EEG );
+     end
     
      %read conditions from log file;
      conditionvec = feval(convecfun, logpath);
 
-      % now get rid of excess event markers 
+      % now get rid of excess event markers, if any
       for indexlat = 1:size(EEG.event,2)
         markertimesinSP(indexlat) = EEG.event(indexlat).latency;
       end
 
       tempdiff1 = diff([0 markertimesinSP]);
-
       eventsend = markertimesinSP(tempdiff1>20);
-
       eventsdiscard = (tempdiff1<20);
-
       disp(['a total of ' num2str(length(eventsend)) ' markers were found in the file'])
 
       EEG.event(find(eventsdiscard)) = [];

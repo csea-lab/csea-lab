@@ -10,7 +10,7 @@
 % 2) outfactor r (shrinkage/growth)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-function [cube_coords,r] = LB3_prepcoord_4clusters(coor3d)
+function [cube_coords,r] = LB3_prepcoord_4clusteralgorithm(coor3d)
 
 %% 1.) load in example layouts (e.g., with an sfp file)
 
@@ -36,9 +36,9 @@ function [cube_coords,r] = LB3_prepcoord_4clusters(coor3d)
 %     % add ref
 %     coor3d(129,:) = [0 0 8.899];
 %     no_elec = size(coor3d,1);
-    % if norm(coor3d(1,:)) < 1.1
-    %     coor3d = coor3d.*4;
-    % end
+%     if norm(coor3d(1,:)) < 1.1
+%         coor3d = coor3d.*4;
+%     end
 
 %     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %     %% - 256 EGI
@@ -71,8 +71,8 @@ function [cube_coords,r] = LB3_prepcoord_4clusters(coor3d)
         shrink3d_1 = round(coor3d./r); % shrunk coordinates in original space (which was zero-centered)
         cube_coords = shrink3d_1+abs(min(min(shrink3d_1)))+1; % now in absolute, positive coordinates that can be used as indices
 
-        [cluster_out_pos,cluster_out_neg, BW] = LB3_findclusters_cbp(faket_vals_ak, cube_coords, 4, 1,1);
-        if  size(cluster_out_pos.no,2) ==1 % when only one cluster is found
+        [cluster_out_pos,cluster_out_neg, BW] = LB3_findclusters_cbp_3D(faket_vals_ak, cube_coords,4,1,1,1);
+        if  size(cluster_out_pos.size,2) ==1 % when only one cluster is found
             a=1; % stop
             % r is shrinkage factor, cube coords are shrunken coordinates
         else
