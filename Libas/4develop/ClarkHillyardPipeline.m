@@ -64,7 +64,7 @@ function [EEG_allcond] =  ClarkHillyardPipeline(datapath, logpath, convecfun, st
      %read conditions from log file;
      conditionvec = feval(convecfun, logpath);
 
-      % now get rid of excess event markers, if any
+      % now get rid of excess event markers, if any.
       for indexlat = 1:size(EEG.event,2)
         markertimesinSP(indexlat) = EEG.event(indexlat).latency;
       end
@@ -76,6 +76,12 @@ function [EEG_allcond] =  ClarkHillyardPipeline(datapath, logpath, convecfun, st
 
       EEG.event(find(eventsdiscard)) = [];
 
+      % collect ITIs for Ajar
+      for eventindex = 1:4800-1
+       ITIdistribution(eventindex) =  EEG.event(eventindex+1).latency-EEG.event(1, eventindex).latency;
+      end
+
+
      % now we replace the DIN with the condition  
       counter = 1; 
       for x = 1:size(EEG.event,2) %  
@@ -85,34 +91,24 @@ function [EEG_allcond] =  ClarkHillyardPipeline(datapath, logpath, convecfun, st
           end
       end
 
-     % Epoch the EEG data 
+     % Epoch the EEG data and subtract baseline
      EEG_allcond = pop_epoch( EEG, conditions2select, timevec, 'newname', 'allcond', 'epochinfo', 'yes');
      EEG_allcond = eeg_checkset( EEG_allcond );
      EEG_allcond = pop_rmbase( EEG_allcond, [-100 0] ,[]);
-     inmat3d = double(EEG_allcond.data);
 
-     % find generally bad channels
-     [outmat3d, BadChanVec] = scadsAK_3dchan(inmat3d, ecfgfilename, thresholdChan); 
-     EEG_allcond.data = single(outmat3d); 
-     EEG_allcond = eeg_checkset( EEG_allcond );
+   
 
-    % find bad channels in epochs
-    [ outmat3d, badindexmat] = scadsAK_3dtrialsbychans(outmat3d, thresholdChanTrials, ecfgfilename);
-     EEG_allcond.data = single(outmat3d);
-     EEG_allcond = eeg_checkset( EEG_allcond );
+      % find bad trials based on data quality
+    [ ~, badindexvec, NGoodtrials ] = threshold_3dtrials(EEG.data, thresholdTrials);
 
-      % find bad trials and reject in epochs
-    [ outmat3d, badindexvec, NGoodtrials ] = scadsAK_3dtrials(outmat3d, thresholdTrials);
-      EEG_allcond = pop_select( EEG_allcond, 'notrial', badindexvec);
+  
 
 
       %% create output file for artifact summary. 
-      artifactlog.globalbadchans = BadChanVec;
-      artifactlog.epochbadchans = badindexmat;
-      artifactlog.badtrialstotal = badindexvec; 
+      artifactlog.nGoodtrialthreshold = NGoodtrials; 
       artifactlog.filtercoeffHz = filtercoeffHz; 
       artifactlog.filtord = filtord; 
-      %artifactlog.badtrialsbycondition = [size(EEG_21.data, 3),size(EEG_22.data, 3), size(EEG_23.data, 3),size(EEG_24.data, 3)];
+
 
       %% select conditions; compute and write output
      artifactlog.goodtrialsbycondition = []; % remaining artifact info by condition will be populated
