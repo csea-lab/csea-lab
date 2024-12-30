@@ -34,8 +34,7 @@ function [EEG_allcond] =  ClarkHillyardPipeline(datapath, logpath, convecfun, st
      EEG = pop_resample( EEG, 500);
      EEG = eeg_checkset( EEG );
      
-
-     % lowpass filter
+     % highpass filter
      if filtercoeffHz(1) > 0
      [B,A] = butter(filtord(1),filtercoeffHz(1)/(EEG.srate/2), 'high');
      filtereddata = filtfilt(B,A,double(EEG.data)')'; % 
@@ -65,7 +64,7 @@ function [EEG_allcond] =  ClarkHillyardPipeline(datapath, logpath, convecfun, st
      %read conditions from log file;
      conditionvec = feval(convecfun, logpath);
 
-      % now get rid of excess event markers 
+      % now get rid of excess event markers, if any
       for indexlat = 1:size(EEG.event,2)
         markertimesinSP(indexlat) = EEG.event(indexlat).latency;
       end
