@@ -29,6 +29,10 @@ function [EEG_allcond] =  ClarkHillyardPipeline(datapath, logpath, convecfun, st
      EEG=pop_chanedit(EEG, 'load',{sfpfilename,'filetype','autodetect'});
      EEG.setname='temp';
      EEG = eeg_checkset( EEG );
+
+     % downsample to 500 Hz
+     EEG = pop_resample( EEG, 500);
+     EEG = eeg_checkset( EEG );
      
 
      % lowpass filter
