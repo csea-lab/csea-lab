@@ -1,4 +1,4 @@
-%% Script for analyzing all C1 from the #EEGmanylabs C1P1 clark hillyard data
+% Script for analyzing all C1 from the #EEGmanylabs C1P1 clark hillyard data
 %% this is the lab's pipeline
 % Get a list of all files and folders in the current directory
 temp99 = eeglab; 
@@ -40,8 +40,9 @@ end
 
 
 %% this is the original Clark and Hillyard pipeline
-%% this is the lab's pipeline
+clear
 % Get a list of all files and folders in the current directory
+clear
 temp99 = eeglab; 
 
 files = dir("C1*");
@@ -70,7 +71,7 @@ for subindex = 1:size(folderNames,2)
     rawfile = getfilesindir(pwd, '*.RAW');
 
     % actual preprocessing
-   ClarkHillyardPipeline(rawfile, datfile, 'getcon_C1P1', 8, {'1' '2' '11' '10' '21' '30'}, [-.4 .4], [.1  30], [3 8], 1, 'GSN-HydroCel-256.sfp', 'HC1-256.ecfg',0);
+   ClarkHillyardPipeline(rawfile, datfile, 'getcon_C1P1', 8, {'1' '2' '11' '10' '20' '21' '30' '31'}, [-.4 .3], [.1  50], [3 11], 1, 'GSN-HydroCel-256.sfp', 'HC1-256.ecfg',0);
    % prepro_scadsandspline_log(datapath, logpath, convecfun, stringlength, conditions2select, timevec, filtercoeffHz, filtord, skiptrials, sfpfilename, ecfgfilename)
     cd ..
 

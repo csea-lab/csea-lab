@@ -29,20 +29,25 @@ function [EEG_allcond] =  LB3_prepro_pipeline(datapath, logpath, convecfun, stri
      EEG=pop_chanedit(EEG, 'load',{sfpfilename,'filetype','autodetect'});
      EEG.setname='temp';
      EEG = eeg_checkset( EEG );
+
+     % downsample to 500 Hz
+     EEG = pop_resample( EEG, 500);
+     EEG = eeg_checkset( EEG );
      
+     % highpass filter
+     if filtercoeffHz(1) > 0
+         [B,A] = butter(filtord(1),filtercoeffHz(1)/(EEG.srate/2), 'high');
+         filtereddata = filtfilt(B,A,double(EEG.data)')'; %
+         EEG.data =  single(filtereddata);
+         disp('highpass filter')
+     end
 
      % lowpass filter
-     if filtercoeffHz(1) > 0
-     [B,A] = butter(filtord(1),filtercoeffHz(1)/(EEG.srate/2), 'high');
-     filtereddata = filtfilt(B,A,double(EEG.data)')'; % 
-     EEG.data =  single(filtereddata); 
-     end
-   
-     % lowpass filter
      if filtercoeffHz(2) > 0
-     [B,A] = butter(filtord(2),filtercoeffHz(2)/(EEG.srate/2));
-     filtereddata = filtfilt(B,A,double(EEG.data)')'; % 
-     EEG.data =  single(filtereddata); 
+         [B,A] = butter(filtord(2),filtercoeffHz(2)/(EEG.srate/2));
+         filtereddata = filtfilt(B,A,double(EEG.data)')'; %
+         EEG.data =  single(filtereddata);
+         disp('lowpass filter')
      end
 
      EEG = eeg_checkset( EEG );
