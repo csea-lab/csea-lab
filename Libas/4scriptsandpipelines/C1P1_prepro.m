@@ -38,7 +38,6 @@ for subindex = 1:size(folderNames,2)
 
 end
 
-
 %% this is the original Clark and Hillyard pipeline
 clear
 % Get a list of all files and folders in the current directory
