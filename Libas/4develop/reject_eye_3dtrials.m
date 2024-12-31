@@ -1,11 +1,20 @@
-function [ inmat3d, badindex, NGoodtrials ] = reject_eye_3dtrials(inmat3d, horipair, vertipair, threshold);
-% caluclate three metrics of data quality at the trial level
+function [ outmat3d, badindextotal, NGoodtrials ] = reject_eye_3dtrials(inmat3d, horipair, vertipair, threshold)
+% calculate three metrics of data quality at the trial level
+% for 256 EGI: horipair = [226, 252]; vertipair = [238, 10];
 
-    horidata = 
+   outmat3d = inmat3d; 
+
+    horidata = squeeze(inmat3d(horipair(1),:,:)-inmat3d(horipair(2),:,:)); % Heog
+
+    vertidata = squeeze(inmat3d(vertipair(1), :, :)-inmat3d(vertipair(2), :, :)); % right VEOG
     
-    badindex = find(absvalvec > threshold);
+    badindex_hori = find(squeeze(range(horidata)') > threshold);
     
-    inmat3d(:, :, badindex) = []; 
+    badindex_verti = find(squeeze(range(vertidata)') > threshold);
+
+    badindextotal = cat(1, badindex_hori, badindex_verti);
+    
+    inmat3d(:, :, badindextotal) = []; 
     
     NGoodtrials = size(inmat3d,3);
 
