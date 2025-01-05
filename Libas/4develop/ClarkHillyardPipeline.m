@@ -1,4 +1,4 @@
-function [EEG_allcond] =  LB3_prepro_pipeline(datapath, logpath, convecfun, stringlength, conditions2select, timevec, filtercoeffHz, filtord, skiptrials, sfpfilename, ecfgfilename, eyecorrflag)
+function [EEG_allcond] =  ClarkHillyardPipeline(datapath, logpath, convecfun, stringlength, conditions2select, timevec, filtercoeffHz, filtord, skiptrials, sfpfilename, ecfgfilename, eyecorrflag)
 % datapath is name of .raw file, this function rins only for 129channel EGI data
 % logpath is the name .dat file
 % convecfun is the name of a function that takes a dat file and generates a
@@ -18,7 +18,8 @@ function [EEG_allcond] =  LB3_prepro_pipeline(datapath, logpath, convecfun, stri
     thresholdChanTrials = 2.5; 
     thresholdTrials = 1.25;
     thresholdChan = 2.5;
-    
+    thresholdVoltage = 25;
+
     % skip a few initial trials tyo accomodate learning experiments
     if nargin < 9, skiptrials = 1; end % default no initial trials are skipped
 
@@ -36,18 +37,18 @@ function [EEG_allcond] =  LB3_prepro_pipeline(datapath, logpath, convecfun, stri
      
      % highpass filter
      if filtercoeffHz(1) > 0
-         [B,A] = butter(filtord(1),filtercoeffHz(1)/(EEG.srate/2), 'high');
-         filtereddata = filtfilt(B,A,double(EEG.data)')'; %
-         EEG.data =  single(filtereddata);
-         disp('highpass filter')
+     [B,A] = butter(filtord(1),filtercoeffHz(1)/(EEG.srate/2), 'high');
+     filtereddata = filtfilt(B,A,double(EEG.data)')'; % 
+     EEG.data =  single(filtereddata); 
+     disp('highpass filter')
      end
-
+   
      % lowpass filter
      if filtercoeffHz(2) > 0
-         [B,A] = butter(filtord(2),filtercoeffHz(2)/(EEG.srate/2));
-         filtereddata = filtfilt(B,A,double(EEG.data)')'; %
-         EEG.data =  single(filtereddata);
-         disp('lowpass filter')
+     [B,A] = butter(filtord(2),filtercoeffHz(2)/(EEG.srate/2));
+     filtereddata = filtfilt(B,A,double(EEG.data)')'; % 
+     EEG.data =  single(filtereddata); 
+     disp('lowpass filter')
      end
 
      EEG = eeg_checkset( EEG );
@@ -66,7 +67,7 @@ function [EEG_allcond] =  LB3_prepro_pipeline(datapath, logpath, convecfun, stri
      %read conditions from log file;
      conditionvec = feval(convecfun, logpath);
 
-      % now get rid of excess event markers 
+      % now get rid of excess event markers, if any.
       for indexlat = 1:size(EEG.event,2)
         markertimesinSP(indexlat) = EEG.event(indexlat).latency;
       end
@@ -78,7 +79,12 @@ function [EEG_allcond] =  LB3_prepro_pipeline(datapath, logpath, convecfun, stri
 
       EEG.event(find(eventsdiscard)) = [];
 
-     % now we replace the DIN with the condition  
+      % collect ITIs for Ajar
+      for eventindex = 1:4800-1
+       ITIdistribution(eventindex) =  EEG.event(eventindex+1).latency-EEG.event(1, eventindex).latency;
+      end
+
+     % replace the DIN with the condition  
       counter = 1; 
       for x = 1:size(EEG.event,2) %  
           if strcmp(EEG.event(x).type(1:3), 'DIN')
@@ -87,60 +93,79 @@ function [EEG_allcond] =  LB3_prepro_pipeline(datapath, logpath, convecfun, stri
           end
       end
 
-     % Epoch the EEG data 
+       % Epoch the EEG data 
      EEG_allcond = pop_epoch( EEG, conditions2select, timevec, 'newname', 'allcond', 'epochinfo', 'yes');
      EEG_allcond = eeg_checkset( EEG_allcond );
      EEG_allcond = pop_rmbase( EEG_allcond, [-100 0] ,[]);
      inmat3d = double(EEG_allcond.data);
 
      % find generally bad channels
+     disp('artifact handling')
      [outmat3d, BadChanVec] = scadsAK_3dchan(inmat3d, ecfgfilename, thresholdChan); 
      EEG_allcond.data = single(outmat3d); 
      EEG_allcond = eeg_checkset( EEG_allcond );
 
-    % find bad channels in epochs
-    [ outmat3d, badindexmat] = scadsAK_3dtrialsbychans(outmat3d, thresholdChanTrials, ecfgfilename);
-     EEG_allcond.data = single(outmat3d);
-     EEG_allcond = eeg_checkset( EEG_allcond );
+      % find bad trials based on overall amplitude
+       [ ~, badindexvec1, NGoodtrials ] = threshold_3dtrials(EEG_allcond.data, thresholdVoltage);
+ 
+        % find bad trials based on eye channels
+       horipair = [226, 252]; vertipair = [238, 10];
+      [ ~, badindexvec2, ~ ] = reject_eye_3dtrials(inmat3d, horipair, vertipair, 100);
 
-      % find bad trials and reject in epochs
-    [ outmat3d, badindexvec, NGoodtrials ] = scadsAK_3dtrials(outmat3d, thresholdTrials);
-      EEG_allcond = pop_select( EEG_allcond, 'notrial', badindexvec);
+      % remove from dataset
+       disp('removing bad trials')
+      badindexvec = cat(1, badindexvec1, badindexvec2); 
+       EEG_allcond = pop_select( EEG_allcond, 'notrial', unique(badindexvec));
 
+     % throw out trials that occur just before and after a target/response
+     targetepochindex = []; 
+     for epochindex = 2:size(EEG_allcond.epoch,2)-1
+         %find marker event for that segment
+         reflatencyvec =  cell2mat(EEG_allcond.epoch(epochindex).eventlatency);
+         eventindex = find(reflatencyvec==0);
+         trialcondition = cell2mat(EEG_allcond.epoch(epochindex).eventtype(eventindex)); 
+         if str2double(trialcondition) > 19
+             targetepochindex = [targetepochindex epochindex-1 epochindex+1]; 
+         end
+     end
+ 
+      EEG_allcond = pop_select( EEG_allcond, 'notrial', targetepochindex);
+  
 
       %% create output file for artifact summary. 
-      artifactlog.globalbadchans = BadChanVec;
-      artifactlog.epochbadchans = badindexmat;
-      artifactlog.badtrialstotal = badindexvec; 
+      artifactlog.nGoodtrialthreshold = NGoodtrials; 
       artifactlog.filtercoeffHz = filtercoeffHz; 
       artifactlog.filtord = filtord; 
-      %artifactlog.badtrialsbycondition = [size(EEG_21.data, 3),size(EEG_22.data, 3), size(EEG_23.data, 3),size(EEG_24.data, 3)];
+      artifactlog.BadChanVec = BadChanVec;
 
       %% select conditions; compute and write output
-     artifactlog.goodtrialsbycondition = []; % remaining artifact info by condition will be populated
+      artifactlog.goodtrialsbycondition = []; % remaining artifact info by condition will be populated
 
-    for con_index = 1:size(conditions2select,2)
-  
-     %select conditions   
-     EEG_temp = pop_selectevent( EEG_allcond,  'type', conditions2select{con_index} );
-     EEG_temp = eeg_checkset( EEG_temp );
-     
-     % compute ERPs
-     ERPtemp = double(avg_ref_add(squeeze(mean(EEG_temp.data(:, :, skiptrials:end), 3))));
-     
-     % compute single trial array in 3D
-     Mat3D = avg_ref_add3d(double(EEG_temp.data));
+      disp('save output to disk')
 
-     % save the ERP in emegs at format
-      SaveAvgFile([basename '.at' conditions2select{con_index} '.ar'],ERPtemp,[],[], EEG.srate, [], [], [], [], abs(timevec(1) *EEG.srate)+1); 
+      for con_index = 1:size(conditions2select,2)
 
-      % save the single trial array in 3D
-      save([basename '.trls.' conditions2select{con_index} '.mat'], 'Mat3D', '-mat')
-   
-      % complete artifact info
-      artifactlog.goodtrialsbycondition = [artifactlog.goodtrialsbycondition; size(EEG_temp.data, 3)];
+          %select conditions
+          EEG_temp = pop_selectevent( EEG_allcond,  'type', conditions2select{con_index} );
+          EEG_temp = eeg_checkset( EEG_temp );
 
-    end
+          % compute ERPs
+          ERPtemp = double(squeeze(mean(EEG_temp.data(:, :, skiptrials:end), 3)));
+
+          % reference to mastoids
+          ERPref = LB3_reref_EEG_add(ERPtemp, [189 190 201 191]);
+
+          % save the ERP in emegs at format
+          SaveAvgFile([basename '.at' conditions2select{con_index} '.mr'],ERPref,[],[], EEG.srate, [], [], [], [], abs(timevec(1) *EEG.srate)+1);
+
+          % complete artifact info
+          artifactlog.goodtrialsbycondition = [artifactlog.goodtrialsbycondition; size(EEG_temp.data, 3)];
+
+      end
+
+      ERP_4_Adjar = double(squeeze(mean(EEG_allcond.data(:, :, skiptrials:end), 3)));
+      SaveAvgFile([basename '.4adjar.at.mr'],ERP_4_Adjar,[],[], EEG.srate, [], [], [], [], abs(timevec(1) *EEG.srate)+1);
+
 
    %% save the artifact info
      save([basename '.artiflog.mat'], 'artifactlog', '-mat')

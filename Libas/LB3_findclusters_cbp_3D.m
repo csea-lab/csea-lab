@@ -322,7 +322,8 @@ end  % function
 %%%% Maris & Oostenveld, 2007:
 % (1) For every sample,compare the signal on the two types of trials by means of a t-value (or some other number that quantifies the effect at this sample).
 % (2) Select all samples whose t-value is larger than some threshold
-% (This threshold may or may not be based on the sampling distribution of the t-value under the null hypothesis, but this does not affect the validity of the nonparametric test; see further.)
+% (This threshold may or may not be based on the sampling distribution of the t-value under the null hypothesis, but this does not affect the validity of 
+% the nonparametric test; see further.)
 % (3) Cluster the selected samples in connected sets on the basis of temporal adjacency.
 % (4) Calculate cluster-level statistics by taking the sum of the t-values within a cluster.
 % (5) Take the largest of the cluster-level statistics.

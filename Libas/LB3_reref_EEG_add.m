@@ -1,0 +1,1 @@
+function ref = LB3_reref_EEG_add(matrix, sensors)mean_col = mean(matrix(sensors, :)', 2);ref = bsxfun(@minus, matrix, mean_col');ref = [ref; -1.*mean_col'];
