@@ -1,0 +1,1 @@
+% bslcorrmat% corrects channel by time mat % by converting data to change from mean of baseline in samplepointsfunction [data] = bslcorr_percent(inmat, bslvec)data = zeros(size(inmat));for chan = 1 : size(inmat, 1)data(chan,:) = (inmat(chan,:)./mean(inmat(chan,bslvec),2)).*100 -100;end

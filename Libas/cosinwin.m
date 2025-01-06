@@ -4,6 +4,8 @@
 % needed
 % 
 function [cosinwinmat] = cosinwin(M,N, nrows)
+M = round(M);
+N = round(N);
 
 if nargin < 3, nrows = 1; end
 

@@ -1,0 +1,1 @@
+function ref = LB3_reref_EEG_add(matrix, sensors)% re-references arithmetically to a new reference, which is the mean of% "sensors" which is a row vector% matrix should be elecs by time pointsmean_col = mean(matrix(sensors, :)', 2);ref = bsxfun(@minus, matrix, mean_col');ref = [ref; -1.*mean_col'];

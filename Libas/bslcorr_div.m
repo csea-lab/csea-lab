@@ -1,1 +1,1 @@
-% bslcorrmat% corrects 129 channel ar mat % by subtracting mean of baseline in samplepointsfunction [data] = bslcorr_div(inmat, bslvec);for chan = 1 : size(inmat, 1)data(chan,:) = inmat(chan,:)./mean(inmat(chan,bslvec),2);end
+% bslcorrmat% corrects 129 channel ar mat % by dividing mean of baseline in samplepointsfunction [data] = bslcorr_div(inmat, bslvec)data = zeros(size(inmat));for chan = 1 : size(inmat, 1)data(chan,:) = inmat(chan,:)./mean(inmat(chan,bslvec),2);end
