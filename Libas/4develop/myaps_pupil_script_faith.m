@@ -45,16 +45,16 @@ for subject = 1:size(filemat1,1)
         [data] = bslcorr(datatemp', 1:250)';
     end
 
-    % hold on
-    % plot(data(:, 1), 'b')
-    % plot(data(:, 2), 'k')
-    % plot(data(:, 3), 'r')
-    % plot(data(:, 5), 'b--')
-    % plot(data(:, 6), 'k--')
-    % plot(data(:, 7), 'r--')
-    % pause
-    % hold off
-    % clf
+    hold on
+    plot(data(:, 1), 'b')
+    plot(data(:, 2), 'k')
+    plot(data(:, 3), 'r')
+    plot(data(:, 5), 'b--')
+    plot(data(:, 6), 'k--')
+    plot(data(:, 7), 'r--')
+    pause
+    hold off
+    clf
 
       if subject ==1 
         v1grand_sum = data; 
@@ -71,7 +71,7 @@ v1grand_mean = v1grand_sum./size(filemat1,1);
 pupilmat =[]; 
 filemat1 = getfilesindir(pwd, 'MyAp*out.mat');
 
-for x = 1:58
+for x = 1:59
 temp = load(filemat1(x,:)); datatemp = temp.matout; cali1 = mean(mean(datatemp));
 
     if x >= 25
@@ -81,7 +81,8 @@ temp = load(filemat1(x,:)); datatemp = temp.matout; cali1 = mean(mean(datatemp))
         [data] = bslcorr(datatemp(:, 1:8)', 1:250)';
     end
 
-pupilmat(:, :, x) = data; 
+datanew = (data*10)/5222
+pupilmat(:, :, x) = datanew; 
 
 end
 
@@ -129,7 +130,8 @@ pupilmat =[];
 filemat2 = getfilesindir(pwd, 'MyA2*out.mat');
 for x = 1:46
 temp = load(filemat2(x,:)); [matout_all] = bslcorr(temp.matout(:, 1:6)', 1:250)'
-pupilmat(:, :, x) = matout_all; 
+datanew = (matout_all*10)/5222
+pupilmat(:, :, x) = datanew; 
 fprintf('.');
 end
 disp('done')
@@ -138,3 +140,21 @@ disp('done')
 v2_gm_time = []
 v2_gm_time(:, :) = mean(pupilmat(751:1251, :, :));
 v2_gm_time = v2_gm_time'
+
+
+%% for the validation 
+filemat = getfilesindir(pwd, '*.edf');
+
+outvec =[];
+
+for x = 63:size(filemat,1)
+
+test = Edf2Mat(filemat(x,:));
+
+disp(filemat(x,:))
+disp("this is the mean:")
+disp(mean(test.Samples.pupilSize(test.Samples.pupilSize~=0)))
+
+outvec(filemat) = mean(test.Samples.pupilSize(test.Samples.pupilSize~=0));
+
+end
