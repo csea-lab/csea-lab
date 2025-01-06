@@ -29,7 +29,7 @@ for subindex = 1:size(folderNames,2)
     rawfile = getfilesindir(pwd, '*.RAW');
 
     % actual preprocessing
-   LB3_prepro_pipeline(rawfile, datfile, 'getcon_C1P1', 8, {'1' '2' '11' '10' '21' '30'}, [-.45 .45], [.1  30], [3 8], 1, 'GSN-HydroCel-256.sfp', 'HC1-256.ecfg',0);
+   LB3_prepro_pipeline(rawfile, datfile, 'getcon_C1P1', 8, {'1' '2' '11' '10' '21' '30'}, [-.45 .45], [.1  30], [3 11], 1, 'GSN-HydroCel-256.sfp', 'HC1-256.ecfg',0);
    % prepro_scadsandspline_log(datapath, logpath, convecfun, stringlength, conditions2select, timevec, filtercoeffHz, filtord, skiptrials, sfpfilename, ecfgfilename)
     cd ..
 
@@ -42,7 +42,7 @@ end
 clear
 
 % Get a list of all files and folders in the current directory
-cd '/Users/andreaskeil/Desktop/C1P1_test/'
+%cd '/Users/andreaskeil/Desktop/C1P1_test/'
 
 temp99 = eeglab; 
 
@@ -62,7 +62,7 @@ disp('Folders in the current working directory:');
 disp(folderNames);
 
 % loop over subjects
-for subindex = 1:size(folderNames,2)
+for subindex = 24:size(folderNames,2)
 
     eval(['cd ' folderNames{subindex}])
 
