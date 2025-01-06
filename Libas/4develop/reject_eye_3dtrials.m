@@ -8,15 +8,15 @@ function [ outmat3d, badindextotal, NGoodtrials ] = reject_eye_3dtrials(inmat3d,
 
     vertidata = squeeze(inmat3d(vertipair(1), :, :)-inmat3d(vertipair(2), :, :)); % right VEOG
     
-    badindex_hori = find(squeeze(range(horidata)') > threshold);
+    badindex_hori = find(squeeze(max(horidata', [], 2)) > threshold);
     
-    badindex_verti = find(squeeze(range(vertidata)') > threshold);
+    badindex_verti = find(squeeze(max(vertidata', [], 2)) > threshold);
 
-    badindextotal = cat(1, badindex_hori, badindex_verti);
+    badindextotal = unique(cat(1, badindex_hori, badindex_verti));
     
-    inmat3d(:, :, badindextotal) = []; 
+    outmat3d(:, :, badindextotal) = []; 
     
-    NGoodtrials = size(inmat3d,3);
+    NGoodtrials = size(outmat3d,3);
 
 
 
