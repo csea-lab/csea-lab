@@ -15,10 +15,8 @@ function [EEG_allcond] =  ClarkHillyardPipeline(datapath, logpath, convecfun, st
 % the final two inputs are filenames for electrode confis files in .sfp
 % format and ecfg format. make sure these are in the matlab path
 
-    thresholdChanTrials = 2.5; 
-    thresholdTrials = 1.25;
     thresholdChan = 2.5;
-    thresholdVoltage = 25;
+    thresholdVoltage = 50;
 
     % skip a few initial trials tyo accomodate learning experiments
     if nargin < 9, skiptrials = 1; end % default no initial trials are skipped
@@ -81,8 +79,10 @@ function [EEG_allcond] =  ClarkHillyardPipeline(datapath, logpath, convecfun, st
 
       % collect ITIs for Ajar
       for eventindex = 1:4800-1
-       ITIdistribution(eventindex) =  EEG.event(eventindex+1).latency-EEG.event(1, eventindex).latency;
+       ITIdistribution(eventindex) =  (EEG.event(eventindex+1).latency-EEG.event(1, eventindex).latency)-29; % account for sampling rate and way it was coded, plus one retrace
       end
+      ITIdistribution = ITIdistribution(ITIdistribution<600); % rule out ITis between blocks  
+      save('ITIdistribution.mat', 'ITIdistribution')
 
      % replace the DIN with the condition  
       counter = 1; 
@@ -100,17 +100,19 @@ function [EEG_allcond] =  ClarkHillyardPipeline(datapath, logpath, convecfun, st
      inmat3d = double(EEG_allcond.data);
 
      % find generally bad channels
-     disp('artifact handling')
+     disp('artifact handling: channels')
      [outmat3d, BadChanVec] = scadsAK_3dchan(inmat3d, ecfgfilename, thresholdChan); 
      EEG_allcond.data = single(outmat3d); 
      EEG_allcond = eeg_checkset( EEG_allcond );
 
       % find bad trials based on overall amplitude
+       disp('artifact handling: trials by voltage')
        [ ~, badindexvec1, NGoodtrials ] = threshold_3dtrials(EEG_allcond.data, thresholdVoltage);
  
         % find bad trials based on eye channels
+        disp('artifact handling: trials by eye artifact')
        horipair = [226, 252]; vertipair = [238, 10];
-      [ ~, badindexvec2, ~ ] = reject_eye_3dtrials(inmat3d, horipair, vertipair, 100);
+      [ ~, badindexvec2, ~ ] = reject_eye_3dtrials(inmat3d, horipair, vertipair, 40);
 
       % remove from dataset
        disp('removing bad trials')
@@ -131,12 +133,13 @@ function [EEG_allcond] =  ClarkHillyardPipeline(datapath, logpath, convecfun, st
  
       EEG_allcond = pop_select( EEG_allcond, 'notrial', targetepochindex);
   
-
       %% create output file for artifact summary. 
       artifactlog.nGoodtrialthreshold = NGoodtrials; 
       artifactlog.filtercoeffHz = filtercoeffHz; 
       artifactlog.filtord = filtord; 
       artifactlog.BadChanVec = BadChanVec;
+      artifactlog.BadtrialsVoltage = badindexvec1; 
+      artifactlog.BadtrialsEye = badindexvec2;
 
       %% select conditions; compute and write output
       artifactlog.goodtrialsbycondition = []; % remaining artifact info by condition will be populated
@@ -158,13 +161,15 @@ function [EEG_allcond] =  ClarkHillyardPipeline(datapath, logpath, convecfun, st
           % save the ERP in emegs at format
           SaveAvgFile([basename '.at' conditions2select{con_index} '.mr'],ERPref,[],[], EEG.srate, [], [], [], [], abs(timevec(1) *EEG.srate)+1);
 
+          % correct with ADJAR and save as separate files by condition
+          [correctedERP, ~, ~] = Adjar(ERPref, ITIdistribution, 151, 225);
+           SaveAvgFile([basename '.adjar.at' conditions2select{con_index} '.mr'],correctedERP,[],[], EEG.srate, [], [], [], [], abs(timevec(1) *EEG.srate)+1);
+
           % complete artifact info
           artifactlog.goodtrialsbycondition = [artifactlog.goodtrialsbycondition; size(EEG_temp.data, 3)];
 
       end
 
-      ERP_4_Adjar = double(squeeze(mean(EEG_allcond.data(:, :, skiptrials:end), 3)));
-      SaveAvgFile([basename '.4adjar.at.mr'],ERP_4_Adjar,[],[], EEG.srate, [], [], [], [], abs(timevec(1) *EEG.srate)+1);
 
 
    %% save the artifact info
