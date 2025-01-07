@@ -1,7 +1,7 @@
 function [ inmat3d, badindex, NGoodtrials ] = threshold_3dtrials(inmat3d, threshold)
 % caluclate three metrics of data quality at the trial level
 
-    absvalvec = squeeze(median(range(abs(inmat3d),2'))); % Median range of voltage value for each trial
+    absvalvec = squeeze(mean(max(abs(inmat3d),[], 2'))); % mean range of voltage value for each trial
     
     badindex = find(absvalvec > threshold);
     

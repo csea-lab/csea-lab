@@ -15,7 +15,7 @@ function [EEG_allcond] =  ClarkHillyardPipeline(datapath, logpath, convecfun, st
 % the final two inputs are filenames for electrode confis files in .sfp
 % format and ecfg format. make sure these are in the matlab path
 
-    thresholdChan = 2.0;
+    thresholdChan = 2.5;
     thresholdVoltage = 50;
 
     % skip a few initial trials tyo accomodate learning experiments
@@ -79,9 +79,10 @@ function [EEG_allcond] =  ClarkHillyardPipeline(datapath, logpath, convecfun, st
 
       % collect ITIs for Ajar
       for eventindex = 1:4800-1
-       ITIdistribution(eventindex) =  (EEG.event(eventindex+1).latency-EEG.event(1, eventindex).latency)-29; % account for sampling rate and way it was coded, plus one retrace
+       ITIdistribution(eventindex) =  EEG.event(eventindex+1).latency-EEG.event(1, eventindex).latency;
       end
-      ITIdistribution = ITIdistribution(ITIdistribution<600); % rule out ITis between blocks  
+
+  
       save('ITIdistribution.mat', 'ITIdistribution')
 
      % replace the DIN with the condition  
@@ -112,7 +113,7 @@ function [EEG_allcond] =  ClarkHillyardPipeline(datapath, logpath, convecfun, st
         % find bad trials based on eye channels
         disp('artifact handling: trials by eye artifact')
        horipair = [226, 252]; vertipair = [238, 10];
-      [ ~, badindexvec2, ~ ] = reject_eye_3dtrials(inmat3d, horipair, vertipair, 30);
+      [ ~, badindexvec2, ~ ] = reject_eye_3dtrials(inmat3d, horipair, vertipair, 40);
 
       % remove from dataset
        disp('removing bad trials')
@@ -133,6 +134,7 @@ function [EEG_allcond] =  ClarkHillyardPipeline(datapath, logpath, convecfun, st
  
       EEG_allcond = pop_select( EEG_allcond, 'notrial', targetepochindex);
   
+
       %% create output file for artifact summary. 
       artifactlog.nGoodtrialthreshold = NGoodtrials; 
       artifactlog.filtercoeffHz = filtercoeffHz; 
@@ -161,15 +163,13 @@ function [EEG_allcond] =  ClarkHillyardPipeline(datapath, logpath, convecfun, st
           % save the ERP in emegs at format
           SaveAvgFile([basename '.at' conditions2select{con_index} '.mr'],ERPref,[],[], EEG.srate, [], [], [], [], abs(timevec(1) *EEG.srate)+1);
 
-          % correct with ADJAR and save as separate files by condition
-          [correctedERP, ~, ~] = Adjar(ERPref, ITIdistribution, 151, 225);
-           SaveAvgFile([basename '.adjar.at' conditions2select{con_index} '.mr'],correctedERP,[],[], EEG.srate, [], [], [], [], abs(timevec(1) *EEG.srate)+1);
-
           % complete artifact info
           artifactlog.goodtrialsbycondition = [artifactlog.goodtrialsbycondition; size(EEG_temp.data, 3)];
 
       end
 
+      ERP_4_Adjar = double(squeeze(mean(EEG_allcond.data(:, :, skiptrials:end), 3)));
+      SaveAvgFile([basename '.4adjar.at.mr'],ERP_4_Adjar,[],[], EEG.srate, [], [], [], [], abs(timevec(1) *EEG.srate)+1);
 
 
    %% save the artifact info

@@ -1,0 +1,15 @@
+function [correctedERP, subtract1, prioreventdist] = Adjar(inputERP, AdjarERP, ITIdistribution, NBinsITI, trigpointSP)
+
+histo = histcounts(ITIdistribution(ITIdistribution<600), NBinsITI, 'normalization', 'probability'); 
+
+prioreventdist = [fliplr(histo) zeros(1, size(inputERP, 2) -length(histo))];
+
+subtract1 = zeros(size(inputERP));
+
+for chan = 1:size(inputERP,1)
+temp= conv(prioreventdist, AdjarERP(chan, trigpointSP:end), 'same');
+%subtract1(chan,1:length(temp)) = temp(:, 1:size(inputERP,2));
+subtract1(chan,1:length(temp)) = temp;
+end
+
+correctedERP = inputERP - subtract1; 
