@@ -1,0 +1,15 @@
+function [] = make_pipeline_folderstruc(foldername, raw_ID_index)
+% takes a bunch of files and puts them into the right folder structure for
+% the LB3 pipeline, one folder for each subject, containing raw and dat
+% file
+
+
+cd foldername
+
+rawfiles = getfilesindir(pwd, '*.RAW')
+raw_IDs = rawfiles(:, raw_ID_index)
+
+datfiles = getfilesindir(pwd, '*.dat')
+_IDs = rawfiles(:, raw_ID_index)
+
+
