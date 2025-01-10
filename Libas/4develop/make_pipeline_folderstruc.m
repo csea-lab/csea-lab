@@ -1,8 +1,6 @@
 function [] = make_pipeline_folderstruc(foldername, prefix, raw_ID_index, dat_ID_index, dataindex)
 % takes a bunch of files and puts them into the right folder structure for
 % the LB3 pipeline, one folder for each subject, containing raw and dat
-% file
-
 
 cd (foldername)
 
@@ -24,7 +22,7 @@ for subjectindex = 1:dataindex % only unti the two lists diverge
 
   copyfile(datfile, newfolder )
   copyfile(rawfile, newfolder )
-  pause(10)
+  pause(5)
 
 end
 
