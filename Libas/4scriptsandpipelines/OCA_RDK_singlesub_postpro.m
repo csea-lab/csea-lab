@@ -1,12 +1,12 @@
 %% Script for analyzing all rdk data
+cd '/Volumes/G-RAID Thunderbolt 3/OCA_project/OCA_RDK'
 
-% info for spectrum
-spectime = 201:2200; 
-Fbin  = 31; 
-Hbin = 61;     
+% info for the analysis
+ spectime = 601:9600;
+ Fbin = 78;
 
 % Get a list of all files and folders in the current directory
-files = dir('OCA*');
+files = dir('RDK*');
 
 %clear output
 output = []; 
@@ -28,9 +28,8 @@ disp(folderNames);
 % faxis=  0:1000/3200:125;  % for 601:2200
 % faxis=  0:1000/2800:125;  % for 801:2200
 % faxis=  0:1000/2400:125;  % for 1000:2200
-faxis = 0:1000/4000:125; 
 
-taxis= -600:2:3800; 
+taxis= -599:9000; 
 
 % loop pver subjects
 for subindex = 1:size(folderNames,2)
@@ -39,73 +38,67 @@ for subindex = 1:size(folderNames,2)
 
     % remove prior spec files
    delete *.ar.spec
+   delete *.a1
+   delete *.hamp9
+
 
    % calculate the spectrum 
-    [spec] = get_FFT_atg(getfilesindir(pwd, '*.ar'), spectime);
+    [spec, faxis] = get_FFT_atg(getfilesindir(pwd, '*.ar'), spectime);
 
-    % read at files
-    fname21 = getfilesindir(pwd, '*.at21.ar');
-    fname22 = getfilesindir(pwd, '*.at22.ar');
-    fname23 = getfilesindir(pwd, '*.at23.ar');
-    fname24 = getfilesindir(pwd, '*.at24.ar');
+    % names of at files
+    fname1 = getfilesindir(pwd, '*.at1.ar');
+    fname2 = getfilesindir(pwd, '*.at2.ar');
+    fname3 = getfilesindir(pwd, '*.at3.ar');
+    fname4 = getfilesindir(pwd, '*.at4.ar');
 
-    at21 = ReadAvgFile(fname21);
-    at22 = ReadAvgFile(fname22);
-    at23 = ReadAvgFile(fname23);
-    at24 = ReadAvgFile(fname24);
+    % do the hilbert transform
+    [demodmat1, ~]=steadyHilbert(fname1, 8.57, 500:600, 9, 0, []);
+    [demodmat2, ~]=steadyHilbert(fname2, 8.57, 500:600, 9, 0, []);
+    [demodmat3, ~]=steadyHilbert(fname3, 8.57, 500:600, 9, 0, []);
+    [demodmat4, ~]=steadyHilbert(fname4, 8.57, 500:600, 9, 0, []);
 
-    % read spec files
-    fnamea21 = getfilesindir(pwd, '*.at21.ar.spec');
-    fnamea22 = getfilesindir(pwd, '*.at22.ar.spec');
-    fnamea23 = getfilesindir(pwd, '*.at23.ar.spec');
-    fnamea24 = getfilesindir(pwd, '*.at24.ar.spec');
+    % Read at files
+    at1 = ReadAvgFile(fname1);
+    at2 = ReadAvgFile(fname2);
+    at3 = ReadAvgFile(fname3);
+    at4 = ReadAvgFile(fname4);
 
-    spec21 = ReadAvgFile(fnamea21);
-    spec22 = ReadAvgFile(fnamea22);
-    spec23 = ReadAvgFile(fnamea23);
-    spec24 = ReadAvgFile(fnamea24);
+    % names of spec files
+    fnamea1 = getfilesindir(pwd, '*.at1.ar.spec');
+    fnamea2 = getfilesindir(pwd, '*.at2.ar.spec');
+    fnamea3 = getfilesindir(pwd, '*.at3.ar.spec');
+    fnamea4 = getfilesindir(pwd, '*.at4.ar.spec');
+    
+    % Read at files
+    spec1 = ReadAvgFile(fnamea1);
+    spec2 = ReadAvgFile(fnamea2);
+    spec3 = ReadAvgFile(fnamea3);
+    spec4 = ReadAvgFile(fnamea4);
 
     figure(1),  set(gcf, 'Position', [1800 500 800 800])
     subplot(3,1,1) % spectrum 
-    plot(faxis(1:80), spec21(75,1:80)), title(folderNames{subindex}), hold on
-    plot(faxis(1:80), spec22(75,1:80))
-    plot(faxis(1:80), spec23(75,1:80))
-    plot(faxis(1:80), spec24(75,1:80)), legend, xline(faxis(Fbin)), xline(faxis(Hbin)), hold off
+    plot(faxis(1:200), spec1(137,1:200)), title(folderNames{subindex}), hold on
+    plot(faxis(1:200), spec2(137,1:200))
+    plot(faxis(1:200), spec3(137,1:200))
+    plot(faxis(1:200), spec4(137,1:200)), legend, xline(faxis(Fbin)), hold off
 
-    subplot(3,1,2)
-    plot(taxis, at21(75,:)), title(folderNames{subindex}), hold on
-    plot(taxis, at22(75,:))
-    plot(taxis, at23(75,:))
-    plot(taxis, at24(75,:)), hold off
+    subplot(3,1,2) % ERP
+    plot(taxis, at1(137,:)), title(folderNames{subindex}), hold on
+    plot(taxis, at2(137,:))
+    plot(taxis, at3(137,:))
+    plot(taxis, at4(137,:)), hold off
     
-    subplot(3,1,3)
-    plot(taxis, at21(55,:)), title(folderNames{subindex}), hold on
-    plot(taxis, at22(55,:))
-    plot(taxis, at23(55,:))
-    plot(taxis, at24(55,:)), xline(taxis(spectime(end))), hold off
-
-    difflumiF = spec22(:,Fbin) - spec21(:,Fbin); 
-
-    diffkoniF= spec24(:,Fbin) - spec23(:,Fbin); 
-
-    difflumiH = spec22(:,Hbin) - spec21(:,Hbin); 
-
-    diffkoniH= spec24(:,Hbin) - spec23(:,Hbin); 
-
-    % topomap([difflumiF diffkoniF difflumiH diffkoniH (difflumiF+difflumiH)./2 (diffkoniF+diffkoniH)./2])
-    topomap([difflumiF diffkoniF]); 
-
-    outvecF = [spec21(75,Fbin) spec22(75,Fbin) spec23(75,Fbin) spec24(75,Fbin)]
-    outvecH = [spec21(75,Hbin) spec22(75,Hbin) spec23(75,Hbin) spec24(75,Hbin)]
-    sumvec = outvecF+outvecH
+   subplot(3,1,3) % hilberts
+    plot(taxis, demodmat1(137,:)), title(folderNames{subindex}), hold on
+    plot(taxis, demodmat2(137,:))
+    plot(taxis, demodmat3(137,:))
+    plot(taxis, demodmat4(137,:)), hold off
 
     artfname = getfilesindir(pwd, '*artiflog.mat');
     load(artfname)
     disp(artifactlog)
 
     pause
-
-    output(subindex,:) = [outvecF outvecH];
 
     cd ..
 
