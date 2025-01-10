@@ -2,7 +2,7 @@
 % Get a list of all files and folders in the current directory
 temp99 = eeglab; 
 
-files = dir("comp*");
+files = dir("Comp*");
 
 % Filter out the non-folder entries
 dirFlags = [files.isdir];
