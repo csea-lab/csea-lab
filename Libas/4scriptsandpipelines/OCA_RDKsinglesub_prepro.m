@@ -18,7 +18,7 @@ disp('Folders in the current working directory:');
 disp(folderNames);
 
 % loop over subjects
-for subindex = 1:size(folderNames,2)
+for subindex = 20:size(folderNames,2)
 
     eval(['cd ' folderNames{subindex}])
 
