@@ -1,10 +1,10 @@
 %% Script for analyzing all rdk data
-cd '/Volumes/G-RAID Thunderbolt 3/OCA_project/OCA_Comp'
+cd '/Volumes/G-RAID Thunderbolt 3/OCA_project/OCA_comp'
 
 % info for the analysis
- spectime = 701:4000;
- Fbin = 23;
- taxis= -599:4000; 
+ spectime = 1001:4000;
+ Fbin1 = 21; 
+ Fbin2 = 46; 
 
 % Get a list of all files and folders in the current directory
 files = dir('Comp*');
@@ -60,7 +60,7 @@ for subindex = 1:size(folderNames,2)
     at1 = ReadAvgFile(fname1);
     at2 = ReadAvgFile(fname2);
     at3 = ReadAvgFile(fname3);
-    at4 = ReadAvgFile(fname4);
+    at4 = ReadAvgFile(fname4);   
 
     % names of spec files
     fnamea1 = getfilesindir(pwd, '*.at1.ar.spec');
@@ -79,7 +79,7 @@ for subindex = 1:size(folderNames,2)
     plot(faxis(1:200), spec1(137,1:200)), title(folderNames{subindex}), hold on
     plot(faxis(1:200), spec2(137,1:200))
     plot(faxis(1:200), spec3(137,1:200))
-    plot(faxis(1:200), spec4(137,1:200)), legend, xline(faxis(Fbin)), hold off
+    plot(faxis(1:200), spec4(137,1:200)), legend, xline(faxis(Fbin1)), xline(faxis(Fbin2)), hold off
 
     subplot(3,1,2) % ERP
     plot(taxis, at1(137,:)), title(folderNames{subindex}), hold on
