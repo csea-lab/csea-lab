@@ -22,7 +22,7 @@ for subjectindex = 1:dataindex % only unti the two lists diverge
 
   copyfile(datfile, newfolder )
   copyfile(rawfile, newfolder )
-  pause(5)
+  pause(3)
 
 end
 
