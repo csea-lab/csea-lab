@@ -4,8 +4,8 @@
 % pupil processing, and behavioral ratings extraction
 
 % alternative codes needed, found in MyAps_Scripts folder on Github
-% getcon_MyAPS1: for first iteration preprocessing and pupil
-% getcon_MyAPS2: for second iteration preprocessing and pupil
+% getcon_MyAPS1: for first iteration preprocessing
+% getcon_MyAPS2_ERP: for second iteration preprocessing
 % getpictures_MyAPS: for first iteration single picture preprocessing
 % getcon_MyAPS2_singletrial: for second iteration single picture preprocessing
 
