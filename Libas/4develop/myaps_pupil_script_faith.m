@@ -147,7 +147,7 @@ filemat = getfilesindir(pwd, '*.edf');
 
 outvec =[];
 
-for x = 63:size(filemat,1)
+for x = 1:size(filemat,1)
 
 test = Edf2Mat(filemat(x,:));
 
