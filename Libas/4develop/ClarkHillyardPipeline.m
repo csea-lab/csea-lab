@@ -15,7 +15,7 @@ function [EEG_allcond] =  ClarkHillyardPipeline(datapath, logpath, convecfun, st
 % the final two inputs are filenames for electrode confis files in .sfp
 % format and ecfg format. make sure these are in the matlab path
 
-    thresholdChan = 2.5;
+    thresholdChan = 2.0;
     thresholdVoltage = 50;
 
     % skip a few initial trials tyo accomodate learning experiments
@@ -112,7 +112,7 @@ function [EEG_allcond] =  ClarkHillyardPipeline(datapath, logpath, convecfun, st
         % find bad trials based on eye channels
         disp('artifact handling: trials by eye artifact')
        horipair = [226, 252]; vertipair = [238, 10];
-      [ ~, badindexvec2, ~ ] = reject_eye_3dtrials(inmat3d, horipair, vertipair, 40);
+      [ ~, badindexvec2, ~ ] = reject_eye_3dtrials(inmat3d, horipair, vertipair, 30);
 
       % remove from dataset
        disp('removing bad trials')

@@ -1,12 +1,13 @@
 %% Script for analyzing all rdk data
-cd '/Volumes/G-RAID Thunderbolt 3/OCA_project/OCA_RDK'
+cd '/Volumes/G-RAID Thunderbolt 3/OCA_project/OCA_comp'
 
 % info for the analysis
- spectime = 601:9600;
- Fbin = 78;
+ spectime = 1001:4000;
+ Fbin1 = 21; 
+ Fbin2 = 46; 
 
 % Get a list of all files and folders in the current directory
-files = dir('RDK*');
+files = dir('Comp*');
 
 %clear output
 output = []; 
@@ -29,8 +30,6 @@ disp(folderNames);
 % faxis=  0:1000/2800:125;  % for 801:2200
 % faxis=  0:1000/2400:125;  % for 1000:2200
 
-taxis= -599:9000; 
-
 % loop pver subjects
 for subindex = 1:size(folderNames,2)
 
@@ -52,16 +51,16 @@ for subindex = 1:size(folderNames,2)
     fname4 = getfilesindir(pwd, '*.at4.ar');
 
     % do the hilbert transform
-    [demodmat1, ~]=steadyHilbert(fname1, 8.57, 500:600, 9, 0, []);
-    [demodmat2, ~]=steadyHilbert(fname2, 8.57, 500:600, 9, 0, []);
-    [demodmat3, ~]=steadyHilbert(fname3, 8.57, 500:600, 9, 0, []);
-    [demodmat4, ~]=steadyHilbert(fname4, 8.57, 500:600, 9, 0, []);
+    [demodmat1, ~]=steadyHilbert(fname1, 6.66, 500:600, 9, 0, []);
+    [demodmat2, ~]=steadyHilbert(fname2, 6.66, 500:600, 9, 0, []);
+    [demodmat3, ~]=steadyHilbert(fname3, 6.66, 500:600, 9, 0, []);
+    [demodmat4, ~]=steadyHilbert(fname4, 6.66, 500:600, 9, 0, []);
 
     % Read at files
     at1 = ReadAvgFile(fname1);
     at2 = ReadAvgFile(fname2);
     at3 = ReadAvgFile(fname3);
-    at4 = ReadAvgFile(fname4);
+    at4 = ReadAvgFile(fname4);   
 
     % names of spec files
     fnamea1 = getfilesindir(pwd, '*.at1.ar.spec');
@@ -80,7 +79,7 @@ for subindex = 1:size(folderNames,2)
     plot(faxis(1:200), spec1(137,1:200)), title(folderNames{subindex}), hold on
     plot(faxis(1:200), spec2(137,1:200))
     plot(faxis(1:200), spec3(137,1:200))
-    plot(faxis(1:200), spec4(137,1:200)), legend, xline(faxis(Fbin)), hold off
+    plot(faxis(1:200), spec4(137,1:200)), legend, xline(faxis(Fbin1)), xline(faxis(Fbin2)), hold off
 
     subplot(3,1,2) % ERP
     plot(taxis, at1(137,:)), title(folderNames{subindex}), hold on

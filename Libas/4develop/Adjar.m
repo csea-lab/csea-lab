@@ -8,7 +8,7 @@ subtract1 = zeros(size(inputERP));
 % now the convolution in the frequency domain
 for chan = 1:size(inputERP,1)
     fft1 = fft([inputERP(chan,trigpointSP:end) zeros(1,size(inputERP,2)-trigpointSP-1) ]);
-    fft2 = fft(fliplr(prioreventdist));
+    fft2 = fft(prioreventdist);
     fftprod = fft1 .* fft2;
     temp = ifft(fftprod);
     subtract1(chan,1:length(temp)) = temp;
