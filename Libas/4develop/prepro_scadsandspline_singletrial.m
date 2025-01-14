@@ -1,4 +1,4 @@
-function [EEG_allcond] =  prepro_scadsandspline_log(datapath, logpath, convecfun, stringlength, conditions2select, timevec, filtercoeffHz, filtord, skiptrials, sfpfilename, ecfgfilename)
+function [EEG_allcond] =  prepro_scadsandspline_singletrial(datapath, logpath, convecfun, stringlength, conditions2select, timevec, filtercoeffHz, filtord, skiptrials, sfpfilename, ecfgfilename)
 % datapath is name of .raw file, this function rins only for 129channel EGI data
 % logpath is the name .dat file
 % convecfun is the name of a function that takes a dat file and generates a
@@ -116,8 +116,17 @@ function [EEG_allcond] =  prepro_scadsandspline_log(datapath, logpath, convecfun
       %% select conditions; compute and write output
      artifactlog.goodtrialsbycondition = []; % remaining artifact info by condition will be populated
 
-    for con_index = 1:size(conditions2select,2)
-  
+for con_index = 1:size(conditions2select,2)
+
+    isType = 0;
+    for i = 1:length(EEG_allcond.event)
+       if strcmp(EEG_allcond.event(i).type,  conditions2select{con_index})
+        isType = 1;
+       end
+    end
+   
+   if isType  == 1
+
      %select conditions   
      EEG_temp = pop_selectevent( EEG_allcond,  'type', conditions2select{con_index} );
      EEG_temp = eeg_checkset( EEG_temp );
@@ -137,7 +146,9 @@ function [EEG_allcond] =  prepro_scadsandspline_log(datapath, logpath, convecfun
       % complete artifact info
       artifactlog.goodtrialsbycondition = [artifactlog.goodtrialsbycondition; size(EEG_temp.data, 3)];
 
-    end
+   end
+   
+end
 
    %% save the artifact info
      save([basename '.artiflog.mat'], 'artifactlog', '-mat')
