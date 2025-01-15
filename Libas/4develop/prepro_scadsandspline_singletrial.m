@@ -116,40 +116,40 @@ function [EEG_allcond] =  prepro_scadsandspline_singletrial(datapath, logpath, c
       %% select conditions; compute and write output
      artifactlog.goodtrialsbycondition = []; % remaining artifact info by condition will be populated
 
-for con_index = 1:size(conditions2select,2)
+     for con_index = 1:size(conditions2select,2)
 
-    isType = 0;
-    for i = 1:length(EEG_allcond.event)
-       if strcmp(EEG_allcond.event(i).type,  conditions2select{con_index})
-        isType = 1;
-       end
-    end
-   
-   if isType  == 1
+         isType = 0;
+         for i = 1:length(EEG_allcond.event)
+             if strcmp(EEG_allcond.event(i).type,  conditions2select{con_index})
+                 isType = 1;
+             end
+         end
 
-     %select conditions   
-     EEG_temp = pop_selectevent( EEG_allcond,  'type', conditions2select{con_index} );
-     EEG_temp = eeg_checkset( EEG_temp );
-     
-     % compute ERPs
-     ERPtemp = double(avg_ref_add(squeeze(mean(EEG_temp.data(:, :, skiptrials:end), 3))));
-     
-     % compute single trial array in 3D
-     Mat3D = avg_ref_add3d(double(EEG_temp.data));
+         if isType  == 1
 
-     % save the ERP in emegs at format
-      SaveAvgFile([basename '.at' conditions2select{con_index} '.ar'],ERPtemp,[],[], EEG.srate, [], [], [], [], abs(timevec(1) *EEG.srate)+1); 
+                 %select conditions
+                 EEG_temp = pop_selectevent( EEG_allcond,  'type', conditions2select{con_index} );
+                 EEG_temp = eeg_checkset( EEG_temp );
 
-      % save the single trial array in 3D
-      save([basename '.trls.' conditions2select{con_index} '.mat'], 'Mat3D', '-mat')
-   
-      % complete artifact info
-      artifactlog.goodtrialsbycondition = [artifactlog.goodtrialsbycondition; size(EEG_temp.data, 3)];
+                 % compute ERPs
+                 ERPtemp = double(avg_ref_add(squeeze(mean(EEG_temp.data(:, :, skiptrials:end), 3))));
 
-   end
-   
-end
+                 % compute single trial array in 3D
+                 Mat3D = avg_ref_add3d(double(EEG_temp.data));
 
+                 % save the ERP in emegs at format
+                 SaveAvgFile([basename '.at' conditions2select{con_index} '.ar'],ERPtemp,[],[], EEG.srate, [], [], [], [], abs(timevec(1) *EEG.srate)+1);
+
+                 % save the single trial array in 3D
+                 save([basename '.trls.' conditions2select{con_index} '.mat'], 'Mat3D', '-mat')
+
+                 % complete artifact info
+                 artifactlog.goodtrialsbycondition = [artifactlog.goodtrialsbycondition; size(EEG_temp.data, 3)];
+
+
+         end
+
+     end
    %% save the artifact info
      save([basename '.artiflog.mat'], 'artifactlog', '-mat')
 
