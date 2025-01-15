@@ -1,4 +1,4 @@
-function [outmat_1, outmat_2, picvec, valence, arousal, AiVec] = getpictures_MyAPS(filepath)
+function [picvec] = getcon_singtrials_MyAPS1(filepath)
 
 picvec = [];
 trialnums  = []; 
@@ -15,15 +15,15 @@ trialindex = 1
 
  n = [1640 1604 1510 2010 9430 2580 2850 2446 2484 2499 5395 5470 5600 7186 5661 5455 5551 5665 5779 1419];
  
- o = [5910 4597]
+ o = [5910 4597];
 
-fid = fopen(filepath)
+fid = fopen(filepath);
 count = 1;
 a = 1;
 	
  while a > 0
 	
-     a = fgetl(fid)
+     a = fgetl(fid);
      
      if a < 0, break, return, end
  	index1 = findstr(a, '.');
@@ -44,7 +44,7 @@ a = 1;
     if ismember(picname, p), concode = 1; 
     elseif ismember(picname, n), concode = 2; 
     elseif ismember(picname, u), concode = 3;
-    elseif ismember(picname, o), concode = 4
+    elseif ismember(picname, o), concode = 4;
     end
     
     picvec = [ picvec; picname+AIcondition];
@@ -71,21 +71,12 @@ a = 1;
         arousal = [arousal; str2num(unparsedratings(1:index3-1))]
         valence  = [valence; str2num(unparsedratings(index3+1:end))]
     
-        trialindex = trialindex + 1
+        trialindex = trialindex + 1;
     
 
-trialnums
+trialnums;
 
  end
 
- outmat_temp = [picvec valence arousal AiVec]; 
- 
- outmat_1_temp = outmat_temp(1:120,:);
- outmat_2_temp = outmat_temp(121:end,:);
- 
- outmat_1 = sortrows(outmat_1_temp,1);
- outmat_2 = sortrows(outmat_2_temp,1);
 
-eval(['save ' filepath 'rating1.mat outmat_1'])
 
-eval(['save ' filepath 'rating2.mat outmat_2'])
