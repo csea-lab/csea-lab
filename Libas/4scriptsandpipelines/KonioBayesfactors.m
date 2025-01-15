@@ -38,6 +38,7 @@ for elec = 1:size(mat3d_1,1)
     for timepoint = 1:size(mat3d_1,2)
         BFmap_konio(elec, timepoint) = bootstrap2BF_z(squeeze(effect_dist_bootstrap(elec,timepoint,:)),squeeze(nullperm_dist_bootstrap(elec,timepoint,:)), 0);
     end
+    disp('elec: '), fprintf(num2str(elec))
 end
 
 % BFmap_konio and BFmap_Lumi converted to log10
