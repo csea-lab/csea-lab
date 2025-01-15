@@ -204,10 +204,12 @@ for subindex = 1:size(folderNames,2)
 
 end
 
+% END PREPROCESSING
+
 %%
 
+% BEGIN ALPHA
 % Create pow3 files from the mat files
-%
 %
 %
 
@@ -297,11 +299,12 @@ filemat1 = getfilesindir(pwd, 'myaps_5*')
 [outmat_v1_alpha]  = extractstats_TF(filemat1, 6, 550:1050, 6:7, [62 72 75 61 78 60 85 67 77 66 84 70 83 71 76], []);
 [outmat_v2_alpha]  = extractstats_TF(filemat2, 6, 550:1050, 6:7, [62 72 75 61 78 60 85 67 77 66 84 70 83 71 76], []);
 
+% END ALPHA 
 %% 
 
+% BEGIN LPP
 % Extract LPP from 400-800ms, separate for each iteration
-%
-%
+% CONDITION
 %
 
 filemat1 = getfilesindir(pwd, 'myaps_5*')
@@ -312,14 +315,92 @@ filemat2 = getfilesindir(pwd, 'myaps*_7*')
 
 %%
 
+% LPP Single Trial and Correlations
 %
 %
+%
+
+% Set up directory and picture labels
+cd '/Users/faithgilbert/Desktop/1_MyAps/Paper/eeg/singletrialmatfiles'
+load('PIC_V1.mat');
+load('PIC_V2.mat');
+load('PIC_V1_Scatter.mat');
+load('PIC_V2_Scatter.mat');
+
+%% Version 2 only
+indexvec = [];
+picindex = [];
+pic_str = []; 
+picindex = [];
+filelist = getfilesindir(pwd, 'myaps2*.at*');
+
+for i = 1:length(PIC_V2);
+    indexvec = [];
+    pic_str = num2str(PIC_V2(i));
+        for x = 1:size(filelist, 1);
+            picindex = strfind(filelist(x, :), pic_str); if~isempty(picindex), indexvec = [indexvec, x]; end
+        end
+    filelist(indexvec,:);
+    output_filename = sprintf('myaps2_GMbypic_%s.at', pic_str);   
+    MergeAvgFiles(filelist(indexvec, :),output_filename,1,1,[],0,[],[],0,0);
+end
+
+%% Version 1 only
+picindex = [];
+pic_str = []; 
+
+filelist = getfilesindir(pwd, 'myaps_5*.at*');
+
+for i = 1:length(PIC_V1);
+    indexvec = [];
+    pic_str = num2str(PIC_V1(i));
+        for x = 1:size(filelist, 1);
+            picindex = strfind(filelist(x, :), pic_str); if~isempty(picindex), indexvec = [indexvec, x]; end
+        end
+    filelist(indexvec,:);
+    output_filename = sprintf('myaps_GMbypic_%s.at', pic_str);   
+    MergeAvgFiles(filelist(indexvec, :),output_filename,1,1,[],0,[],[],0,0);
+end
+
+%%
+filemat1 = getfilesindir(pwd, 'myaps_*.at')
+filemat2 = getfilesindir(pwd, 'myaps2_*.at')
+
+% need: extractstats from sensors/time, sort by AI/orig, scatter
+[outmat1] = extractstats(filemat1, 120, [37 87 53 54 55 79 86 61 78 62], 500:700, [])
+[outmat2] = extractstats(filemat2, 240, [37 87 53 54 55 79 86 61 78 62], 500:700, [])
+
+% correlations
+outmat1 = outmat1'
+outmat2 = outmat2'
+
+corrv1=corrcoef(outmat1(1:60,1), outmat1(61:120,1))
+corrv2=corrcoef(outmat2(1:120,1), outmat2(121:240,1))
+
+figure
+hold on
+h1 = scatter(outmat1(1:60,1), outmat1(61:120,1), 100, 'MarkerFaceColor', 'b', 'MarkerEdgeColor', 'b', 'Marker', 'o');
+text(outmat1(1:60,1), outmat1(61:120,1), num2str(PIC_V1_Scatter), 'VerticalAlignment', 'bottom', 'HorizontalAlignment', 'right', 'FontSize', 16, 'FontWeight', 'bold');
+hold off
+
+figure
+hold on
+h1 = scatter(outmat2(1:120,1), outmat2(121:240,1), 100, 'MarkerFaceColor', 'b', 'MarkerEdgeColor', 'b', 'Marker', 'o', 'DisplayName', 'Original Pleasant');
+text(outmat2(1:120,1), outmat2(121:240,1), num2str(PIC_V2_Scatter), 'VerticalAlignment', 'bottom', 'HorizontalAlignment', 'right', 'FontSize', 16, 'FontWeight', 'bold');
+hold off
+
+% END LPP
+
+%%
+
+% BEGIN PUPIL
+% Conditions
 %
 %
 
 % PUPIL, preprocessing
 
-cd '/Users/faithgilbert/Desktop/1_MyAps/Paper/pupil'
+cd '/Users/faithgilbert/Desktop/1_MyAps/Paper/pupil/Data'
 
 % make matrices that match, start wit myaps 1
 filemat_edf = getfilesindir(pwd, 'MyAp5*edf');
@@ -345,7 +426,7 @@ end
 
 % MyAPS1
 % VISUALIZE
-cd '/Users/faithgilbert/Desktop/1_MyAps/Paper/pupil'
+cd '/Users/faithgilbert/Desktop/1_MyAps/Paper/pupil/Conditions/pupmatfiles'
 filemat1 = getfilesindir(pwd, 'MyAp*out.mat');
 
 data = []; 
@@ -481,7 +562,39 @@ end
 
 %%
 
+% Single trial
 %
+%
+%
+
+% PUPIL, preprocessing
+
+cd '/Users/faithgilbert/Desktop/1_MyAps/Paper/pupil/Data'
+
+% make matrices that match, start wit myaps 1
+filemat_edf = getfilesindir(pwd, 'MyAp5*edf');
+filemat_dat = getfilesindir(pwd, 'myaps5*');
+
+for subject = 1:size(filemat_dat,1)
+
+ [matcorr, matout, matoutbsl, percentbadvec, percentbadsub, percentbadcond] = eye_pipeline(filemat_edf(subject,:), 500, 'getcon_singtrials_MyAPS1', filemat_dat(subject,:), 'cue_on', 250, 2000, []);   
+
+end
+
+% myaps 2
+filemat_edf = getfilesindir(pwd, 'MyA2*edf');
+filemat_dat = getfilesindir(pwd, 'myaps2*');
+
+for subject = 1:size(filemat_dat,1)
+
+ [matcorr, matout, matoutbsl, percentbadvec, percentbadsub, percentbadcond] = eye_pipeline(filemat_edf(subject,:), 500, 'getcon_MyAPS2_singletrial', filemat_dat(subject,:), 'cue_on', 250, 2000, 0);   
+
+end
+
+% END PUPIL
+%%
+
+% BEGIN RATINGS
 %
 %
 %
@@ -599,3 +712,5 @@ scattertable_v1 = [pic meanval_v1 meanaro_v1]
 % correlations
 corrval_v1=corrcoef(scattertable_v1(1:120,2), scattertable_v1(121:240,2))
 corraro_v1=corrcoef(scattertable_v1(1:120,3), scattertable_v1(121:240,3))
+
+% END RATINGS
