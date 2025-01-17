@@ -1,4 +1,4 @@
-function [EEG_allcond] =  ClarkHillyardPipeline(datapath, logpath, convecfun, stringlength, conditions2select, timevec, filtercoeffHz, filtord, skiptrials, sfpfilename, ecfgfilename, eyecorrflag)
+function [EEG_allcond] =  ClarkHillyardPipeline(datapath, logpath, convecfun, stringlength, conditions2select, timevec, filtercoeffHz, filtord, skiptrials, sfpfilename, ecfgfilename, eyecorrflag, mastoidindexvec)
 % datapath is name of .raw file, this function rins only for 129channel EGI data
 % logpath is the name .dat file
 % convecfun is the name of a function that takes a dat file and generates a
@@ -156,7 +156,7 @@ function [EEG_allcond] =  ClarkHillyardPipeline(datapath, logpath, convecfun, st
           ERPtemp = double(squeeze(mean(EEG_temp.data(:, :, skiptrials:end), 3)));
 
           % reference to mastoids
-          ERPref = LB3_reref_EEG_add(ERPtemp, [189 190 201 191]);
+          ERPref = LB3_reref_EEG_add(ERPtemp, mastoidindexvec);
 
           % save the ERP in emegs at format
           SaveAvgFile([basename '.at' conditions2select{con_index} '.mr'],ERPref,[],[], EEG.srate, [], [], [], [], abs(timevec(1) *EEG.srate)+1);
