@@ -3,7 +3,7 @@
 % Get a list of all files and folders in the current directory
 temp99 = eeglab; 
 
-files = dir("C1*");
+files = dir("C17*");
 
 % Filter out the non-folder entries
 dirFlags = [files.isdir];
@@ -29,7 +29,7 @@ for subindex = 1:size(folderNames,2)
     rawfile = getfilesindir(pwd, '*.RAW');
 
     % actual preprocessing
-   LB3_prepro_pipeline(rawfile, datfile, 'getcon_C1P1', 8, {'1' '2' '11' '10' '21' '30'}, [-.45 .45], [.1  30], [3 11], 1, 'GSN-HydroCel-256.sfp', 'HC1-256.ecfg',0);
+   LB3_prepro_pipeline(rawfile, datfile, 'getcon_C1P1', 8, {'1' '2' '11' '10' '20' '21' '30' '31'}, [-.45 .45], [.1  30], [3 11], 1, 'GSN-HydroCel-128.sfp', 'HC1-128.ecfg',0);
    % prepro_scadsandspline_log(datapath, logpath, convecfun, stringlength, conditions2select, timevec, filtercoeffHz, filtord, skiptrials, sfpfilename, ecfgfilename)
     cd ..
 
@@ -72,7 +72,7 @@ for subindex = 1:size(folderNames,2)
     rawfile = getfilesindir(pwd, '*.RAW');
 
     % actual preprocessing
-   ClarkHillyardPipeline(rawfile, datfile, 'getcon_C1P1', 8, {'1' '2' '11' '10' '20' '21' '30' '31'}, [-.45 .45], [.1  50], [3 11], 1, 'GSN-HydroCel-256.sfp', 'HC1-256.ecfg',0);
+   ClarkHillyardPipeline(rawfile, datfile, 'getcon_C1P1', 8, {'1' '2' '11' '10' '20' '21' '30' '31'}, [-.45 .45], [.1  50], [3 11], 1, 'GSN-HydroCel-128.sfp', 'HC1-128.ecfg',0, [100 101 107]);
    % prepro_scadsandspline_log(datapath, logpath, convecfun, stringlength, conditions2select, timevec, filtercoeffHz, filtord, skiptrials, sfpfilename, ecfgfilename)
     cd ..
 
