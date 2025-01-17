@@ -46,7 +46,7 @@ clear
 
 temp99 = eeglab; 
 
-files = dir("C1*");
+files = dir("C17*");
 
 % Filter out the non-folder entries
 dirFlags = [files.isdir];
