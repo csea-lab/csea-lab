@@ -1,7 +1,7 @@
 function [ outmat3d, badindextotal, NGoodtrials ] = reject_eye_3dtrials(inmat3d, horipair, vertipair, threshold)
 % calculate three metrics of data quality at the trial level
 % for 256 EGI: horipair = [226, 252]; vertipair = [238, 10];
-
+% for 129 EGI: horipair = [125 128]; vertipair = [8 126]; 
    outmat3d = inmat3d; 
 
     horidata = squeeze(inmat3d(horipair(1),:,:)-inmat3d(horipair(2),:,:)); % Heog
