@@ -162,7 +162,7 @@ function [EEG_allcond] =  ClarkHillyardPipeline(datapath, logpath, convecfun, st
           SaveAvgFile([basename '.at' conditions2select{con_index} '.mr'],ERPref,[],[], EEG.srate, [], [], [], [], abs(timevec(1) *EEG.srate)+1);
 
           % correct with ADJAR and save as separate files by condition
-          [correctedERP, ~, ~] = Adjar(ERPref, ITIdistribution, 151, 225);
+          [correctedERP, ~, ~] = Adjar(ERPref, ITIdistribution, 151);
            SaveAvgFile([basename '.adjar.at' conditions2select{con_index} '.mr'],correctedERP,[],[], EEG.srate, [], [], [], [], abs(timevec(1) *EEG.srate)+1);
 
           % complete artifact info
