@@ -108,11 +108,11 @@ function [EEG_allcond] =  ClarkHillyardPipeline(datapath, logpath, convecfun, st
       % find bad trials based on overall amplitude
        disp('artifact handling: trials by voltage')
        [ ~, badindexvec1, NGoodtrials ] = threshold_3dtrials(EEG_allcond.data, thresholdVoltage);
- 
+
       % find bad trials based on eye channels
       disp('artifact handling: trials by eye artifact')
        horipair = [125 128]; vertipair = [8 126]; 
-      [ ~, badindexvec2, ~ ] = reject_eye_3dtrials(inmat3d, horipair, vertipair, 30);
+      [ ~, badindexvec2, ~ ] = reject_eye_3dtrials(inmat3d, horipair, vertipair, 50);
 
       % remove from dataset
        disp('removing bad trials')
@@ -126,7 +126,7 @@ function [EEG_allcond] =  ClarkHillyardPipeline(datapath, logpath, convecfun, st
          reflatencyvec =  cell2mat(EEG_allcond.epoch(epochindex).eventlatency);
          eventindex = find(reflatencyvec==0);
          trialcondition = cell2mat(EEG_allcond.epoch(epochindex).eventtype(eventindex)); 
-         if str2double(trialcondition) > 19
+         if ismember(trialcondition, [13 14 23 24])
              targetepochindex = [targetepochindex epochindex-1 epochindex+1]; 
          end
      end
