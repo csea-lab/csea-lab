@@ -26,11 +26,11 @@ for subindex = 1:size(folderNames,2)
 
    delete *.at*
 
-    datfile = getfilesindir(pwd, '*.txt');
+    datfile = getfilesindir(pwd, '*Trials*.dat');
     rawfile = getfilesindir(pwd, '*.RAW');
 
     % actual preprocessing
-   LB3_prepro_pipeline(rawfile, datfile, 'getcon_C1P1', 8, {'1' '2' '11' '10' '20' '21' '30' '31'}, [-.45 .45], [.1  30], [3 11], 1, 'GSN-HydroCel-128.sfp', 'HC1-128.ecfg',0);
+   LB3_prepro_pipeline(rawfile, datfile, 'getcon_C1P1', 8, {'11' '12' '13' '14' '21' '22' '23' '24'}, [-.45 .45], [.1  30], [3 11], 1, 'GSN-HydroCel-128.sfp', 'HC1-128.ecfg',0);
    % prepro_scadsandspline_log(datapath, logpath, convecfun, stringlength, conditions2select, timevec, filtercoeffHz, filtord, skiptrials, sfpfilename, ecfgfilename)
     cd ..
 
@@ -70,11 +70,11 @@ for subindex = 1:size(folderNames,2)
 
    delete *.at*
 
-    datfile = getfilesindir(pwd, '*.txt');
+    datfile = getfilesindir(pwd, '*Trials*.dat');
     rawfile = getfilesindir(pwd, '*.RAW');
 
     % actual preprocessing
-   ClarkHillyardPipeline(rawfile, datfile, 'getcon_C1P1', 8, {'1' '2' '11' '10' '20' '21' '30' '31'}, [-.45 .45], [.1  45], [3 13], 1, 'GSN-HydroCel-128.sfp', 'HC1-128.ecfg',0, [100 101 107]);
+   ClarkHillyardPipeline(rawfile, datfile, 'getcon_C1P1', 8, {'11' '12' '13' '14' '21' '22' '23' '24'}, [-.45 .45], [.1  45], [3 13], 1, 'GSN-HydroCel-128.sfp', 'HC1-128.ecfg',0, [100 101 107]);
    % prepro_scadsandspline_log(datapath, logpath, convecfun, stringlength, conditions2select, timevec, filtercoeffHz, filtord, skiptrials, sfpfilename, ecfgfilename)
     cd ..
 
