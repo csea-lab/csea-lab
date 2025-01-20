@@ -30,7 +30,7 @@ for subindex = 1:size(folderNames,2)
     rawfile = getfilesindir(pwd, '*.RAW');
 
     % actual preprocessing
-   prepro_scadsandspline_log(rawfile, datfile, 'getcon_COARD_C1', 11, {'1' '2'}, [-.4 .4], [.1  30], [3 9], 1, 'GSN-HydroCel-256.sfp', 'HC1-256.ecfg')
+   prepro_scadsandspline_log(rawfile, datfile, 'getcon_COARD_C1', 11, {'1' '2'}, [-.3 .4], [.1  30], [3 10], 1, 'GSN-HydroCel-256.sfp', 'HC1-256.ecfg')
    % prepro_scadsandspline_log(datapath, logpath, convecfun, stringlength, conditions2select, timevec, filtercoeffHz, filtord, skiptrials, sfpfilename, ecfgfilename)
     cd ..
 
