@@ -46,6 +46,7 @@ AllEPosSpher(:,1:2)=TmpSpher(1:NChanCalc,:);
 AllEPosSpher(:,3)=ScalpRadius.*ones(NChanCalc,1);
 AllEPosCart = change_sphere_cart(AllEPosSpher,ScalpRadius,1);
 
+%ECfgFile=EcfgFilePath;
 ECfgFile=GetDefEcfgFile(NChanCalc);
 
 NPoints = size(EEGMat,2);
