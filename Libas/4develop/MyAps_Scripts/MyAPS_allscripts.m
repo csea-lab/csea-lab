@@ -267,12 +267,12 @@ figure, contourf(taxis, faxis, squeeze(mean(avgmatALL([62 72 75 61 78 60 85 67 7
 [outWaMat23] = bslcorrWAMat_div(avgmat23, 100:200);
 [outWaMatALL] = bslcorrWAMat_div(avgmatALL, 100:200);
 
-figure, contourf(taxis(100:end-100), faxis, squeeze(mean(outWaMat11([62 72 75 61 78 60 85 67 77 66 84 70 83 71 76], 100:end-100, :)))', 15); colorbar; caxis([0.7 1.1]); 
-figure, contourf(taxis(100:end-100), faxis, squeeze(mean(outWaMat12([62 72 75 61 78 60 85 67 77 66 84 70 83 71 76], 100:end-100, :)))', 15); colorbar; caxis([0.7 1.1]);
-figure, contourf(taxis(100:end-100), faxis, squeeze(mean(outWaMat13([62 72 75 61 78 60 85 67 77 66 84 70 83 71 76], 100:end-100, :)))', 15); colorbar; caxis([0.7 1.1]);
-figure, contourf(taxis(100:end-100), faxis, squeeze(mean(outWaMat21([62 72 75 61 78 60 85 67 77 66 84 70 83 71 76], 100:end-100, :)))', 15); colorbar; caxis([0.7 1.1]);
-figure, contourf(taxis(100:end-100), faxis, squeeze(mean(outWaMat22([62 72 75 61 78 60 85 67 77 66 84 70 83 71 76], 100:end-100, :)))', 15); colorbar; caxis([0.7 1.1]);
-figure, contourf(taxis(100:end-100), faxis, squeeze(mean(outWaMat23([62 72 75 61 78 60 85 67 77 66 84 70 83 71 76], 100:end-100, :)))', 15); colorbar; caxis([0.7 1.1]);
+figure, contourf(taxis(100:end-100), faxis, squeeze(mean(outWaMat11([62 72 75 61 78 60 85 67 77 66 84 70 83 71 76], 100:end-100, :)))', 15); colorbar; caxis([0.6 1.1]); 
+figure, contourf(taxis(100:end-100), faxis, squeeze(mean(outWaMat12([62 72 75 61 78 60 85 67 77 66 84 70 83 71 76], 100:end-100, :)))', 15); colorbar; caxis([0.6 1.1]);
+figure, contourf(taxis(100:end-100), faxis, squeeze(mean(outWaMat13([62 72 75 61 78 60 85 67 77 66 84 70 83 71 76], 100:end-100, :)))', 15); colorbar; caxis([0.6 1.1]);
+figure, contourf(taxis(100:end-100), faxis, squeeze(mean(outWaMat21([62 72 75 61 78 60 85 67 77 66 84 70 83 71 76], 100:end-100, :)))', 15); colorbar; caxis([0.6 1.1]);
+figure, contourf(taxis(100:end-100), faxis, squeeze(mean(outWaMat22([62 72 75 61 78 60 85 67 77 66 84 70 83 71 76], 100:end-100, :)))', 15); colorbar; caxis([0.6 1.1]);
+figure, contourf(taxis(100:end-100), faxis, squeeze(mean(outWaMat23([62 72 75 61 78 60 85 67 77 66 84 70 83 71 76], 100:end-100, :)))', 15); colorbar; caxis([0.6 1.1]);
 figure, contourf(taxis(50:end-50), faxis, squeeze(mean(outWaMatALL([62 72 75 61 78 60 85 67 77 66 84 70 83 71 76], 50:end-50, :)))', 15); colorbar; %caxis([0.7 1.1]);
 
 temp11 = squeeze(mean(outWaMat11(:, :, 7), 3)); 
@@ -283,21 +283,21 @@ temp22 = squeeze(mean(outWaMat22(:, :, 7), 3));
 temp23 = squeeze(mean(outWaMat23(:, :, 7), 3)); 
 tempALL = squeeze(mean(outWaMatALL(:, :, 7), 3)); 
 
-SaveAvgFile('gm88all.at',tempALL,[],[], 500,[],[],[],[],1); % this saves the file to disk and you can open with emegs2d and then emegs3d.
-SaveAvgFile('gm88cond11.at',temp11,[],[], 500,[],[],[],[],1); % this saves the file to disk and you can open with emegs2d and then emegs3d.
-SaveAvgFile('gm88cond12.at',temp12,[],[], 500,[],[],[],[],1); % this saves the file to disk and you can open with emegs2d and then emegs3d.
-SaveAvgFile('gm88cond13.at',temp13,[],[], 500,[],[],[],[],1); % this saves the file to disk and you can open with emegs2d and then emegs3d.
-SaveAvgFile('gm88cond21.at',temp21,[],[], 500,[],[],[],[],1); % this saves the file to disk and you can open with emegs2d and then emegs3d.
-SaveAvgFile('gm88cond22.at',temp22,[],[], 500,[],[],[],[],1); % this saves the file to disk and you can open with emegs2d and then emegs3d.
-SaveAvgFile('gm88cond23.at',temp23,[],[], 500,[],[],[],[],1); % this saves the file to disk and you can open with emegs2d and then emegs3d.
+SaveAvgFile('gm88allalpha.at',tempALL,[],[], 500,[],[],[],[],1); % this saves the file to disk and you can open with emegs2d and then emegs3d.
+SaveAvgFile('gm88cond11alpha.at',temp11,[],[], 500,[],[],[],[],1); % this saves the file to disk and you can open with emegs2d and then emegs3d.
+SaveAvgFile('gm88cond12alpha.at',temp12,[],[], 500,[],[],[],[],1); % this saves the file to disk and you can open with emegs2d and then emegs3d.
+SaveAvgFile('gm88cond13alpha.at',temp13,[],[], 500,[],[],[],[],1); % this saves the file to disk and you can open with emegs2d and then emegs3d.
+SaveAvgFile('gm88cond21alpha.at',temp21,[],[], 500,[],[],[],[],1); % this saves the file to disk and you can open with emegs2d and then emegs3d.
+SaveAvgFile('gm88cond22alpha.at',temp22,[],[], 500,[],[],[],[],1); % this saves the file to disk and you can open with emegs2d and then emegs3d.
+SaveAvgFile('gm88cond23alpha.at',temp23,[],[], 500,[],[],[],[],1); % this saves the file to disk and you can open with emegs2d and then emegs3d.
 
 %%
 % Now, extract alpha values from 500-1500ms, separate for each iteration
 
-filemat2 = getfilesindir(pwd, 'myaps_7*')
+filemat2 = getfilesindir(pwd, 'myaps2_7*')
 filemat1 = getfilesindir(pwd, 'myaps_5*')
-[outmat_v1_alpha]  = extractstats_TF(filemat1, 6, 550:1050, 6:7, [62 72 75 61 78 60 85 67 77 66 84 70 83 71 76], []);
-[outmat_v2_alpha]  = extractstats_TF(filemat2, 6, 550:1050, 6:7, [62 72 75 61 78 60 85 67 77 66 84 70 83 71 76], []);
+[outmat_v1_alpha]  = extractstats_TF(filemat1, 6, 550:1050, 6:7, [62 72 75 61 78 60 85 67 77 66 84 70 83 71 76], 100:200);
+[outmat_v2_alpha]  = extractstats_TF(filemat2, 6, 550:1050, 6:7, [62 72 75 61 78 60 85 67 77 66 84 70 83 71 76], 100:200);
 
 % END ALPHA 
 %% 
@@ -307,11 +307,14 @@ filemat1 = getfilesindir(pwd, 'myaps_5*')
 % CONDITION
 %
 
+clear
+cd '/Users/faithgilbert/Desktop/1_MyAps/Paper/eeg/atfiles'
+
 filemat1 = getfilesindir(pwd, 'myaps_5*')
 filemat2 = getfilesindir(pwd, 'myaps*_7*')
 
-[outmat_v1_LPP] = extractstats(filemat1, 6, [37 87 53 54 55 79 86 61 78 62], 500:700, [])
-[outmat_v2_LPP] = extractstats(filemat2, 6, [37 87 53 54 55 79 86 61 78 62], 500:700, [])
+[outmat_v1_LPP] = extractstats(filemat1, 6, [37 87 53 54 55 79 86 61 78 62], 500:700, 250:300)
+[outmat_v2_LPP] = extractstats(filemat2, 6, [37 87 53 54 55 79 86 61 78 62], 500:700, 250:300)
 
 %%
 
@@ -426,6 +429,7 @@ end
 
 % MyAPS1
 % VISUALIZE
+clear
 cd '/Users/faithgilbert/Desktop/1_MyAps/Paper/pupil/Conditions/pupmatfiles'
 filemat1 = getfilesindir(pwd, 'MyAp*out.mat');
 
@@ -472,7 +476,7 @@ v1grand_mean = v1grand_sum./size(filemat1,1);
 pupilmat =[]; 
 filemat1 = getfilesindir(pwd, 'MyAp*out.mat');
 
-for x = 1:59
+for x = 1:size(filemat1)
 temp = load(filemat1(x,:)); datatemp = temp.matout; cali1 = mean(mean(datatemp));
 
     if x >= 25
@@ -529,7 +533,7 @@ v2grand_mean = v2grand_sum./size(filemat2,1);
 % Create matrix for pupil data + baseline correct
 pupilmat =[]; 
 filemat2 = getfilesindir(pwd, 'MyA2*out.mat');
-for x = 1:46
+for x = 1:size(filemat2)
 temp = load(filemat2(x,:)); [matout_all] = bslcorr(temp.matout(:, 1:6)', 1:250)'
 datanew = (matout_all*10)/5222
 pupilmat(:, :, x) = datanew; 
@@ -590,6 +594,75 @@ for subject = 1:size(filemat_dat,1)
  [matcorr, matout, matoutbsl, percentbadvec, percentbadsub, percentbadcond] = eye_pipeline(filemat_edf(subject,:), 500, 'getcon_MyAPS2_singletrial', filemat_dat(subject,:), 'cue_on', 250, 2000, 0);   
 
 end
+
+%%
+
+% Pupil, correlations
+
+% EXTRACT STATS
+% Create matrix for pupil data + baseline correct
+
+cd '/Users/faithgilbert/Desktop/1_MyAps/Paper/pupil/Singletrials/pupmatfiles'
+clear
+
+% VERSION 2
+
+pupilmat =[]; 
+filemat2 = getfilesindir(pwd, 'MyA2*out.mat');
+for x = 1:size(filemat2)
+temp = load(filemat2(x,:)); [matout_all] = bslcorr(temp.matout(:, 1:240)', 1:250)';
+datanew = (matout_all*10)/5222;
+pupilmat(:, :, x) = datanew; 
+fprintf('.');
+end
+disp('done')
+
+% average across timepoints
+v2_gm_time = []
+v2_gm_time(:, :) = mean(pupilmat(751:1251, :, :));
+v2_gm_time = v2_gm_time'
+
+% correlations
+GM_allppl(:) = mean(v2_gm_time(1:46, :))
+
+ORpic_v2 = GM_allppl(1, 1:120)'
+AIpic_v2 = GM_allppl(1, 121:240)'
+
+corrv2=corrcoef(ORpic_v2, AIpic_v2)'
+
+% VERSION 1
+clear 
+
+pupilmat =[]; 
+filemat1 = getfilesindir(pwd, 'MyAp*out.mat');
+
+for x = 1:size(filemat1)
+temp = load(filemat1(x,:)); datatemp = temp.matout; cali1 = mean(mean(datatemp));
+
+    if x >= 25
+        datatransform = (datatemp./cali1).*1000;
+        [data] = bslcorr(datatransform(:, 1:120)', 1:250)';
+    else x < 25
+        [data] = bslcorr(datatemp(:, 1:120)', 1:250)';
+    end
+
+datanew = (data*10)/5222;
+pupilmat(:, :, x) = datanew; 
+
+end
+
+% average across timepoints
+v1_gm_time = []
+v1_gm_time(:, :) = mean(pupilmat(751:1751, :, :));
+v1_gm_time = v1_gm_time'
+
+% correlations
+GM_allppl(:) = mean(v1_gm_time(1:59, :))
+
+ORpic_v1 = GM_allppl(1, 1:60)'
+AIpic_v1 = GM_allppl(1, 61:120)'
+
+corrv1=corrcoef(ORpic_v1, AIpic_v1)'
 
 % END PUPIL
 %%
