@@ -5,9 +5,9 @@ function OutMat = Scads2dSplineInterpChan(EEGMat, BadChanVec, ...
 % EcfgFilePath is string to .ecfg file
 % Example function call: OutMat = Scads2dSplineInterpChan(EEGMat, [2,5,20], 'emegs2.8/emegs2dUtil/SensorCfg/HC1-257.ecfg');
 
-% This code is highly dependent on EMEGS 2.8, will not run independently.
-% Does this need more error checking for like number of sensors?
-% Currently using Approx code status (ScalpCsdIndex = 1), not CSD or anything else
+% This code is dependent on EMEGS 2.8/emegs2dLib, will not run independently.
+%
+% Currently using Approx code status (ScalpCsdIndex = 1)
 
 
 % Preparation path set up to load EEG configuration file and where to save
@@ -20,7 +20,7 @@ CoeffPathTmp = what('emegs3dCoeff40');
 CoeffPath = getfield(CoeffPathTmp,'path');
 if strcmp(CoeffPath(length(CoeffPath)),filesep); CoeffPath = CoeffPath(1:length(CoeffPath)-1); end
 
-LegPathTmp = what('emegs3dLegCoeff');
+LegPathTmp = what('emegs3dCoeff40');
 LegPath = getfield(LegPathTmp,'path');
 if strcmp(LegPath(length(LegPath)),filesep); LegPath = LegPath(1:length(LegPath)-1); end
 
@@ -46,6 +46,7 @@ AllEPosSpher(:,1:2)=TmpSpher(1:NChanCalc,:);
 AllEPosSpher(:,3)=ScalpRadius.*ones(NChanCalc,1);
 AllEPosCart = change_sphere_cart(AllEPosSpher,ScalpRadius,1);
 
+%ECfgFile=EcfgFilePath;
 ECfgFile=GetDefEcfgFile(NChanCalc);
 
 NPoints = size(EEGMat,2);
@@ -84,3 +85,5 @@ TmpEEGMat=TmpEEGMat+(c0'*AllChanOnes)';
 EEGMat(BadChanVec,:)=TmpEEGMat(BadChanVec,:);
 
 OutMat(1:NChanCalc,:)=OutMat(1:NChanCalc,:)+EEGMat;
+
+fclose('all');

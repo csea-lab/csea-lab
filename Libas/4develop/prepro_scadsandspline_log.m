@@ -31,7 +31,7 @@ function [EEG_allcond] =  prepro_scadsandspline_log(datapath, logpath, convecfun
      EEG = eeg_checkset( EEG );
      
 
-     % lowpass filter
+     % highpass filter
      if filtercoeffHz(1) > 0
      [B,A] = butter(filtord(1),filtercoeffHz(1)/(EEG.srate/2), 'high');
      filtereddata = filtfilt(B,A,double(EEG.data)')'; % 
