@@ -6,7 +6,7 @@
 % alternative codes needed, found in MyAps_Scripts folder on Github
 % getcon_MyAPS1: for first iteration preprocessing and pupil
 % getcon_MyAPS2: for second iteration preprocessing and pupil
-% getpictures_MyAPS: for first iteration single picture preprocessing
+% getcon_singtrials_MyAPS1: for first iteration single picture preprocessing
 % getcon_MyAPS2_singletrial: for second iteration single picture preprocessing
 
 % getcon_MyAPS2_rate: for getting the rating values by condition for
@@ -146,8 +146,9 @@ for subindex = 1:size(folderNames,2)
     datapath = getfilesindir(pwd, '*.RAW');
 
     % actual preprocessing
-    [EEG_allcond] = prepro_scadsandspline_singletrial(datapath, logpath, 'getpictures_MyAPS', ...
-        9, {'11205', '11205', '11270', '11270', '11419', '11419', '11510', '11510', '11604', '11604', '11640', '11640', '12010', '12010', '12045', '12045', '12092', '12092', '12110', '12110', '12300', '12300', '12314', '12314', '12446', '12446', '12484', '12484', '12499', '12499', '12540', '12540', '12550', '12550', '12580', '12580', '12850', '12850', '12900', '12900', '13016', '13016', '13051', '13051', '13101', '13101', '13230', '13230', '14001', '14001', '14150', '14150', '14180', '14180', '14210', '14210', '14232', '14232', '14505', '14505', '14534', '14534', '14574', '14574', '14597', '14597', '14601', '14601', '14604', '14604', '14628', '14628', '14770', '14770', '15395', '15395', '15455', '15455', '15470', '15470', '15551', '15551', '15600', '15600', '15661', '15661', '15665', '15665', '15779', '15779', '16211', '16211', '16940', '16940', '17186', '17186', '17405', '17405', '17451', '17451', '19075', '19075', '19140', '19140', '19300', '19300', '19430', '19430', '19491', '19491', '19570', '19570', '19630', '19630', '19900', '19900', '19905', '19905', '19909', '19909', '21205', '21205', '21270', '21270', '21419', '21419', '21510', '21510', '21604', '21604', '21640', '21640', '22010', '22010', '22045', '22045', '22092', '22092', '22110', '22110', '22300', '22300', '22314', '22314', '22446', '22446', '22484', '22484', '22499', '22499', '22540', '22540', '22550', '22550', '22580', '22580', '22850', '22850', '22900', '22900', '23016', '23016', '23051', '23051', '23101', '23101', '23230', '23230', '24001', '24001', '24150', '24150', '24180', '24180', '24210', '24210', '24232', '24232', '24505', '24505', '24574', '24574', '24601', '24601', '24604', '24604', '24628', '24628', '24770', '24770', '25395', '25395', '25455', '25455', '25470', '25470', '25551', '25551', '25600', '25600', '25661', '25661', '25665', '25665', '25779', '25779', '25910', '25910', '26211', '26211', '26940', '26940', '27186', '27186', '27405', '27405', '27451', '27451', '27502', '27502', '29075', '29075', '29140', '29140', '29300', '29300', '29430', '29430', '29491', '29491', '29570', '29570', '29630', '29630', '29900', '29900', '29905', '29905', '29909', '29909'}, [-0.6 2], [.2 25], [3 9], 1, 'GSN-HydroCel-129.sfp', 'HC1-128.ecfg'); 
+    [EEG_allcond] = prepro_scadsandspline_singletrial(datapath, logpath, 'getcon_singtrials_MyAPS1', ...
+        9, {'11205', '11205', '11270', '11270', '11419', '11419', '11510', '11510', '11604', '11604', '11640', '11640', '12010', '12010', '12045', '12045', '12092', '12092', '12110', '12110', '12300', '12300', '12314', '12314', '12446', '12446', '12484', '12484', '12499', '12499', '12540', '12540', '12550', '12550', '12580', '12580', '12850', '12850', '12900', '12900', '13016', '13016', '13051', '13051', '13101', '13101', '13230', '13230', '14001', '14001', '14150', '14150', '14180', '14180', '14210', '14210', '14232', '14232', '14505', '14505', '14534', '14534', '14574', '14574', '14597', '14597', '14601', '14601', '14604', '14604', '14628', '14628', '14770', '14770', '15395', '15395', '15455', '15455', '15470', '15470', '15551', '15551', '15600', '15600', '15661', '15661', '15665', '15665', '15779', '15779', '16211', '16211', '16940', '16940', '17186', '17186', '17405', '17405', '17451', '17451', '19075', '19075', '19140', '19140', '19300', '19300', '19430', '19430', '19491', '19491', '19570', '19570', '19630', '19630', '19900', '19900', '19905', '19905', '19909', '19909', '21205', '21205', '21270', '21270', '21419', '21419', '21510', '21510', '21604', '21604', '21640', '21640', '22010', '22010', '22045', '22045', '22092', '22092', '22110', '22110', '22300', '22300', '22314', '22314', '22446', '22446', '22484', '22484', '22499', '22499', '22540', '22540', '22550', '22550', '22580', '22580', '22850', '22850', '22900', '22900', '23016', '23016', '23051', '23051', '23101', '23101', '23230', '23230', '24001', '24001', '24150', '24150', '24180', '24180', '24210', '24210', '24232', '24232', '24505', '24505', '24574', '24574', '24601', '24601', '24604', '24604', '24628', '24628', '24770', '24770', '25395', '25395', '25455', '25455', '25470', '25470', '25551', '25551', '25600', '25600', '25661', '25661', '25665', '25665', '25779', '25779', '25910', '25910', '26211', '26211', '26940', '26940', '27186', '27186', '27405', '27405', '27451', '27451', '27502', '27502', '29075', '29075', '29140', '29140', '29300', '29300', '29430', '29430', '29491', '29491', '29570', '29570', '29630', '29630', '29900', '29900', '29905', '29905', '29909', '29909'}, [-0.6 2], [.2 25], [3 9], 1, 'GSN-HydroCel-128.sfp', 'HC1-128.ecfg'); 
+
 
     cd ..
 
@@ -203,10 +204,12 @@ for subindex = 1:size(folderNames,2)
 
 end
 
+% END PREPROCESSING
+
 %%
 
+% BEGIN ALPHA
 % Create pow3 files from the mat files
-%
 %
 %
 
@@ -264,12 +267,12 @@ figure, contourf(taxis, faxis, squeeze(mean(avgmatALL([62 72 75 61 78 60 85 67 7
 [outWaMat23] = bslcorrWAMat_div(avgmat23, 100:200);
 [outWaMatALL] = bslcorrWAMat_div(avgmatALL, 100:200);
 
-figure, contourf(taxis(100:end-100), faxis, squeeze(mean(outWaMat11([62 72 75 61 78 60 85 67 77 66 84 70 83 71 76], 100:end-100, :)))', 15); colorbar; caxis([0.7 1.1]); 
-figure, contourf(taxis(100:end-100), faxis, squeeze(mean(outWaMat12([62 72 75 61 78 60 85 67 77 66 84 70 83 71 76], 100:end-100, :)))', 15); colorbar; caxis([0.7 1.1]);
-figure, contourf(taxis(100:end-100), faxis, squeeze(mean(outWaMat13([62 72 75 61 78 60 85 67 77 66 84 70 83 71 76], 100:end-100, :)))', 15); colorbar; caxis([0.7 1.1]);
-figure, contourf(taxis(100:end-100), faxis, squeeze(mean(outWaMat21([62 72 75 61 78 60 85 67 77 66 84 70 83 71 76], 100:end-100, :)))', 15); colorbar; caxis([0.7 1.1]);
-figure, contourf(taxis(100:end-100), faxis, squeeze(mean(outWaMat22([62 72 75 61 78 60 85 67 77 66 84 70 83 71 76], 100:end-100, :)))', 15); colorbar; caxis([0.7 1.1]);
-figure, contourf(taxis(100:end-100), faxis, squeeze(mean(outWaMat23([62 72 75 61 78 60 85 67 77 66 84 70 83 71 76], 100:end-100, :)))', 15); colorbar; caxis([0.7 1.1]);
+figure, contourf(taxis(100:end-100), faxis, squeeze(mean(outWaMat11([62 72 75 61 78 60 85 67 77 66 84 70 83 71 76], 100:end-100, :)))', 15); colorbar; caxis([0.6 1.1]); 
+figure, contourf(taxis(100:end-100), faxis, squeeze(mean(outWaMat12([62 72 75 61 78 60 85 67 77 66 84 70 83 71 76], 100:end-100, :)))', 15); colorbar; caxis([0.6 1.1]);
+figure, contourf(taxis(100:end-100), faxis, squeeze(mean(outWaMat13([62 72 75 61 78 60 85 67 77 66 84 70 83 71 76], 100:end-100, :)))', 15); colorbar; caxis([0.6 1.1]);
+figure, contourf(taxis(100:end-100), faxis, squeeze(mean(outWaMat21([62 72 75 61 78 60 85 67 77 66 84 70 83 71 76], 100:end-100, :)))', 15); colorbar; caxis([0.6 1.1]);
+figure, contourf(taxis(100:end-100), faxis, squeeze(mean(outWaMat22([62 72 75 61 78 60 85 67 77 66 84 70 83 71 76], 100:end-100, :)))', 15); colorbar; caxis([0.6 1.1]);
+figure, contourf(taxis(100:end-100), faxis, squeeze(mean(outWaMat23([62 72 75 61 78 60 85 67 77 66 84 70 83 71 76], 100:end-100, :)))', 15); colorbar; caxis([0.6 1.1]);
 figure, contourf(taxis(50:end-50), faxis, squeeze(mean(outWaMatALL([62 72 75 61 78 60 85 67 77 66 84 70 83 71 76], 50:end-50, :)))', 15); colorbar; %caxis([0.7 1.1]);
 
 temp11 = squeeze(mean(outWaMat11(:, :, 7), 3)); 
@@ -280,45 +283,127 @@ temp22 = squeeze(mean(outWaMat22(:, :, 7), 3));
 temp23 = squeeze(mean(outWaMat23(:, :, 7), 3)); 
 tempALL = squeeze(mean(outWaMatALL(:, :, 7), 3)); 
 
-SaveAvgFile('gm88all.at',tempALL,[],[], 500,[],[],[],[],1); % this saves the file to disk and you can open with emegs2d and then emegs3d.
-SaveAvgFile('gm88cond11.at',temp11,[],[], 500,[],[],[],[],1); % this saves the file to disk and you can open with emegs2d and then emegs3d.
-SaveAvgFile('gm88cond12.at',temp12,[],[], 500,[],[],[],[],1); % this saves the file to disk and you can open with emegs2d and then emegs3d.
-SaveAvgFile('gm88cond13.at',temp13,[],[], 500,[],[],[],[],1); % this saves the file to disk and you can open with emegs2d and then emegs3d.
-SaveAvgFile('gm88cond21.at',temp21,[],[], 500,[],[],[],[],1); % this saves the file to disk and you can open with emegs2d and then emegs3d.
-SaveAvgFile('gm88cond22.at',temp22,[],[], 500,[],[],[],[],1); % this saves the file to disk and you can open with emegs2d and then emegs3d.
-SaveAvgFile('gm88cond23.at',temp23,[],[], 500,[],[],[],[],1); % this saves the file to disk and you can open with emegs2d and then emegs3d.
+SaveAvgFile('gm88allalpha.at',tempALL,[],[], 500,[],[],[],[],1); % this saves the file to disk and you can open with emegs2d and then emegs3d.
+SaveAvgFile('gm88cond11alpha.at',temp11,[],[], 500,[],[],[],[],1); % this saves the file to disk and you can open with emegs2d and then emegs3d.
+SaveAvgFile('gm88cond12alpha.at',temp12,[],[], 500,[],[],[],[],1); % this saves the file to disk and you can open with emegs2d and then emegs3d.
+SaveAvgFile('gm88cond13alpha.at',temp13,[],[], 500,[],[],[],[],1); % this saves the file to disk and you can open with emegs2d and then emegs3d.
+SaveAvgFile('gm88cond21alpha.at',temp21,[],[], 500,[],[],[],[],1); % this saves the file to disk and you can open with emegs2d and then emegs3d.
+SaveAvgFile('gm88cond22alpha.at',temp22,[],[], 500,[],[],[],[],1); % this saves the file to disk and you can open with emegs2d and then emegs3d.
+SaveAvgFile('gm88cond23alpha.at',temp23,[],[], 500,[],[],[],[],1); % this saves the file to disk and you can open with emegs2d and then emegs3d.
 
 %%
 % Now, extract alpha values from 500-1500ms, separate for each iteration
 
-filemat2 = getfilesindir(pwd, 'myaps_7*')
+filemat2 = getfilesindir(pwd, 'myaps2_7*')
 filemat1 = getfilesindir(pwd, 'myaps_5*')
-[outmat_v1_alpha]  = extractstats_TF(filemat1, 6, 550:1050, 6:7, [62 72 75 61 78 60 85 67 77 66 84 70 83 71 76], []);
-[outmat_v2_alpha]  = extractstats_TF(filemat2, 6, 550:1050, 6:7, [62 72 75 61 78 60 85 67 77 66 84 70 83 71 76], []);
+[outmat_v1_alpha]  = extractstats_TF(filemat1, 6, 550:1050, 6:7, [62 72 75 61 78 60 85 67 77 66 84 70 83 71 76], 100:200);
+[outmat_v2_alpha]  = extractstats_TF(filemat2, 6, 550:1050, 6:7, [62 72 75 61 78 60 85 67 77 66 84 70 83 71 76], 100:200);
 
+% END ALPHA 
 %% 
 
+% BEGIN LPP
 % Extract LPP from 400-800ms, separate for each iteration
+% CONDITION
 %
-%
-%
+
+clear
+cd '/Users/faithgilbert/Desktop/1_MyAps/Paper/eeg/atfiles'
 
 filemat1 = getfilesindir(pwd, 'myaps_5*')
 filemat2 = getfilesindir(pwd, 'myaps*_7*')
 
-[outmat_v1_LPP] = extractstats(filemat1, 6, [37 87 53 54 55 79 86 61 78 62], 500:700, [])
-[outmat_v2_LPP] = extractstats(filemat2, 6, [37 87 53 54 55 79 86 61 78 62], 500:700, [])
+[outmat_v1_LPP] = extractstats(filemat1, 6, [37 87 53 54 55 79 86 61 78 62], 500:700, 250:300)
+[outmat_v2_LPP] = extractstats(filemat2, 6, [37 87 53 54 55 79 86 61 78 62], 500:700, 250:300)
 
 %%
 
+% LPP Single Trial and Correlations
 %
 %
+%
+
+% Set up directory and picture labels
+cd '/Users/faithgilbert/Desktop/1_MyAps/Paper/eeg/singletrialmatfiles'
+load('PIC_V1.mat');
+load('PIC_V2.mat');
+load('PIC_V1_Scatter.mat');
+load('PIC_V2_Scatter.mat');
+
+%% Version 2 only
+indexvec = [];
+picindex = [];
+pic_str = []; 
+picindex = [];
+filelist = getfilesindir(pwd, 'myaps2*.at*');
+
+for i = 1:length(PIC_V2);
+    indexvec = [];
+    pic_str = num2str(PIC_V2(i));
+        for x = 1:size(filelist, 1);
+            picindex = strfind(filelist(x, :), pic_str); if~isempty(picindex), indexvec = [indexvec, x]; end
+        end
+    filelist(indexvec,:);
+    output_filename = sprintf('myaps2_GMbypic_%s.at', pic_str);   
+    MergeAvgFiles(filelist(indexvec, :),output_filename,1,1,[],0,[],[],0,0);
+end
+
+%% Version 1 only
+picindex = [];
+pic_str = []; 
+
+filelist = getfilesindir(pwd, 'myaps_5*.at*');
+
+for i = 1:length(PIC_V1);
+    indexvec = [];
+    pic_str = num2str(PIC_V1(i));
+        for x = 1:size(filelist, 1);
+            picindex = strfind(filelist(x, :), pic_str); if~isempty(picindex), indexvec = [indexvec, x]; end
+        end
+    filelist(indexvec,:);
+    output_filename = sprintf('myaps_GMbypic_%s.at', pic_str);   
+    MergeAvgFiles(filelist(indexvec, :),output_filename,1,1,[],0,[],[],0,0);
+end
+
+%%
+filemat1 = getfilesindir(pwd, 'myaps_*.at')
+filemat2 = getfilesindir(pwd, 'myaps2_*.at')
+
+% need: extractstats from sensors/time, sort by AI/orig, scatter
+[outmat1] = extractstats(filemat1, 120, [37 87 53 54 55 79 86 61 78 62], 500:700, [])
+[outmat2] = extractstats(filemat2, 240, [37 87 53 54 55 79 86 61 78 62], 500:700, [])
+
+% correlations
+outmat1 = outmat1'
+outmat2 = outmat2'
+
+corrv1=corrcoef(outmat1(1:60,1), outmat1(61:120,1))
+corrv2=corrcoef(outmat2(1:120,1), outmat2(121:240,1))
+
+figure
+hold on
+h1 = scatter(outmat1(1:60,1), outmat1(61:120,1), 100, 'MarkerFaceColor', 'b', 'MarkerEdgeColor', 'b', 'Marker', 'o');
+text(outmat1(1:60,1), outmat1(61:120,1), num2str(PIC_V1_Scatter), 'VerticalAlignment', 'bottom', 'HorizontalAlignment', 'right', 'FontSize', 16, 'FontWeight', 'bold');
+hold off
+
+figure
+hold on
+h1 = scatter(outmat2(1:120,1), outmat2(121:240,1), 100, 'MarkerFaceColor', 'b', 'MarkerEdgeColor', 'b', 'Marker', 'o', 'DisplayName', 'Original Pleasant');
+text(outmat2(1:120,1), outmat2(121:240,1), num2str(PIC_V2_Scatter), 'VerticalAlignment', 'bottom', 'HorizontalAlignment', 'right', 'FontSize', 16, 'FontWeight', 'bold');
+hold off
+
+% END LPP
+
+%%
+
+% BEGIN PUPIL
+% Conditions
 %
 %
 
 % PUPIL, preprocessing
 
-cd '/Users/faithgilbert/Desktop/1_MyAps/Paper/pupil'
+cd '/Users/faithgilbert/Desktop/1_MyAps/Paper/pupil/Data'
 
 % make matrices that match, start wit myaps 1
 filemat_edf = getfilesindir(pwd, 'MyAp5*edf');
@@ -344,7 +429,8 @@ end
 
 % MyAPS1
 % VISUALIZE
-cd '/Users/faithgilbert/Desktop/1_MyAps/Paper/pupil'
+clear
+cd '/Users/faithgilbert/Desktop/1_MyAps/Paper/pupil/Conditions/pupmatfiles'
 filemat1 = getfilesindir(pwd, 'MyAp*out.mat');
 
 data = []; 
@@ -390,7 +476,7 @@ v1grand_mean = v1grand_sum./size(filemat1,1);
 pupilmat =[]; 
 filemat1 = getfilesindir(pwd, 'MyAp*out.mat');
 
-for x = 1:59
+for x = 1:size(filemat1)
 temp = load(filemat1(x,:)); datatemp = temp.matout; cali1 = mean(mean(datatemp));
 
     if x >= 25
@@ -447,7 +533,7 @@ v2grand_mean = v2grand_sum./size(filemat2,1);
 % Create matrix for pupil data + baseline correct
 pupilmat =[]; 
 filemat2 = getfilesindir(pwd, 'MyA2*out.mat');
-for x = 1:46
+for x = 1:size(filemat2)
 temp = load(filemat2(x,:)); [matout_all] = bslcorr(temp.matout(:, 1:6)', 1:250)'
 datanew = (matout_all*10)/5222
 pupilmat(:, :, x) = datanew; 
@@ -480,7 +566,108 @@ end
 
 %%
 
+% Single trial
 %
+%
+%
+
+% PUPIL, preprocessing
+
+cd '/Users/faithgilbert/Desktop/1_MyAps/Paper/pupil/Data'
+
+% make matrices that match, start wit myaps 1
+filemat_edf = getfilesindir(pwd, 'MyAp5*edf');
+filemat_dat = getfilesindir(pwd, 'myaps5*');
+
+for subject = 1:size(filemat_dat,1)
+
+ [matcorr, matout, matoutbsl, percentbadvec, percentbadsub, percentbadcond] = eye_pipeline(filemat_edf(subject,:), 500, 'getcon_singtrials_MyAPS1', filemat_dat(subject,:), 'cue_on', 250, 2000, []);   
+
+end
+
+% myaps 2
+filemat_edf = getfilesindir(pwd, 'MyA2*edf');
+filemat_dat = getfilesindir(pwd, 'myaps2*');
+
+for subject = 1:size(filemat_dat,1)
+
+ [matcorr, matout, matoutbsl, percentbadvec, percentbadsub, percentbadcond] = eye_pipeline(filemat_edf(subject,:), 500, 'getcon_MyAPS2_singletrial', filemat_dat(subject,:), 'cue_on', 250, 2000, 0);   
+
+end
+
+%%
+
+% Pupil, correlations
+
+% EXTRACT STATS
+% Create matrix for pupil data + baseline correct
+
+cd '/Users/faithgilbert/Desktop/1_MyAps/Paper/pupil/Singletrials/pupmatfiles'
+clear
+
+% VERSION 2
+
+pupilmat =[]; 
+filemat2 = getfilesindir(pwd, 'MyA2*out.mat');
+for x = 1:size(filemat2)
+temp = load(filemat2(x,:)); [matout_all] = bslcorr(temp.matout(:, 1:240)', 1:250)';
+datanew = (matout_all*10)/5222;
+pupilmat(:, :, x) = datanew; 
+fprintf('.');
+end
+disp('done')
+
+% average across timepoints
+v2_gm_time = []
+v2_gm_time(:, :) = mean(pupilmat(751:1251, :, :));
+v2_gm_time = v2_gm_time'
+
+% correlations
+GM_allppl(:) = mean(v2_gm_time(1:46, :))
+
+ORpic_v2 = GM_allppl(1, 1:120)'
+AIpic_v2 = GM_allppl(1, 121:240)'
+
+corrv2=corrcoef(ORpic_v2, AIpic_v2)'
+
+% VERSION 1
+clear 
+
+pupilmat =[]; 
+filemat1 = getfilesindir(pwd, 'MyAp*out.mat');
+
+for x = 1:size(filemat1)
+temp = load(filemat1(x,:)); datatemp = temp.matout; cali1 = mean(mean(datatemp));
+
+    if x >= 25
+        datatransform = (datatemp./cali1).*1000;
+        [data] = bslcorr(datatransform(:, 1:120)', 1:250)';
+    else x < 25
+        [data] = bslcorr(datatemp(:, 1:120)', 1:250)';
+    end
+
+datanew = (data*10)/5222;
+pupilmat(:, :, x) = datanew; 
+
+end
+
+% average across timepoints
+v1_gm_time = []
+v1_gm_time(:, :) = mean(pupilmat(751:1751, :, :));
+v1_gm_time = v1_gm_time'
+
+% correlations
+GM_allppl(:) = mean(v1_gm_time(1:59, :))
+
+ORpic_v1 = GM_allppl(1, 1:60)'
+AIpic_v1 = GM_allppl(1, 61:120)'
+
+corrv1=corrcoef(ORpic_v1, AIpic_v1)'
+
+% END PUPIL
+%%
+
+% BEGIN RATINGS
 %
 %
 %
@@ -598,3 +785,5 @@ scattertable_v1 = [pic meanval_v1 meanaro_v1]
 % correlations
 corrval_v1=corrcoef(scattertable_v1(1:120,2), scattertable_v1(121:240,2))
 corraro_v1=corrcoef(scattertable_v1(1:120,3), scattertable_v1(121:240,3))
+
+% END RATINGS
