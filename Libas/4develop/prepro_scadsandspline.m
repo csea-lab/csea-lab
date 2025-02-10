@@ -111,7 +111,7 @@ function [EEG_allcond] =  prepro_scadsandspline(datapath, getConArguments, conve
       %% select conditions; compute and write output
      artifactlog.badtrialsbycondition = []; % remaining artifact info by condition will be populated
 
-     for con_index = 1:size(conditions2select,2)
+     for con_index = 1:max(size(conditions2select))
          % first checks to make sure the condition survived data loss
          if any(strcmp({EEG_allcond.event.type}, conditions2select{con_index}))
 
