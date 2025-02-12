@@ -1,5 +1,6 @@
 function [gm_trials, gm_globalbadchannel, gm_epochbadchannels] = extractartifloginfo(filepath)
 % Script for extracting artifact information
+% filepath = dir("yourdirectory")
 % gm_trials = list of average trials per person
 % gm_globalbadchannels = list of global bad channels per person
 % gm_epochbadchannels = list of epoch bad channels per person
