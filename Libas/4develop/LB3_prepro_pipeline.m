@@ -117,9 +117,12 @@ function [EEG_allcond] =  LB3_prepro_pipeline(datapath, logpath, convecfun, stri
       artifactlog.badtrialstotal = badindexvec; 
       artifactlog.filtercoeffHz = filtercoeffHz; 
       artifactlog.filtord = filtord; 
-      %artifactlog.badtrialsbycondition = [size(EEG_21.data, 3),size(EEG_22.data, 3), size(EEG_23.data, 3),size(EEG_24.data, 3)];
 
-      %% select conditions; compute and write output
+    %% create single trial file for all conditions
+     Mat3D = avg_ref_add3d(double(EEG_allcond.data));
+     save([basename '.trls.g.mat'], 'Mat3D', '-mat')
+
+     %% select conditions; compute and write output
      artifactlog.goodtrialsbycondition = []; % remaining artifact info by condition will be populated
 
     for con_index = 1:size(conditions2select,2)
