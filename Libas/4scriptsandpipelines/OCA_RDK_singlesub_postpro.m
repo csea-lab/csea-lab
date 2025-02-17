@@ -1,12 +1,12 @@
 %% Script for analyzing all rdk data
-cd '/Volumes/G-RAID Thunderbolt 3/OCA_project/OCA_RDK'
+%cd '/Volumes/G-RAID Thunderbolt 3/OCA_project/OCA_RDK'
 
 % info for the analysis
  spectime = 601:9600;
  Fbin = 78;
 
 % Get a list of all files and folders in the current directory
-files = dir('RDK*');
+files = dir('OCA*'); % change back to RDK
 
 %clear output
 output = []; 
