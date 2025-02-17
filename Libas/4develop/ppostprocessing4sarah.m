@@ -6,9 +6,17 @@ cd /Users/andreaskeil/Desktop/gaborgentone/trial3dmats/
 
 filemat = getfilesindir(pwd, '*trls*');
 
-faxisall = 0:1000/3600:250;
-faxis = faxisall(11:4:110);
+
+faxisall = 0:1000/3600:250; % for wavelets
+faxis = faxisall(11:4:110); 
 taxis = -598:2:3000;
+
+% m = f/sigmaf   our m was =  10 
+% for 10 Hz: 
+% sigmaf = f/m = 10/10; 
+% sigmat = 1./(2* pi* sigmaf) =  0.1592; 
+
+faxisFFT = 0:.5:250; 
 
 [WaPower, PLI, PLIdiff] = wavelet_app_matfiles(filemat, 500, 11, 110, 4, 200:300, []); 
 
@@ -26,12 +34,12 @@ GM22pow3_23 = avgmats_mat(filematpow23, 'GM22.at23.pow3.mat');
 GM22pow3_24 = avgmats_mat(filematpow24, 'GM22.at24.pow3.mat');
 
 % contourf commands
-sensor = 81;
+sensor = 75;
 figure, 
-subplot(4,1,1), contourf(taxis, faxis, squeeze(GM22pow3_21(sensor,:, :))'), colorbar
-subplot(4,1,2), contourf(taxis, faxis, squeeze(GM22pow3_22(sensor,:, :))'), colorbar
-subplot(4,1,3), contourf(taxis, faxis, squeeze(GM22pow3_23(sensor,:, :))'), colorbar
-subplot(4,1,4), contourf(taxis, faxis, squeeze(GM22pow3_24(sensor,:, :))'), colorbar
+subplot(4,1,1), contourf(taxis, faxis(3:end), squeeze(GM22pow3_21(sensor,:, 3:end))'), colorbar
+subplot(4,1,2), contourf(taxis, faxis(3:end), squeeze(GM22pow3_22(sensor,:, 3:end))'), colorbar
+subplot(4,1,3), contourf(taxis, faxis(3:end), squeeze(GM22pow3_23(sensor,:, 3:end))'), colorbar
+subplot(4,1,4), contourf(taxis, faxis(3:end), squeeze(GM22pow3_24(sensor,:, 3:end))'), colorbar
 
 % paired ttests
 [ttestmat21_22, ~, mat4d22] = ttest3d(filematpow21, filematpow22, 1, 125:240);
@@ -74,7 +82,7 @@ for time = 1:1800
     repeatmat = cat(3, squeeze(mat4d21(:, time, frequency, :)), squeeze(mat4d22(:, time, frequency, :)), ...
         squeeze(mat4d23(:, time, frequency, :)), squeeze(mat4d24(:, time, frequency, :))); 
 
-    [Fcontmat_linear(:,time, frequency),rcontmat,MScont,MScs, dfcs]=contrast_rep_sign(repeatmat,[-2 -1 1 2]); 
+    [Fcontmat_linear(:,time, frequency),rcontmat,MScont,MScs, dfcs]=contrast_rep_sign(repeatmat,[-1.5 -.5 .5 1.5]); 
     
     end
     if time./100 == round(time./100), fprintf('.'), end
@@ -183,5 +191,72 @@ for draw = 1:5000
     if draw./100 == round(draw./100), fprintf('.'), end
 
 end
+
+
+%%% 02/17/2025 continue the journey
+%%
+% RESSSSSSS
+faxisFFT = 0:.5:250; 
+
+csplus = ReadAvgFile('GM22.RESSpow.at1');
+GS1 = ReadAvgFile('GM22.RESSpow.at2');
+GS2 = ReadAvgFile('GM22.RESSpow.at3');
+GS3 = ReadAvgFile('GM22.RESSpow.at4');
+
+figure
+plot(faxisFFT(5:100), csplus(5:100), 'm'), hold on, 
+plot(faxisFFT(5:100), GS1(5:100), 'r'), 
+plot(faxisFFT(5:100), GS2(5:100), 'b'), 
+plot(faxisFFT(5:100), GS3(5:100), 'g'), 
+
+bar(faxisFFT(5:100), GS3(5:100), 'k')
+
+% extract the power at 15 Hz for an anova-like spreadsheet thing 
+filemat = getfilesindir(pwd, '*RESSpow.at')
+[outmat] = extractstats(filemat, 4, 1, 31, []);
+bar(faxisFFT(5:100), GS3(5:100), 'k')
+
+% we saved the stat matrix to a file called resspower4cons.csv
+
+%% 
+% power from the FFT3d (normal FFT, no RESS) is an aletrnative to the RESS, we examine this next:
+% 
+% cd spec3d
+
+filemat = getfilesindir(pwd, '*spec')
+
+mergemulticons(filemat, Nconditions, outname)
+
+[outmat] = extractstats(filemat, 4, [70 71 74 75 76 82 83] , 31, []);
+
+% we saved the stat matrix to a file called resspower4cons.csv
+
+% to further examine this with method with higher sensitivity, we examined the largest effect visible post-hoc
+[repmat] = makerepmat(filemat, 22, 4, []);
+
+[Fcontmat,rcontmat,MScont,MScs, dfcs]=contrast_rep_sign(squeeze(repmat(:, 31, :, :)) ,[-1.5 -.5 .5 1.5]);
+
+% now do the permutation test to see if this survives
+
+for draw = 1:1000
+
+    for x = 1:22
+       repmat(:, :, x, 1:4) =  repmat(:, :,x, randperm(4));
+    end
+
+[Fcontmat,rcontmat,MScont,MScs, dfcs]=contrast_rep_sign(squeeze(repmat(:, 31, :, :)) ,[-1.5 -.5 .5 1.5]);
+
+dist(draw) = max(Fcontmat); 
+
+if draw./100 == round(draw./100), fprintf('.'), end
+
+end
+
+
+hist(dist, 50)
+quantile(dist, .95)
+
+%% 
+%now the alpha stuff
 
 
