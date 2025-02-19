@@ -165,6 +165,7 @@ figure (102)
 plot(taxis, matoutbsl(:, 1:numcond)), legend
 
 save([edffull '.pup.out.mat'], 'matout', '-mat')
+save([edffull '.pup.out.matcorr'], 'matcorr', '-mat')
 save([edffull '.percentbad.mat'], 'percentbadvec', 'percentbadsub', 'percentbadcond', '-mat') 
 
 end % function
