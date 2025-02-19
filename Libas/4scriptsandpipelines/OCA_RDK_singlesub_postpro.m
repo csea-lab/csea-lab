@@ -2,7 +2,7 @@
 %cd '/Volumes/G-RAID Thunderbolt 3/OCA_project/OCA_RDK'
 
 % info for the analysis
- spectime = 601:9600;
+ spectime = 301:4800;
  Fbin = 78;
 
 % Get a list of all files and folders in the current directory

@@ -1,4 +1,4 @@
-%%Function called by "Pupil_preproc.m" 
+
 %%inputs edf file, sample rate, condition vector function, condition file names, name of trigger, pre stimulus onset timepoints, post simulus onset timepoints)
 %%outputs: matcorr - timepoints by trials; matout - timepoints by condition; matoutbsl - matout baseline corrected, percentbad(-vec,-sub,-cond) - contains
     %%several stats on bad trials; avgcond - average over all trials per condition
@@ -165,6 +165,7 @@ figure (102)
 plot(taxis, matoutbsl(:, 1:numcond)), legend
 
 save([edffull '.pup.out.mat'], 'matout', '-mat')
+save([edffull '.pup.out.matcorr'], 'matcorr', '-mat')
 save([edffull '.percentbad.mat'], 'percentbadvec', 'percentbadsub', 'percentbadcond', '-mat') 
 
 end % function
