@@ -135,7 +135,6 @@ pause(.2)
      end
  end
  
-
  % % now assign the conditions
 connames = unique(convec) 
 numcond = length(unique(convec));
