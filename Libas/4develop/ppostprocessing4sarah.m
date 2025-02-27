@@ -34,14 +34,14 @@ GM22pow3_23 = avgmats_mat(filematpow23, 'GM22.at23.pow3.mat');
 GM22pow3_24 = avgmats_mat(filematpow24, 'GM22.at24.pow3.mat');
 
 % contourf commands
-sensor = 75;
+sensor = 62;
 figure, 
 subplot(4,1,1), contourf(taxis, faxis(3:end), squeeze(GM22pow3_21(sensor,:, 3:end))'), colorbar
 subplot(4,1,2), contourf(taxis, faxis(3:end), squeeze(GM22pow3_22(sensor,:, 3:end))'), colorbar
 subplot(4,1,3), contourf(taxis, faxis(3:end), squeeze(GM22pow3_23(sensor,:, 3:end))'), colorbar
 subplot(4,1,4), contourf(taxis, faxis(3:end), squeeze(GM22pow3_24(sensor,:, 3:end))'), colorbar
 
-% paired ttests
+% paired ttests used just top get 4D matrices - do not erase
 [ttestmat21_22, ~, mat4d22] = ttest3d(filematpow21, filematpow22, 1, 125:240);
 [ttestmat21_23, ~, mat4d23 ] = ttest3d(filematpow21, filematpow23, 1, 125:240);
 [ttestmat21_24, mat4d21, mat4d24] = ttest3d(filematpow21, filematpow24, 1, 125:240);
@@ -59,20 +59,6 @@ subplot(4,1,2), contourf(taxis, faxis, squeeze(GM22pow3_22_bsl(sensor,:, :))'), 
 subplot(4,1,3), contourf(taxis, faxis, squeeze(GM22pow3_23_bsl(sensor,:, :))'), colorbar
 subplot(4,1,4), contourf(taxis, faxis, squeeze(GM22pow3_24_bsl(sensor,:, :))'), colorbar
 
-% conduct ttests, pairwise
-[ttestmat21_22, ~, mat4d22] = ttest3d(filematpow21, filematpow22, 1, []); 
-[ttestmat21_23, ~, mat4d23 ] = ttest3d(filematpow21, filematpow23, 1, []); 
-[ttestmat21_24, mat4d21, mat4d24] = ttest3d(filematpow21, filematpow24, 1, []); 
-
-% alpha is the 8th frequency in the faxis
-alphatopottests21_22 = squeeze(ttestmat21_22(:, :, 8)); 
-alphatopottests21_23 = squeeze(ttestmat21_23(:, :, 8)); 
-alphatopottests21_24 = squeeze(ttestmat21_24(:, :, 8)); 
-
-% save alpha ttest files
-SaveAvgFile('alphatopottests21_22.at',alphatopottests21_22,[],[],500)
-SaveAvgFile('alphatopottests21_23.at',alphatopottests21_23,[],[],500)
-SaveAvgFile('alphatopottests21_24.at',alphatopottests21_24,[],[],500)
 
 
 %% ttests are stupid, let's do the F test
@@ -192,7 +178,6 @@ for draw = 1:5000
 
 end
 
-
 %%% 02/17/2025 continue the journey
 %%
 % RESSSSSSS
@@ -217,6 +202,9 @@ filemat = getfilesindir(pwd, '*RESSpow.at')
 bar(faxisFFT(5:100), GS3(5:100), 'k')
 
 % we saved the stat matrix to a file called resspower4cons.csv
+% for the RESS, there is no difference between the conditions
+% so that's we also look at the normal FFT with electrodes still present,
+% to make sure it is not because of teh RESS that we don't see effects
 
 %% 
 % power from the FFT3d (normal FFT, no RESS) is an aletrnative to the RESS, we examine this next:
@@ -234,7 +222,7 @@ mergemulticons(filemat, Nconditions, outname)
 % to further examine this with method with higher sensitivity, we examined the largest effect visible post-hoc
 [repmat] = makerepmat(filemat, 22, 4, []);
 
-[Fcontmat,rcontmat,MScont,MScs, dfcs]=contrast_rep_sign(squeeze(repmat(:, 31, :, :)) ,[-1.5 -.5 .5 1.5]);
+[Fcontmat,rcontmat,MScont,MScs, dfcs]=contrast_rep_sign(squeeze(repmat(:, 31, :, :)),[-1.5 -.5 .5 1.5]);
 
 % now do the permutation test to see if this survives
 
@@ -252,11 +240,22 @@ if draw./100 == round(draw./100), fprintf('.'), end
 
 end
 
-
 hist(dist, 50)
 quantile(dist, .95)
 
+% so  this did also not survive any testing, there is no difference in the
+% ssVEP at all
+
 %% 
 %now the alpha stuff
+% first, we out the data into an array to have an easier time 
+% to make this happen, we decimate the time dimension and the frequemcy
+% dimension
+mat4d4stats = squeeze(cat(5, mat4d21(:, 1:10:1800, 8, :) , mat4d22(:, 1:10:1800, 8, :) , mat4d23(:, 1:10:1800, 8, :) , mat4d24(:, 1:10:1800, 8, :) ));
+% from 550- to 1300 sample points is 500 post stimulus to 2000 ms post
+% stimulus
+% in decimated that his 55 to 130
+outmat4statsalpha = squeeze(mean(mean(mat4d4stats([75 62 55], 55:130, :, :)))); 
+
 
 
