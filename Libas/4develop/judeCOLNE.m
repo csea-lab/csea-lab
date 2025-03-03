@@ -47,6 +47,7 @@ end
 mexhat = [1 -2 -1 .5];
 mexhatfit_perm = []; 
 data3Dperm = data3D;
+BFmexhat = [];
 for time = 1:44
     for bootstrapindex = 1:2000
         for subject = 1:23
@@ -58,4 +59,31 @@ for time = 1:44
 end
 
 % BF
-for x = 1:44; BF(x) = bootstrap2BF_z(mexhatfit(x,:),mexhatfit_perm(x,:), 1); end
+for x = 1:44; BFmexhat(x) = bootstrap2BF_z(mexhatfit(x,:),mexhatfit_perm(x,:), 1); end
+figure, plot(BFmexhat)
+%% compare this against a model with generalization
+generalization = [2 1 .5 -.5];
+generfit = []; 
+for time = 1:44
+    for bootstrapindex = 1:2000
+        subjectindex = randi(23, 1, 23);
+        generfit(time, bootstrapindex) =  column(squeeze(mean(data3D(time, subjectindex, 1:4), 2)))' * generalization';
+    end
+end
+%% compare generalizationagainst nullmodel
+generfit_perm = []; 
+data3Dperm = data3D;
+BFgeneralize = [];
+for time = 1:44
+    for bootstrapindex = 1:2000
+        for subject = 1:23
+        data3Dperm(time, subject, 1:4) = data3D(time, subject, randperm(4));
+        end
+        subjectindex = randi(23, 1, 23);
+        generfit_perm(time, bootstrapindex) =  column(squeeze(mean(data3Dperm(time, subjectindex, 1:4), 2)))' * generalization';
+    end
+end
+
+% BF
+for x = 1:44; BFgeneralize(x) = bootstrap2BF_z(generfit(x,:),generfit_perm(x,:), 1); end
+figure, plot(BFgeneralize)
