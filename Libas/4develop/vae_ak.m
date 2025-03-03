@@ -1,7 +1,6 @@
-% Example matrix with size 219x40 (replace with your data)
+% data
 cd '/Users/andreaskeil/Desktop'
 a = readtable('All_data_rdcd.csv');
-% data = table2array(a(:,14:72));
 data = table2array(a(:,32:53));
 
 % Replace NaNs with column-wise mean to handle missing values
@@ -9,32 +8,43 @@ nanIdx = isnan(data);
 colMean = mean(data, 'omitnan');
 data(nanIdx) = colMean(ceil(find(nanIdx) / size(data, 1)));
 
-% do our own transform because built is row-wise which is wr
+% do our own transform because built-in is row-wise which is wrong
 data_z = z_norm(data')'; 
 
 % Set the size of the compressed (hidden) layer
-dimCompressed = 3; % You can adjust this depending on desired compression level
+dimCompressed = 10; % You can adjust this depending on desired compression level
 
-%% Create and train autoencoder
-hiddenLayerSize = dimCompressed;
-autoenc = trainAutoencoder(data_z', hiddenLayerSize, ...
-    'MaxEpochs', 1200, ...  % Number of training epochs
-    'EncoderTransferFunction','satlin',...
-     'DecoderTransferFunction','purelin',...
-    'L2WeightRegularization', 0.001, ...
-    'SparsityRegularization', 4, ...
-    'SparsityProportion', 0.05, ...
-    'ScaleData', false); % Automatically scales input data
+% Create layers for Variational Autoencoder
+inputSize = size(data, 2);
+layers = [ 
+    featureInputLayer(inputSize, 'Name', 'input')
+    fullyConnectedLayer(20, 'Name', 'fc1')
+    reluLayer('Name', 'relu1')
+    fullyConnectedLayer(2 * dimCompressed, 'Name', 'fc2')
+    SamplingLayer('sampling') % Custom sampling layer (create SamplingLayer.m file separately)
+    fullyConnectedLayer(dimCompressed, 'Name', 'latent') % Bottleneck layer
+    fullyConnectedLayer(20, 'Name', 'fc3')
+    reluLayer('Name', 'relu2')
+    fullyConnectedLayer(inputSize, 'Name', 'fc4')
+    regressionLayer('Name', 'output')
+];
+
+
+% Specify training options
+options = trainingOptions('adam', ...
+    'MaxEpochs', 100, ...
+    'MiniBatchSize', 16, ...
+    'Plots', 'training-progress', ...
+    'Verbose', false);
+
+% Train VAE
+vae = trainNetwork(data_z, data_z, layers, options);
 
 % Encode the data into compressed form
-compressedData = encode(autoenc, data_z');
-
-
-%% Transpose back to have 219x10 (if needed)
-compressedData = compressedData';
+compressedData = predict(vae, data_z);
 
 % Visualize explained variance if needed
-explainedVariance = var(compressedData) ./ sum(var(data_z));
+explainedVariance = var(compressedData) ./ sum(var(data));
 figure;
 bar(explainedVariance);
 title('Explained Variance by Compressed Components');
@@ -42,12 +52,14 @@ xlabel('Component');
 ylabel('Variance Explained');
 
 % Decode back to original size if you want to check reconstruction
-reconstructedData = predict(autoenc, data_z');
-reconstructedData = reconstructedData';
+reconstructedData = predict(vae, data_z);
 
 % Compute reconstruction error
 reconstructionError = mse(data_z, reconstructedData);
 disp(['Reconstruction Error: ', num2str(reconstructionError)]);
+
+% NOTE: Create a separate file SamplingLayer.m with the custom layer class definition.
+
 
 %%
 figure, for x = 1:214, plot(data_z(x,:)), hold on, plot(reconstructedData(x,:)), pause, hold off, end
