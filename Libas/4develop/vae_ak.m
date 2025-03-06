@@ -1,44 +1,35 @@
-% Example matrix with size 219x40 (replace with your data)
+% data
+clear
 cd '/Users/andreaskeil/Desktop'
 a = readtable('All_data_rdcd.csv');
-data = table2array(a(:,14:72));
+data = table2array(a(:,32:53));
 
 % Replace NaNs with column-wise mean to handle missing values
 nanIdx = isnan(data);
 colMean = mean(data, 'omitnan');
 data(nanIdx) = colMean(ceil(find(nanIdx) / size(data, 1)));
 
-% Set the size of the compressed (hidden) layer
-dimCompressed = 10; % You can adjust this depending on desired compression level
+% do our own transform because built-in is row-wise which is wrong
+data_z = z_norm(data')'; 
+% Generate synthetic data (replace this with your actual data matrix)
+X = rand(219, 40);  % Replace this with your actual dataset
 
-%% Create and train autoencoder
-hiddenLayerSize = dimCompressed;
-autoenc = trainAutoencoder(data', hiddenLayerSize, ...
-    'MaxEpochs', 100, ...  % Number of training epochs
-    'L2WeightRegularization', 0.001, ...
+% Define the autoencoder architecture
+hiddenSize = 10;  % Number of neurons in the hidden layer (compressed dimension)
+
+% Create and train the autoencoder
+autoenc = trainAutoencoder(X', hiddenSize, ...
+    'MaxEpochs', 100, ...            % Number of training epochs
+    'L2WeightRegularization', 0.0001, ...
     'SparsityRegularization', 4, ...
     'SparsityProportion', 0.05, ...
-    'ScaleData', true); % Automatically scales input data
+    'UseGPU', false);                % Set to true if you want to use GPU acceleration
 
-% Encode the data into compressed form
-compressedData = encode(autoenc, data');
+% Get the encoder weights and bias
+encodedData = encode(autoenc, X');  % Encoded representation of the data
 
+% To get the compressed data
+compressedData = encodedData';  % Transpose back to 219xN (where N is the compressed dimension)
 
-%% Transpose back to have 219x10 (if needed)
-compressedData = compressedData';
-
-% Visualize explained variance if needed
-explainedVariance = var(compressedData) ./ sum(var(data));
-figure;
-bar(explainedVariance);
-title('Explained Variance by Compressed Components');
-xlabel('Component');
-ylabel('Variance Explained');
-
-% Decode back to original size if you want to check reconstruction
-reconstructedData = predict(autoenc, data');
-reconstructedData = reconstructedData';
-
-% Compute reconstruction error
-reconstructionError = mse(data, reconstructedData);
-disp(['Reconstruction Error: ', num2str(reconstructionError)]);
+% Display the size of the compressed data
+disp(size(compressedData));

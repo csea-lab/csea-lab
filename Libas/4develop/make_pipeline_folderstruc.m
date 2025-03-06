@@ -1,6 +1,7 @@
 function [] = make_pipeline_folderstruc(foldername, prefix, raw_ID_index, dat_ID_index, dataindex)
 % takes a bunch of files and puts them into the right folder structure for
 % the LB3 pipeline, one folder for each subject, containing raw and dat
+% example make_pipeline_folderstruc(pwd, 'Comp_', 5:8, 12:15, 40);
 
 if nargin < 5,  dataindex= []; end
 
