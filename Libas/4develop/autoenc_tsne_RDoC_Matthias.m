@@ -64,8 +64,10 @@ disp(['Reconstruction Error: ', num2str(reconstructionError)]);
      hold off, 
  end
 
-%% tsne with clusters way
+%% tsne with clusters 
 % Step 2: Cluster the latent features
+Y = tsne(compressedData, 'NumDimensions', 2, 'Perplexity', 30, 'Exaggeration', 12);
+
 numClusters = 4; % You can adjust this depending on your data
 [idx, C] = kmeans(compressedData, numClusters, 'Replicates', 10); % Cluster assignments
 
