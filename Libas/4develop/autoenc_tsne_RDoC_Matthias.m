@@ -9,8 +9,10 @@ a = readtable('Matthias_data_rdcd.csv');
 % data = table2array(a (:, 3:end)); % all data
 
 % this is for Matthias_data_rdcd
-%data = table2array(a (:, 14:27)); % all ratings
- data = table2array(a (:, 32:53)); % all EEG
+% data = table2array(a (:, 14:27)); % all ratings
+% data = table2array(a (:, 32:53)); % all EEG
+data = table2array(a (:, 14:53));
+
 % Replace NaNs with column-wise mean to handle missing values
 nanIdx = isnan(data);
 colMean = mean(data, 'omitnan');
@@ -65,10 +67,11 @@ disp(['Reconstruction Error: ', num2str(reconstructionError)]);
  end
 
 %% tsne with clusters 
-% Step 2: Cluster the latent features
+% Step 2: Cluster the latent features ONLY FOR Visualization!!!!!!
 Y = tsne(compressedData, 'NumDimensions', 2, 'Perplexity', 30, 'Exaggeration', 12);
 
-numClusters = 4; % You can adjust this depending on your data
+numClusters = 5; % You can adjust this depending on your data
+rng(1)
 [idx, C] = kmeans(compressedData, numClusters, 'Replicates', 10); % Cluster assignments
 
 % Step 3: Plot t-SNE with clusters color-coded
@@ -105,13 +108,116 @@ surveydata(nanIdx) = colMean(ceil(find(nanIdx) / size(surveydata, 1)));
  bar(corrlatent_temp), title(index_survey), pause
  end
 
+ %% make a linear model predicting each questionnaire from the 5 compressed
+ % dimensions
+% Assuming:
+% Y is your target vector (214x1)
+% X is your predictor matrix (214x5)
+X = compressedData; 
+
+for surveyindex = 1:8
+
+    Y = surveydata(:, surveyindex); % the surveys
+
+    % Create a linear model using fitlm
+    mdl = fitlm(X, Y);
+
+    % Display model summary
+    disp(mdl);
+
+    % Predicted values
+    Y_pred = predict(mdl, X);
+
+    % Optional: R-squared
+    R_squared = mdl.Rsquared.Ordinary;
+    disp(['R-squared: ', num2str(R_squared)]);
+    pause
+
+end
+
 %% use clusters for examining surveys
-% simply correlate each latent dimension with the all surveys 
+% simply correlate each latent dimension with the all surveys
 figure
 groupindexvec = unique(idx);
- for index_survey = 1:size(surveydata,2)
-     for x = 1:length(groupindexvec)
-      meanvec(x)= mean(surveydata(idx==groupindexvec(x), index_survey));
-     end
- bar(meanvec), title(index_survey), pause
- end
+
+for index_survey = 1:size(surveydata,2)
+    Y = surveydata(:, index_survey); % the surveys
+
+    for x = 1:length(groupindexvec)
+        meanvec(x)= mean(surveydata(idx==groupindexvec(x), index_survey));
+    end
+
+    bar(meanvec), title(index_survey), 
+
+    % Anova
+    [p, tbl, stats] = anova1(Y, idx);
+    disp('ANOVA Table:');
+    disp(tbl);
+
+    % Optional: Post-hoc comparison
+    if p < 0.05
+        c = multcompare(stats);
+        disp('Post-hoc Comparisons:');
+        disp(c);
+    end
+
+pause
+end
+
+
+%% vector norm corrrelations
+row_norms = vecnorm(X, 2, 2);
+close all
+
+figure
+for index_survey = 1:size(surveydata,2)
+    Y = surveydata(:, index_survey); % the surveys
+
+   % scatter(row_norms, Y); % Color by cluster index
+   % tempcorr = corr(Y, row_norms, "Type","Spearman");
+   
+    scatter(compressedData(:,5), Y); % Color by cluster index
+    tempcorr = corr(Y, compressedData(:,5), "Type","Spearman");
+
+    title(num2str(tempcorr))
+   
+   lsline
+
+pause
+end
+
+%% from figure below, select components of interest and form embedding
+% calculate latent score  on data:
+figure
+componentweights = compressedData' * data_z;
+imagesc(componentweights), colorbar; 
+%
+figure
+
+for index_survey = 1:size(surveydata,2)
+     Y = surveydata(:, index_survey); % the surveys
+       scatter(compressedData(:,1), compressedData(:,5), 40, Y, 'filled'); % Color by cluster index
+       pause
+end
+
+%% tertile analysis
+
+scores = table2array(a(:, end-4));
+
+tertiles = quantile(scores, [1/3, 2/3]);
+
+% Initialize the vector
+group = zeros(size(scores));
+
+% Assign group numbers
+group(scores > tertiles(2)) = 3;            % Top third
+group(scores <= tertiles(2) & scores > tertiles(1)) = 2;  % Middle third
+group(scores <= tertiles(1)) = 1;           % Bottom third
+
+% Check it out
+disp(group);
+%
+figure;
+scatter(compressedData(:,4), compressedData(:,5), 40, group, 'filled'); % Color by cluster index
+colormap('jet');
+colorbar;
