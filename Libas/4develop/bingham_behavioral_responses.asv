@@ -1,12 +1,8 @@
 function [participant_id_vec, hitrate_vec, falsealarmrate_vec, graded_response, percentage_correct] = bingham_behavioral_responses(filemat, outname4table) 
-
+% filemat should be defined ahead of time e.g., filemat = getfilesindir(pwd, '*dat') 
+% outname
 % this function outputs a table of participant id, their hit rate and false
 % alarm rate
-
-% filemat should be defined ahead of time 
-% e.g., filemat = getfilesindir(pwd, '*dat')
-% outname4table can be whatever you want name of csv file to be but needs to be in quotation marks
-
 % it can also output a vector of their graded response: 1 = hit, 2 = miss, 3 = false
 % alarm, 4 = correct rejection
 
