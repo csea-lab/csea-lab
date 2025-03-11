@@ -63,35 +63,13 @@ disp(['Reconstruction Error: ', num2str(reconstructionError)]);
      pause, 
      hold off, 
  end
-%% tsne plot
-% Step 1: Get the latent features
-latentFeatures = encode(autoenc, data_z')'; % (N x 5) latent space
 
-% Step 2: Apply t-SNE to reduce to 2D
-Y = tsne(latentFeatures, 'NumDimensions', 2, 'Perplexity', 30, 'Exaggeration', 12);
-
-% Step 3: Plot t-SNE with color coding for each latent dimension
-figure;
-tiledlayout(2,3); % 2x3 grid for subplots (5 dimensions + title)
-
-for dim = 1:5
-    nexttile;
-    scatter(Y(:,1), Y(:,2), 20, latentFeatures(:,dim), 'filled');
-    colormap('jet'); % Choose a colormap (e.g., 'jet', 'parula', 'hot')
-    colorbar;
-    title(['Latent Dimension ', num2str(dim)]);
-    xlabel('t-SNE Dim 1');
-    ylabel('t-SNE Dim 2');
-    grid on;
-end
-
-% Add a super title
-sgtitle('t-SNE Visualization with Color Coded Latent Dimensions');
-
-%% alternate way
+%% tsne with clusters 
 % Step 2: Cluster the latent features
+Y = tsne(compressedData, 'NumDimensions', 2, 'Perplexity', 30, 'Exaggeration', 12);
+
 numClusters = 4; % You can adjust this depending on your data
-[idx, C] = kmeans(latentFeatures, numClusters, 'Replicates', 10); % Cluster assignments
+[idx, C] = kmeans(compressedData, numClusters, 'Replicates', 10); % Cluster assignments
 
 % Step 3: Plot t-SNE with clusters color-coded
 figure;
@@ -103,63 +81,37 @@ xlabel('t-SNE Dim 1');
 ylabel('t-SNE Dim 2');
 grid on;
 
-%% for ESM
- figure, 
- for x = 1:198
-     corcoef = corr(data_z(x,:)', reconstructedData(x,:)'); 
-   %  plot(data_z(x,:)), hold on, plot(reconstructedData(x,:)), title(num2str(corcoef))
-    % pause, 
-     %hold off, 
-     fitESM35to56(x) = corcoef;
- end
-fitESM35to56 = column(fitESM35to56);
-% scatter against the surveys
+%% now map the dimensional data onto the compressed data
+% calculate latent score loadings on data:
 figure
-for surveyindex = 24:34
-scatter(fitESM35to56, table2array(a(:,surveyindex )), 'k',  'filled'), pause
-end
-%% ssvep
-figure, 
- for x = 1:198
-     corcoef = corr(data_z(x,:)', reconstructedData(x,:)'); 
-     plot(data_z(x,:)), hold on, plot(reconstructedData(x,:)), title(num2str(corcoef))
-     pause, 
-     hold off, 
-     fitssVEP(x) = corcoef;
+componentweights = compressedData' * data_z;
+imagesc(componentweights), colorbar
+
+%% relate to BDI
+ surveydata = table2array(a (:, end-7:end)); % the surveys
+ figure,
+
+ % Replace NaNs with column-wise mean to handle missing values
+nanIdx = isnan(surveydata);
+colMean = mean(surveydata, 'omitnan');
+surveydata(nanIdx) = colMean(ceil(find(nanIdx) / size(surveydata, 1)));
+
+% simply correlate each latent dimension with the BDI 
+ corrlatent5withBDI = corr(surveydata(:, end-3), compressedData);
+
+ % simply correlate each latent dimension with the all surveys 
+ for index_survey = 1:size(surveydata,2)
+ corrlatent_temp= corr(surveydata(:, index_survey), compressedData);
+ bar(corrlatent_temp), title(index_survey), pause
  end
-fitssVEP = column(fitssVEP);
-% scatter against the surveys
+
+%% use clusters for examining surveys
+% simply correlate each latent dimension with the all surveys 
 figure
-for surveyindex = 24:34
-scatter(fitssVEP, table2array(a(:,surveyindex )), 'k',  'filled'), pause
-end
-%% phys and ratings
- figure, 
- for x = 1:198
-     corcoef = corr(data_z(x,:)', reconstructedData(x,:)'); 
-     plot(data_z(x,:)), hold on, plot(reconstructedData(x,:)), title(num2str(corcoef))
-     pause, 
-     hold off, 
-     fitPhysRat(x) = corcoef;
+groupindexvec = unique(idx);
+ for index_survey = 1:size(surveydata,2)
+     for x = 1:length(groupindexvec)
+      meanvec(x)= mean(surveydata(idx==groupindexvec(x), index_survey));
+     end
+ bar(meanvec), title(index_survey), pause
  end
-fitPhysRat = column(fitPhysRat);
-% scatter against the surveys
-figure
-for surveyindex = 24:34
-scatter(fitPhysRat, table2array(a(:,surveyindex )), 'k',  'filled'), pause
-end
-%% everything
- figure, 
- for x = 1:198
-     corcoef = corr(data_z(x,:)', reconstructedData(x,:)'); 
-     plot(data_z(x,:)), hold on, plot(reconstructedData(x,:)), title(num2str(corcoef))
-     pause, 
-     hold off, 
-     fiteverything(x) = corcoef;
- end
-fiteverything = column(fiteverything);
-% scatter against the surveys
-figure
-for surveyindex = 24:34
-scatter(fiteverything, table2array(a(:,surveyindex )), 'k',  'filled'), pause
-end

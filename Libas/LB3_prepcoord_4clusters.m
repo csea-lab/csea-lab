@@ -57,7 +57,7 @@ function [cube_coords,r] = LB3_prepcoord_4clusters(coor3d)
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-    %% AK Version
+%%
     % give all elecs a value that exceeds threshold (all is one)
 
     faket_vals_ak = rand(no_elec,1);
