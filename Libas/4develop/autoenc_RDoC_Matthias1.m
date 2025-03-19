@@ -1,16 +1,27 @@
 %% 
+%% 
 clear
 clc
 rng(1)
 cd '/Users/andreaskeil/Desktop/tempdata/'
- a = readtable('Matthiasalldata.csv');
-% a = readtable('Matthias_data_rdcd.csv'); 
+% a = readtable('Matthiasalldata.csv');
+a = readtable('Matthias_data_rdcd.csv'); 
 % this is for Matthiasalldata
-% data = table2array(a(:,35:end-5)); % just ESM
+% data = table2array(a(:,35:end-6)); % just ESM
 % data = table2array(a(:, 12:23 )); % just phys and ratings
 % data = table2array(a(:,3:8)); % just ssVEP
+% data = table2array(a (:, 3:end)); % all data
 
- data = table2array(a (:, [3:23 35:end-5]));
+% this is for Matthias_data_rdcd
+dataindexvec = 14:53;
+
+% data = table2array(a (:, 14:27)); % all ratings
+% data = table2array(a (:, 32:53)); % skin and EEG
+% data = table2array(a (:, 36:53)); % only  EEG
+
+% data = table2array(a (:, 14:53)); % combo that was interesting
+data = table2array(a (:, dataindexvec));
+
 
 % Replace NaNs with column-wise mean to handle missing values
 nanIdx = isnan(data);
@@ -92,7 +103,7 @@ componentweights = compressedData' * data_z;
 imagesc(componentweights), colorbar
 
 %% alternate figure
-b = a(:, [3:23 35:end-5]);
+b = a(:, dataindexvec);
 labels = b.Properties.VariableNames;
 
 % Assume componentweights is a 5xN matrix
@@ -125,7 +136,7 @@ xtickangle(45);
 legend('show');  % Show the legend to label each line
 hold off;
 %% relate to surveys
- surveydata = table2array(a (:, 24:34)); % the surveys
+ surveydata = table2array(a (:, 65:end)); % the surveys
  figure,
 
  % Replace NaNs with column-wise mean to handle missing values
@@ -142,13 +153,13 @@ surveydata(nanIdx) = colMean(ceil(find(nanIdx) / size(surveydata, 1)));
  bar(corrlatent_temp), title(index_survey), pause
  end
 
- %% important: make a linear model predicting each questionnaire from the 5 compressed dimensions
+ %% important: make linear models predicting each questionnaire from the 5 compressed dimensions
 % Assuming:
 % Y is your target vector (214x1)
 % X is your predictor matrix (214x5)
 X = compressedData; 
 
-for surveyindex = 1:11
+for surveyindex = 1:8
 
     Y = surveydata(:, surveyindex); % the surveys
 
@@ -206,7 +217,7 @@ figure
 for index_survey = 1:size(surveydata,2)
      Y = surveydata(:, index_survey); % the surveys
        scatter(compressedData(:,1), compressedData(:,2), 40, Y, 'filled'); % Color by cluster index
-       scatter3(compressedData(:,1), compressedData(:,2), compressedData(:,3), 40, Y, 'filled'); % Color by cluster index
+       scatter3(compressedData(:,1), compressedData(:,2), compressedData(:,5), 40, Y, 'filled'); % Color by cluster index
        pause
 end
 
