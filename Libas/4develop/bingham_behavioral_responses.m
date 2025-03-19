@@ -1,0 +1,72 @@
+function [participant_id_vec, hitrate_vec, falsealarmrate_vec, graded_response, percentage_correct] = bingham_behavioral_responses(filemat, outname4table) 
+
+% this function outputs a table of participant id, their hit rate and false
+% alarm rate
+
+% filemat should be defined ahead of time 
+% e.g., filemat = getfilesindir(pwd, '*dat')
+% outname4table can be whatever you want name of csv file to be but needs to be in quotation marks
+
+% it can also output a vector of their graded response: 1 = hit, 2 = miss, 3 = false
+% alarm, 4 = correct rejection
+
+
+participant_id_vec = {};
+hitrate_vec = []; 
+falsealarmrate_vec = []; 
+
+for subindex = 1:size(filemat, 1)
+
+    filepath = deblank(filemat(subindex, :));
+
+    tableIn = readtable(filepath);
+    participant_id = tableIn(:,1);
+    subtable = tableIn(:, [5,6]);
+    data = table2array(subtable);
+    graded_response = zeros(size(data, 1), 1);
+    percentage_correct = zeros(size(data,1), 1);
+    correct_response = 0;
+
+    for trial = 1:size(data,1)
+        participant_response = data(trial, 1);
+        orientation_shift(trial) = data(trial, 2);
+
+        if (orientation_shift(trial) == 1 | orientation_shift(trial) == 2) & participant_response == 1
+            graded_response(trial) = 1; % hit/participant correctly reports a change in orientation
+            correct_response = correct_response + 1
+        elseif (orientation_shift(trial) == 1 | orientation_shift(trial) == 2) & participant_response == 2
+            graded_response(trial) = 2; % miss/particpant incorrectly reports no change in orientation when one occured
+        elseif orientation_shift(trial) == 3 & participant_response == 1
+            graded_response(trial) = 3; % false alarm/participant incorrectly reports change in orientation when none occured
+        elseif orientation_shift(trial) == 3 & participant_response == 2
+            graded_response(trial) = 4; % corr rejection/participant correctly reports no change in orientation
+            correct_response = correct_response + 1
+        elseif participant_response == 0
+            graded_response(trial) = 0; % no response
+        end
+
+        percentage_correct(trial) = sum(correct_response)./trial;
+
+    end
+
+    %
+    % hitrate is the amount of hits relative to all target trials
+    hitrate = sum(graded_response == 1)./sum(orientation_shift <3);
+
+    % false alarm rate is the amount of yes responses relative to all non-target trials
+    falsealarmrate = sum(graded_response == 3)./sum(orientation_shift >2);
+
+
+participant_id_vec(subindex,1) = table2cell(participant_id(1,:));
+hitrate_vec(subindex, 1) = hitrate; 
+falsealarmrate_vec(subindex, 1) = falsealarmrate; 
+
+end
+
+tableout = table(participant_id_vec, hitrate_vec, falsealarmrate_vec)
+
+if ~isempty(outname4table)
+
+    writetable(tableout, [outname4table '.csv'])
+
+end
