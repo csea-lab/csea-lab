@@ -5,6 +5,8 @@
 clear
 clc
 cd /Users/csea/Documents/SarahLab/Sarah_Data/GaborgenTone/Data/pipeline/data-600/'New Folder'/;
+% cd /Users/andreaskeil/Desktop/gaborgentone
+
 
 % Get trial files for RESS analysis
  filemat = getfilesindir(pwd, 'gaborgentone*trls*.pow3.mat'); %don't need to use this now; want original files, not Pow
@@ -490,9 +492,9 @@ subplot(4,1,4), contourf(taxis, faxis, squeeze(GM22pow3_24_bsl(sensor,:,:))'), c
 sgtitle('Average Power by Condition: Sensor 62')
 
 %% we used ttest3d to easily obtain 4-D arrays
-% [ttestmat21_22, ~, mat4d22] = ttest3d(filematpow21, filematpow22, 1, []);
-% [ttestmat21_23, ~, mat4d23] = ttest3d(filematpow21, filematpow23, 1, []);
-% [ttestmat21_24, mat4d21, mat4d24] = ttest3d(filematpow21, filematpow24, 1, []);
+ % [ttestmat21_22, ~, mat4d22] = ttest3d(filematpow21, filematpow22, 1, []);
+ % [ttestmat21_23, ~, mat4d23] = ttest3d(filematpow21, filematpow23, 1, []);
+ % [ttestmat21_24, mat4d21, mat4d24] = ttest3d(filematpow21, filematpow24, 1, []);
 
 %load in 4-d arrays
 load('mat4d21_csplus.mat')
@@ -544,22 +546,25 @@ nsubjects = size(repeatmat_alpha, 4);
 lineareffect = [-2 -1 1 2];
 
 % the linear effect distribution
-for elec = 1:size(repeatmat_alpha,1)
-    for timepoint = 1:size(repeatmat_alpha,2)
-        for  frequency = 1:size(repeatmat_alpha,3)
-            for draw = 1:2000
-                bootstrapvec = randi(nsubjects, 1,nsubjects)';
+for draw = 1:2000
+    bootstrapvec = randi(nsubjects, 1,nsubjects)';
+
+    for elec = 1:size(repeatmat_alpha,1)
+        for timepoint = 1:size(repeatmat_alpha,2)
+            for  frequency = 1:size(repeatmat_alpha,3)
+
+
                 linearBootstrap(elec, timepoint, frequency, draw) = ...
                     mean(squeeze(repeatmat_alpha(elec, timepoint, frequency, bootstrapvec, : ))) * lineareffect';
             end
         end
     end
-     disp(['electrode ', num2str(elec)])
+    if draw/100 == round(draw/100), disp(['draw:  ', num2str(elec)]), end
 end
 %%
 % the null distribution permutation
 linearBootstrapPerm = [];
-for perm = 1:1
+for perm = 1:2000
     repeatmat_alphaperm = repeatmat_alpha;
     for subject = 1:nsubjects
         repeatmat_alphaperm(:, :, :, subject, :) = repeatmat_alphaperm(:, :, :, subject, randperm(4));
@@ -571,11 +576,9 @@ for perm = 1:1
                 linearBootstrapPerm(elec, timepoint, frequency, perm) = mean(squeeze(repeatmat_alphaperm(elec,timepoint, frequency, bootstrapvec, : ))) * lineareffect';
             end
         end
-        disp(['electrode ', num2str(elec)])
     end
+      if perm/100 == round(perm/100), disp(['perm ', num2str(perm)]), end
 end
-
-
 
 %% comparison between wavelet and permuted values
 % BFmap_alpha results in 129 channels x 180 timepoints x 25 frequencies
