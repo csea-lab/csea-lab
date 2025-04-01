@@ -10,7 +10,11 @@ cd '/Users/andreaskeil/Desktop/tempdata/'
 % data = table2array(a(:, 12:23 )); % just phys and ratings
 % data = table2array(a(:,3:8)); % just ssVEP
 
- data = table2array(a (:, [3:23 35:end-5]));
+
+ % data = table2array(a (:, [3:23 35:end-5])); % best combo of everything
+ %data = table2array(a (:, 3:23)); % only non-esm   (7% variance on DASSAnxiety)
+
+  data = table2array(a (:, 35:end-5)); % only esm
 
 % Replace NaNs with column-wise mean to handle missing values
 nanIdx = isnan(data);
