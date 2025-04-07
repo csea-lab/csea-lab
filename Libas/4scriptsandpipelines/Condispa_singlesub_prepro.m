@@ -28,8 +28,8 @@ for subindex = 1:size(folderNames,2)
     rawfile = getfilesindir(pwd, '*.RAW');
 
     % actual preprocessing
-   prepro_scadsandspline_log(rawfile, datfile, 'getcon_condispa1', 12, {'1' '2' '3' '4' '5' '6'}, [-.4 2.8], [3  32], 6, 1, 'GSN-HydroCel-128.sfp', 'HC1-128.ecfg');
-   prepro_scadsandspline_log(rawfile, datfile, 'getcon_condispa2', 12, {'7' '8' '9' '10' '11' '12'}, [-.4 2.8], [3  32], 6, 1, 'GSN-HydroCel-128.sfp', 'HC1-128.ecfg');
+   prepro_scadsandspline_log(rawfile, datfile, 'getcon_condispa1', 12, {'1' '2' '3' '4' '5' '6'}, [-.4 2.8], [3  32], [4 11], 1, 'GSN-HydroCel-128.sfp', 'HC1-128.ecfg');
+   prepro_scadsandspline_log(rawfile, datfile, 'getcon_condispa2', 12, {'7' '8' '9' '10' '11' '12'}, [-.4 2.8], [3  32], [4 11], 1, 'GSN-HydroCel-128.sfp', 'HC1-128.ecfg');
 
    % prepro_scadsandspline_log(datapath, logpath, convecfun, stringlength, conditions2select, timevec, filtercoeffHz, filtord, skiptrials)
     cd ..

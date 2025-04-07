@@ -1,6 +1,6 @@
 % this is the script to loop the correct response of NWZ for all subjects
 
-    cd '/Volumes/TOSHIBA EXT/New_Wurzburg/csvfiles'
+    cd '/Volumes/TOSHIBA_EXT/NWZ_MRI'
     
     filemat = getfilesindir(pwd, '*.csv')
 

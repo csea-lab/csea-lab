@@ -3,7 +3,7 @@ clear
 % Get a list of all files and folders in the current directory
 temp99 = eeglab; 
 
-cd '/Volumes/TOSHIBA EXT/New_Wurzburg/Data/two_event_markers'
+cd '/Volumes/TOSHIBA_EXT/New_Wurzburg/Data/two_event_markers'
 
 files = dir("new_*");
 
