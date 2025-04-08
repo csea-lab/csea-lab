@@ -588,6 +588,7 @@ for elec = 1:size(repeatmat_alpha,1)
             BFmap_alpha(elec, timepoint, frequency) = bootstrap2BF_z(squeeze(linearBootstrap(elec,timepoint, frequency, :)),squeeze(linearBootstrapPerm(elec,timepoint, frequency, :)), 0);
         end
     end
+    fprintf('.')
 end
 
 plot(BFmap_alpha(:,:,8)) %faxis shows alpha is now 8th in 3rd dimension
