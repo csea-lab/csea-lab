@@ -2,6 +2,8 @@
 clear
 restoredefaultpath
 
+addpath('/Users/admin/Documents/GitHub/csea-lab/Libas', '-end');
+
 addpath('/Users/admin/Documents/GitHub/csea-lab/Libas/4develop', '-end');
 
 addpath('/Users/admin/Documents/GitHub/csea-lab/Libas/4wavelettrans', '-end');
@@ -67,7 +69,7 @@ for subindex = 1:size(folderNames,2)
 
     % actual preprocessing
     if current_participant < 226
-        prepro_scadsandspline_log(rawfile, datfile, 'getCon_newWurz_singleTrial', 12, {'1' '2' '3' '4' '5'}, [-.8 7], [3  32], [4  9], 3, 'GSN-HydroCel-128.sfp', 'HC1-128.ecfg');
+        prepro_scadsandspline_log(rawfile, datfile, 'getCon_newWurz_singleTrial', 12, {'all'}, [-.8 7], [3  32], [4  9], 3, 'GSN-HydroCel-128.sfp', 'HC1-128.ecfg');
     else
         prepro_scadsandspline_log(rawfile, datfile, 'getCon_newWurz_singleTrial_2trigs', 12, {'11' '12' '13' '14' '15' }, [9 .8], [3  32], [4  9], 3, 'GSN-HydroCel-128.sfp', 'HC1-128.ecfg');
     end
