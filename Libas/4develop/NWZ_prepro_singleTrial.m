@@ -67,11 +67,14 @@ for subindex = 1:size(folderNames,2)
         continue
     end
 
+con4select = {}; for x = 1:225; con4select{x} = num2str(x); end
+twocon4select = {}; for x = 1:450; twocon4select{x} = num2str(x); end
+
     % actual preprocessing
     if current_participant < 226
-        prepro_scadsandspline_log(rawfile, datfile, 'getCon_newWurz_singleTrial', 12, {'all'}, [-.8 7], [3  32], [4  9], 3, 'GSN-HydroCel-128.sfp', 'HC1-128.ecfg');
+        prepro_scadsandspline_log(rawfile, datfile, 'getCon_newWurz_singleTrial', 12, con4select, [-.8 7], [3  32], [4  9], 3, 'GSN-HydroCel-128.sfp', 'HC1-128.ecfg');
     else
-        prepro_scadsandspline_log(rawfile, datfile, 'getCon_newWurz_singleTrial_2trigs', 12, {'11' '12' '13' '14' '15' }, [9 .8], [3  32], [4  9], 3, 'GSN-HydroCel-128.sfp', 'HC1-128.ecfg');
+        prepro_scadsandspline_log(rawfile, datfile, 'getCon_newWurz_singleTrial_2trigs', 12, twocon4select, [9 .8], [3  32], [4  9], 3, 'GSN-HydroCel-128.sfp', 'HC1-128.ecfg');
     end
 
 
