@@ -11,4 +11,6 @@ function [conditionvec] = getCon_newWurz_singleTrial_2trigs(filepath)
     % Fill the new vector with original and +100 interleaved
     conditionvec(1:2:end) = original;
     conditionvec(2:2:end) = original + 100;
+
+    % conditionvec = table2array(conditionvec(:, 1));
 end
