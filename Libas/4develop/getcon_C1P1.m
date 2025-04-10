@@ -15,3 +15,8 @@ blocktype = conmat(:,5)+1; % plus one makes numbers interpretable and addable
 % blocktype 2 = attend left
 
 convec = blocktype.*10 + stimulustype;
+
+% 11 = attended standard, right VF
+% 12 = unattended standard, left VF
+% 21 = unattended standard, right VF
+% 22 = attended standard, left VF

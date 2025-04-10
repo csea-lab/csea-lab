@@ -4,7 +4,7 @@
 fclose('all');
 temp99 = eeglab; 
 
-files = dir("C17*");
+files = dir("C19*");
 
 % Filter out the non-folder entries
 dirFlags = [files.isdir];
@@ -31,8 +31,8 @@ for subindex = 1:size(folderNames,2)
 
     % actual preprocessing
    LB3_prepro_pipeline(rawfile, datfile, 'getcon_C1P1', 8, {'11' '12' '13' '14' '21' '22' '23' '24'}, [-.45 .45], [.1  30], [3 11], 1, 'GSN-HydroCel-128.sfp', 'HC1-128.ecfg',0);
-   % prepro_scadsandspline_log(datapath, logpath, convecfun, stringlength, conditions2select, timevec, filtercoeffHz, filtord, skiptrials, sfpfilename, ecfgfilename)
-    cd ..
+   
+   cd ..
 
     pause(.5)
     fclose('all');
@@ -48,7 +48,7 @@ fclose('all')
 temp99 = eeglab; 
 
 
-files = dir("C17*");
+files = dir("C19*");
 
 % Filter out the non-folder entries
 dirFlags = [files.isdir];
