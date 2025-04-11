@@ -11,10 +11,10 @@ cd '/Users/andreaskeil/Desktop/tempdata/'
 % data = table2array(a(:,3:8)); % just ssVEP
 
 
- % data = table2array(a (:, [3:23 35:end-5])); % best combo of everything
+  data = table2array(a (:, [3:23 35:end-5])); % best combo of everything
  %data = table2array(a (:, 3:23)); % only non-esm   (7% variance on DASSAnxiety)
 
-  data = table2array(a (:, 35:end-5)); % only esm
+ % data = table2array(a (:, 35:end-5)); % only esm
 
 % Replace NaNs with column-wise mean to handle missing values
 nanIdx = isnan(data);
@@ -82,7 +82,7 @@ rng(1)
 % Step 3: Plot t-SNE with clusters color-coded
 figure;
 scatter(Y(:,1), Y(:,2), 40, idx, 'filled'); % Color by cluster index
-colormap('parula');
+colormap('jet');
 colorbar;
 title('t-SNE Visualization with Clustered Groupings');
 xlabel('t-SNE Dim 1');
