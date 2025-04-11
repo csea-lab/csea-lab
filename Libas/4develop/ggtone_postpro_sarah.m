@@ -437,8 +437,8 @@ end
 
 %% Alpha Wavelet Analysis
 % Set working directory (if not already)
-cd /Users/csea/Documents/SarahLab/Sarah_Data/GaborgenTone/Data/pipeline/data-600/'New Folder'/;
-% cd /Users/andreaskeil/Desktop/gaborgentone/trial3dmats
+%cd /Users/csea/Documents/SarahLab/Sarah_Data/GaborgenTone/Data/pipeline/data-600/'New Folder'/;
+ cd /Users/andreaskeil/Desktop/gaborgentone/trial3dmats
 % Define frequency and time axes for wavelet analysis
 faxisall = 0:1000/3600:250;    % full frequency axis for wavelets
 faxis = faxisall(11:4:110);      % frequency axis used for plotting
@@ -492,9 +492,9 @@ subplot(4,1,4), contourf(taxis, faxis, squeeze(GM22pow3_24_bsl(sensor,:,:))'), c
 sgtitle('Average Power by Condition: Sensor 62')
 
 %% we used ttest3d to easily obtain 4-D arrays
- % [ttestmat21_22, ~, mat4d22] = ttest3d(filematpow21, filematpow22, 1, []);
- % [ttestmat21_23, ~, mat4d23] = ttest3d(filematpow21, filematpow23, 1, []);
- % [ttestmat21_24, mat4d21, mat4d24] = ttest3d(filematpow21, filematpow24, 1, []);
+  [ttestmat21_22, ~, mat4d22] = ttest3d(filematpow21, filematpow22, 1, []);
+  [ttestmat21_23, ~, mat4d23] = ttest3d(filematpow21, filematpow23, 1, []);
+  [ttestmat21_24, mat4d21, mat4d24] = ttest3d(filematpow21, filematpow24, 1, []);
 
 %load in 4-d arrays
 load('mat4d21_csplus.mat')
@@ -543,7 +543,7 @@ linearBootstrap =[];
 size(repeatmat_alpha)
 nsubjects = size(repeatmat_alpha, 4); 
 % make distributions of effects
-lineareffect = [-2 -1 1 2];
+lineareffect = [2 1 -1 -2];
 
 % the linear effect distribution
 for draw = 1:2000
@@ -559,7 +559,7 @@ for draw = 1:2000
             end
         end
     end
-    if draw/100 == round(draw/100), disp(['draw:  ', num2str(elec)]), end
+    if draw/100 == round(draw/100), disp(['draw:  ', num2str(draw)]), end
 end
 %%
 % the null distribution permutation
