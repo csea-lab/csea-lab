@@ -4,8 +4,8 @@
 % Set working directory to the RESS data folder
 clear
 clc
-cd /Users/csea/Documents/SarahLab/Sarah_Data/GaborgenTone/Data/pipeline/data-600/'New Folder'/;
-% cd /Users/andreaskeil/Desktop/gaborgentone
+%cd /Users/csea/Documents/SarahLab/Sarah_Data/GaborgenTone/Data/pipeline/data-600/'New Folder'/;
+ cd /Users/andreaskeil/Desktop/gaborgentone
 
 
 % Get trial files for RESS analysis
@@ -469,7 +469,7 @@ GM22pow3_24 = importdata('GM22.at24.pow3.mat', 'avgmat');
 
 
 % Plot contour plots for a selected sensor
-sensor = 62;
+sensor = 72;
 figure
 subplot(4,1,1), contourf(taxis, faxis, squeeze(GM22pow3_21(sensor,:,:))'), colorbar
 subplot(4,1,2), contourf(taxis, faxis, squeeze(GM22pow3_22(sensor,:,:))'), colorbar
@@ -489,18 +489,18 @@ subplot(4,1,1), contourf(taxis, faxis, squeeze(GM22pow3_21_bsl(sensor,:,:))'), c
 subplot(4,1,2), contourf(taxis, faxis, squeeze(GM22pow3_22_bsl(sensor,:,:))'), colorbar
 subplot(4,1,3), contourf(taxis, faxis, squeeze(GM22pow3_23_bsl(sensor,:,:))'), colorbar
 subplot(4,1,4), contourf(taxis, faxis, squeeze(GM22pow3_24_bsl(sensor,:,:))'), colorbar
-sgtitle('Average Power by Condition: Sensor 62')
+sgtitle('Average Power by Condition: Sensor ')
 
 %% we used ttest3d to easily obtain 4-D arrays
-  [ttestmat21_22, ~, mat4d22] = ttest3d(filematpow21, filematpow22, 1, []);
-  [ttestmat21_23, ~, mat4d23] = ttest3d(filematpow21, filematpow23, 1, []);
-  [ttestmat21_24, mat4d21, mat4d24] = ttest3d(filematpow21, filematpow24, 1, []);
+  [ttestmat21_22, ~, mat4d22] = ttest3d(filematpow21, filematpow22, 1, 75:225);
+  [ttestmat21_23, ~, mat4d23] = ttest3d(filematpow21, filematpow23, 1,  75:225);
+  [ttestmat21_24, mat4d21, mat4d24] = ttest3d(filematpow21, filematpow24, 1,  75:225);
 
-%load in 4-d arrays
-load('mat4d21_csplus.mat')
-load('mat4d22_gs1.mat')
-load('mat4d23_gs2.mat')
-load('mat4d24_gs3.mat')
+% %load in 4-d arrays
+% load('mat4d21_csplus.mat')
+% load('mat4d22_gs1.mat')
+% load('mat4d23_gs2.mat')
+% load('mat4d24_gs3.mat')
 
  repeatmat_alpha = cat(5, mat4d21(:, 1:10:end, :, :), mat4d22(:, 1:10:end, :, :), mat4d23(:, 1:10:end, :, :), mat4d24(:, 1:10:end, :, :));
 
@@ -543,7 +543,7 @@ linearBootstrap =[];
 size(repeatmat_alpha)
 nsubjects = size(repeatmat_alpha, 4); 
 % make distributions of effects
-lineareffect = [2 1 -1 -2];
+lineareffect = [3 -1 -1 -1];
 
 % the linear effect distribution
 for draw = 1:2000
@@ -580,7 +580,7 @@ for perm = 1:2000
       if perm/100 == round(perm/100), disp(['perm ', num2str(perm)]), end
 end
 
-%% comparison between wavelet and permuted values
+%% comparison between model and permuted values
 % BFmap_alpha results in 129 channels x 180 timepoints x 25 frequencies
 for elec = 1:size(repeatmat_alpha,1)
     for timepoint = 1:size(repeatmat_alpha,2) %180 timepoints, decimated earlier
