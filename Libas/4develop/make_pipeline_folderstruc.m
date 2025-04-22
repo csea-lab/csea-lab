@@ -1,6 +1,9 @@
 function [] = make_pipeline_folderstruc(foldername, prefix, raw_ID_index, dat_ID_index, dataindex)
 % takes a bunch of files and puts them into the right folder structure for
 % the LB3 pipeline, one folder for each subject, containing raw and dat
+% example make_pipeline_folderstruc(pwd, 'Comp_', 5:8, 12:15, 40);
+
+if nargin < 5,  dataindex= []; end
 
 cd (foldername)
 
@@ -12,6 +15,8 @@ datfiles = getfilesindir(pwd, '*.dat');
 dat_IDs = datfiles(:, dat_ID_index); 
 sorted_dat_IDs = sort(str2num(dat_IDs));
 
+if isempty(dataindex ), dataindex = size(rawfiles, 1); end
+
 for subjectindex = 1:dataindex % only unti the two lists diverge
 
   datfile = getfilesindir(pwd, ['*' num2str(sorted_dat_IDs(subjectindex)) '*.dat']);
@@ -22,7 +27,7 @@ for subjectindex = 1:dataindex % only unti the two lists diverge
 
   copyfile(datfile, newfolder )
   copyfile(rawfile, newfolder )
-  pause(5)
+  pause(3)
 
 end
 

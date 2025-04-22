@@ -1,4 +1,4 @@
-function [EEG_allcond] =  ClarkHillyardPipeline(datapath, logpath, convecfun, stringlength, conditions2select, timevec, filtercoeffHz, filtord, skiptrials, sfpfilename, ecfgfilename, eyecorrflag)
+function [EEG_allcond] =  ClarkHillyardPipeline(datapath, logpath, convecfun, stringlength, conditions2select, timevec, filtercoeffHz, filtord, skiptrials, sfpfilename, ecfgfilename, eyecorrflag, mastoidindexvec)
 % datapath is name of .raw file, this function rins only for 129channel EGI data
 % logpath is the name .dat file
 % convecfun is the name of a function that takes a dat file and generates a
@@ -15,7 +15,7 @@ function [EEG_allcond] =  ClarkHillyardPipeline(datapath, logpath, convecfun, st
 % the final two inputs are filenames for electrode confis files in .sfp
 % format and ecfg format. make sure these are in the matlab path
 
-    thresholdChan = 2.0;
+    thresholdChan = 2;
     thresholdVoltage = 50;
 
     % skip a few initial trials tyo accomodate learning experiments
@@ -108,11 +108,11 @@ function [EEG_allcond] =  ClarkHillyardPipeline(datapath, logpath, convecfun, st
       % find bad trials based on overall amplitude
        disp('artifact handling: trials by voltage')
        [ ~, badindexvec1, NGoodtrials ] = threshold_3dtrials(EEG_allcond.data, thresholdVoltage);
- 
-        % find bad trials based on eye channels
-        disp('artifact handling: trials by eye artifact')
-       horipair = [226, 252]; vertipair = [238, 10];
-      [ ~, badindexvec2, ~ ] = reject_eye_3dtrials(inmat3d, horipair, vertipair, 30);
+
+      % find bad trials based on eye channels
+      disp('artifact handling: trials by eye artifact')
+       horipair = [125 128]; vertipair = [8 126]; 
+      [ ~, badindexvec2, ~ ] = reject_eye_3dtrials(inmat3d, horipair, vertipair, 50);
 
       % remove from dataset
        disp('removing bad trials')
@@ -126,7 +126,7 @@ function [EEG_allcond] =  ClarkHillyardPipeline(datapath, logpath, convecfun, st
          reflatencyvec =  cell2mat(EEG_allcond.epoch(epochindex).eventlatency);
          eventindex = find(reflatencyvec==0);
          trialcondition = cell2mat(EEG_allcond.epoch(epochindex).eventtype(eventindex)); 
-         if str2double(trialcondition) > 19
+         if ismember(trialcondition, [13 14 23 24])
              targetepochindex = [targetepochindex epochindex-1 epochindex+1]; 
          end
      end
@@ -156,13 +156,13 @@ function [EEG_allcond] =  ClarkHillyardPipeline(datapath, logpath, convecfun, st
           ERPtemp = double(squeeze(mean(EEG_temp.data(:, :, skiptrials:end), 3)));
 
           % reference to mastoids
-          ERPref = LB3_reref_EEG_add(ERPtemp, [189 190 201 191]);
+          ERPref = LB3_reref_EEG_add(ERPtemp, mastoidindexvec);
 
           % save the ERP in emegs at format
           SaveAvgFile([basename '.at' conditions2select{con_index} '.mr'],ERPref,[],[], EEG.srate, [], [], [], [], abs(timevec(1) *EEG.srate)+1);
 
           % correct with ADJAR and save as separate files by condition
-          [correctedERP, ~, ~] = Adjar(ERPref, ITIdistribution, 151, 225);
+          [correctedERP, ~, ~] = Adjar(ERPref, ITIdistribution, 151);
            SaveAvgFile([basename '.adjar.at' conditions2select{con_index} '.mr'],correctedERP,[],[], EEG.srate, [], [], [], [], abs(timevec(1) *EEG.srate)+1);
 
           % complete artifact info

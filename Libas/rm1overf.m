@@ -13,8 +13,9 @@ nans = isnan(data4fit);
 
 if methodflag == 1
     % define 1/f function with intercept
-    modelfun = @(beta,x) beta(1) + beta(2) .* 1./x;
-    betavec = nlinfit(1:length(data4fit), data4fit, modelfun, [1 1]);
+    modelfun = @(beta,x) beta(1) + beta(2) .* 1./x.^(beta(3));
+    warning('off')
+    betavec = nlinfit(1:length(data4fit), data4fit, modelfun, [1 1 1]);
     % apply the best fitting beta
     expmod = modelfun(betavec, 1:length(data4fit));
 
