@@ -1,6 +1,6 @@
 
 clear 
-filemat = getfilesindir(pwd, 'myaps2_720*.mat');
+filemat = getfilesindir(pwd, 'myaps2_736*.mat');
 
 figure(201)
 figure(301)
