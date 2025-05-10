@@ -64,7 +64,7 @@ predictorNet = dlnetwork(layerGraph(layersPredictor));
 %% Training Settings
 numEpochs = 800;
 miniBatchSize = size(X,2);
-lambda = 1;  % Weighting for prediction loss
+lambda = .5;  % Weighting for prediction loss
 
 learningRate = 1e-3;
 gradDecay = 0.9;
