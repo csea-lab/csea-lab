@@ -373,7 +373,7 @@ figure, plot(BFmap_singleSpec_linear(:, 31)) %select frequency of interest for a
 
 % use SaveAvgFile to create file to use in emegs for heads
 AvgMat = BFmap_singleSpec_linear;
-SaveAvgFile([],AvgMat,[],[], 1,[],[],[],[],1)
+SaveAvgFile('BFmap_singleSpec_linear.at',AvgMat,[],[], 1,[],[],[],[],1)
 
 %need to make heads for single trial spec; Ask Andreas for help with this
 emegs2d
