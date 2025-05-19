@@ -1,6 +1,6 @@
 
 clear 
-filemat = getfilesindir(pwd, 'myaps2_736*.mat');
+filemat = getfilesindir(pwd, 'myaps2_702*.trls*mat');
 
 figure(201)
 figure(301)
@@ -62,7 +62,6 @@ for fileindex = 1:size(filemat,1)
 
     % convolution 2: power not used
     taupowerconvector = conv(taupowervector, Gwin, 'same');
-
 
     % draw the resulting data into one plot
     figure(201)
