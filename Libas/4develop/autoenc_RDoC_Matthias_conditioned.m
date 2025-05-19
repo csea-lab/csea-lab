@@ -4,7 +4,7 @@ clear; clc; rng(1);
 cd '/Users/andreaskeil/Desktop/tempdata/'
 a = readtable('Matthiasalldata.csv');
 
-% Inputs: 45 variables (features)
+% Inputs: 44 variables (features)
 inputData = table2array(a(:, [3:23 35:end-5]));
 
 % Targets: 11 variables to predict
@@ -24,7 +24,7 @@ X = dlarray(inputData_z', 'CB');
 Y = dlarray(targetData', 'CB');
 
 %% Define Network Architecture
-inputSize = size(X,1);  % 45
+inputSize = size(X,1);  % 44
 latentSize = 4;
 outputSize = size(Y,1); % 11
 
