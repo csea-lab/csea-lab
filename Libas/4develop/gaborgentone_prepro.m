@@ -1,5 +1,6 @@
 %% Script for analyzing gaborgentone data
 % Open eeglab and get a list of all files and folders in the current directory
+%gives gaborgentone_PAR#.at.trls.21(22,23,24).mat
 temp99 = eeglab; 
 
 files = dir("gg*");
@@ -28,8 +29,9 @@ for subindex = 1:size(folderNames,2)
     rawfile = getfilesindir(pwd, '*.RAW');
 
     % actual preprocessing
-   prepro_scadsandspline_log(rawfile, datfile, 'getcon_gaborgenTone', 16, {'21' '22' '23' '24'}, [-.6 3], [1  30], 4, 1)
+   copy_prepro_scadsandspline_log(rawfile, datfile, 'getcon_gaborgenTone', 16, {'21' '22' '23' '24'}, [-.6 3], [1  30], 4, 1)
    % prepro_scadsandspline(datapath, logpath, convecfun, stringlength, conditions2select, timevec, filtercoeffHz, filtord, skiptrials)
+ 
 
     cd ..
 
