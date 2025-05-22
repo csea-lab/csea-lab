@@ -140,7 +140,7 @@ pause(.2)
  end
  
  % % now assign the conditions
-connames = unique(convec) 
+connames = unique(convec);
 numcond = length(unique(convec));
  
  % %find out how many NaNs per condition for this subject
