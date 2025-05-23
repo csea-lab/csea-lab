@@ -14,6 +14,9 @@ for file = 1:size(filemat)
     timecourse = [];
     abstimecourse = [];
     RT = [];
+    blockvec = ones(350,1);
+    blockvec(1:150) = 100; 
+    blockvec(151:350) = 200; 
 
     while a > 0
 
@@ -62,7 +65,8 @@ for file = 1:size(filemat)
         RTout(file,:) = RT;
         abstimecourseout(file,:) = abstimecourse;
 
-    end
+end
+conditionvec_actual = conditionvec_actual'+ blockvec;
 end
 
 function relabel = relabel_circle(N, ref)
