@@ -1,11 +1,14 @@
-function [outmat] = supervisedautoenc_LooCV(X, Y, lambda)
+function [outmat] = supervisedautoenc_LooCV(datafile, Xcols, Ycols, lambda)
 
 % inputs: 
-% X = psychophys or similar data to be reconstructed (Nvars by N matrix) 
-% Y = to be predicted variables (surveys, etc Nvars by N matrix) 
+% datafile = a cvs file with data
+% Xcols = column indices of the psychophys or similar data to be reconstructed (Nvars by N matrix) 
+% Ycols = column indices of the to be predicted variables (surveys) 
 % lambda = loss function trade-off (how much of the loss is weighted
 % towards predictors) 
 % all X should be z transformed, Y probably too
+
+a = readtable(datafile); 
 
 %%
 % first, compute the overall solution and create the networks
