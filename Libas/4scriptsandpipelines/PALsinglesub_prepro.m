@@ -24,11 +24,11 @@ for subindex = 1:size(folderNames,2)
 
    delete *.at*
 
-    datfile = getfilesindir(pwd, '*.mat');
+    datfile = getfilesindir(pwd, '*results.mat');
     rawfile = getfilesindir(pwd, '*.RAW');
 
     % actual preprocessing
-   LB3_prepro_pipeline(rawfile, datfile, 'getcon_PAL', 15, {'1' '2' '3' '4' '5' '6'}, [-.6 2], [3  25], [4 8], 1, 'GSN-HydroCel-128.sfp', 'HC1-128.ecfg', 1, 'DIN1'); 
+   LB3_prepro_pipeline(rawfile, datfile, 'getcon_PAL', 13, {'1' '2' '3' '4' '5' '6'}, [-1 2], [2  30], [4 8], 1, 'GSN-HydroCel-128.sfp', 'HC1-128.ecfg', 1, 'DIN1'); 
    % LB3_prepro_pipeline(datapath, logpath, convecfun, stringlength, conditions2select, timevec, filtercoeffHz, filtord, skiptrials, sfpfilename, ecfgfilename, eyecorrflag, DINselect)
 
     cd ..
