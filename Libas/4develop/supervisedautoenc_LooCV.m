@@ -27,14 +27,13 @@ targetData(nanIdx2) = colMean2(ceil(find(nanIdx2) / size(targetData, 1)));
 
 % Normalize inputs
 inputData_z = zscore(inputData); % z_norm was column-wise already
-data_z = inputData_z;
 
 targetData_z = zscore(targetData); % z_norm was column-wise already
-data_y = targetData_z;
+
 
 % Transpose for deep learning format [features x observations]
 X = dlarray(inputData_z', 'CB');
-Y = dlarray(targetData', 'CB');
+Y = dlarray(targetData_z', 'CB');
 
 
 %%
