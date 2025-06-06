@@ -1,11 +1,40 @@
-function [outmat] = supervisedautoenc_LooCV(X, Y, lambda)
+function [outmat] = supervisedautoenc_LooCV(datafile, Xcols, Ycols, lambda)
 
 % inputs: 
-% X = psychophys or similar data to be reconstructed (Nvars by N matrix) 
-% Y = to be predicted variables (surveys, etc Nvars by N matrix) 
+% datafile = a cvs file with data
+% Xcols = column indices of the psychophys or similar data to be reconstructed (Nvars by N matrix) 
+% Ycols = column indices of the to be predicted variables (surveys) 
 % lambda = loss function trade-off (how much of the loss is weighted
 % towards predictors) 
 % all X should be z transformed, Y probably too
+
+a = readtable(datafile); 
+
+% Inputs:  variables (features)
+inputData = table2array(a(:, Xcols));
+
+% Targets: 11 variables to predict
+targetData = table2array(a(:, Ycols));
+
+% Replace NaNs with column-wise mean
+nanIdx = isnan(inputData);
+colMean = mean(inputData, 'omitnan');
+inputData(nanIdx) = colMean(ceil(find(nanIdx) / size(inputData, 1)));
+
+nanIdx2 = isnan(targetData);
+colMean2 = mean(targetData, 'omitnan');
+targetData(nanIdx2) = colMean2(ceil(find(nanIdx2) / size(targetData, 1)));
+
+% Normalize inputs
+inputData_z = zscore(inputData); % z_norm was column-wise already
+
+targetData_z = zscore(targetData); % z_norm was column-wise already
+
+
+% Transpose for deep learning format [features x observations]
+X = dlarray(inputData_z', 'CB');
+Y = dlarray(targetData_z', 'CB');
+
 
 %%
 % first, compute the overall solution and create the networks
@@ -221,9 +250,10 @@ sgtitle('Cross-Validated Prediction: Actual vs Predicted Y');
  end
  
  %  3- individual prediction of left out participants
-for surveyindex = 1:11
 
-    surveys = extractdata(Y)'; 
+surveys = extractdata(Y)'; 
+
+for surveyindex = 1:size(surveys,2)
     
     % Create a linear model using fitlm
     mdl = fitlm(compressedData, surveys(:, surveyindex));
@@ -232,21 +262,18 @@ for surveyindex = 1:11
     disp(mdl);
 
     % Predicted values
-    Y_pred = predict(mdl, X);
+    Y_pred = predict(mdl, compressedData);
 
     % Optional: R-squared
     R_squared = mdl.Rsquared.Ordinary;
     disp(['R-squared: ', num2str(R_squared)]);
 
     % scatter observed predicted
-     scatter(Y, Y_pred, 60, GoodnessOfFit, "filled"); % Color by cluster index
+    scatter(surveys(:, surveyindex), Y_pred, 60, GoodnessOfFit, "filled"); % 
     title(['R_squared:  ' num2str(R_squared)])
     pause
 
 end
- 
-
-
 
 %% LOSS function
 function [loss, gradEnc, gradDec, gradPred] = modelLoss(encNet, decNet, predNet, X, Y, lambda)
