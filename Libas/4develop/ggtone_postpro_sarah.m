@@ -320,7 +320,7 @@ linearBootstrap =[];
 size(repmatsingleSpec)
 nsubjects = size(repmatsingleSpec, 3);
 % make distributions of effects
-lineareffect = [-2 -1 1 2];
+lineareffect = [2 1 -1 -2];
 
 
 % the linear effect distribution
