@@ -1,4 +1,4 @@
-function [outmat] = supervisedautoenc_LooCV(datafile, Xcols, Ycols, lambda)
+function [outmat] = supervisedautoenc_LooCV(datafile, Xcols, Ycols, lambda, latentSize)
 
 % inputs: 
 % datafile = a cvs file with data
@@ -7,6 +7,8 @@ function [outmat] = supervisedautoenc_LooCV(datafile, Xcols, Ycols, lambda)
 % lambda = loss function trade-off (how much of the loss is weighted
 % towards predictors) 
 % all X should be z transformed, Y probably too
+
+parpool('local', 8);
 
 a = readtable(datafile); 
 
@@ -27,7 +29,6 @@ targetData(nanIdx2) = colMean2(ceil(find(nanIdx2) / size(targetData, 1)));
 
 % Normalize inputs
 inputData_z = zscore(inputData); % z_norm was column-wise already
-
 targetData_z = zscore(targetData); % z_norm was column-wise already
 
 
@@ -45,7 +46,6 @@ X_reconstructed_all = zeros(size(X));
 
 %% Define Network Architecture
 inputSize = size(X,1);  % 44 in the example
-latentSize = 4;
 outputSize = size(Y,1); % 11 in the example
 
 % Layers
@@ -135,7 +135,6 @@ fprintf('Final Prediction Error: %.4f\n', predError);
 
 % Define Network Architecture
 inputSize = size(X,1);  % 44
-latentSize = 4;
 outputSize = size(Y,1); % 11
 
 % Layers
@@ -162,7 +161,7 @@ layersPredictor = [
 ];
 
 %% leave-one out-loop
-for i = 1:numSamples
+parfor i = 1:numSamples
 
     % Split data
     X_test = X(:,i);
@@ -181,7 +180,7 @@ for i = 1:numSamples
     trailingAvgD = []; trailingAvgSqD = [];
     trailingAvgP = []; trailingAvgSqP = [];
 
-    for epoch = 1:1200  % Fewer epochs for speed
+    for epoch = 1:1000  % Fewer epochs for speed
         [loss, gradientsEnc, gradientsDec, gradientsPred] = ...
             dlfeval(@modelLoss, encoderNet_cv, decoderNet_cv, predictorNet_cv, X_train, Y_train, lambda);
 
@@ -208,6 +207,8 @@ for i = 1:numSamples
     if i/10 ==round(i/10), disp(['observation #: ' num2str(i)]), end
 
 end
+
+delete(gcp('nocreate'))
 
 % collect the output
 outmat.Y_predicted_all = Y_predicted_all; 
@@ -243,11 +244,13 @@ sgtitle('Cross-Validated Prediction: Actual vs Predicted Y');
  GoodnessOfFit = []; 
  for x = 1:size(X,2)
      corcoef = corr(extractdata(X(:,x)), outmat.X_reconstructed_all(:,x)); 
-     plot(extractdata(X(:,x))), hold on, plot(outmat.X_reconstructed_all(:,x)), title(num2str(corcoef))
+         plot(extractdata(X(:,x))), hold on, plot(outmat.X_reconstructed_all(:,x)), title(num2str(corcoef))
      GoodnessOfFit(x) = corcoef; 
      pause (.1), 
      hold off, 
  end
+
+ outmat.GoodnessOfFit = GoodnessOfFit; 
  
  %  3- individual prediction of left out participants
 
