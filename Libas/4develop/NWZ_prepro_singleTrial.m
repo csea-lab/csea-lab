@@ -26,7 +26,7 @@ addpath(genpath('/Users/admin/Documents/emegs2.8'), '-end');
 
 % Get a list of all files and folders in the current directory
 
-cd '/Volumes/TOSHIBA_EXT/New_Wurzburg/Data'
+cd '/Volumes/TOSHIBA_EXT/New_Wurzburg/Data/problematic_subjects/extra triggers'
 
 files = dir("new_*");
 
@@ -62,19 +62,19 @@ for subindex = 1:size(folderNames,2)
 
     % triggers missing, maybe recover the trials from these participant
     % later
-    if ismember(current_participant, [201, 202, 209, 211, 213])
-        cd ..
-        continue
-    end
+    % if ismember(current_participant, [201, 202, 209, 211, 213])
+    %     cd ..
+    %     continue
+    % end
 
 con4select = {}; for x = 1:225; con4select{x} = num2str(x); end
 twocon4select = {}; for x = 1:450; twocon4select{x} = num2str(x); end
 
     % actual preprocessing
     if current_participant < 226
-        prepro_scadsandspline_log(rawfile, datfile, 'getCon_newWurz_singleTrial', 12, con4select, [-.8 7], [3  32], [4  9], 3, 'GSN-HydroCel-128.sfp', 'HC1-128.ecfg');
+        prepro_scadsandspline_singletrial(rawfile, datfile, 'getCon_newWurz_singleTrial', 12, con4select, [-.8 7], [3  32], [4  9], 3, 'GSN-HydroCel-128.sfp', 'HC1-128.ecfg');
     else
-        prepro_scadsandspline_log(rawfile, datfile, 'getCon_newWurz_singleTrial_2trigs', 12, twocon4select, [9 .8], [3  32], [4  9], 3, 'GSN-HydroCel-128.sfp', 'HC1-128.ecfg');
+        prepro_scadsandspline_singletrial(rawfile, datfile, 'getCon_newWurz_singleTrial_2trigs', 12, twocon4select, [9 .8], [3  32], [4  9], 3, 'GSN-HydroCel-128.sfp', 'HC1-128.ecfg');
     end
 
 
