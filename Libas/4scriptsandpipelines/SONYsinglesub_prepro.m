@@ -28,7 +28,7 @@ for subindex = 1:size(folderNames,2)
     rawfile = getfilesindir(pwd, '*.RAW');
 
     % actual preprocessing
-   LB3_prepro_pipeline(rawfile, datfile, 'getcon_MyAPS2_ERP', 12, {'11' '12' '13' '21' '22' '23'}, [-1 2], [2  35], [3 10], 1, 'GSN-HydroCel-128.sfp', 'HC1-128.ecfg', 1); 
+   LB3_prepro_pipeline(rawfile, datfile, 'getcon_MyAPS2_ERP', 10, {'11' '12' '13' '21' '22' '23'}, [-1 2], [2  35], [3 12], 1, 'GSN-HydroCel-128.sfp', 'HC1-128.ecfg', 1); 
    % LB3_prepro_pipeline(datapath, logpath, convecfun, stringlength, conditions2select, timevec, filtercoeffHz, filtord, skiptrials, sfpfilename, ecfgfilename, eyecorrflag, DINselect)
 
     cd ..
