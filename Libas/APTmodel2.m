@@ -1,7 +1,7 @@
 function [Rvec, anterior_emotional,  A, R] = APTmodel2(params, reinforcement)
  
 BETA =  params(1); 
-width_normali = params(1); 
+
 
 
 stimnum = 7; % pick an odd number so that CS+ can be in the middle
