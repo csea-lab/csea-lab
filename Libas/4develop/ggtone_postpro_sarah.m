@@ -288,7 +288,7 @@ dist(draw) = max(Fcontmat);
 if draw./100 == round(draw./100), fprintf('.'), end
 
 end
-
+MPP_AK
 hist(dist, 50)
 quantile(dist, .95)
 
@@ -320,7 +320,7 @@ linearBootstrap =[];
 size(repmatsingleSpec)
 nsubjects = size(repmatsingleSpec, 3);
 % make distributions of effects
-lineareffect = [-2 -1 1 2];
+lineareffect = [2 1 -1 -2];
 
 
 % the linear effect distribution

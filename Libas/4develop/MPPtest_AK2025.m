@@ -1,6 +1,6 @@
 
 clear 
-filemat = getfilesindir(pwd, 'myaps2_702*.trls*mat');
+filemat = getfilesindir(pwd, 'myaps2_702*.trls.g.mat');
 
 figure(201)
 figure(301)
@@ -63,12 +63,12 @@ for fileindex = 1:size(filemat,1)
     % convolution 2: power not used
     taupowerconvector = conv(taupowervector, Gwin, 'same');
 
-    % draw the resulting data into one plot
-    figure(201)
-    subplot(6,3,3*fileindex-2), xline(sort(tauvector)), title(filemat(fileindex,:));
-    subplot(6,3,3*fileindex-1), plot(taupowervector)
-    subplot(6,3,3*fileindex), contourf(taxis, faxis, squeeze(WaPower(1,:,:))')
-    pause(.5)
+    % % draw the resulting data into one plot
+    % figure(201)
+    % subplot(6,3,3*fileindex-2), xline(sort(tauvector)), title(filemat(fileindex,:));
+    % subplot(6,3,3*fileindex-1), plot(taupowervector)
+    % subplot(6,3,3*fileindex), contourf(taxis, faxis, squeeze(WaPower(1,:,:))')
+    % pause(.5)
 
     figure(301)
     hold on, plot(tauconvector), pause (.1), hold off

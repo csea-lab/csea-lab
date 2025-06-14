@@ -1,11 +1,41 @@
-function [outmat] = supervisedautoenc_LooCV(X, Y, lambda)
+function [outmat] = supervisedautoenc_LooCV(datafile, Xcols, Ycols, lambda, latentSize)
 
 % inputs: 
-% X = psychophys or similar data to be reconstructed (Nvars by N matrix) 
-% Y = to be predicted variables (surveys, etc Nvars by N matrix) 
+% datafile = a cvs file with data
+% Xcols = column indices of the psychophys or similar data to be reconstructed (Nvars by N matrix) 
+% Ycols = column indices of the to be predicted variables (surveys) 
 % lambda = loss function trade-off (how much of the loss is weighted
 % towards predictors) 
 % all X should be z transformed, Y probably too
+
+parpool('local', 8);
+
+a = readtable(datafile); 
+
+% Inputs:  variables (features)
+inputData = table2array(a(:, Xcols));
+
+% Targets: 11 variables to predict
+targetData = table2array(a(:, Ycols));
+
+% Replace NaNs with column-wise mean
+nanIdx = isnan(inputData);
+colMean = mean(inputData, 'omitnan');
+inputData(nanIdx) = colMean(ceil(find(nanIdx) / size(inputData, 1)));
+
+nanIdx2 = isnan(targetData);
+colMean2 = mean(targetData, 'omitnan');
+targetData(nanIdx2) = colMean2(ceil(find(nanIdx2) / size(targetData, 1)));
+
+% Normalize inputs
+inputData_z = zscore(inputData); % z_norm was column-wise already
+targetData_z = zscore(targetData); % z_norm was column-wise already
+
+
+% Transpose for deep learning format [features x observations]
+X = dlarray(inputData_z', 'CB');
+Y = dlarray(targetData_z', 'CB');
+
 
 %%
 % first, compute the overall solution and create the networks
@@ -16,7 +46,6 @@ X_reconstructed_all = zeros(size(X));
 
 %% Define Network Architecture
 inputSize = size(X,1);  % 44 in the example
-latentSize = 4;
 outputSize = size(Y,1); % 11 in the example
 
 % Layers
@@ -106,7 +135,6 @@ fprintf('Final Prediction Error: %.4f\n', predError);
 
 % Define Network Architecture
 inputSize = size(X,1);  % 44
-latentSize = 4;
 outputSize = size(Y,1); % 11
 
 % Layers
@@ -133,7 +161,7 @@ layersPredictor = [
 ];
 
 %% leave-one out-loop
-for i = 1:numSamples
+parfor i = 1:numSamples
 
     % Split data
     X_test = X(:,i);
@@ -152,7 +180,7 @@ for i = 1:numSamples
     trailingAvgD = []; trailingAvgSqD = [];
     trailingAvgP = []; trailingAvgSqP = [];
 
-    for epoch = 1:1200  % Fewer epochs for speed
+    for epoch = 1:1000  % Fewer epochs for speed
         [loss, gradientsEnc, gradientsDec, gradientsPred] = ...
             dlfeval(@modelLoss, encoderNet_cv, decoderNet_cv, predictorNet_cv, X_train, Y_train, lambda);
 
@@ -179,6 +207,8 @@ for i = 1:numSamples
     if i/10 ==round(i/10), disp(['observation #: ' num2str(i)]), end
 
 end
+
+delete(gcp('nocreate'))
 
 % collect the output
 outmat.Y_predicted_all = Y_predicted_all; 
@@ -214,16 +244,19 @@ sgtitle('Cross-Validated Prediction: Actual vs Predicted Y');
  GoodnessOfFit = []; 
  for x = 1:size(X,2)
      corcoef = corr(extractdata(X(:,x)), outmat.X_reconstructed_all(:,x)); 
-     plot(extractdata(X(:,x))), hold on, plot(outmat.X_reconstructed_all(:,x)), title(num2str(corcoef))
+         plot(extractdata(X(:,x))), hold on, plot(outmat.X_reconstructed_all(:,x)), title(num2str(corcoef))
      GoodnessOfFit(x) = corcoef; 
      pause (.1), 
      hold off, 
  end
+
+ outmat.GoodnessOfFit = GoodnessOfFit; 
  
  %  3- individual prediction of left out participants
-for surveyindex = 1:11
 
-    surveys = extractdata(Y)'; 
+surveys = extractdata(Y)'; 
+
+for surveyindex = 1:size(surveys,2)
     
     % Create a linear model using fitlm
     mdl = fitlm(compressedData, surveys(:, surveyindex));
@@ -232,21 +265,18 @@ for surveyindex = 1:11
     disp(mdl);
 
     % Predicted values
-    Y_pred = predict(mdl, X);
+    Y_pred = predict(mdl, compressedData);
 
     % Optional: R-squared
     R_squared = mdl.Rsquared.Ordinary;
     disp(['R-squared: ', num2str(R_squared)]);
 
     % scatter observed predicted
-     scatter(Y, Y_pred, 60, GoodnessOfFit, "filled"); % Color by cluster index
+    scatter(surveys(:, surveyindex), Y_pred, 60, GoodnessOfFit, "filled"); % 
     title(['R_squared:  ' num2str(R_squared)])
     pause
 
 end
- 
-
-
 
 %% LOSS function
 function [loss, gradEnc, gradDec, gradPred] = modelLoss(encNet, decNet, predNet, X, Y, lambda)

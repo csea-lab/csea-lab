@@ -2,7 +2,7 @@
 % Get a list of all files and folders in the current directory
 temp99 = eeglab; 
 
-files = dir("PAL*");
+files = dir("pic*");
 
 % Filter out the non-folder entries
 dirFlags = [files.isdir];
@@ -24,11 +24,11 @@ for subindex = 1:size(folderNames,2)
 
    delete *.at*
 
-    datfile = getfilesindir(pwd, '*results.mat');
+    datfile = getfilesindir(pwd, '*log*.dat');
     rawfile = getfilesindir(pwd, '*.RAW');
 
     % actual preprocessing
-   LB3_prepro_pipeline(rawfile, datfile, 'getcon_PAL', 13, {'1' '2' '3' '4' '5' '6'}, [-1 2], [2  30], [4 8], 1, 'GSN-HydroCel-128.sfp', 'HC1-128.ecfg', 1, 'DIN1'); 
+   LB3_prepro_pipeline(rawfile, datfile, 'getcon_MyAPS2_ERP', 10, {'11' '12' '13' '21' '22' '23'}, [-1 2], [2  35], [3 12], 1, 'GSN-HydroCel-128.sfp', 'HC1-128.ecfg', 1); 
    % LB3_prepro_pipeline(datapath, logpath, convecfun, stringlength, conditions2select, timevec, filtercoeffHz, filtord, skiptrials, sfpfilename, ecfgfilename, eyecorrflag, DINselect)
 
     cd ..

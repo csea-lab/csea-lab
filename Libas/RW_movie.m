@@ -1,7 +1,7 @@
 % Parameters of Rescorla-Wagner Model
 alpha = 0.2;  % Learning rate (between 0 and 1)
-nTrials = 70; % Number of trials
-USvec = ones(1,nTrials);
+nTrials = 100; % Number of trials
+USvec = [ones(1,(roundnTrials/2)) zeros(1,(roundnTrials/2))];
 tempunpaired = randperm(nTrials./2); unpaired = tempunpaired(1:10); 
 USvec(unpaired) = 0; 
 lambda = 1;   % Maximum associative strength (US presence)
