@@ -4,7 +4,7 @@ clear; clc;
 
 % Parameters
 fps = 30;
-duration = 5;
+duration = 4.8;
 nFrames = duration * fps;
 f1 = 6;           % Left patch flicker frequency (Hz)
 f2 = 7.5;         % Right patch flicker frequency (Hz)
@@ -15,7 +15,7 @@ sf = 0.05;        % unchanged spatial frequency
 
 % Gabor orientations
 orient1 = 90;     % Left (horizontal)
-orient2 = 180;    % Right (vertical, flipped)
+orient2 = 30;    % Right (vertical, flipped)
 
 % Positioning (closer to center)
 leftX = round(w/2 - 1.4 * patchSize);
@@ -85,6 +85,9 @@ for t = 1:nFrames
     % Write frame to video
     writeVideo(v, frame);
 end
+
+  frame = 0.5 * ones(h, w, 3);
+   writeVideo(v, frame);
 
 close(v);
 disp('✅ Movie created: ssVEP_gabor_fixation_grayBG.mp4');
