@@ -1,4 +1,4 @@
-function [Rvec, anterior_emotional,  A, R] = APTmodel(params, reinforcement)
+function [Rvec, anterior_emotional,  A, R] = APTmodel(params, reinforcement, plotflag)
  
 BETA =  params(1); 
 LAG = params(2); 
@@ -33,13 +33,17 @@ for index = 1:length(reinforcement)
     
     R(:, index) = VM*input'; % figure(11), plot(R(:, index)), hold on, plot(input), title(num2str(reinforcement(index))), hold off
 
+    R(isnan(R)) = 0; 
+
 end
 
 %anterior_emotional(:, 1:5) = 0; 
 
+if plotflag
  figure(10), 
- subplot(3,1,3), colormap('jet'), contourf(R, 12), title('visual cortex'), caxis([max(max(R)).*-1 max(max(R))]); colorbar
+ subplot(3,1,3), colormap('jet'), contourf(R, 12), title('visual cortex'); colorbar
  subplot(3,1,2),colormap('jet'), contourf(A, 12), title('attention systems'),caxis([max(max(A)).*-1 max(max(A))]); colorbar
  subplot(3,1,1),colormap('jet'), contourf(anterior_emotional, 12), title('anterior emotion-modulated structures'), caxis([max(max(anterior_emotional)).*-1 max(max(anterior_emotional))]); colorbar
+end
 
-Rvec = mat2vec(R); 
+Rvec = mat2vec(R(4:end,:)')'; 

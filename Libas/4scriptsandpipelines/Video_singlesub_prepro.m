@@ -2,7 +2,7 @@
 % Get a list of all files and folders in the current directory
 temp99 = eeglab; 
 
-files = dir("konio*");
+files = dir("emo*");
 
 % Filter out the non-folder entries
 dirFlags = [files.isdir];
@@ -20,15 +20,15 @@ disp(folderNames);
 % loop over subjects
 for subindex = 1:size(folderNames,2)
 
-    eval(['cd ' folderNames{subindex}])
+    eval(['cd ' folderNames{subindex} '/EEG/run1'])
 
    delete *.at*
 
-    datfile = getfilesindir(pwd, '*.dat');
+    datfile = getfilesindir(pwd, '*.csv');
     rawfile = getfilesindir(pwd, '*.RAW');
 
     % actual preprocessing
-   prepro_scadsandspline(rawfile, datfile, 'getcon_konio', 9, {'21' '22' '23' '24'}, [-.6 3.802], [3  25], 4, 3)
+   LB3_prepro_pipeline(rawfile, datfile, 'getcon_video', 6, {'1' '2' '3' }, [-.6 10], [3  30], [4 9], 1, 'GSN-HydroCel-256.sfp', 'HC1-256.ecfg', 1, [])
    % prepro_scadsandspline(datapath, logpath, convecfun, stringlength, conditions2select, timevec, filtercoeffHz, filtord, skiptrials)
 
     cd ..

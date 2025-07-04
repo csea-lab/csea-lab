@@ -1,0 +1,93 @@
+% SSVEP Frequency Tagging with Gabor Patches + Gray Background + Fixation Dot
+
+clear; clc;
+
+% Parameters
+fps = 30;
+duration = 4.8;
+nFrames = duration * fps;
+f1 = 6;           % Left patch flicker frequency (Hz)
+f2 = 7.5;         % Right patch flicker frequency (Hz)
+w = 800; h = 600; % Frame size
+patchSize = 200;  % increased from 100 to 200
+sf = 0.05;        % unchanged spatial frequency
+
+
+% Gabor orientations
+orient1 = 90;     % Left (horizontal)
+orient2 = 30;    % Right (vertical, flipped)
+
+% Positioning (closer to center)
+leftX = round(w/2 - 1.4 * patchSize);
+rightX = round(w/2 + 0.4 * patchSize);
+yPos = round(h/2 - patchSize/2);
+
+
+% Fixation dot
+fixDotSize = 8;
+fixX = round(w/2);
+fixY = round(h/2);
+
+% Gabor coordinates
+[x, y] = meshgrid(-patchSize/2:patchSize/2 - 1, -patchSize/2:patchSize/2 - 1);
+
+% Gabor generator function
+make_gabor = @(theta_deg) ...
+    exp(-(x.^2 + y.^2) / (2*(patchSize/6)^2)) .* ...
+    cos(2 * pi * sf * (x * cosd(theta_deg) + y * sind(theta_deg)));
+
+% Create and normalize Gabors
+gabor1 = make_gabor(orient1);
+gabor2 = make_gabor(orient2);
+norm_gabor = @(g) 0.5 + 0.5 * g / max(abs(g(:)));  % Normalize to [0 1]
+gabor1 = norm_gabor(gabor1);
+gabor2 = norm_gabor(gabor2);
+
+% Create video writer
+v = VideoWriter('ssVEP_gabor_fixation_grayBG', 'MPEG-4');
+v.FrameRate = fps;
+open(v);
+
+% Generate video frames
+for t = 1:nFrames
+    time = (t - 1) / fps;
+
+    stim1_on = sin(2 * pi * f1 * time) > 0;
+    stim2_on = sin(2 * pi * f2 * time) > 0;
+
+    % Start with gray background (0.5 in RGB)
+    frame = 0.5 * ones(h, w, 3);
+
+    % Draw Gabor 1 (left)
+    if stim1_on
+        for c = 1:3
+            frame(yPos:yPos+patchSize-1, leftX:leftX+patchSize-1, c) = gabor1;
+        end
+    end
+
+    % Draw Gabor 2 (right)
+    if stim2_on
+        for c = 1:3
+            frame(yPos:yPos+patchSize-1, rightX:rightX+patchSize-1, c) = gabor2;
+        end
+    end
+
+    % Draw fixation dot (black circle)
+    dotRadius = fixDotSize / 2;
+    [X, Y] = meshgrid(1:w, 1:h);
+    fixMask = (X - fixX).^2 + (Y - fixY).^2 <= dotRadius^2;
+    for c = 1:3
+        channel = frame(:,:,c);
+        channel(fixMask) = 0;  % black dot
+        frame(:,:,c) = channel;
+    end
+
+    % Write frame to video
+    writeVideo(v, frame);
+end
+
+  frame = 0.5 * ones(h, w, 3);
+   writeVideo(v, frame);
+
+close(v);
+disp('✅ Movie created: ssVEP_gabor_fixation_grayBG.mp4');

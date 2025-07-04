@@ -1,8 +1,8 @@
-%% Script for analyzing all condispa data
+%% Script for analyzing all video data
 % Get a list of all files and folders in the current directory
 temp99 = eeglab; 
 
-files = dir("condi*");
+files = dir("natsounds*");
 
 % Filter out the non-folder entries
 dirFlags = [files.isdir];
@@ -28,10 +28,9 @@ for subindex = 1:size(folderNames,2)
     rawfile = getfilesindir(pwd, '*.RAW');
 
     % actual preprocessing
-   prepro_scadsandspline_log(rawfile, datfile, 'getcon_condispa1', 12, {'1' '2' '3' '4' '5' '6'}, [-.4 2.8], [3  32], [4 11], 1, 'GSN-HydroCel-128.sfp', 'HC1-128.ecfg');
-   prepro_scadsandspline_log(rawfile, datfile, 'getcon_condispa2', 12, {'7' '8' '9' '10' '11' '12'}, [-.4 2.8], [3  32], [4 11], 1, 'GSN-HydroCel-128.sfp', 'HC1-128.ecfg');
+   LB3_prepro_pipeline(rawfile, datfile, 'getcon_natsounds', 15, {'1' '2' '3' '4'}, [-.6 6], [4  55], [3 30], 1, 'GSN-HydroCel-128.sfp', 'HC1-128.ecfg', 1); 
+   % LB3_prepro_pipeline(datapath, logpath, convecfun, stringlength, conditions2select, timevec, filtercoeffHz, filtord, skiptrials, sfpfilename, ecfgfilename, eyecorrflag, DINselect)
 
-   % prepro_scadsandspline_log(datapath, logpath, convecfun, stringlength, conditions2select, timevec, filtercoeffHz, filtord, skiptrials)
     cd ..
 
     pause(.5)

@@ -19,7 +19,7 @@ function [EEG_allcond] =  prepro_scadsandspline_log(datapath, logpath, convecfun
     thresholdTrials = 1.25;
     thresholdChan = 2.5;
     
-    % skip a few initial trials tyo accomodate learning experiments
+    % skip a few initial trials to accomodate learning experiments
     if nargin < 9, skiptrials = 1; end % default no initial trials are skipped
 
     basename  = datapath(1:stringlength); 
@@ -59,6 +59,10 @@ function [EEG_allcond] =  prepro_scadsandspline_log(datapath, logpath, convecfun
     
      %read conditions from log file;
      conditionvec = feval(convecfun, logpath);
+
+     if strcmp(conditions2select{1}, 'all')
+         conditions2select =  cellstr(string([conditionvec]'));
+     end
 
       % now get rid of excess event markers 
       for indexlat = 1:size(EEG.event,2)
@@ -116,7 +120,7 @@ function [EEG_allcond] =  prepro_scadsandspline_log(datapath, logpath, convecfun
       %% select conditions; compute and write output
      artifactlog.goodtrialsbycondition = []; % remaining artifact info by condition will be populated
 
-    for con_index = 1:size(conditions2select,2)
+    for con_index = 1:max(size(conditions2select))
   
      %select conditions   
      EEG_temp = pop_selectevent( EEG_allcond,  'type', conditions2select{con_index} );
