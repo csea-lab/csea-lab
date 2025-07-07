@@ -1,5 +1,5 @@
 %% Script for analyzing all rdk data
-cd '/Users/andreaskeil/Desktop/Data'
+%cd '/Users/andreaskeil/Desktop/Data'
 
 % Get a list of all files and folders in the current directory
 files = dir('pic*'); % start of the name
@@ -22,7 +22,7 @@ disp(folderNames);
 
 
 % loop over subjects
-for subindex = 1:size(folderNames,2)
+for subindex = 33:size(folderNames,2)
 
     eval(['cd ' folderNames{subindex}])
 
@@ -31,7 +31,7 @@ for subindex = 1:size(folderNames,2)
 
     [matcorr, matout, matoutbsl] = eye_pipeline(edffile, 500, 'getcon_MyAPS2', datfile, 'cue_on', 500, 1500, 0);
 
-    pause
+    pause(1)
 
     cd ..
 
