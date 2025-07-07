@@ -1,6 +1,6 @@
 %% Script for postprocessing all emo pictures pupil data
 %cd '/Users/andreaskeil/Desktop/Data'
-
+clear
 % Get a list of all files and folders in the current directory
 files = dir('pic*'); % start of the name
 
@@ -21,7 +21,8 @@ disp('Folders in the current working directory:');
 disp(folderNames);
 
 
-pupoutsum = zeros(2001,6);  
+
+pupoutsum = zeros(6,2001);   
 
 % loop over subjects
 for subindex = 1:size(folderNames,2)
@@ -33,16 +34,23 @@ for subindex = 1:size(folderNames,2)
     if ~isempty(pupfile)
 
         tmp = load(pupfile); 
-        
-        pupoutsum = pupoutsum+tmp.matout; 
 
-       figure(101), plot(tmp.matout), pause
+        databsl = bslcorr(tmp.matout', 400:500);
+
+        time = 1:size(databsl, 2);
+
+        pupoutsum = pupoutsum+databsl; 
+
+       figure(101), subplot(2,1,1), plot(time, databsl(1,:), 'g', time, databsl(2,:), 'k', time, databsl(3,:), 'r', ...
+     time, databsl(4,:), 'g--', time, databsl(5,:), 'k--', time, databsl(6,:), 'r--')
+
 
     end
 
+subplot(2,1,2), plot(time, pupoutsum(1,:), 'g', time, pupoutsum(2,:), 'k', time, pupoutsum(3,:), 'r', ...
+     time, pupoutsum(4,:), 'g--', time, pupoutsum(5,:), 'k--', time, pupoutsum(6,:), 'r--')
 
-
-
+pause
 
     cd ..
 
