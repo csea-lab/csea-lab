@@ -18,17 +18,18 @@ disp('Folders in the current working directory:');
 disp(folderNames);
 
 % loop over subjects
-for subindex = 1:size(folderNames,2)
+for subindex = 2:size(folderNames,2)-11
 
-    eval(['cd ' folderNames{subindex} '/EEG/run1'])
+    eval(['cd ' folderNames{subindex}])
 
    delete *.at*
 
     datfile = getfilesindir(pwd, '*.csv');
+    datfile = deblank(datfile(1,:)); 
     rawfile = getfilesindir(pwd, '*.RAW');
 
     % actual preprocessing
-   LB3_prepro_pipeline(rawfile, datfile, 'getcon_video', 6, {'1' '2' '3' }, [-.6 10], [3  30], [4 9], 1, 'GSN-HydroCel-256.sfp', 'HC1-256.ecfg', 1, [])
+   LB3_prepro_pipeline(rawfile, datfile, 'getcon_video', 6, {'1' '2' '3' }, [-.6 10], [3  30], [4 11], 1, 'GSN-HydroCel-256.sfp', 'HC1-256.ecfg', 1, [])
    % prepro_scadsandspline(datapath, logpath, convecfun, stringlength, conditions2select, timevec, filtercoeffHz, filtord, skiptrials)
 
     cd ..
