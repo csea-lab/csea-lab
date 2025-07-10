@@ -1,0 +1,111 @@
+%% settings shared for all loops and test
+clear 
+tic
+% filters for alpha band
+[a, b] = butter(5, 0.028);
+[ahigh, bhigh] = butter(5, 0.015, 'high');
+
+% other settings
+time = 0.001:0.001:5.5; 
+zerosig = zeros(size(time)); 
+ntrials = 200;
+nSNRs = 40; 
+
+%  axes
+faxisall = 0:0.1818:500; 
+
+outmat = zeros(nSNRs, 9); 
+
+% loop over the next steps to make 30 trials
+epochmat = zeros(ntrials, 5500); 
+
+% loop over SNRfactors
+
+for SNR = 1:nSNRs
+
+    SNRfactor = ((SNR-1.1) +.1)./5; 
+
+    for trial = 1:ntrials
+
+        % make brownian noise
+        whitesig = randn(size(time));
+        brownsig = cumsum(detrend(whitesig));  % Brownian noise is the cumulative sum of white noise
+
+        % make test signal
+        sinwave = SNRfactor.*sawtooth(2*pi*[0.001:0.001:.5]*(9.5+rand(1,1)));
+        addsig = zerosig;
+        addsig(2501:3000) = sinwave;
+        epochmat(trial, :) =  addsig + brownsig;
+
+    end
+
+    % wavelet analysis
+    mat3d = zeros(1,5500, ntrials);
+    mat3d(1, :, :) = epochmat';
+    WaPower = squeeze(wavelet_app_mat_singtrials(mat3d, 1000, 56, 56, 1));
+
+    % convert to dB
+    noise_indices = [1:2499, 3001:5500];
+    noise = var(WaPower(noise_indices, :));
+    WaPower_db = 20 * log10(zero_negatives(bslcorr(WaPower', noise_indices)' ./ noise));
+
+    % hits wavelet
+    trialswithhits_wav = find(mean(WaPower_db(2600:2900, :)) > 3);
+
+    % falsealarms wavelet
+    trialswithfalsealarms_wav = find(max(WaPower_db(1600:1900, :)) > 3);
+
+    % MPP
+    % filter the data
+    epochmat_filt = filtfilt(a,b,epochmat')'; %
+    epochmat_filt = filtfilt(ahigh,bhigh,epochmat_filt')';
+
+    % do the MPP; ak replaced smooth.m with smoothdata.m
+    [D,MPP,th_opt,ar,bw] = PhEv_Learn_fast_2(epochmat_filt, 100, 5);
+
+    % initiate hits and FAs
+    trialswithhits_MPP = [];
+    trialswithfalsealarms_MPP = [];
+
+    %collect all taus
+    tauvector = [];
+    for tauindex = 1:size(MPP,2)
+        taus = arrayfun(@(t) t.tau, MPP(tauindex).Trials);
+        if any(taus > 2600 & taus < 2900), trialswithhits_MPP = [trialswithhits_MPP tauindex]; end
+        if any(taus > 1600 & taus < 1900), trialswithfalsealarms_MPP = [trialswithfalsealarms_MPP tauindex]; end
+    end
+
+    % collect the info for this SNR
+    hitrate_wav = length(trialswithhits_wav)./ntrials; 
+    FArate_wav = length(trialswithfalsealarms_wav)./ntrials; 
+
+    hitrate_MPP = length(trialswithhits_MPP)./ntrials; 
+    FArate_MPP = length(trialswithfalsealarms_MPP)./ntrials; 
+
+    d_prime_MPP = norminv(hitrate_MPP) - norminv(FArate_MPP);
+    d_prime_wav = norminv(hitrate_wav) - norminv(FArate_wav);
+
+    AUC_MPP = normcdf(d_prime_MPP / sqrt(2));
+    AUC_wav = normcdf(d_prime_wav / sqrt(2));
+
+    outmat(SNR, :) = [SNRfactor hitrate_wav FArate_wav d_prime_wav AUC_wav hitrate_MPP FArate_MPP d_prime_MPP AUC_MPP]; 
+
+    disp(['SNR: ' num2str(SNRfactor)])
+
+end
+
+  totalduration = toc; 
+  disp(['this took ' num2str(totalduration)])
+
+  %% plots
+  close all
+  figure(101), plot(outmat(:, 1), outmat(:, 2)), hold on, plot(outmat(:, 1), outmat(:,3)), legend('hits wave', 'FA wave', 'Location','northwest')
+  figure(102), plot(outmat(:, 1), outmat(:, 6)), hold on, plot(outmat(:, 1), outmat(:,7)), legend('hits MPP', 'FA MPP', 'Location','northwest')
+  figure(103), plot(outmat(:, 1), outmat(:, 2)), hold on, plot(outmat(:, 1), outmat(:,6)), legend('hits wave', 'hits MPP', 'Location','northwest')
+  figure(104), plot(outmat(:, 1), outmat(:, 3)), hold on, plot(outmat(:, 1), outmat(:,7)), legend('FA wave', 'FA MPP', 'Location','northwest')
+
+  %%
+function y = zero_negatives(x)
+    y = x;
+    y(y < 0) = 0;
+end
