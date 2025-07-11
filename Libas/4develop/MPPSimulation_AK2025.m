@@ -2,26 +2,25 @@
 clear 
 tic
 % filters for alpha band
-[a, b] = butter(5, 0.028);
+[a, b] = butter(5, 0.026);
 [ahigh, bhigh] = butter(5, 0.015, 'high');
 
 % other settings
 time = 0.001:0.001:5.5; 
 zerosig = zeros(size(time)); 
-ntrials = 200;
-nSNRs = 40; 
+ntrials = 100;
+nSNRs = 30; 
+outmat = zeros(nSNRs, 9); 
 
 %  axes
 faxisall = 0:0.1818:500; 
-
-outmat = zeros(nSNRs, 9); 
 
 % loop over the next steps to make 30 trials
 epochmat = zeros(ntrials, 5500); 
 
 % loop over SNRfactors
 
-for SNR = 1:nSNRs
+for SNR = 1:2:nSNRs
 
     SNRfactor = ((SNR-1.1) +.1)./5; 
 
@@ -32,9 +31,10 @@ for SNR = 1:nSNRs
         brownsig = cumsum(detrend(whitesig));  % Brownian noise is the cumulative sum of white noise
 
         % make test signal
-        sinwave = SNRfactor.*sawtooth(2*pi*[0.001:0.001:.5]*(9.5+rand(1,1)));
+        sinwave = SNRfactor.*sin(2*pi*[0.001:0.001:.5]*9.5+rand(1,1));
         addsig = zerosig;
-        addsig(2501:3000) = sinwave;
+        jitter = round(rand(1,1) * 40);
+        addsig(2481+jitter:2980+jitter) = sinwave.^3;
         epochmat(trial, :) =  addsig + brownsig;
 
     end
@@ -53,7 +53,7 @@ for SNR = 1:nSNRs
     trialswithhits_wav = find(mean(WaPower_db(2600:2900, :)) > 3);
 
     % falsealarms wavelet
-    trialswithfalsealarms_wav = find(max(WaPower_db(1600:1900, :)) > 3);
+    trialswithfalsealarms_wav = find(mean(WaPower_db(1600:1900, :)) > 3);
 
     % MPP
     % filter the data
@@ -61,7 +61,7 @@ for SNR = 1:nSNRs
     epochmat_filt = filtfilt(ahigh,bhigh,epochmat_filt')';
 
     % do the MPP; ak replaced smooth.m with smoothdata.m
-    [D,MPP,th_opt,ar,bw] = PhEv_Learn_fast_2(epochmat_filt, 100, 5);
+    [D,MPP,th_opt,ar,bw] = PhEv_Learn_fast_2(epochmat_filt, 150, 7);
 
     % initiate hits and FAs
     trialswithhits_MPP = [];
