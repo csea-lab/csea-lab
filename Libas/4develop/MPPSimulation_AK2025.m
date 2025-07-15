@@ -8,8 +8,8 @@ tic
 % other settings
 time = 0.001:0.001:5.5; 
 zerosig = zeros(size(time)); 
-ntrials = 100;
-nSNRs = 30; 
+ntrials = 150;
+nSNRs = 40; 
 outmat = zeros(nSNRs, 9); 
 
 %  axes
@@ -20,7 +20,7 @@ epochmat = zeros(ntrials, 5500);
 
 % loop over SNRfactors
 
-for SNR = 1:2:nSNRs
+for SNR = 1:nSNRs
 
     SNRfactor = ((SNR-1.1) +.1)./5; 
 
@@ -34,7 +34,7 @@ for SNR = 1:2:nSNRs
         sinwave = SNRfactor.*sin(2*pi*[0.001:0.001:.5]*9.5+rand(1,1));
         addsig = zerosig;
         jitter = round(rand(1,1) * 40);
-        addsig(2481+jitter:2980+jitter) = sinwave.^3;
+        addsig(2481+jitter:2980+jitter) = sinwave;
         epochmat(trial, :) =  addsig + brownsig;
 
     end
@@ -47,13 +47,13 @@ for SNR = 1:2:nSNRs
     % convert to dB
     noise_indices = [1:2499, 3001:5500];
     noise = var(WaPower(noise_indices, :));
-    WaPower_db = 20 * log10(zero_negatives(bslcorr(WaPower', noise_indices)' ./ noise));
+    WaPower_db = 20 * log10(zero_negatives(bslcorr(WaPower', 1000:2000)' ./ noise));
 
     % hits wavelet
-    trialswithhits_wav = find(mean(WaPower_db(2600:2900, :)) > 3);
+    trialswithhits_wav = find(max(WaPower_db(2600:2900, :)) > 3);
 
     % falsealarms wavelet
-    trialswithfalsealarms_wav = find(mean(WaPower_db(1600:1900, :)) > 3);
+    trialswithfalsealarms_wav = find(max(WaPower_db(3600:3900, :)) > 3);
 
     % MPP
     % filter the data
@@ -61,7 +61,7 @@ for SNR = 1:2:nSNRs
     epochmat_filt = filtfilt(ahigh,bhigh,epochmat_filt')';
 
     % do the MPP; ak replaced smooth.m with smoothdata.m
-    [D,MPP,th_opt,ar,bw] = PhEv_Learn_fast_2(epochmat_filt, 150, 7);
+    [D,MPP,th_opt,ar,bw] = PhEv_Learn_fast_2(epochmat_filt, 300, 7);
 
     % initiate hits and FAs
     trialswithhits_MPP = [];
@@ -72,7 +72,7 @@ for SNR = 1:2:nSNRs
     for tauindex = 1:size(MPP,2)
         taus = arrayfun(@(t) t.tau, MPP(tauindex).Trials);
         if any(taus > 2600 & taus < 2900), trialswithhits_MPP = [trialswithhits_MPP tauindex]; end
-        if any(taus > 1600 & taus < 1900), trialswithfalsealarms_MPP = [trialswithfalsealarms_MPP tauindex]; end
+        if any(taus > 3600 & taus < 3900), trialswithfalsealarms_MPP = [trialswithfalsealarms_MPP tauindex]; end
     end
 
     % collect the info for this SNR
@@ -95,7 +95,7 @@ for SNR = 1:2:nSNRs
 end
 
   totalduration = toc; 
-  disp(['this took ' num2str(totalduration)])
+  disp(['this took ' num2str(totalduration./60) ' minutes'])
 
   %% plots
   close all
