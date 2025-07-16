@@ -31,7 +31,7 @@ for SNR = 1:nSNRs
         brownsig = cumsum(detrend(whitesig));  % Brownian noise is the cumulative sum of white noise
 
         % make test signal
-        sinwave = SNRfactor.*sin(2*pi*[0.001:0.001:.5]*9.5+rand(1,1));
+        sinwave = SNRfactor.*sawtooth(2*pi*[0.001:0.001:.5]*9.5+rand(1,1));
         addsig = zerosig;
         jitter = round(rand(1,1) * 40);
         addsig(2481+jitter:2980+jitter) = sinwave;
