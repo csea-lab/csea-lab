@@ -1,0 +1,20 @@
+function [conditionvec] = getCon_newWurz_singleTrial(filepath)
+% first, read in a new_wurz log file with RTs and everything
+table = readtable(filepath);
+conditionvec = table2array(table(:, 1));
+
+
+% version for subjects with missing event markers 
+missingTrials = containers.Map;
+    missingTrials('New_201') = [1, 59, 212];
+    missingTrials('202') = [165];
+    missingTrials('209') = [132];
+    missingTrials('211') = [46, 101];
+    missingTrials('213') = [77];
+
+
+% Check if this subject has missing trials
+    if isKey(missingTrials, filepath)
+        indices = missingTrials(filepath);
+        conditionvec(indices) = NaN;
+    end

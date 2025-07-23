@@ -57,13 +57,17 @@ title('Pupil Size vs. Time and Trials')
 timestamps = datamat.Samples.time; % these are the time stamps in ms that match where the data are
 
 % find indices for trial segmentation, i.e. timestamps of stim onsets
-[test1, loc1] = ismember(startbins, timestamps);
-[test2, loc2] = ismember(startbins-1, timestamps); % they might be off by one point
-indices = loc1 + loc2;
+[~, loc1] = ismember(startbins, timestamps);
+[~, loc2] = ismember(startbins-1, timestamps); % they might be off by one point
+if sRate == 1000 
+    indices = loc1; 
+else
+    indices = loc1 + loc2;
+end
 
 % put in mat format chan (3) by time by trials.. 
 % important: looks like ethernet message takes 200 ms to initialize,
-    % and then send to eye link out of psychtoolbox
+% and then send to eye link out of psychtoolbox
 %For example, in Genface: bsl is 400 samplepoints (800ms), trial is 1000 samples (2000ms), 291 trials
 %added 200ms to bsl
 
@@ -136,7 +140,7 @@ pause(.2)
  end
  
  % % now assign the conditions
-connames = unique(convec) 
+connames = unique(convec);
 numcond = length(unique(convec));
  
  % %find out how many NaNs per condition for this subject

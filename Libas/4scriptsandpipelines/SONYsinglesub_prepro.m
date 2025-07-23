@@ -1,11 +1,8 @@
-%% Script for analyzing New Wurzburg EEG data
-clear
+%% Script for analyzing all video data
 % Get a list of all files and folders in the current directory
-% temp99 = eeglab; 
+temp99 = eeglab; 
 
-cd '/Volumes/TOSHIBA EXT/New_Wurzburg/Data/one_event_marker/'
-
-files = dir("new_*");
+files = dir("pic*");
 
 % Filter out the non-folder entries
 dirFlags = [files.isdir];
@@ -25,15 +22,15 @@ for subindex = 1:size(folderNames,2)
 
     eval(['cd ' folderNames{subindex}])
 
-    delete *.at*
-    
+   delete *.at*
+
+    datfile = getfilesindir(pwd, '*log*.dat');
     rawfile = getfilesindir(pwd, '*.RAW');
-    tempmat = getfilesindir(pwd, '*.csv');
-    datfile = deblank(tempmat(1,:));
 
     % actual preprocessing
-   prepro_scadsandspline_log(rawfile, datfile, 'getCon_NewWurz', 12, {'1' '2' '3' '4' '5' }, [-.8 7], [3  32], [4  9], 1, 'GSN-HydroCel-128.sfp', 'HC1-128.ecfg');
-   % prepro_scadsandspline_log(datapath, logpath, convecfun, stringlength, conditions2select, timevec, filtercoeffHz, filtord, skiptrials, sfpfilename, ecfgfilename) 
+   LB3_prepro_pipeline(rawfile, datfile, 'getcon_MyAPS2_ERP', 10, {'11' '12' '13' '21' '22' '23'}, [-1 2], [2  35], [3 12], 1, 'GSN-HydroCel-128.sfp', 'HC1-128.ecfg', 1); 
+   % LB3_prepro_pipeline(datapath, logpath, convecfun, stringlength, conditions2select, timevec, filtercoeffHz, filtord, skiptrials, sfpfilename, ecfgfilename, eyecorrflag, DINselect)
+
     cd ..
 
     pause(.5)

@@ -244,7 +244,7 @@ if teststat ==2 % F-test
     for clusterindex = 1:CON1.NumObjects % number of clusters found
         clustersize1(clusterindex) = sum(sum(sum(sum(labelmat == clusterindex))));
         clusterSums1(clusterindex) = sum(mat2vec(volumeWithTs(labelmat == clusterindex)));
-        var1 = squeeze(sum(sum(labelmat1 == clusterindex)));  % this is of size tp
+        var1 = squeeze(sum(sum(labelmat == clusterindex)));  % this is of size tp
         varsum_time1(clusterindex,:) = sum(var1,1);
     end
 
@@ -280,7 +280,7 @@ if teststat ==2 % F-test
                         temp = unique(squeeze(labelmat(x,y,z, squeeze(labelmat(x,y,z, :)) ~=0)));  %%%
                         for j=1:length(temp)
                             a=unique((squeeze(labelmat(x,y,z, squeeze(labelmat(x,y,z, :)) ==temp(j)))));
-                            clusternames = [clusternames; volume_names(x,y,z), a];
+                            clusternames1 = [clusternames1; volume_names(x,y,z), a];
                         end
                     end % if
                 end % z

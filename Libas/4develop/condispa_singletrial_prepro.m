@@ -1,10 +1,9 @@
-%% Script for analyzing all condispa data
+%% Script for analyzing condispa data by single trial
 % Get a list of all files and folders in the current directory
 temp99 = eeglab; 
 
-cd '/Users/researchassistants/Desktop/CondiSpa'
-
-files = dir("Rcondi*");
+cd = '/Volumes/TOSHIBA_EXT/CondiSpa/OG_Data';
+files = dir("condi*");
 
 % Filter out the non-folder entries
 dirFlags = [files.isdir];
@@ -20,19 +19,18 @@ disp('Folders in the current working directory:');
 disp(folderNames);
 
 % loop over subjects
-for subindex = 1:size(folderNames,2)
+for subindex = 3:size(folderNames,2)
 
     eval(['cd ' folderNames{subindex}])
 
-   delete *.at*
+   % delete *.at*
 
     datfile = getfilesindir(pwd, '*.dat');
     rawfile = getfilesindir(pwd, '*.RAW');
 
     % actual preprocessing
-   LB3_prepro_pipeline(rawfile, datfile, 'getcon_condispa_8cons', 12, {'11' '12' '13' '14' '15' '16' '17' '18' '21' '22' '23' '24' '25' '26' '27' '28'}, [-.6 2.8], [6  32], [3 9], 1, 'GSN-HydroCel-128.sfp', 'HC1-128.ecfg', 1, []);
-    % LB3_prepro_pipeline(datapath, logpath, convecfun, stringlength, conditions2select, timevec, filtercoeffHz, filtord, skiptrials, sfpfilename, ecfgfilename, eyecorrflag, DINselect)
-
+   LB3_prepro_pipeline(rawfile, datfile, 'get_condispas', 13, {'101', '102', '103', '201', '202', '203'}, [-.8 2], [3 40], [3 8], 1, 'GSN-HydroCel-128.sfp', 'HC1-128.ecfg', 1, 'DIN4');
+   
    % prepro_scadsandspline_log(datapath, logpath, convecfun, stringlength, conditions2select, timevec, filtercoeffHz, filtord, skiptrials)
     cd ..
 

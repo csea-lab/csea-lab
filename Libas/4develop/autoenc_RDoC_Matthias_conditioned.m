@@ -1,64 +1,114 @@
 %% 
-clear
-clc
-rng(1)
+%% Load and Preprocess Data
+clear; clc; rng(1);
 cd '/Users/andreaskeil/Desktop/tempdata/'
- a = readtable('Matthiasalldata.csv');
-% a = readtable('Matthias_data_rdcd.csv'); 
-% this is for Matthiasalldata
-% data = table2array(a(:,35:end-5)); % just ESM
-% data = table2array(a(:, 12:23 )); % just phys and ratings
-% data = table2array(a(:,3:8)); % just ssVEP
+a = readtable('Matthiasalldata.csv');
 
+% Inputs: 44 variables (features)
+inputData = table2array(a(:, [3:23 35:end-5]));
 
-  data = table2array(a (:, [3:23 35:end-5])); % best combo of everything
- %data = table2array(a (:, 3:23)); % only non-esm   (7% variance on DASSAnxiety)
+% Targets: 11 variables to predict
+targetData = table2array(a(:, 24:34));
 
- % data = table2array(a (:, 35:end-5)); % only esm
+% Replace NaNs with column-wise mean
+nanIdx = isnan(inputData);
+colMean = mean(inputData, 'omitnan');
+inputData(nanIdx) = colMean(ceil(find(nanIdx) / size(inputData, 1)));
 
-% Replace NaNs with column-wise mean to handle missing values
-nanIdx = isnan(data);
-colMean = mean(data, 'omitnan');
-data(nanIdx) = colMean(ceil(find(nanIdx) / size(data, 1)));
+% Normalize inputs
+inputData_z = zscore(inputData); % z_norm was column-wise already
+data_z = inputData_z;
 
-% do our own transform because built is row-wise which is wr
-data_z = z_norm(data')'; 
+% Transpose for deep learning format [features x observations]
+X = dlarray(inputData_z', 'CB');
+Y = dlarray(targetData', 'CB');
 
-% Set the size of the compressed (hidden) layer
-dimCompressed = 5; % You can adjust this depending on desired compression level % was 3
+%% Define Network Architecture
+inputSize = size(X,1);  % 44
+latentSize = 4;
+outputSize = size(Y,1); % 11
 
-% Create and train autoencoder
-hiddenLayerSize = dimCompressed;
-autoenc = trainAutoencoder(data_z', hiddenLayerSize, ...
-    'MaxEpochs', 1200, ...  % Number of training epochs
-    'EncoderTransferFunction','satlin',...
-     'DecoderTransferFunction','purelin',...
-    'L2WeightRegularization', 0.01, ...
-    'SparsityRegularization', .1, ... % changing this greatly affects outcome :-) 
-    'SparsityProportion', 0.01, ... % was 0.05 originally
-    'ScaleData', false); % Automatically scales input data
+% Layers
+layersEncoder = [
+    featureInputLayer(inputSize, 'Name', 'input')
+    fullyConnectedLayer(32, 'Name', 'enc_fc1')
+    customSatLin('sat1')  % satlin
+    fullyConnectedLayer(latentSize, 'Name', 'latent')
+];
 
-% Encode the data into compressed form
-compressedData = encode(autoenc, data_z');
+layersDecoder = [
+    featureInputLayer(latentSize, 'Name', 'decoder_input')   % 
+    fullyConnectedLayer(32, 'Name', 'dec_fc1')
+    reluLayer('Name', 'dec_relu')
+    fullyConnectedLayer(inputSize, 'Name', 'reconstructed')
+    customPureLin('recon_out')  % purelin
+];
 
-% Transpose back to have 219x dimCompressed(if needed)
-compressedData = compressedData';
+layersPredictor = [
+    featureInputLayer(latentSize, 'Name', 'predictor_input')  % 
+    fullyConnectedLayer(32, 'Name', 'pred_fc1')
+    reluLayer('Name', 'pred_relu')
+    fullyConnectedLayer(outputSize, 'Name', 'predicted')
+];
 
-% Visualize explained variance if needed
-explainedVariance = var(compressedData) ./ sum(var(data_z));
-figure;
-bar(explainedVariance);
-title('Explained Variance by Compressed Components');
-xlabel('Component');
-ylabel('Variance Explained');
+lgraph = layerGraph(layersEncoder);
+lgraph = addLayers(lgraph, layersDecoder);
+lgraph = addLayers(lgraph, layersPredictor);
 
-% Decode back to original size if you want to check reconstruction
-reconstructedData = predict(autoenc, data_z');
-reconstructedData = reconstructedData';
+% Custom dlnetwork
+net = dlnetwork(lgraph);
+encoderNet = dlnetwork(layersEncoder);
+decoderNet = dlnetwork(layerGraph(layersDecoder));
+predictorNet = dlnetwork(layerGraph(layersPredictor));
 
-% Compute reconstruction error
-reconstructionError = mse(data_z, reconstructedData);
-disp(['Reconstruction Error: ', num2str(reconstructionError)]);
+%% Training Settings
+numEpochs = 800;
+miniBatchSize = size(X,2);
+lambda = .5;  % Weighting for prediction loss
+
+learningRate = 1e-3;
+gradDecay = 0.9;
+sqGradDecay = 0.999;
+trailingAvg = [];
+trailingAvgSq = [];
+
+%% Training Loop
+lossHistory = zeros(numEpochs, 1);
+for epoch = 1:numEpochs
+    [loss, gradientsEnc, gradientsDec, gradientsPred] = ...
+        dlfeval(@modelLoss, encoderNet, decoderNet, predictorNet, X, Y, lambda);
+
+    % Update each network separately
+    [encoderNet, trailingAvgE, trailingAvgSqE] = adamupdate(encoderNet, gradientsEnc, ...
+        trailingAvg, trailingAvgSq, epoch, learningRate, gradDecay, sqGradDecay);
+    
+    [decoderNet, trailingAvgD, trailingAvgSqD] = adamupdate(decoderNet, gradientsDec, ...
+        trailingAvg, trailingAvgSq, epoch, learningRate, gradDecay, sqGradDecay);
+
+    [predictorNet, trailingAvgP, trailingAvgSqP] = adamupdate(predictorNet, gradientsPred, ...
+        trailingAvg, trailingAvgSq, epoch, learningRate, gradDecay, sqGradDecay);
+
+    lossHistory(epoch) = extractdata(loss);
+    if mod(epoch,50)==0 || epoch==1
+        fprintf('Epoch %d, Loss = %.4f\n', epoch, lossHistory(epoch));
+    end
+end
+%% Evaluate: Reconstruction & Prediction
+encoded = predict(encoderNet, X);
+compressedData = extractdata(encoded)';         % [samples x latent dims]
+
+reconstructed = predict(decoderNet, encoded);
+reconstructedData = extractdata(reconstructed)'; % [samples x original dims]
+
+predicted = predict(predictorNet, encoded);
+
+% Reconstruction and Prediction errors
+reconError = mse(reconstructed, X);
+predError = mse(predicted, Y);
+
+fprintf('\nFinal Reconstruction Error: %.4f\n', reconError);
+fprintf('Final Prediction Error: %.4f\n', predError);
+
 
 %% standard visualization
  figure, 
@@ -108,7 +158,7 @@ grid on;
 
 colors = lines(5);  % Generate 5 distinct colors
 
-for compindex = 1:5
+for compindex = 1:latentSize
     Y = componentweights(compindex, :);
     x = 1:length(Y);
     
@@ -178,8 +228,6 @@ end
  
 
 %% vector norm corrrelations
-row_norms = vecnorm(compressedData, 2, 2); % questionable in terms of interpretation
-close all
 
 component = 2
 figure
@@ -213,4 +261,22 @@ for index_survey = 1:size(surveydata,2)
        scatter3(compressedData(:,1), compressedData(:,2), compressedData(:,3), 40, Y, 'filled'); % Color by cluster index
        pause
 end
+%%
+function [loss, gradEnc, gradDec, gradPred] = modelLoss(encNet, decNet, predNet, X, Y, lambda)
+    % Forward through encoder
+    Z = forward(encNet, X);
 
+    % Forward through decoder and predictor
+    Xhat = forward(decNet, Z);
+    Yhat = forward(predNet, Z);
+
+    % Compute losses
+    reconLoss = mse(Xhat, X);
+    predLoss = mse(Yhat, Y);
+    loss = reconLoss + lambda * predLoss;
+
+    % Compute gradients
+    gradEnc = dlgradient(loss, encNet.Learnables, 'RetainData', true);
+    gradDec = dlgradient(loss, decNet.Learnables, 'RetainData', true);
+    gradPred = dlgradient(loss, predNet.Learnables);
+end
