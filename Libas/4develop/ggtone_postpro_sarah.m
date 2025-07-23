@@ -34,7 +34,6 @@ GS3 = ReadAvgFile('GM22.RESSpow.at4');
 
 % Build a 4D matrix for statistics: channels x frequencies x subjects x conditions
 [repmatress] = makerepmat(filemat, 22, 4, []);
-
 load repmatress.mat;
 
 % Perform an F test (ANOVA-like contrast) on RESS power over frequency
@@ -63,6 +62,7 @@ emegs2d
 %% extract the power at 15 Hz for an anova-like spreadsheet in jasp
 filemat = getfilesindir(pwd, '*RESSpow.at')
 [outmat] = extractstats(filemat, 4, 1, 31, []);
+bar(faxisFFT(5:100), GS3(5:100), 'k')
 
 % we saved the stat matrix to a file called resspower4cons.csv; 
 % sarah saved as ress_gabortone.csv
@@ -119,9 +119,13 @@ end
 
 faxisFFT = 0:.5:250;
 faxisFFT(31) 
+plot(BFmap_RESS_linear)
+title 'Bayes Factors Linear RESS' 
+
 BFmap_RESS_linear(31) %15 hz at 31st bin is BF of .304, not impressive
 
 log10(BFmap_RESS_linear(31))
+
 
 %% RESS Selective effect Bayesian Bootstrapping and Permutation
 clear
@@ -179,7 +183,7 @@ end
 
 faxisFFT = 0:.5:250;
 faxisFFT(31) %15 hz
-
+figure, plot(BFmap_RESS_select_cs)
 BFmap_RESS_select_cs(31) %.484; not impressive
 
 %see no effect; small Bayes Factors close to 1 (smaller means more support
@@ -207,10 +211,61 @@ filemat = getfilesindir(pwd, 'gabor*trls*.mat'); %dont need to do this now
 % Compute FFT on each trial (using the desired time window and frequency resolution)
 get_FFT_mat3d(filemat, 301:1300, 500);
 
+% Get FFT spectrum files ('.spec') and merge across conditions
+cd /Users/csea/Documents/SarahLab/Sarah_Data/GaborgenTone/Data/pipeline/data-600/spectra/Spec;
+filemat = getfilesindir(pwd, '*.spec');
+mergemulticons(filemat, 4, 'GM22.singletrialspec');
+
+ [outmat] = extractstats(filemat, 4, [70 71 74 75 76 82 83] , 31, []);
+
+
 epoch = 301:1300;
 sizeEpochInSecs = length(epoch)*2/1000;
 fstep = 1/sizeEpochInSecs;
 faxis = 0:.5:250;
+
+
+%% get ssVEP ERP wrong
+% Get all matching files first
+filemat_all = getfilesindir(pwd, 'gaborgentone_*.trls.*.mat');
+% Now filter out the ones that contain '.trls.21.'
+exclude_pattern = 'trls.21.mat';
+keep_idx = ~contains(string(filemat_all), '.trls.21.');
+% Apply logical indexing to keep only desired filenames
+filemat = filemat_all(keep_idx, :);
+
+for i = 1:size(filemat, 1)
+    % Load file and extract matrix
+    fname = deblank(filemat(i, :));
+    data = load(fname, '-mat');
+
+    % Assumes the variable is called Mat3D
+    if isfield(data, 'Mat3D')
+        dat = data.Mat3D;
+    else
+        warning(['Mat3D not found in file: ' fname]);
+        continue
+    end
+
+    % Average over 3rd dimension
+    avgmat = mean(dat, 3, 'omitnan');
+
+    % Generate output filename
+    [~, name, ~] = fileparts(fname);
+    outfile = [name '_avg.mat'];
+
+    % % Save the averaged matrix
+    % save(outfile, 'avgmat', '-mat');
+    % disp(['Saved: ' outfile])
+end
+
+
+filematavg = getfilesindir(pwd, 'gaborgentone_*.trls.*_avg.mat');
+ERP = avgmats_mat(filematavg, 'ERP_Oz.mat');
+ERP_Oz = load('ERP_Oz.mat');
+ERP_Oz = ERP_Oz.avgmat;
+figure
+plot(taxis, ERP_Oz(75, :));
 
 %% Get FFT spectrum files ('.spec') and merge across conditions
 cd /Users/csea/Documents/SarahLab/Sarah_Data/GaborgenTone/Data/pipeline/data-600/spectra/Spec;
