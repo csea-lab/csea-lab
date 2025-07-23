@@ -1,4 +1,4 @@
-%% GaborGen Tone post processing code - Clean
+%% GaborGen Tone post processing code - Unclean
 
 %% SSVEP RESS Method
 % Set working directory to the RESS data folder
