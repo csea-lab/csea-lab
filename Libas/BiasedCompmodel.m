@@ -1,7 +1,5 @@
 function [ssveptotal] = BiasedCompmodel(params,taxis)
 
-
-
 baselinelength = 500; 
 signallength = length(taxis)-baselinelength; 
 ramp = 100; % a meta parameter for the duration of the onset
