@@ -16,7 +16,7 @@ outmat = zeros(nSNRs, 9);
 alpha = 1;                % Adjust between 0 and 1 to vary asymmetry
 
 % M for MPP
-M = 200; 
+M = 100; 
 
 %  axes
 faxisall = 0:0.1818:500; 
@@ -115,38 +115,73 @@ end
   figure(104), plot(outmat(:, 1), outmat(:, 3)), hold on, plot(outmat(:, 1), outmat(:,7)), legend('FA wave', 'FA MPP', 'Location','northwest')
   figure(105), plot(outmat(:, 1), outmat(:, 4)), hold on, plot(outmat(:, 1), outmat(:,8)), legend('Dprime wave', 'Dprime MPP', 'Location','northwest')
   figure(106), plot(outmat(:, 1), outmat(:, 5)), hold on, plot(outmat(:, 1), outmat(:,9)), legend('AUC wave', 'AUC MPP', 'Location','northwest')
-%% actual plots
-orange = [1 0.5 0];
-teal = [0 0.5 1];
+%% load data for actual plots
+orange = [1 0.5 0.0];
+teal = [0.2 0.8 1];
 
 % sine wave templates
 % compare detections in the test period and the control period by SNR
-M100sin = load('outmat_M100_sintemplate_3dB_thres.mat'); M100sin.outmat(:, 2:end) = movmean(M100sin.outmat(:, 2:end), 5, 1); 
-M125sin = load('outmat_M125_sintemplate_3dB_thres.mat'); M125sin.outmat(:, 2:end) = movmean(M125sin.outmat(:, 2:end), 5, 1); 
-M150sin = load('outmat_M150_sintemplate_3dB_thres.mat'); M150sin.outmat(:, 2:end) = movmean(M150sin.outmat(:, 2:end), 5, 1); 
-M200sin = load('outmat_M200_sintemplate_3dB_thres.mat'); M200sin.outmat(:, 2:end) = movmean(M200sin.outmat(:, 2:end), 5, 1); 
-M300sin = load('outmat_M300_sintemplate_3dB_thres.mat'); M300sin.outmat(:, 2:end) = movmean(M300sin.outmat(:, 2:end), 5, 1); 
+M100sin = load('outmat_M100_sintemplate_3dB_thres.mat'); M100sin.outmat(:, 2:end) = movmean(M100sin.outmat(:, 2:end), 7, 1); 
+M125sin = load('outmat_M125_sintemplate_3dB_thres.mat'); M125sin.outmat(:, 2:end) = movmean(M125sin.outmat(:, 2:end), 7, 1); 
+M150sin = load('outmat_M150_sintemplate_3dB_thres.mat'); M150sin.outmat(:, 2:end) = movmean(M150sin.outmat(:, 2:end), 7, 1); 
+M200sin = load('outmat_M200_sintemplate_3dB_thres.mat'); M200sin.outmat(:, 2:end) = movmean(M200sin.outmat(:, 2:end), 7, 1); 
+M300sin = load('outmat_M300_sintemplate_3dB_thres.mat'); M300sin.outmat(:, 2:end) = movmean(M300sin.outmat(:, 2:end), 7, 1); 
 
-figure(101), title('Morlet wavelets')
-hold on,  plot(M100sin.outmat(:, 1), M100sin.outmat(:, 2), 'color', orange), hold on, plot(M100sin.outmat(:, 1), M100sin.outmat(:,3),  'color', teal), axis([-.5 8 0 1]); 
-plot(M125sin.outmat(:, 1), M125sin.outmat(:, 2),  'color', orange), hold on, plot(M125sin.outmat(:, 1), M125sin.outmat(:,3),  'color', teal), axis([-.5 8 0 1]); 
-plot(M150sin.outmat(:, 1), M150sin.outmat(:, 2),  'color', orange), hold on, plot(M150sin.outmat(:, 1), M150sin.outmat(:,3),  'color', teal), axis([-.5 8 0 1]); 
-plot(M200sin.outmat(:, 1), M200sin.outmat(:, 2),  'color', orange), hold on, plot(M200sin.outmat(:, 1), M200sin.outmat(:,3),  'color', teal), axis([-.5 8 0 1]); 
-plot(M300sin.outmat(:, 1), M300sin.outmat(:, 2),  'color', orange), hold on, plot(M300sin.outmat(:, 1), M300sin.outmat(:,3),  'color', teal), axis([-.5 8 0 1]); legend('in test period', 'in control period', 'Location','east')
+%% WAVELETS
+figure(101), title('Morlet wavelets'), hold on,  xlabel('Signal-to-Noise Ratio'), ylabel('Proportion Detected Events')
+% calculate mean and range across repetitions, make shaded error bar
+hitrates_wav_all = [M100sin.outmat(:, 2) M125sin.outmat(:, 2) M150sin.outmat(:, 2) M200sin.outmat(:, 2) M300sin.outmat(:, 2)]; 
+FArates_wav_all =  [M100sin.outmat(:, 3) M125sin.outmat(:, 3) M150sin.outmat(:, 3) M200sin.outmat(:, 3) M300sin.outmat(:, 3)]; 
+s1 = shadedErrorBar(M100sin.outmat(:, 1)./2, mean(hitrates_wav_all'), range(hitrates_wav_all'), 'transparent', 1,'patchSaturation',0.55, 'lineprops', {'-', 'Color', orange}); axis([-.1 4 0 1]);
+s1.mainLine.LineWidth = 3;
+s1.patch.FaceColor = orange;
 
-figure(102), title('MPP')
-hold on,  plot(M100sin.outmat(:, 1), M100sin.outmat(:, 6), 'color', orange), hold on, plot(M100sin.outmat(:, 1), M100sin.outmat(:,7),  'color', teal), axis([-.5 8 0 1]); 
-plot(M150sin.outmat(:, 1), M150sin.outmat(:, 6),  'color', orange), hold on, plot(M150sin.outmat(:, 1), M150sin.outmat(:,7),  'color', teal), axis([-.5 8 0 1]); 
-plot(M125sin.outmat(:, 1), M125sin.outmat(:, 6),  'color', orange), hold on, plot(M125sin.outmat(:, 1), M125sin.outmat(:,7),  'color', teal), axis([-.5 8 0 1]); 
-plot(M200sin.outmat(:, 1), M200sin.outmat(:, 6),  'color', orange), hold on, plot(M200sin.outmat(:, 1), M200sin.outmat(:,7),  'color', teal), axis([-.5 8 0 1]); 
-plot(M300sin.outmat(:, 1), M300sin.outmat(:, 6),  'color', orange), hold on, plot(M300sin.outmat(:, 1), M300sin.outmat(:,7),  'color', teal), axis([-.5 8 0 1]); legend('in test period', 'in control period', 'Location','east')
+s2 = shadedErrorBar(M100sin.outmat(:, 1)./2, mean(FArates_wav_all'), range(FArates_wav_all'), 'transparent', 1, 'patchSaturation',0.55, 'lineprops', {'-', 'Color', teal}); axis([-.1 4 0 1]);
+s2.mainLine.LineWidth = 3;
+s2.patch.FaceColor = teal;
+legend('Test Period', 'Control Period', 'Location','east', 'fontsize', 18 )
+ax = gca;
+ax.FontSize = 18;            % increases size of tick labels
+ax.XLabel.FontSize = 20;     % increases x-label font size
+ax.YLabel.FontSize = 20;     % increases y-label font size
+ax.Title.FontSize = 22;      % increases title font size
 
-figure(103), title('MPP detection in test period')
-hold on,  plot(M100sin.outmat(:, 1), M100sin.outmat(:, 6)), axis([-.5 8 0 1]); 
-plot(M125sin.outmat(:, 1), M125sin.outmat(:, 6)), axis([-.5 8 0 1]); 
-plot(M150sin.outmat(:, 1), M150sin.outmat(:, 6)), axis([-.5 8 0 1]); 
-plot(M200sin.outmat(:, 1), M200sin.outmat(:, 6)), axis([-.5 8 0 1]); 
-plot(M300sin.outmat(:, 1), M300sin.outmat(:, 6)), axis([-.5 8 0 1]); legend('M=100',  'M=125', 'M=150', 'M=200', 'M=300', 'Location','east')
+%% MPP
+figure(102), title('MPP'), hold on, xlabel('Signal-to-Noise Ratio'), ylabel('Proportion Detected Events')
+% calculate mean and range across repetitions, make shaded error bar
+hitrates_MPP_all = [M100sin.outmat(:, 6) M125sin.outmat(:, 6) M150sin.outmat(:, 6) M200sin.outmat(:, 6) M300sin.outmat(:, 6)]; 
+FArates_MPP_all =  [M100sin.outmat(:, 7) M125sin.outmat(:, 7) M150sin.outmat(:, 7) M200sin.outmat(:, 7) M300sin.outmat(:, 7)]; 
+s1 = shadedErrorBar(M100sin.outmat(:, 1)./2, mean(hitrates_MPP_all'), range(hitrates_MPP_all'), 'transparent', 1,'patchSaturation',0.55, 'lineprops', {'-', 'Color', orange}); axis([-.1 4 0 1]);
+s1.mainLine.LineWidth = 3;
+s1.patch.FaceColor = orange;
+
+s2 = shadedErrorBar(M100sin.outmat(:, 1)./2, mean(FArates_MPP_all'), range(FArates_MPP_all'), 'transparent', 1, 'patchSaturation',0.55, 'lineprops', {'-', 'Color', teal}); axis([-.1 4 0 1]);
+s2.mainLine.LineWidth = 3;
+s2.patch.FaceColor = teal;
+legend('Test Period', 'Control Period', 'Location','east', 'fontsize', 18 )
+ax = gca;
+ax.FontSize = 18;            % increases size of tick labels
+ax.XLabel.FontSize = 20;     % increases x-label font size
+ax.YLabel.FontSize = 20;     % increases y-label font size
+ax.Title.FontSize = 22;      % increases title font size
+
+%%
+figure(103), title('MPP detection in test period'), xlabel('Signal-to-Noise Ratio'), ylabel('Proportion Detected Events')
+hold on,  plot(M100sin.outmat(:, 1)./2, M100sin.outmat(:, 6)),  axis([-.1 4 0 1]);
+plot(M125sin.outmat(:, 1)./2, M125sin.outmat(:, 6)),  axis([-.1 4 0 1]);
+plot(M150sin.outmat(:, 1)./2, M150sin.outmat(:, 6)),  axis([-.1 4 0 1]);
+plot(M200sin.outmat(:, 1)./2, M200sin.outmat(:, 6)),  axis([-.1 4 0 1]);
+plot(M300sin.outmat(:, 1)./2, M300sin.outmat(:, 6)),  axis([-.1 4 0 1]); legend('M=100',  'M=125', 'M=150', 'M=200', 'M=300', 'Location','east')
+
+ax = gca;
+ax.FontSize = 18;            % increases size of tick labels
+ax.XLabel.FontSize = 20;     % increases x-label font size
+ax.YLabel.FontSize = 20;     % increases y-label font size
+ax.Title.FontSize = 22;      % increases title font size
+
+figure(1003)
+bar([M100sin.outmat(20, 6) M125sin.outmat(20, 6) M150sin.outmat(20, 6) M200sin.outmat(20, 6) M300sin.outmat(20, 6)])
+%%
 
 figure(104), title('MPP detection in control period')
 hold on,  plot(M100sin.outmat(:, 1), M100sin.outmat(:, 7)), axis([-.5 8 0 1]); 
