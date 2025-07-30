@@ -1,10 +1,10 @@
 % Parameters for DoG
 sigma1 = 2;  
-sigma2 = 3;
-k = 0.8;
+sigma2 = 4;
+k = 0.5;
 
-size = 5 * sigma2;
-[x, y] = meshgrid(linspace(-size, size, 101), linspace(-size, size, 101));
+size = 3 * sigma2;
+[x, y] = meshgrid(linspace(-size, size, 31), linspace(-size, size, 31));
 G1 = exp(-(x.^2 + y.^2) / (2*sigma1^2));
 G2 = exp(-(x.^2 + y.^2) / (2*sigma2^2));
 DoG = G1 - k*G2; 
@@ -153,11 +153,23 @@ k = 0.8;
 
 % Create zero-initialized surface for initial frames
 z = zeros(size(x));
-z(18,18) = 2.2;
-z(5,2) = -3;
-z(4,4) = -5;
-z(8,4) = -1;
 
+for index = 1:200
+    a1 = max(abs(round(randn.*2)+11), 1)
+    a2 = max(abs(round(randn.*2)+11),1)
+    z(min(a1, 21), min(a2,21)) = z(min(a1, 21), min(a2,21))+ rand(1,1); 
+end
+
+for index = 1:700
+    b1 = max(abs(round(randn.*4)+2), 1);
+    b2 = max(abs(round(randn.*4)+2),1);
+    b3  = 21-max(abs(round(randn.*4)+2),1); 
+    b4 = 21-max(abs(round(randn.*4)+2),1); 
+    vec = [b1 b2 b3 b4]; 
+    nums1 = vec(randperm(4,1)) 
+    nums2 = vec(randperm(4,1)) 
+    z((nums1), (nums2)) = z((nums1), (nums2))- rand(1,1); 
+end
 
 % Create Gaussian functions
 G1 = exp(-(x.^2 + y.^2) / (2*sigma1^2));
