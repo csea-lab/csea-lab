@@ -60,10 +60,10 @@ for SNR = 1:1:nSNRs
     WaPower_db = 20 * log10(zero_negatives(bslcorr(WaPower', 1000:2000)' ./ noise));
 
     % hits wavelet
-    trialswithhits_wav = find(max(WaPower_db(2600:2900, :)) > 6);
+    trialswithhits_wav = find(max(WaPower_db(2600:2900, :)) > 3);
 
     % falsealarms wavelet
-    trialswithfalsealarms_wav = find(max(WaPower_db(3600:3900, :)) > 6);
+    trialswithfalsealarms_wav = find(max(WaPower_db(3600:3900, :)) > 3);
 
     % MPP
     % filter the data
