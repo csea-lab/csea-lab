@@ -10,6 +10,16 @@
 % getcon_MyAPS2_singletrial: for second iteration single picture preprocessing
 
 
+% getcon_MyAPS_Behavior: for getting the rating values by condition for
+% iteration 1
+% getcon_MyAPS2_rate: for getting the rating values by condition for
+% iteration 2
+% getcon_MyAPS1_affspace: for getting the rating values by picture for
+% iteration 1
+% getcon_MyAPS2_affspace: for getting the rating values by picture for
+% iteration 2
+
+
 %%
 % First, preprocessing by condition 
 % MyAPS1
@@ -297,8 +307,13 @@ cd '/Users/faithgilbert/Desktop/1_MyAps/Paper/eeg/atfiles'
 filemat1 = getfilesindir(pwd, 'myaps_5*')
 filemat2 = getfilesindir(pwd, 'myaps*_7*')
 
+%bsl
 [lpp1] = extractstats(filemat1, 6, [37 87 53 54 55 79 86 61 78 62], 500:700, 250:300)
 [lpp2] = extractstats(filemat2, 6, [37 87 53 54 55 79 86 61 78 62], 500:700, 250:300)
+
+%nobsl
+[lpp1] = extractstats(filemat1, 6, [37 87 53 54 55 79 86 61 78 62], 500:700, [])
+[lpp2] = extractstats(filemat2, 6, [37 87 53 54 55 79 86 61 78 62], 500:700, [])
 
 %lpp
 lppv1 = zeros(1, 45, 6);
