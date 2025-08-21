@@ -1,4 +1,4 @@
-pwd = '/Volumes/TOSHIBA EXT/New_Wurzburg/Analyses/Indivdual SAM Ratings'
+pwd = '/Volumes/TOSHIBA_EXT/NWZ_MRI/SAM_eval'
 filemat = getfilesindir(pwd, '*Sam*')
 
 subject_numbers = [];
@@ -15,5 +15,5 @@ shock_expectancy_matrix = [subject_numbers', shockexpmat];
 reward_expectancy_matrix = [subject_numbers', rewardexpmat];
 
 Ratings_Matrix = [valence_matrix; arousal_matrix; shock_expectancy_matrix; reward_expectancy_matrix;];
-writematrix(Ratings_Matrix, 'New_Wurzburg_Ratings.csv')
-readmatrix('New_Wurzburg_Ratings.csv')
+writematrix(Ratings_Matrix, 'NWZ_MRI_Ratings.csv')
+readmatrix('NWZ_MRI_Ratings.csv')

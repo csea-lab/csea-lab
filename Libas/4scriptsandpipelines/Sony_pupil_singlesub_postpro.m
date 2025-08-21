@@ -1,6 +1,6 @@
-%% Script for analyzing all rdk data
-cd '/Users/andreaskeil/Desktop/Data'
-
+%% Script for postprocessing all emo pictures pupil data
+%cd '/Users/andreaskeil/Desktop/Data'
+clear
 % Get a list of all files and folders in the current directory
 files = dir('pic*'); % start of the name
 
@@ -20,22 +20,41 @@ folderNames = folderNames(~ismember(folderNames, {'.', '..'}));
 disp('Folders in the current working directory:');
 disp(folderNames);
 
+pupoutsum = zeros(6,2001);   
 
 % loop over subjects
 for subindex = 1:size(folderNames,2)
 
     eval(['cd ' folderNames{subindex}])
 
-    datfile = getfilesindir(pwd, '*log*.dat');
-    edffile = getfilesindir(pwd, '*.edf');
+    pupfile = getfilesindir(pwd, '*pup.out.mat');
 
-    [matcorr, matout, matoutbsl] = eye_pipeline(edffile, 500, 'getcon_MyAPS2', datfile, 'cue_on', 500, 1500, 0);
+    if ~isempty(pupfile)
 
-    pause
+        tmp = load(pupfile); 
+
+        databsl = bslcorr(tmp.matout', 400:500);
+
+        time = 1:size(databsl, 2);
+
+        pupoutsum = pupoutsum+databsl; 
+
+       figure(101), 
+       subplot(2,2,1), plot(time, databsl(1,:), 'g', time, databsl(2,:), 'k', time, databsl(3,:), 'r'), title(['set1 subject: ' num2str(subindex)])
+       subplot(2,2,2), plot(time, databsl(4,:), 'g', time, databsl(5,:), 'k', time, databsl(6,:), 'r'),  title(['set2 subject: ' num2str(subindex)])
+
+    end
+
+      subplot(2,2,3), plot(time, pupoutsum(1,:), 'g', time, pupoutsum(2,:), 'k', time, pupoutsum(3,:), 'r'), title('set1 cumulative sum')
+      subplot(2,2,4), plot(time, pupoutsum(4,:), 'g', time, pupoutsum(5,:), 'k', time, pupoutsum(6,:), 'r'), legend('p', 'n', 'u', 'location', 'southwest'), title('set2 cumulative sum')
+
+pause
 
     cd ..
 
+    if subindex<size(folderNames,2)
     close all; 
     fclose('all'); 
+    end
 
 end

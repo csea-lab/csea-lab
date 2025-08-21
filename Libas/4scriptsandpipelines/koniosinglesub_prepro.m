@@ -1,4 +1,4 @@
-%% Script for analyzing all konio data
+%% Script for analyzing all video data
 % Get a list of all files and folders in the current directory
 temp99 = eeglab; 
 

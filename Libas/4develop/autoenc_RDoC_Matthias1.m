@@ -73,6 +73,15 @@ disp(['Reconstruction Error: ', num2str(reconstructionError)]);
      hold off, 
  end
 
+ %% overall data recovery
+
+ historecovery=  histogram2(mat2vec(data_z),mat2vec(reconstructedData),-4:0.2:4.2,-4:.2:4.2);
+ pcolor(-4:0.2:4,-4:.2:4, log10(historecovery.Values))
+
+ scatter(mat2vec(data_z), mat2vec(reconstructedData), 'k'), axis( [-4 4 -4 4]), 
+ xlabel ('observed data'), ylabel('reconstructed from autoencoder')
+lsline
+
 %% tsne with clusters 
 % Step 2: Cluster the latent features ONLY FOR Visualization!!!!!!
 Y = tsne(compressedData, 'NumDimensions', 2, 'Perplexity', 30, 'Exaggeration', 12);
@@ -174,16 +183,15 @@ for surveyindex = 1:8
     % scatter observed predicted
      scatter(Y, Y_pred, 60, GoodnessOfFit, "filled"); % Color by cluster index
     title(['R_squared:  ' num2str(R_squared)])
+    lsline
     pause
 
 end
  
 
-%% vector norm corrrelations
-row_norms = vecnorm(compressedData, 2, 2); % questionable in terms of interpretation
-close all
+%% univariate corrrelations
 
-component = 2
+component = 3
 figure
 for index_survey = 1:size(surveydata,2)
     Y = surveydata(:, index_survey); % the surveys
