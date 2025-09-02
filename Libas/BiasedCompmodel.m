@@ -16,7 +16,6 @@ a = [baseline1  params(1) .*cosinwin(ramp, signallength)];
 %b = [baseline2  params(2) .* cosinwin(ramp, signallength)];
 
 earlyresponse = [baseline1 cosinwin(ramp, ramp.*3) zeros(1,signallength-ramp.*3)].*params(3); 
-
 normalization1 = (a + earlyresponse.*params(4) ).* params(5);
 normalization2 = normalization1.* -params(2);
  
