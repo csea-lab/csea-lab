@@ -1,4 +1,4 @@
-%% GaborGen Tone post processing code - Unclean
+%% GaborGen Tone post-processing code - Final for repository
 
 %% SSVEP RESS Method
 % Set working directory to the RESS data folder
@@ -503,66 +503,6 @@ SaveAvgFile('log10_BFssVEP_select.at', log10_BFssVEP_select,[],[], 1,[],[],[],[]
 
 log10_BFssVEP_select(75, 31)
 
-%% Transitive BFs (should use regular not logged)
-
-Trans_BF_ssVEP = BFmap_singleSpec_linear - BFmap_singleSpec_select;
-SaveAvgFile('Trans_BF_ssVEP.at', Trans_BF_ssVEP,[],[], 1,[],[],[],[],1)
-
-Trans_BF_ssVEP_log10 = log10(Trans_BF_ssVEP);
-SaveAvgFile('Trans_BF_ssVEP_log10.at', Trans_BF_ssVEP_log10,[],[], 1,[],[],[],[],1)
-
-
-%%
-% % first, make the coordinates for the cube
-% coor3d = ReadSfpFile('GSN-HydroCel-129.sfp');
-% coor3d(129,:) = [0 0 8.899];
-% 
-% if norm(coor3d(1,:)) < 1.1
-%     coor3d = coor3d.*4;
-% end
-% [cube_coords,r] = LB3_prepcoord_4clusters(coor3d);
-% 
-% % now run the cluster finding algorithm for the F test on the spec 3 D 
-% % (not RESS) 
-% 
-% frequency = 31; 
-% Fcontmatsigned = ReadAvgFile('Fcontmat_linear_spec3d.at');
-% threshold = 3.08; % fpdf(3.08, 1, 21); 
-% Fmat4test = Fcontmatsigned(:, frequency);
-% [cluster_out_pos_spec, cluster_out_neg_spec] = LB3_findclusters_cbp_3D(Fmat4test, cube_coords, threshold, 1, 1, 1);
-% 
-% % now do the actual permutation
-% filemat = getfilesindir(pwd, '*.spec');
-% [repmat] = makerepmat(filemat, 22, 4, []);
-% 
-% 
-% distpos = []; 
-% distneg = []; 
-% 
-% for draw = 1:5000
-%     repmat_perm = repmat; 
-%     for subject = 1:22
-%         repmat_perm(:, :, subject, :) = repmat(:, :, subject, randperm(4)); 
-%     end
-%     [Fcontmat_linear_perm,rcontmat,MScont,MScs, dfcs]=contrast_rep_sign(squeeze(repmat_perm(:, frequency, :, :)),[-2 -1 1 2]); 
-%     [cluster_out_pos_spec_perm, cluster_out_neg_spec_perm] = LB3_findclusters_cbp_3D(Fcontmat_linear_perm, cube_coords, threshold, 1, 0, 0);
-% 
-%     if ~isempty(cluster_out_pos_spec_perm.sum)
-%     distpos(draw) = max(cluster_out_pos_spec_perm.sum); 
-%     end
-% 
-%     if ~isempty(cluster_out_neg_spec_perm.sum)
-%     distneg(draw) = min(cluster_out_neg_spec_perm.sum); 
-%     end
-% 
-%     if draw./100 == round(draw./100), fprintf('.'), end
-% 
-% end
-
-
-
-
-
 %% Alpha Wavelet Analysis
 clear
 clc
@@ -915,16 +855,4 @@ late_bfmap_allnothing  = mean(allnothing(70, 95:130))  % ~1300–2000 ms
 alphaBF_select = BFmap_alpha_select(:,:,8);
 SaveAvgFile('alphaBF_select.at', alphaBF_select, [], [],1,[],[],[],[],1)
 emegs2d
-
-
-%% Laura's BF values for ssvep
-
-aversegg = readmatrix('/Users/csea/Downloads/LogBF4Stat_acq_ssvep.csv')
-aversegg_allnone = aversegg(:,[1 2]);
-SaveAvgFile('aversegg_allnone.at',aversegg_allnone,[],[], ...
-    [],[],[],[],[],[],[],[],[],[],[])
-
-aversegg_gen = aversegg(:, [1 4]);
-SaveAvgFile('aversegg_gen.at',aversegg_gen,[],[], ...
-    [],[],[],[],[],[],[],[],[],[],[])
 

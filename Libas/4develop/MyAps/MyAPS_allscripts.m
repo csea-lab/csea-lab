@@ -10,11 +10,23 @@
 % getcon_MyAPS2_singletrial: for second iteration single picture preprocessing
 
 
+% getcon_MyAPS_Behavior: for getting the rating values by condition for
+% iteration 1
+% getcon_MyAPS2_rate: for getting the rating values by condition for
+% iteration 2
+% getcon_MyAPS1_affspace: for getting the rating values by picture for
+% iteration 1
+% getcon_MyAPS2_affspace: for getting the rating values by picture for
+% iteration 2
+
+
 %%
 % First, preprocessing by condition 
 % MyAPS1
 
 clear
+
+cd '/Users/faithgilbert/Desktop/1_MyAps/Paper/data'
 
 % Get a list of all files and folders in the current directory
 files = dir("myaps*_5*");
@@ -58,6 +70,8 @@ end
 % Now MyAPS2
 
 clear
+
+cd '/Users/faithgilbert/Desktop/1_MyAps/Paper/data'
 
 % Get a list of all files and folders in the current directory
 files = dir("myAPS2*");
@@ -104,6 +118,8 @@ end
 clear
 
 % change directory to folder with data
+cd '/Users/faithgilbert/Desktop/1_MyAps/Paper/data'
+
 % Get a list of all files and folders in the current directory
 files = dir("myaps_5*");
 
@@ -150,6 +166,8 @@ end
 clear
 
 % change directory to folder with data
+cd '/Users/faithgilbert/Desktop/1_MyAps/Paper/data'
+
 % Get a list of all files and folders in the current directory
 files = dir("MyAPS2*");
 
@@ -200,6 +218,7 @@ end
 % ALPHA
 
 clear
+cd '/Users/faithgilbert/Desktop/1_MyAps/Paper/eeg/matfiles'
 
 totalaxis = 0:0.3846:40;faxis = totalaxis(10:3:80);taxis = -598:2:2000;
 
@@ -210,9 +229,9 @@ filemat = getfilesindir(pwd, '*mat*');
 %%
 
 % Visualize time frequency, iteration 1
-% use .pow3 files
 
 clear
+cd '/Users/faithgilbert/Desktop/1_MyAps/Paper/eeg/powfiles'
 filemat = getfilesindir(pwd, 'myaps_*pow3*');
 
 % no baseline correction
@@ -234,6 +253,7 @@ SaveAvgFile('v1_gm_bsl.at',tempALL,[],[], 500,[],[],[],[],1); % visualize baseli
 % Visualize time frequency, iteration 2
 
 clear
+cd '/Users/faithgilbert/Desktop/1_MyAps/Paper/eeg/powfiles'
 filemat = getfilesindir(pwd, 'myaps2_*pow3*');
 
 % no baseline correction
@@ -281,15 +301,19 @@ fpdf(Fcontmat, 1, dfcs)
 % CONDITION
 %
 
-% use .at files
-
 clear
+cd '/Users/faithgilbert/Desktop/1_MyAps/Paper/eeg/atfiles'
 
 filemat1 = getfilesindir(pwd, 'myaps_5*')
 filemat2 = getfilesindir(pwd, 'myaps*_7*')
 
+%bsl
 [lpp1] = extractstats(filemat1, 6, [37 87 53 54 55 79 86 61 78 62], 500:700, 250:300)
 [lpp2] = extractstats(filemat2, 6, [37 87 53 54 55 79 86 61 78 62], 500:700, 250:300)
+
+%nobsl
+[lpp1] = extractstats(filemat1, 6, [37 87 53 54 55 79 86 61 78 62], 500:700, [])
+[lpp2] = extractstats(filemat2, 6, [37 87 53 54 55 79 86 61 78 62], 500:700, [])
 
 %lpp
 lppv1 = zeros(1, 45, 6);
@@ -310,13 +334,12 @@ fpdf(Fcontmat, 1, dfcs)
 
 % LPP Single Trial and Correlations
 
-% Set up directory and picture labels, found in GitHub "MyAPS" folder
+% Set up directory and picture labels
+cd '/Users/faithgilbert/Desktop/1_MyAps/Paper/eeg/singletrialmatfiles'
 load('PIC_V1.mat');
 load('PIC_V2.mat');
 load('PIC_V1_Scatter.mat');
 load('PIC_V2_Scatter.mat');
-
-% switch to folder with only single trial .at file data
 
 %% Version 2 only
 indexvec = [];
@@ -337,6 +360,7 @@ for i = 1:length(PIC_V2);
 end
 
 clear
+cd '/Users/faithgilbert/Desktop/1_MyAps/Paper/eeg/singletrialGMs'
 filelist = getfilesindir(pwd, 'myaps2*.at*');
 
 outmatall2 = []
@@ -374,6 +398,7 @@ for i = 1:length(PIC_V1);
 end
 
 clear
+cd '/Users/faithgilbert/Desktop/1_MyAps/Paper/eeg/singletrialGMs'
 filelist = getfilesindir(pwd, 'myaps_G*.at*');
 
 outmatall1 = [];
@@ -424,7 +449,7 @@ hold off
 
 % PUPIL, preprocessing
 clear
-% navigate to folder with .edf and .dat files
+cd '/Users/faithgilbert/Desktop/1_MyAps/Paper/pupil/Data'
 
 % make matrices that match, start wit myaps 1
 filemat_edf = getfilesindir(pwd, 'MyAp5*edf');
@@ -437,6 +462,7 @@ for subject = 1:size(filemat_dat,1)
 end
 
 clear
+cd '/Users/faithgilbert/Desktop/1_MyAps/Paper/pupil/Data'
 % myaps 2
 filemat_edf = getfilesindir(pwd, 'MyA2*edf');
 filemat_dat = getfilesindir(pwd, 'myaps2*');
@@ -452,8 +478,7 @@ end
 % MyAPS1
 % VISUALIZE
 clear
-% go to folder with .pup.out.mat files
-
+cd '/Users/faithgilbert/Desktop/1_MyAps/Paper/pupil/Conditions/pupmatfiles'
 filemat1 = getfilesindir(pwd, 'MyAp*out.mat');
 
 data = []; 
@@ -530,6 +555,7 @@ fpdf(Fcontmat, 1, dfcs)
 %% MyAPS2
 % VISUALIZE
 clear
+cd '/Users/faithgilbert/Desktop/1_MyAps/Paper/pupil/Conditions/pupmatfiles'
 filemat2 = getfilesindir(pwd, 'MyA2*out.mat');
 data = [];
 
@@ -609,7 +635,7 @@ end
 
 % PUPIL, preprocessing
 
-% folder with .edf and .dat files
+cd '/Users/faithgilbert/Desktop/1_MyAps/Paper/pupil/Data'
 
 % make matrices that match, start wit myaps 1
 filemat_edf = getfilesindir(pwd, 'MyAp5*edf');
@@ -638,7 +664,7 @@ end
 % EXTRACT STATS
 % Create matrix for pupil data + baseline correct
 
-% folder with .pup.out.mat files
+cd '/Users/faithgilbert/Desktop/1_MyAps/Paper/pupil/Singletrials/pupmatfiles'
 clear
 
 % VERSION 2
@@ -710,7 +736,7 @@ corrv1=corrcoef(ORpic_v1, AIpic_v1)'
 % MyAPS2
 
 clear
-% get rating .dat files
+cd '/Users/faithgilbert/Desktop/1_MyAps/Paper/ratings'
 
 datFiles = dir('*myaps2*.dat');
 numFiles = length(datFiles);
@@ -741,6 +767,7 @@ valence2 = results(:, 7:12);
 % MyAPS1
 
 clear
+cd '/Users/faithgilbert/Desktop/1_MyAps/Paper/ratings'
 
 % Version 1
 datFiles = dir('*myaps5*.dat');
@@ -807,6 +834,7 @@ fpdf(Fcontmat, 1, dfcs)
 
 % Correlation script
 clear
+cd '/Users/faithgilbert/Desktop/1_MyAps/Paper/ratings'
 
 % MyAPS2
 filemat = getfilesindir(pwd, '*myaps2ratings*.dat')
@@ -836,6 +864,7 @@ corraro_v2=corrcoef(scattertable_v2(1:120,3), scattertable_v2(121:240,3))
 % Ratings by picture with correlations
 % MyAPS1
 clear
+cd '/Users/faithgilbert/Desktop/1_MyAps/Paper/ratings'
 
 filemat = getfilesindir(pwd, '*myaps5*.dat')
 
@@ -925,7 +954,7 @@ filemat = getfilesindir(pwd, '*myaps1*');
 
 % 
 
-% folder with single trial .pow3 files
+cd '/Users/faithgilbert/Desktop/1_MyAps/Paper/eeg/singletrialpowfiles'
 
 filelist1 = getfilesindir(pwd, 'myaps1*.pow3.mat');
 [outmat1] = extractstats_TF(filelist1, 120, 550:1050, 7:9, [62 72 75 61 78 60 85 67 77 66 84 70 83 71 76], []);
