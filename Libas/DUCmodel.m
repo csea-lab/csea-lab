@@ -15,7 +15,7 @@ baseline2 = zeros(1,baselinelength); % duration of task bsl
 a = [baseline1  params(1) .* cosinwin(ramp, signallength)];
 b = [baseline2  params(2) .* cosinwin(ramp, signallength)];
 
- earlyinterference = [baseline1 cosinwin(ramp, ramp.*3) zeros(1,signallength-ramp.*3)].*params(3); 
+earlyinterference = [baseline1 cosinwin(ramp, ramp.*3) zeros(1,signallength-ramp.*3)].*params(3); 
 lateinterference = [baseline1 zeros(1, ramp.*3) cosinwin(ramp,signallength-ramp.*3)].*params(5); 
 
 % adding a sixth parameter for latency variability makes fits worse
