@@ -13,7 +13,7 @@ baseline2 = zeros(1,baselinelength); % duration of task bsl
 % params(5) = bias/scaling factor
 
 a = [baseline1  params(1) .*cosinwin(ramp, signallength)]; 
-b = [baseline2  params(2) .* cosinwin(ramp, signallength)];
+%b = [baseline2  params(2) .* cosinwin(ramp, signallength)];
 
 earlyresponse = [baseline1 cosinwin(ramp, ramp.*3) zeros(1,signallength-ramp.*3)].*params(3); 
 
