@@ -67,6 +67,8 @@ if teststat ==1 % t-value --> pos AND neg cluster
         BW2(:, :, :, timepoint2) = imbinarize(volumeWithTs(:, :, :, timepoint2).*-1, threshold); % binarize volume (negative)
     end
 
+    
+
     % 4. Calc CON with bwconncomp: finds connected components in BW (4D input)
     CON1 = bwconncomp(BW1); % CON1 is struct, pos cluster
     CON2 = bwconncomp(BW2); % CON2 is struct, neg cluster

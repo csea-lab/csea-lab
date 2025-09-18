@@ -35,6 +35,6 @@ opts = setvaropts(opts, ["Var1", "Var2", "Var3", "Var4", "Var6", "Var7", "Var8",
 % Import the data
 tempcons = readtable(filename, opts);
 convec = table2array(tempcons);
-%convec = [zeros(4,1); convec];
+convec = [zeros(4,1); convec];
 end
 

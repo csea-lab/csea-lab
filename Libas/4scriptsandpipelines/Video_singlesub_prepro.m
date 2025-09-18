@@ -30,7 +30,6 @@ for subindex = 2:size(folderNames,2)-11
 
     % actual preprocessing
    LB3_prepro_pipeline(rawfile, datfile, 'getcon_video', 6, {'1' '2' '3' }, [-.6 10], [3  30], [4 11], 1, 'GSN-HydroCel-256.sfp', 'HC1-256.ecfg', 1, [])
-   % prepro_scadsandspline(datapath, logpath, convecfun, stringlength, conditions2select, timevec, filtercoeffHz, filtord, skiptrials)
 
     cd ..
 
