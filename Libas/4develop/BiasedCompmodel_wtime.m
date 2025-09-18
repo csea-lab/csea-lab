@@ -1,19 +1,19 @@
-function [ssveptotal] = BiasedCompmodel(params,taxis)
+function [ssveptotal] = BiasedCompmodel_wtime(params,taxis)
 
 baselinelength = 500; 
 signallength = length(taxis)-baselinelength; 
-ramp = 100; % a meta parameter for the duration of the onset
 baseline1 = zeros(1,baselinelength); % duration of distractor bsl 
-baseline2 = zeros(1,baselinelength); % duration of task bsl 
+
+ramp = 100+abs(round(params(2))); 
 
 % params(1) = level1, aka drive 1
-% params(2) = level2, aka drive 2
-% params(3) = early response1
+% params(2) = length of the ramp
+% params(3) = early response
 % params(4) = gain
 % params(5) = bias/scaling factor
 
 a = [baseline1  params(1) .*cosinwin(ramp, signallength)]; 
-b = [baseline2  params(2) .* cosinwin(ramp, signallength)];
+
 
 earlyresponse = [baseline1 cosinwin(ramp, ramp.*3) zeros(1,signallength-ramp.*3)].*params(3); 
 
