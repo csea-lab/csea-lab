@@ -4,11 +4,10 @@
 % Set working directory to the RESS data folder
 clear
 clc
-cd /Users/csea/Documents/SarahLab/Sarah_Data/GaborgenTone/Data/pipeline/data-600/'New Folder'/;
-% cd /Users/andreaskeil/Desktop/gaborgentone
+cd ;
 
 % Get trial files for RESS analysis
- filemat = getfilesindir(pwd, 'gaborgentone*trls*.pow3.mat'); %don't need to use this now; want original files, not Pow
+ filemat = getfilesindir(pwd, 'gaborgentone*trls*.pow3.mat');
 % 
 % Loop over subjects to compute RESS spatial filters for each group of 4 conditions.
 for filestart = 1:4:88
@@ -22,8 +21,8 @@ filemat = getfilesindir(pwd, 'gabor*RESSpow*');
 mergemulticons(filemat, 4, 'GM22.RESSpow');
 
 
-%% move ress grand mean files to spectra folder
-cd /Users/csea/Documents/SarahLab/Sarah_Data/GaborgenTone/Data/pipeline/data-600/spectra/RESS
+
+cd 
 filemat = getfilesindir(pwd, 'gabor*RESSpow*');
 
 % Load merged condition files for plotting/statistics
@@ -64,14 +63,12 @@ filemat = getfilesindir(pwd, '*RESSpow.at')
 [outmat] = extractstats(filemat, 4, 1, 31, []);
 bar(faxisFFT(5:100), GS3(5:100), 'k')
 
-% we saved the stat matrix to a file called resspower4cons.csv; 
-% sarah saved as ress_gabortone.csv
-
 %% RESS Linear effect Bayesian Bootstrapping and Permutation
 % uses the repmatress
 clear
 clc
-cd /Users/csea/Documents/SarahLab/Sarah_Data/GaborgenTone/Data/pipeline/data-600/spectra/RESS
+% add location of RESS files
+cd 
 load repmatress.mat;
 linearBootstrap =[];
 size(repmatress)
@@ -88,7 +85,8 @@ for elec = 1:size(repmatress,1)
             end
         end
 end
-%
+
+
 % the null distribution permutation
 linearBootstrapPerm = []
 elec = 1;
@@ -122,7 +120,7 @@ faxisFFT(31)
 plot(BFmap_RESS_linear)
 title 'Bayes Factors Linear RESS' 
 
-BFmap_RESS_linear(31) %15 hz at 31st bin is BF of .304, not impressive
+BFmap_RESS_linear(31) 
 
 log10(BFmap_RESS_linear(31))
 
@@ -138,9 +136,7 @@ selectBootstrap_csplus =[];
 size(repmatress)
 nsubjects = size(repmatress, 3); 
 
-% make distributions of effects
 selecteffect = [3 -1 -1 -1]; 
-
 
 % the linear effect distribution
 for elec = 1:size(repmatress,1)
@@ -184,21 +180,15 @@ end
 faxisFFT = 0:.5:250;
 faxisFFT(31) %15 hz
 figure, plot(BFmap_RESS_select_cs)
-BFmap_RESS_select_cs(31) %.484; not impressive
-
-%see no effect; small Bayes Factors close to 1 (smaller means more support
-%for null in this case)
+BFmap_RESS_select_cs(31) % result = .484
 log10(.484)
-
-
-
 
 
 %% SSVEP Single-Trial Spectra Method
 clear
 clc
 % power from the FFT3d (normal FFT, no RESS) is an aletrnative to the RESS, we examine this next:
-cd /Users/csea/Documents/SarahLab/Sarah_Data/GaborgenTone/Data/pipeline/data-600/'New Folder'/;
+cd ;
 
 % does spectral analysis on each single trial and then
 % averages them together within conditions) which gives combo of steady state response from each
@@ -212,7 +202,7 @@ filemat = getfilesindir(pwd, 'gabor*trls*.mat'); %dont need to do this now
 get_FFT_mat3d(filemat, 301:1300, 500);
 
 % Get FFT spectrum files ('.spec') and merge across conditions
-cd /Users/csea/Documents/SarahLab/Sarah_Data/GaborgenTone/Data/pipeline/data-600/spectra/Spec;
+cd 
 filemat = getfilesindir(pwd, '*.spec');
 mergemulticons(filemat, 4, 'GM22.singletrialspec');
 
@@ -224,8 +214,6 @@ sizeEpochInSecs = length(epoch)*2/1000;
 fstep = 1/sizeEpochInSecs;
 faxis = 0:.5:250;
 
-
-%% get ssVEP ERP wrong
 % Get all matching files first
 filemat_all = getfilesindir(pwd, 'gaborgentone_*.trls.*.mat');
 % Now filter out the ones that contain '.trls.21.'
@@ -268,7 +256,7 @@ figure
 plot(taxis, ERP_Oz(75, :));
 
 %% Get FFT spectrum files ('.spec') and merge across conditions
-cd /Users/csea/Documents/SarahLab/Sarah_Data/GaborgenTone/Data/pipeline/data-600/spectra/Spec;
+cd 
 
 filemat = getfilesindir(pwd, '*.spec');
 mergemulticons(filemat, 4, 'GM22.singletrialspec');
@@ -354,7 +342,7 @@ emegs2d
 %% Bayes bootstrapping for single-trial spectra - linear
 clear
 clc
-cd /Users/csea/Documents/SarahLab/Sarah_Data/GaborgenTone/Data/pipeline/data-600/spectra/Spec
+cd 
 % uses the repmatsingleSpec: 129 channels, 500 freqs, 22 people, 4 conds
 load('repmatsingleSpec.mat')
 linearBootstrap =[];
@@ -375,7 +363,7 @@ for elec = 1:size(repmatsingleSpec,1)
         disp(['draw ', num2str(draw)])
 end
 %%
-cd /Users/csea/Documents/SarahLab/Sarah_Data/GaborgenTone/Data/pipeline/data-600/spectra/Spec
+cd 
 load('linearBootstrap_singleSpec.mat')
 %%
 % the null distribution permutation
@@ -413,7 +401,7 @@ faxisFFT(31) %15 hz
 
 figure, plot(BFmap_singleSpec_linear(:, 31)) %select frequency of interest for all channels (15 hz which is the 31st bin)
 
-cd /Users/csea/Documents/SarahLab/Sarah_Data/GaborgenTone/Data/pipeline/data-600/spectra/Spec
+cd 
 % use SaveAvgFile to create file to use in emegs for heads
 AvgMat = BFmap_singleSpec_linear;
 SaveAvgFile('BF_singleSpec_linear.at',AvgMat,[],[], 1,[],[],[],[],1) 
@@ -435,7 +423,7 @@ bar(mean(squeeze(repmatsingleSpec(75, 31, :, :)))')
 %% selective ssvep single trial spectra, bayes bootstrapping for single-trial spectra
 clear
 clc
-cd /Users/csea/Documents/SarahLab/Sarah_Data/GaborgenTone/Data/pipeline/data-600/spectra/Spec
+cd 
 % uses the repmatsingleSpec: 129 channels, 500 freqs, 22 people, 4 conds
 load('repmatsingleSpec.mat')
 selectBootstrap =[];
@@ -508,8 +496,7 @@ clear
 clc
 
 % Set working directory 
-cd /Users/csea/Documents/SarahLab/Sarah_Data/GaborgenTone/Data/pipeline/data-600/'New Folder'/;
-% cd /Users/andreaskeil/Desktop/gaborgentone/trial3dmats
+cd 
 % Define frequency and time axes for wavelet analysis
 faxisall = 0:1000/3600:250;    % full frequency axis for wavelets
 faxis = faxisall(11:4:110);      % frequency axis used for plotting
@@ -827,7 +814,7 @@ for elec = 1:size(repeatmat_alpha,1)
     disp(['elec', num2str(elec)])
 end
 
-%% read in at files that andreas sent; already logged
+
 linear = ReadAvgFile('Log10TypicalLinearBFs.at');
 antilinear = ReadAvgFile('Log10AntiLinearBFs.at');
 antiallnothing = ReadAvgFile('Log10allnothingBFs.at');
