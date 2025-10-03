@@ -115,6 +115,7 @@ end
   figure(104), plot(outmat(:, 1), outmat(:, 3)), hold on, plot(outmat(:, 1), outmat(:,7)), legend('FA wave', 'FA MPP', 'Location','northwest')
   figure(105), plot(outmat(:, 1), outmat(:, 4)), hold on, plot(outmat(:, 1), outmat(:,8)), legend('Dprime wave', 'Dprime MPP', 'Location','northwest')
   figure(106), plot(outmat(:, 1), outmat(:, 5)), hold on, plot(outmat(:, 1), outmat(:,9)), legend('AUC wave', 'AUC MPP', 'Location','northwest')
+
 %% load data for actual plots
 orange = [1 0.5 0.0];
 teal = [0.2 0.8 1];

@@ -22,7 +22,7 @@ disp(folderNames);
 
 
 % loop over subjects
-for subindex = 1:size(folderNames,2)
+for subindex = 25:size(folderNames,2)
 
     eval(['cd ' folderNames{subindex}])
 
@@ -30,7 +30,7 @@ for subindex = 1:size(folderNames,2)
     datfile = deblank(datfile(1,:)); 
     edffile = getfilesindir(pwd, '*.edf');
 
-    [matcorr, matout, matoutbsl] = eye_pipeline(edffile, 1000, 'getcon_video', datfile, 'video', 1000, 10000, 0);
+    [matcorr, matout, matoutbsl] = eye_pipeline(edffile, 1000, 'getcon_video_pupil', datfile, 'video', 1000, 10000, 0);
 
     pause
 
