@@ -1,5 +1,13 @@
 %% mvpa function to extract accuracy space, time, GAL,and GAT
 function [accuracyspace, accuracytime, accuracyRandspace, accuracyRandtime, accuracyGAL, accuracyGAT] = mvpa_analysis(con1, con2, timepoints, sensors, perm)
+% Where con1 and con2 are 3D structures containing sensorsxtimextrials 
+% sensors is the number of sensors in the data (ex: 129)
+% timepoints is the total timepoints in data 
+% perm is the total number of permutations you want to test for each
+% variable
+
+% This function will take a while to run. It is recommended to run
+% overnight, especially if performing many permutations
 
 minsize = min(size(con1, 3), size(con2, 3));
 dat = cat(3, con1(:,:,1:minsize), con2(:,:,1:minsize));
