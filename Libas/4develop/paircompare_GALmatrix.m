@@ -1,10 +1,11 @@
-function [GALmatrix] = paircompare_GALmatrix(subjects, conditions, cluster, filename)
+function [GALmatrix] = paircompare_GALmatrix(subjects, conditions, cluster, filename, path)
 % function to run timeGAL on multiple conditions of data; pairwise
 % comparison
 % subjects = list of subject numbers
 % conditions = list of condition numbers
 % cluster = sensors to average for timeGAL
 % filename = name to store grid 
+% path = path to folder of matfiles
 
 GALmatrix = [];
 GALmatrix.GALgrid = zeros(length(conditions)); 
@@ -21,7 +22,7 @@ for con = 1:length(conditions)
     Cond = ['Cond' num2str(conditions(con))];
     for sub = 1:length(subjects)
         disp(sub)
-        eval(['load("/Users/faithgilbert/Desktop/3_Semcon/Data/matfiles_con/semcon_', num2str(subjects(sub)), '.trls.', num2str(conditions(con)), '.mat");'])
+        eval(['load("', path, num2str(subjects(sub)), '.trls.', num2str(conditions(con)), '.mat");'])
         data.(Cond) = cat(3, data.(Cond), Mat3D);
         subj.(Cond) = cat(1, subj.(Cond), ones(size(cat(3,Mat3D),3) , 1) * sub);
     end
@@ -48,7 +49,7 @@ end
 % Loop over all condition pairs
 for i = 1:length(conditions)
     Cond1 = ['Cond' num2str(conditions(i))];
-    for j = i:length(conditions)  
+    for j = 1:length(conditions)  
         Cond2 = ['Cond' num2str(conditions(j))];
         Pair = ['Pair' num2str(conditions(i)) num2str(conditions(j))];
         
@@ -77,6 +78,9 @@ for i = 1:length(conditions)
         [timeGALoutput] = timeGAL(datcon1_2TimeGAL, datcon2_2TimeGAL, datcon1_Subj2TimeGAL, datcon2_Subj2TimeGAL, 'ParallelComputing', true, 'ParallelComputingCores', 4, 'Channels', [1:124 129], 'Filename', 'resultsTimeGAL.mat')
 
         GALmatrix.GALgrid(i,j) = mean(timeGALoutput.GeneralizationMatrix.Topography(cluster,:));
+
+        % To validate matrix results
+        GALmatrix.(Pair) = mean(timeGALoutput.GeneralizationMatrix.Topography(cluster,:));
 
     end
 
