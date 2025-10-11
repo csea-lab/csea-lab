@@ -344,7 +344,7 @@ tEnd    = 5;                    % duration [s]
 time    = (0:1/fs:tEnd-1/fs)';  % column vector, time axis
 N       = numel(time);          % number of samples
 nSeries = 20;                    % how many Brownian traces to draw
-sinlength = 350;
+sinlength = 280;
 jitter = 20;
 
 [fila, filb] = butter(3, 0.002, 'high'); 
