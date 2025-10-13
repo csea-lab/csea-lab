@@ -1,11 +1,13 @@
-function [GALmatrix] = paircompare_GALmatrix(subjects, conditions, cluster, filename, path)
+function [GALmatrix] = paircompare_GALmatrix(subjects, conditions, sensors, time, cluster, filename, path)
 % function to run timeGAL on multiple conditions of data; pairwise
 % comparison
-% subjects = list of subject numbers
-% conditions = list of condition numbers
-% cluster = sensors to average for timeGAL
-% filename = name to store grid 
-% path = path to folder of matfiles
+% subjects = list of subject numbers (ex: [601 602 603 604])
+% conditions = list of condition numbers (ex: [11 12 21 22])
+% sensors = number of sensors in dataset (ex: 129)
+% time = number of timepoints in dataset (ex: 950)
+% cluster = sensors to average for timeGAL (ex: [62 72 75 71 76 67 77])
+% filename = name to store grid (ex: 'filename.mat')
+% path = path to a folder of matfiles (ex: '/Users/yourdatafolder/filename_')
 
 GALmatrix = [];
 GALmatrix.GALgrid = zeros(length(conditions)); 
@@ -13,7 +15,7 @@ GALmatrix.GALgrid = zeros(length(conditions));
 % load empty vectors to store data
 for con = 1:length(conditions)
     Cond = ['Cond' num2str(conditions(con))];
-    data.(Cond) = zeros(129, 950, 1);  
+    data.(Cond) = zeros(sensors, time, 1);  
     subj.(Cond) = zeros(1);
 end
 
