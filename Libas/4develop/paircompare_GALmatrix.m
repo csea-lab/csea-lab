@@ -1,4 +1,4 @@
-function [GALmatrix] = paircompare_GALmatrix(subjects, conditions, sensors, time, cluster, filename, path)
+function [GALmatrix] = paircompare_GALmatrix(subjects, conditions, sensors, time, cluster, filename, path, cores)
 % function to run timeGAL on multiple conditions of data; pairwise
 % comparison
 % subjects = list of subject numbers (ex: [601 602 603 604])
@@ -8,6 +8,8 @@ function [GALmatrix] = paircompare_GALmatrix(subjects, conditions, sensors, time
 % cluster = sensors to average for timeGAL (ex: [62 72 75 71 76 67 77])
 % filename = name to store grid (ex: 'filename.mat')
 % path = path to a folder of matfiles (ex: '/Users/yourdatafolder/filename_')
+% cores = number of parallel computing cores you wish to use (check
+% computer system, ex: 4)
 
 GALmatrix = [];
 GALmatrix.GALgrid = zeros(length(conditions)); 
@@ -77,7 +79,7 @@ for i = 1:length(conditions)
         datcon1_Subj2TimeGAL =  datcon1_Subj2TimeGAL(1:minlengths);
         datcon2_Subj2TimeGAL =  datcon2_Subj2TimeGAL(1:minlengths);
 
-        [timeGALoutput] = timeGAL(datcon1_2TimeGAL, datcon2_2TimeGAL, datcon1_Subj2TimeGAL, datcon2_Subj2TimeGAL, 'ParallelComputing', true, 'ParallelComputingCores', 4, 'Channels', [1:124 129], 'Filename', 'resultsTimeGAL.mat')
+        [timeGALoutput] = timeGAL(datcon1_2TimeGAL, datcon2_2TimeGAL, datcon1_Subj2TimeGAL, datcon2_Subj2TimeGAL, 'ParallelComputing', true, 'ParallelComputingCores', cores, 'Channels', [1:124 129], 'Filename', 'resultsTimeGAL.mat')
 
         GALmatrix.GALgrid(i,j) = mean(timeGALoutput.GeneralizationMatrix.Topography(cluster,:));
 
