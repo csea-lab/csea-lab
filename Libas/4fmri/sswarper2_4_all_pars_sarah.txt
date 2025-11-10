@@ -1,0 +1,104 @@
+#!/usr/bin/env bash
+
+
+# User settings: EDIT THESE FOR EACH DATASET
+###############################################################################
+
+# Root directory that contains one folder per subject
+# e.g., /Users/Data/rawMRI
+DATA_ROOT="/Users/Data/files"
+
+# Pattern that matches subject folders under DATA_ROOT
+# Examples: "par_*", "sub-*"
+SUBJ_PATTERN="pilot*"
+
+# Glob pattern (relative to each subject folder) to find the anatomical NIfTI
+# Adjust this to match your file names
+#   BIDS-style:          "anat/*T1w*.nii*"
+ANAT_GLOB="*t1*.nii*"
+
+# Template for sswarper2 (name or full path).
+TEMPLATE="MNI152_2009_template_SSW.nii.gz"
+
+# Name of the output directory to create inside each subject folder
+ODIR_NAME="sswarper2"
+
+# Whether to add -deoblique to sswarper2
+DO_DEOBLIQUE="yes"   # "yes" or "no"
+
+# Basic safety checks
+###############################################################################
+
+# Stop on errors, unset variables, and failed pipes
+set -euo pipefail
+
+
+echo "Using template: ${TEMPLATE}"
+echo "Searching for subjects in: ${DATA_ROOT}/${SUBJ_PATTERN}"
+echo "Expecting anatomical files matching: ${ANAT_GLOB}"
+echo
+
+# Main loop over subjects
+###############################################################################
+
+# Loop over all subject directories that match the pattern
+for SUBJ_DIR in "${DATA_ROOT}"/${SUBJ_PATTERN}; do
+
+  # Skip if the glob didn’t match any real directory
+  [ -d "${SUBJ_DIR}" ] || continue
+
+  # Subject ID = folder name (e.g., par_01, sub-001)
+  SUBJ_ID=$(basename "${SUBJ_DIR}")
+
+  echo "Subject: ${SUBJ_ID}"
+  echo "  Folder: ${SUBJ_DIR}"
+
+  # 1) Find the anatomical NIfTI for this subject
+  ###########################################################################
+
+  # Use ls + glob + head to pick the first matching anatomical file.
+  # 2>/dev/null silences 'No such file' messages.
+  ANAT_FILE=$(ls "${SUBJ_DIR}"/${ANAT_GLOB} 2>/dev/null | head -n 1 || true)
+
+  if [ -z "${ANAT_FILE}" ]; then
+    echo "  WARNING: No anatomical found for ${SUBJ_ID} (pattern: ${ANAT_GLOB}). Skipping."
+    continue
+  fi
+
+  echo "  Found anatomical: ${ANAT_FILE}"
+
+  # 2) Create an output directory for sswarper2
+  ###########################################################################
+
+  OUTDIR="${SUBJ_DIR}/${ODIR_NAME}"
+  mkdir -p "${OUTDIR}"
+  echo "  Output directory: ${OUTDIR}"
+
+  # 3) Build the sswarper2 command for this subject
+  ###########################################################################
+
+  # Use a bash array so paths with spaces are not treated as separate lines
+  CMD=(sswarper2
+       -input "${ANAT_FILE}"
+       -base  "${TEMPLATE}"
+       -subid "${SUBJ_ID}"
+       -odir  "${OUTDIR}")
+
+  # Optionally add deobliquing
+  if [ "${DO_DEOBLIQUE}" = "yes" ]; then
+    CMD+=(-deoblique)
+  fi
+
+  # 4) Run sswarper2
+  ###########################################################################
+
+  echo "  Running sswarper2"
+  echo "    ${CMD[*]}"
+
+  "${CMD[@]}"
+
+  echo "  Done with ${SUBJ_ID}"
+
+done
+
+echo "All subjects processed"
