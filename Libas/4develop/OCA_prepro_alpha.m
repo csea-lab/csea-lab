@@ -3,8 +3,8 @@ function [EEG_allcond] =  OCA_prepro_alpha(datapath)
 
     stringlength = 8; 
     timevec = [-2 60]; 
-    filtercoeffHz = [2 30];
-    filtord = [4 11]; 
+    filtercoeffHz = [1 42];
+    filtord = [3 16]; 
     sfpfilename = 'GSN-HydroCel-256.sfp'; 
     ecfgfilename = 'HC1-256.ecfg';
     eyecorrflag = 1; 
@@ -100,9 +100,9 @@ function [EEG_allcond] =  OCA_prepro_alpha(datapath)
      EEG_allcond = eeg_checkset(EEG_allcond);
 
      %% ICA
-        EEG_allcond = pop_runica(EEG_allcond,'icatype','sobi','chanind',1:256);    
-        EEG_allcond = eeg_checkset(EEG_allcond);
-        pop_saveset(EEG_allcond, 'filename',[basename '_ICA.set'], 'filepath',pwd);
+     %   EEG_allcond = pop_runica(EEG_allcond,'icatype','sobi','chanind',1:256);    
+      %  EEG_allcond = eeg_checkset(EEG_allcond);
+       %  pop_saveset(EEG_allcond, 'filename',[basename '_ICA.set'], 'filepath',pwd);
         
       %% create output file for artifact summary. 
       artifactlog.globalbadchans = BadChanVec;
