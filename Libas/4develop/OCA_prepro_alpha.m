@@ -3,8 +3,8 @@ function [EEG_allcond] =  OCA_prepro_alpha(datapath)
 
     stringlength = 8; 
     timevec = [-2 60]; 
-    filtercoeffHz = [1 42];
-    filtord = [3 16]; 
+    filtercoeffHz = [.2 42];
+    filtord = [4 16]; 
     sfpfilename = 'GSN-HydroCel-256.sfp'; 
     ecfgfilename = 'HC1-256.ecfg';
     eyecorrflag = 1; 
@@ -80,7 +80,6 @@ function [EEG_allcond] =  OCA_prepro_alpha(datapath)
               end
           end
       
-
      % Epoch the EEG data 
      EEG_allcond = pop_epoch( EEG,  {'1' '2'}, timevec, 'newname', 'allcond', 'epochinfo', 'yes');
      EEG_allcond = eeg_checkset( EEG_allcond );
