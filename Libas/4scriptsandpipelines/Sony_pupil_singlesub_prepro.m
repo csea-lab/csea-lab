@@ -22,7 +22,7 @@ disp(folderNames);
 
 
 % loop over subjects
-for subindex = 33:size(folderNames,2)
+for subindex = 1:size(folderNames,2)
 
     eval(['cd ' folderNames{subindex}])
 
