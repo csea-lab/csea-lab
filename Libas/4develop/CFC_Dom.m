@@ -19,5 +19,5 @@ figure, plot(freqs(3:60), specavg(:, 3:60))
 
 %% phase 2 amp coupling
 [CFCwithin, CFCacross, CFCwithin_norm, CFCacross_norm] = phaseampcouple_full(data, ...
-    SampRate, 9, 39, 30, 2, 1, 1:1000, 0);
+    SampRate, 6, 39, 33, 2, 1, 1:1000, 0);
 
