@@ -32,7 +32,7 @@ for index1 = 1: size(filemat_theta2, 1)
     a = ReadAvgFile(deblank(filemat_theta2(index1,:)));
      for chan = 1:129
    b(chan,:) = conv(a(chan,:), shape, 'same');
-  end
+      end
     SaveAvgFile(deblank(filemat_theta2(index1,:)), b);
 end
 
