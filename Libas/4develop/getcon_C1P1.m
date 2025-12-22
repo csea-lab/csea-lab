@@ -2,6 +2,8 @@ function [convec] = getcon_C1P1(infile)
 
 conmat = load(infile);
 
+eyevec = repmat([88; 99; 66; 77], 5,1);
+
 stimulustype = conmat(:,4) + 1; % plus one makes numbers interpretable and addable 
 
 % stimulustype 1 = STD right (was zero in log) 
@@ -14,9 +16,12 @@ blocktype = conmat(:,5)+1; % plus one makes numbers interpretable and addable
 % blocktype 1 = attend right
 % blocktype 2 = attend left
 
-convec = blocktype.*10 + stimulustype;
+convec_c1 = blocktype.*10 + stimulustype;
 
 % 11 = attended standard, right VF
 % 12 = unattended standard, left VF
 % 21 = unattended standard, right VF
 % 22 = attended standard, left VF
+
+convec = [eyevec; convec_c1];
+
