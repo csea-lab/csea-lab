@@ -1,6 +1,6 @@
 function [BF] = bootstrap2BF_nonparam(theta1,theta2, plotflag)
 % This function takes two bootstrapped distributions (>1000 draws needed)
-% dist1 and dist2, which reflect two variables atht we wish to compare, eg experimental conditions.
+% dist1 and dist2, which reflect two variables that we wish to compare, eg experimental conditions.
 % It computes then the BF as posterior oddsover prior odds (odds =1, p = 0.5 is default)
 % dist1 and dist2 are vectors
 % outputs: 
@@ -80,7 +80,7 @@ end
 
 BF_CI = prctile(BF_boot, [2.5 97.5]);
 
-%% Step 5: dusplay detailed results, for now just in command window
+%% Step 5: display detailed results, for now just in command window
 fprintf('-----------------------------------------\n');
 fprintf('Results of the comparisons\n');
 fprintf('Posterior P(θ1 > θ2): %.4f\n', p_post);
