@@ -16,7 +16,7 @@ function LB3_prepro_eegfmri_1(datafolder, filename,newSamplingRate,filterCutOff)
         %% add channel locations
         disp('Step 2/10 - add channel coordinates');
         EEG = eeg_checkset(EEG);
-        EEG=pop_chanedit(EEG, 'lookup','/Users/jcedielescobar/UFL Dropbox/Judith Cristina Cediel Escobar/pipeline_sandbox/code/standard_1005.elc');
+        EEG=pop_chanedit(EEG, 'lookup','standard_1005.elc');
         %[ALLEEG EEG] = eeg_store(ALLEEG, EEG, CURRENTSET);
         
         %% save raw data in eeglab format
