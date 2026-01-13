@@ -1,6 +1,5 @@
 clear 
 
-
 time = 0.001:0.001:5; % Five seconds of discrete time, sampled at 1000 Hz
 
 nLoops = 1; 
