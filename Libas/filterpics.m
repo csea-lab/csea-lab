@@ -236,7 +236,7 @@ function [] = filterpics(filemat, suffix)
 
 
 %%  cut and resize .1.. %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% offset = 100;
+% offset = 1;
 % for x = 1:size(filemat,1)
 %     a = imread(deblank(filemat(x,:)));
 %     if size(a,2) > size(a,1)-offset
@@ -244,23 +244,24 @@ function [] = filterpics(filemat, suffix)
 %     end
 %     I = imresize(a,[800,800]);
 %     imshow(I), title('new Image'), pause(1)
-%     imwrite(I,[deblank(filemat(x,:)) suffix], 'jpg')
+%     imwrite(I,[deblank(filemat(x,:)) suffix '.jpg'], 'jpg')
 % end
 
-%%  resize 2... %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%  resize 2... %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % for x = 1:size(filemat,1)
 %     a = imread(deblank(filemat(x,:)));
 %     I = imresize(a,.8);  % 80% size 
-%     imwrite(I,[deblank(filemat(x,:)) suffix], 'jpg')
+%     imwrite(I,[deblank(filemat(x,:)) suffix '.jpg'], 'jpg')
 % end
 
 % % % % % % %%%  resize to new dimensions... %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % % % 
-% for x = 1:size(filemat,1)
-%     a = imread(deblank(filemat(x,:)));
-%     I = imresize(a, [1110 800]);
-%     imwrite(I,[deblank(filemat(x,:)) suffix], 'jpg')
-% end
+for x = 1:size(filemat,1)
+    a = imread(deblank(filemat(x,:)));
+    I = imresize(a, [1110 800]);
+    imwrite(I,[deblank(filemat(x,:)) suffix '.jpg'], 'jpg')
+    pause(.1)
+end
 % % 
 % % % % %%%  resize & cut... %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % % 
@@ -298,15 +299,15 @@ function [] = filterpics(filemat, suffix)
 %      imwrite(I,[deblank(filemat(x,:)) suffix], 'jpg')
 %  end
 
-
-% rename
-disp(suffix)
-for x = 1:size(filemat,1)
-     a = imread(deblank(filemat(x,:)));
-     I = a; 
-    % imwrite(I,deblank(filemat(x,1:9)))
-    imwrite(I,['D' deblank(filemat(x,:))])
- end
+% 
+% % rename
+% disp(suffix)
+% for x = 1:size(filemat,1)
+%      a = imread(deblank(filemat(x,:)));
+%      I = a; 
+%     % imwrite(I,deblank(filemat(x,1:9)))
+%     imwrite(I,['D' deblank(filemat(x,:))])
+%  end
 
 
 

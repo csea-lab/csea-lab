@@ -3,8 +3,8 @@ function [EEG_allcond] =  OCA_prepro_alpha(datapath)
 
     stringlength = 8; 
     timevec = [-2 60]; 
-    filtercoeffHz = [1 30];
-    filtord = [3 12]; 
+    filtercoeffHz = [.2 42];
+    filtord = [4 16]; 
     sfpfilename = 'GSN-HydroCel-256.sfp'; 
     ecfgfilename = 'HC1-256.ecfg';
     eyecorrflag = 1; 
@@ -12,7 +12,7 @@ function [EEG_allcond] =  OCA_prepro_alpha(datapath)
 
     thresholdChanTrials = 2.5; 
     thresholdTrials = 1.25;
-    thresholdChan = 2.5;
+    thresholdChan = 2.2;
     
     basename  = datapath(1:stringlength); 
 
@@ -80,7 +80,6 @@ function [EEG_allcond] =  OCA_prepro_alpha(datapath)
               end
           end
       
-
      % Epoch the EEG data 
      EEG_allcond = pop_epoch( EEG,  {'1' '2'}, timevec, 'newname', 'allcond', 'epochinfo', 'yes');
      EEG_allcond = eeg_checkset( EEG_allcond );
@@ -97,14 +96,13 @@ function [EEG_allcond] =  OCA_prepro_alpha(datapath)
       disp('artifact handling: channels in epochs')
     [ outmat3d, badindexmat] = scadsAK_3dtrialsbychans(outmat3d, thresholdChanTrials, ecfgfilename);
      EEG_allcond.data = single(outmat3d);
-     EEG_allcond = eeg_checkset( EEG_allcond );
+     EEG_allcond = eeg_checkset(EEG_allcond);
 
-    %   % find bad trials and reject in epochs
-    %   disp('artifact handling: epochs')
-    % [ outmat3d, badindexvec, NGoodtrials ] = scadsAK_3dtrials(outmat3d, thresholdTrials);
-    %   EEG_allcond = pop_select( EEG_allcond, 'notrial', badindexvec);
-
-
+     %% ICA
+     %   EEG_allcond = pop_runica(EEG_allcond,'icatype','sobi','chanind',1:256);    
+      %  EEG_allcond = eeg_checkset(EEG_allcond);
+       %  pop_saveset(EEG_allcond, 'filename',[basename '_ICA.set'], 'filepath',pwd);
+        
       %% create output file for artifact summary. 
       artifactlog.globalbadchans = BadChanVec;
       artifactlog.epochbadchans = badindexmat;
