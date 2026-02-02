@@ -1,4 +1,4 @@
-function [GALmatrix] = paircompare_GALmatrix(subjects, conditions, sensors, time, cluster, filename, path, cores)
+function [GALmatrix, TimeGALStored] = paircompare_GALmatrix(subjects, conditions, sensors, time, cluster, filename, path, cores)
 % function to run timeGAL on multiple conditions of data; pairwise
 % comparison
 % subjects = list of subject numbers (ex: [601 602 603 604])
@@ -13,6 +13,7 @@ function [GALmatrix] = paircompare_GALmatrix(subjects, conditions, sensors, time
 
 GALmatrix = [];
 GALmatrix.GALgrid = zeros(length(conditions)); 
+TimeGALStored = [];
 
 % load empty vectors to store data
 for con = 1:length(conditions)
@@ -82,6 +83,7 @@ for i = 1:length(conditions)
         [timeGALoutput] = timeGAL(datcon1_2TimeGAL, datcon2_2TimeGAL, datcon1_Subj2TimeGAL, datcon2_Subj2TimeGAL, 'ParallelComputing', true, 'ParallelComputingCores', cores, 'Channels', [1:124 129], 'Filename', 'resultsTimeGAL.mat')
 
         GALmatrix.GALgrid(i,j) = mean(timeGALoutput.GeneralizationMatrix.Topography(cluster,:));
+        TimeGALStored.(Pair) = timeGALoutput;
 
         % To validate matrix results
         GALmatrix.(Pair) = mean(timeGALoutput.GeneralizationMatrix.Topography(cluster,:));
@@ -90,10 +92,8 @@ for i = 1:length(conditions)
 
     % show progress and save grid at this point in time
     disp(Cond1)
-    save(filename, "GALmatrix")
-
+    save(filename, "GALmatrix", "TimeGALStored")
+    
 end
 
 end
-
-
