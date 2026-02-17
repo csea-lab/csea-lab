@@ -123,14 +123,8 @@ function [EEG_allcond] =  OCA_prepro_alpha(datapath)
      EEG_temp = pop_selectevent( EEG_allcond,  'type', conditions2select{con_index} );
      EEG_temp = eeg_checkset( EEG_temp );
      
-     % compute ERPs
-     ERPtemp = double(avg_ref_add(squeeze(mean(EEG_temp.data(:, :, 1:end), 3))));
-     
      % compute single trial array in 3D
      Mat3D = avg_ref_add3d(double(EEG_temp.data));
-
-     % save the ERP in emegs at format
-      SaveAvgFile([basename '.at' conditions2select{con_index} '.ar'],ERPtemp,[],[], EEG.srate, [], [], [], [], abs(timevec(1) *EEG.srate)+1); 
 
       % save the single trial array in 3D
       save([basename '.trls.' conditions2select{con_index} '.mat'], 'Mat3D', '-mat')
