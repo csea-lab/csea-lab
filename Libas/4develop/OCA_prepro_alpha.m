@@ -1,7 +1,7 @@
 function [EEG_allcond] =  OCA_prepro_alpha(datapath)
 % datapath is name of .raw file, this function rins only for 129channel EGI data
 
-    stringlength = 8; 
+    stringlength = 11; 
     timevec = [-2 60]; 
     filtercoeffHz = [.2 42];
     filtord = [4 16]; 
@@ -80,7 +80,7 @@ function [EEG_allcond] =  OCA_prepro_alpha(datapath)
               end
           end
       
-     % Epoch the EEG data 
+     % Segment the EEG data 
      EEG_allcond = pop_epoch( EEG,  {'1' '2'}, timevec, 'newname', 'allcond', 'epochinfo', 'yes');
      EEG_allcond = eeg_checkset( EEG_allcond );
      EEG_allcond = pop_rmbase( EEG_allcond, [-100 0] ,[]);
