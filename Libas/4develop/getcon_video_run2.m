@@ -9,7 +9,7 @@ function convec = getcon_video(filename)
 
 % If dataLines is not specified, define defaults
 if nargin < 2
-    dataLines = [4, 93];
+    dataLines = [97, 186];
 end
 
 %% Set up the Import Options and import the data
