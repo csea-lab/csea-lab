@@ -9,15 +9,16 @@ taxis = -600:2:3800;
 
 % this is the default spectrum, applied across the whole segment
 cd '/Users/andreaskeil/Desktop/Konio6people/atfiles'
-[spec] = get_FFT_atg(pwd, 301:2100);
+filemat = getfilesindir(pwd, '*.ar');
+[spec] = get_FFT_atg(filemat, 301:1900);
 filemat = getfilesindir(pwd, '*.spec');
 mergemulticons(filemat, 4, 'GM6.spec');
 
 %% this is for the hilbert transform
 cd '/Users/andreaskeil/Desktop/Konio6people/atfiles'
 filemat = getfilesindir(pwd, '*.ar');
-[demodmat, phasemat]=steadyHilbert(filemat, 7.5, 200:300, 9, 1, 75);
-cd '/Users/andreaskeil/Desktop/Konio6people/hampfiles'
+[demodmat, phasemat]=steadyHilbert(filemat, 7.5, 200:300, 9, 0, 75);
+
 filemat = getfilesindir(pwd, '*.hamp*');
 mergemulticons(filemat, 4, 'GM6.hamp');
 
