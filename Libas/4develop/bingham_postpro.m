@@ -5,7 +5,17 @@ function [ERP_happy, ERP_angry, ERP_sad, stats_amp, stats_SNR] =  bingham_postpr
 % output for stats. inputs: path to the data; conditionflag.  conditionflag
 % 1 means that the Face is shown at 15 hz, 2 means the Gabor is shown at 15 hz. 
 
-load(datapath)     
+load(datapath)
+
+thresholdChanTrials = 2.5; 
+thresholdTrials = 1.25;
+thresholdChan = 2.5;
+
+ecfgfilename = 'bingham31.ecfg'
+
+EEG_happy = bingham_art_rej(EEG_happy, params);
+EEG_angry = bingham_art_rej(EEG_angry, params);
+EEG_sad   = bingham_art_rej(EEG_sad, params);
 
 % happy
 ERP_happy = mean(EEG_happy.data, 3); 
