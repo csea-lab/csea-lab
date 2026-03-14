@@ -1,10 +1,10 @@
-function [repmat] = makerepmat_TF(filemat, Nsubjects, Nconditions, freqindex, optionalbaseline)
+function [repmat] = makerepmat_TF(filemat, Nsubjects, electrode, Nconditions, optionalbaseline)
 
 % makes  4-D array for contrast_rep 
 % if each person/condition file has 3-D 
 % (elec by time by freq)
-% this selects one frequency and uses the time course of that frequency for
-% the repmat
+
+% the repmat has only one electrode
 
 for con = 1:Nconditions
     
@@ -23,7 +23,7 @@ for con = 1:Nconditions
       
 
       
-            repmat(:, :, sub, con) = squeeze(mat(:, :, freqindex)); 
+            repmat(:, :, sub, con) = squeeze(mat(electrode, :, :)); 
       
 
        
