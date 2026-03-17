@@ -5,7 +5,15 @@ function [ERP_happy, ERP_angry, ERP_sad, stats_amp, stats_SNR] =  bingham_postpr
 % output for stats. inputs: path to the data; conditionflag.  conditionflag
 % 1 means that the Face is shown at 15 hz, 2 means the Gabor is shown at 15 hz. 
 
-load(datapath)     
+load(datapath)
+
+params = [2.5 1.25 2.5];
+
+ecfgfilename = 'bingham31.ecfg';
+
+[EEG_happy, artif_happy] = bingham_art_rej(EEG_happy, params);
+[EEG_angry, artif_angry] = bingham_art_rej(EEG_angry, params);
+[EEG_sad, artif_sad]   = bingham_art_rej(EEG_sad, params);
 
 % happy
 ERP_happy = mean(EEG_happy.data, 3); 
@@ -68,3 +76,9 @@ stats_SNR = [SNRhappy12HzO1OzO2 SNRhappy15HzO1OzO2 SNRangry12HzO1OzO2 SNRangry15
 
 csvwrite([datapath(1:end-4) '.amp.csv'], stats_amp)
 csvwrite([datapath(1:end-4) '.snr.csv'], stats_SNR)
+
+artifstruc.artif_happy = artif_happy; 
+artifstruc.artif_angry = artif_angry; 
+artifstruc.artif_sad = artif_sad; 
+save([datapath(1:end-4) '.artif.mat'], 'artifstruc', '-mat')
+
