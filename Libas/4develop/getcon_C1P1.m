@@ -2,7 +2,9 @@ function [convec] = getcon_C1P1(infile)
 
 conmat = load(infile);
 
-eyevec = repmat([88; 99; 66; 77], 5,1);
+eyevec = []; 
+
+% eyevec = repmat([88; 99; 66; 77], 5,1);
 
 stimulustype = conmat(:,4) + 1; % plus one makes numbers interpretable and addable 
 
