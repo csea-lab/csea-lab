@@ -101,7 +101,7 @@ function [EEG_allcond] =  blinkrate_prepro_pipeline(datapath, logpath, convecfun
 
     %% create single trial file for all conditions
      Mat3D = avg_ref_add3d(double(EEG_allcond.data));
-     save([basename '.trls.g.mat'], 'Mat3D', '-mat')
+     %save([basename '.trls.g.mat'], 'Mat3D', '-mat')
 
      %% select conditions; compute and write output
 
@@ -131,8 +131,6 @@ function [EEG_allcond] =  blinkrate_prepro_pipeline(datapath, logpath, convecfun
 
      end
 
-   %% save the artifact info
-     save([basename '.artiflog.mat'], 'artifactlog', '-mat')
 
 
     
