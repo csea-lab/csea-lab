@@ -27,8 +27,8 @@ elseif methodflag == 2
     [expmod] = abs(polyval(beta, 1:length(invec)));
 
 end
-        
-removed  = invec ./ expmod; 
+
+removed  = invec - expmod;
        
     
 

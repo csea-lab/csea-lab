@@ -101,35 +101,36 @@ function [EEG_allcond] =  blinkrate_prepro_pipeline(datapath, logpath, convecfun
 
     %% create single trial file for all conditions
      Mat3D = avg_ref_add3d(double(EEG_allcond.data));
-     save([basename '.trls.g.mat'], 'Mat3D', '-mat')
+     %save([basename '.trls.g.mat'], 'Mat3D', '-mat')
 
      %% select conditions; compute and write output
 
-    for con_index = 1:size(conditions2select,2)
-  
-     %select conditions   
-     EEG_temp = pop_selectevent( EEG_allcond,  'type', conditions2select{con_index} );
-     EEG_temp = eeg_checkset( EEG_temp );
-     
-     % compute ERPs
-     ERPtemp = double(avg_ref_add(squeeze(mean(EEG_temp.data(:, :, skiptrials:end), 3))));
-     
-     % compute single trial array in 3D
-   
-     % here:  compute the VEOG for both eyes
+     for con_index = 1:size(conditions2select,2)
 
-     % with those, find blinks in each trial 
-     
+         %select conditions
+         EEG_temp = pop_selectevent( EEG_allcond,  'type', conditions2select{con_index} );
+         EEG_temp = eeg_checkset( EEG_temp );
 
-      % save the single trial array in 3D
-      save([basename '.trls.' conditions2select{con_index} '.mat'], 'Mat3D', '-mat')
-   
+         mat3d_condition = EEG_temp.data;
+
+         % make vEOG from this:
+         tempveog =  squeeze(mean(mat3d_condition([238 241], :, :) - mat3d_condition([18 37], :, :)));
+
+         size(tempveog)
+
+         % compute single trial array in 3D
+
+         % here:  compute the VEOG for both eyes
+
+         % with those, find blinks in each trial
 
 
-    end
+         % save the single trial array in 3D
+         save([basename '.veog.' conditions2select{con_index} '.mat'], 'tempveog', '-mat')
 
-   %% save the artifact info
-     save([basename '.artiflog.mat'], 'artifactlog', '-mat')
+
+     end
+
 
 
     
