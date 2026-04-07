@@ -5,7 +5,7 @@
 
 function [matcorr, matout, matoutbsl, percentbadvec, percentbadsub, percentbadcond] = eyegaze_pipeline(edffull, sRate, convecfun, confile, trigname, pre_onsetSP, post_onsetSP, plotflag)
 
-datamat = Edf2Mat(edffull);
+datamat = Edf2Mat('C1FLO21.edf');
 
 gazebycond = [];
 
