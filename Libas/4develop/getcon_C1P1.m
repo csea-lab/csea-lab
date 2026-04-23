@@ -2,14 +2,16 @@ function [convec] = getcon_C1P1(infile)
 
 conmat = load(infile);
 
-eyevec = repmat([88; 99; 66; 77], 5,1);
+eyevec = []; 
+
+% eyevec = repmat([88; 99; 66; 77], 5,1);
 
 stimulustype = conmat(:,4) + 1; % plus one makes numbers interpretable and addable 
 
 % stimulustype 1 = STD right (was zero in log) 
 % stimulustype 2 = STD left (was 1 in log) 
 % stimulustype 3 = Target right (was 2 in log) 
-% stimulustype 4 = Target right (was 3 in log) 
+% stimulustype 4 = Target left (was 3 in log) 
 
 blocktype = conmat(:,5)+1; % plus one makes numbers interpretable and addable 
 
