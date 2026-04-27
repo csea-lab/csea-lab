@@ -51,6 +51,83 @@ for index2 = 1:2:size(filemat_spec, 1)
     pause(1)
 end
 
+%% explore the spectrum for each group - part 1
+% first high group 
+cd '/Users/andreaskeil/Desktop/olfaxis/all_Data_spectrum/Qbygroup/high'
+
+channel = 4; 
+
+freqs = 0:0.5:100; 
+filemat_spec = getfilesindir(pwd, '*.spec');
+
+% loop fro each participants plot
+% figure(101)
+% 
+% for index2 = 1:2:size(filemat_spec, 1)
+%    a = ReadAvgFile(deblank(filemat_spec(index2, :)));
+%    b = ReadAvgFile(deblank(filemat_spec(index2+1, :)));
+% 
+%    plot(freqs(1:60), a(channel, 1:60)); 
+%    hold on
+%     plot(freqs(1:60), b(channel, 1:60)); 
+%     title(deblank(filemat_spec(index2, :)))
+%     legend('closed', 'open')
+%     pause(1)
+%     hold off
+%     pause(1)
+% end
+% 
+
+% make butterfly plot for each reactivity score
+figure (104)
+for index2 = 1:2:size(filemat_spec, 1)
+   a = ReadAvgFile(deblank(filemat_spec(index2, :)));
+   b = ReadAvgFile(deblank(filemat_spec(index2+1, :)));
+   reactivity = a-b; 
+   plot(freqs(7:32), reactivity(channel, 7:32)); 
+   hold on  
+  pause(.1)
+end
+
+%% explore the spectrum for each group - part 2
+% second, low group 
+cd '/Users/andreaskeil/Desktop/olfaxis/all_Data_spectrum/Qbygroup/low'
+
+channel = 3; 
+
+freqs = 0:0.5:100; 
+filemat_spec = getfilesindir(pwd, '*.spec');
+
+
+
+% loop over single subjects
+%figure(101)
+% for index2 = 1:2:size(filemat_spec, 1)
+%    a = ReadAvgFile(deblank(filemat_spec(index2, :)));
+%    b = ReadAvgFile(deblank(filemat_spec(index2+1, :)));
+% 
+%    plot(freqs(1:60), a(channel, 1:60)); 
+%    hold on
+%     plot(freqs(1:60), b(channel, 1:60)); 
+%     title(deblank(filemat_spec(index2, :)))
+%     legend('closed', 'open')
+%     pause(1)
+%     hold off
+%     pause(1)
+% end
+
+% make butterfly plot for each reactivity score
+figure (103)
+for index2 = 1:2:size(filemat_spec, 1)
+   a = ReadAvgFile(deblank(filemat_spec(index2, :)));
+   b = ReadAvgFile(deblank(filemat_spec(index2+1, :)));
+   reactivity = a-b; 
+   plot(freqs(7:32), reactivity(channel, 7:32)); 
+   hold on  
+  pause(.1)
+end
+
+
 %% compare the groups, across eyes open and closed
 % high first 
 cd '/Users/andreaskeil/Desktop/olfaxis/all_Data_spectrum/Qbygroup/high'
@@ -129,5 +206,37 @@ plot(reduced_high_early, reduced_high_late, 'ro')
 hold on 
 plot(reduced_low_early, reduced_low_late, 'bo')
 xlabel('early'), ylabel('late')
+
+%%
+% use the 4D tp make an initial benchmark SVM
+channel = 3;
+
+% make the data matrix
+reactivity_low = repmat_low(:, :, :, 1) - repmat_low(:, :, :, 2);
+reactivity_high = repmat_high(:, :, :, 1) - repmat_high(:, :, :, 2);
+
+X_low = squeeze(reactivity_low(channel, 7:28, :));
+X_high = squeeze(reactivity_high(channel, 7:28, :));
+
+y = [ones(size(X_low, 2), 1); 2*ones(size(X_high, 2),1)];
+X = [X_low'; X_high'];
+
+cvp = cvpartition(length(y), KFold=10);
+
+% this is the actual SVM
+opts = struct('CVPartition',cvp,'AcquisitionFunctionName', ...
+    'expected-improvement-plus');
+
+% svmModel = fitcsvm(X, y, 'KernelFunction','rbf', 'Standardize',true, 'OptimizeHyperparameters','auto', 'HyperparameterOptimizationOptions',opts);
+svmModel = fitcsvm(X, y, 'KernelFunction','linear', 'Standardize',true, 'Crossval','on', CVPartition=cvp);
+
+
+preds   = kfoldPredict(svmModel);
+
+confmat = confusionmat(y, preds);      % raw numeric matrix
+confusionchart(y, preds);              % interactive plot
+pause(.5)
+
+accuracy = mean(preds==y);
 
 
