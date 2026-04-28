@@ -53,7 +53,7 @@ end
 
 %% explore the spectrum for each group - part 1
 % first high group 
-cd '/Users/andreaskeil/Desktop/olfaxis/all_Data_spectrum/Qbygroup/high'
+cd '/Users/andreaskeil/UF Dropbox/Andreas Keil/MobileEEG/all_Data_spectrum/Qbygroup/high'
 
 channel = 4; 
 
@@ -91,17 +91,18 @@ end
 
 %% explore the spectrum for each group - part 2
 % second, low group 
-cd '/Users/andreaskeil/Desktop/olfaxis/all_Data_spectrum/Qbygroup/low'
+cd '/Users/andreaskeil/UF Dropbox/Andreas Keil/MobileEEG/all_Data_spectrum/Qbygroup/low'
 
-channel = 3; 
+
+channel = 4; 
 
 freqs = 0:0.5:100; 
 filemat_spec = getfilesindir(pwd, '*.spec');
 
 
 
-% loop over single subjects
-%figure(101)
+% %loop over single subjects
+% figure(101)
 % for index2 = 1:2:size(filemat_spec, 1)
 %    a = ReadAvgFile(deblank(filemat_spec(index2, :)));
 %    b = ReadAvgFile(deblank(filemat_spec(index2+1, :)));
@@ -111,9 +112,9 @@ filemat_spec = getfilesindir(pwd, '*.spec');
 %     plot(freqs(1:60), b(channel, 1:60)); 
 %     title(deblank(filemat_spec(index2, :)))
 %     legend('closed', 'open')
-%     pause(1)
+%     pause(.2)
 %     hold off
-%     pause(1)
+%     pause
 % end
 
 % make butterfly plot for each reactivity score
@@ -130,20 +131,20 @@ end
 
 %% compare the groups, across eyes open and closed
 % high first 
-cd '/Users/andreaskeil/Desktop/olfaxis/all_Data_spectrum/Qbygroup/high'
+cd '/Users/andreaskeil/UF Dropbox/Andreas Keil/MobileEEG/all_Data_spectrum/Qbygroup/high'
 freqs = 0:0.5:100; 
 filemat_spec = getfilesindir(pwd, '*.spec');
 MergeAvgFiles(filemat_spec,'GMhigh.at.spec.ar',1,1,[],0,[],[],0,0)
 
 % low next 
-cd '/Users/andreaskeil/Desktop/olfaxis/all_Data_spectrum/Qbygroup/low'
+cd '/Users/andreaskeil/UF Dropbox/Andreas Keil/MobileEEG/all_Data_spectrum/Qbygroup/low'
 freqs = 0:0.5:100; 
 filemat_spec = getfilesindir(pwd, '*.spec');
 MergeAvgFiles(filemat_spec,'GMlow.at.spec.ar',1,1,[],0,[],[],0,0)
 
 %% compare the groups, for eyes open and closed separately
 % high first 
-cd '/Users/andreaskeil/Desktop/olfaxis/all_Data_spectrum/Qbygroup/high'
+cd '/Users/andreaskeil/UF Dropbox/Andreas Keil/MobileEEG/all_Data_spectrum/Qbygroup/high'
 
 filemat_spec = getfilesindir(pwd, '*open*.spec');
 MergeAvgFiles(filemat_spec,'GMhigh.atOPEN.spec.ar',1,1,[],0,[],[],0,0)
@@ -154,7 +155,7 @@ MergeAvgFiles(filemat_spec,'GMhigh.atCLOSED.spec.ar',1,1,[],0,[],[],0,0)
 pause(1)
 
 % low next 
-cd '/Users/andreaskeil/Desktop/olfaxis/all_Data_spectrum/Qbygroup/low'
+cd '/Users/andreaskeil/UF Dropbox/Andreas Keil/MobileEEG/all_Data_spectrum/Qbygroup/low'
 
 filemat_spec = getfilesindir(pwd, '*open*.spec');
 MergeAvgFiles(filemat_spec,'GMlow.atOPEN.spec.ar',1,1,[],0,[],[],0,0)
@@ -164,14 +165,14 @@ MergeAvgFiles(filemat_spec,'GMlow.atCLOSED.spec.ar',1,1,[],0,[],[],0,0)
 
 %% make 4D mats for easier access and comparisons
 
-cd '/Users/andreaskeil/Desktop/olfaxis/all_Data_spectrum/Qbygroup/low'
-filemat = getfilesindir(pwd); 
-[repmat] = makerepmat(filemat, 123, 2, []);
+cd '/Users/andreaskeil/UF Dropbox/Andreas Keil/MobileEEG/all_Data_spectrum/Qbygroup/low'
+filemat = getfilesindir(pwd, '*.spec'); 
+[repmat] = makerepmat(filemat, 112, 2, []);
 repmat_low = repmat;
 
-cd '/Users/andreaskeil/Desktop/olfaxis/all_Data_spectrum/Qbygroup/high'
-filemat = getfilesindir(pwd); 
-[repmat] = makerepmat(filemat, 44, 2, []);
+cd '/Users/andreaskeil/UF Dropbox/Andreas Keil/MobileEEG/all_Data_spectrum/Qbygroup/high'
+filemat = getfilesindir(pwd, '*.spec'); 
+[repmat] = makerepmat(filemat, 55, 2, []);
 repmat_high = repmat;
 
 %% now do some basic stats
@@ -238,5 +239,82 @@ confusionchart(y, preds);              % interactive plot
 pause(.5)
 
 accuracy = mean(preds==y);
+
+%% now with resampling for reactivity
+% use the 4D tp make an initial benchmark SVM
+channel = 3;
+
+for loop = 1:10
+
+    subsample = randperm(112, 55); 
+
+    % make the data matrix
+   openclose_low = cat(2, repmat_low(channel, 7:28, subsample, 1),  repmat_low(channel, 7:28, subsample, 2));  
+    openclose_high = repmat_high(channel, :, :, 1) - repmat_high(:, :, :, 2);
+
+    X_low = squeeze(openclose_low);
+    X_high = squeeze(reactivity_high(channel, 7:28, :));
+
+    y = [ones(size(X_low, 2), 1); 2*ones(size(X_high, 2),1)];
+    X = [X_low'; X_high'];
+
+    cvp = cvpartition(length(y), KFold=10);
+
+    % this is the actual SVM
+    opts = struct('CVPartition',cvp,'AcquisitionFunctionName', ...
+        'expected-improvement-plus');
+
+    % svmModel = fitcsvm(X, y, 'KernelFunction','rbf', 'Standardize',true, 'OptimizeHyperparameters','auto', 'HyperparameterOptimizationOptions',opts);
+    svmModel = fitcsvm(X, y, 'KernelFunction','linear', 'Standardize',true, 'Crossval','on', CVPartition=cvp);
+
+
+    preds   = kfoldPredict(svmModel);
+
+    confmat = confusionmat(y, preds);      % raw numeric matrix
+    confusionchart(y, preds);              % interactive plot
+    pause(.5)
+
+    accuracy(loop) = mean(preds==y);
+
+end
+
+
+%% now with resampling for open and closed separately
+% use the 4D tp make an initial benchmark SVM
+channel = 3;
+
+for loop = 1:10
+
+    subsample = randperm(112, 55); 
+
+    % make the data matrix
+    reactivity_low = repmat_low(:, :, subsample, 1) - repmat_low(:, :, subsample, 2);
+    reactivity_high = repmat_high(:, :, :, 1) - repmat_high(:, :, :, 2);
+
+    X_low = squeeze(reactivity_low(channel, 7:28, :));
+    X_high = squeeze(reactivity_high(channel, 7:28, :));
+
+    y = [ones(size(X_low, 2), 1); 2*ones(size(X_high, 2),1)];
+    X = [X_low'; X_high'];
+
+    cvp = cvpartition(length(y), KFold=10);
+
+    % this is the actual SVM
+    opts = struct('CVPartition',cvp,'AcquisitionFunctionName', ...
+        'expected-improvement-plus');
+
+    % svmModel = fitcsvm(X, y, 'KernelFunction','rbf', 'Standardize',true, 'OptimizeHyperparameters','auto', 'HyperparameterOptimizationOptions',opts);
+    svmModel = fitcsvm(X, y, 'KernelFunction','linear', 'Standardize',true, 'Crossval','on', CVPartition=cvp);
+
+
+    preds   = kfoldPredict(svmModel);
+
+    confmat = confusionmat(y, preds);      % raw numeric matrix
+    confusionchart(y, preds);              % interactive plot
+    pause(.5)
+
+    accuracy(loop) = mean(preds==y);
+
+end
 
 
