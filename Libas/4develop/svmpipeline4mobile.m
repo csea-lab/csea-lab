@@ -250,10 +250,10 @@ for loop = 1:10
 
     % make the data matrix
    openclose_low = cat(2, repmat_low(channel, 7:28, subsample, 1),  repmat_low(channel, 7:28, subsample, 2));  
-    openclose_high = repmat_high(channel, :, :, 1) - repmat_high(:, :, :, 2);
+   openclose_high = cat(2, repmat_high(channel, 7:28, :, 1),  repmat_high(channel, 7:28, :, 2));  
 
     X_low = squeeze(openclose_low);
-    X_high = squeeze(reactivity_high(channel, 7:28, :));
+    X_high = squeeze(openclose_high);
 
     y = [ones(size(X_low, 2), 1); 2*ones(size(X_high, 2),1)];
     X = [X_low'; X_high'];
