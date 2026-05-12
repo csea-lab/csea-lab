@@ -30,7 +30,7 @@ filemat = getfilesindir(pwd, '*ar.mat');
 [spec] = get_FFT_mat3d(filemat, 1:1000, 500);
 
 %% explore the spectrum across the group
-cd '/Users/andreaskeil/Desktop/olfaxis/all_Data_spectrum'
+cd '/Users/andreaskeil/UF Dropbox/Andreas Keil/MobileEEG/all_Data_spectrum'
 
 freqs = 0:0.5:100; 
 filemat_spec = getfilesindir(pwd, '*.spec');
@@ -240,7 +240,7 @@ pause(.5)
 
 accuracy = mean(preds==y);
 
-%% now with resampling for reactivity
+%% now with resampling for open and closed
 % use the 4D tp make an initial benchmark SVM
 channel = 3;
 
@@ -282,6 +282,7 @@ end
 %% now with resampling for open and closed separately
 % use the 4D tp make an initial benchmark SVM
 channel = 3;
+close all
 
 for loop = 1:10
 
