@@ -243,14 +243,14 @@ accuracy = mean(preds==y);
 %% now with resampling for open and closed
 % use the 4D tp make an initial benchmark SVM
 channel = 3;
-
-for loop = 1:10
+freqs = 7:35; % was 7:28
+for loop = 1:20
 
     subsample = randperm(112, 55); 
 
     % make the data matrix
-   openclose_low = cat(2, repmat_low(channel, 7:28, subsample, 1),  repmat_low(channel, 7:28, subsample, 2));  
-   openclose_high = cat(2, repmat_high(channel, 7:28, :, 1),  repmat_high(channel, 7:28, :, 2));  
+   openclose_low = cat(2, repmat_low(channel, freqs, subsample, 1),  repmat_low(channel, freqs, subsample, 2));  
+   openclose_high = cat(2, repmat_high(channel, freqs, :, 1),  repmat_high(channel, freqs, :, 2));  
 
     X_low = squeeze(openclose_low);
     X_high = squeeze(openclose_high);
@@ -267,55 +267,84 @@ for loop = 1:10
     % svmModel = fitcsvm(X, y, 'KernelFunction','rbf', 'Standardize',true, 'OptimizeHyperparameters','auto', 'HyperparameterOptimizationOptions',opts);
     svmModel = fitcsvm(X, y, 'KernelFunction','linear', 'Standardize',true, 'Crossval','on', CVPartition=cvp);
 
-
     preds   = kfoldPredict(svmModel);
 
-    confmat = confusionmat(y, preds);      % raw numeric matrix
-    confusionchart(y, preds);              % interactive plot
-    pause(.5)
+    % confmat = confusionmat(y, preds);      % raw numeric matrix
+    % confusionchart(y, preds);              % interactive plot
+    % pause(.5)
 
     accuracy(loop) = mean(preds==y);
 
 end
-
-
-%% now with resampling for open and closed separately
-% use the 4D tp make an initial benchmark SVM
-channel = 3;
-close all
-
+figure(101), hold on
+plot(accuracy)
+%% SVM with all channels, PCA, resampling for open and closed
 for loop = 1:10
+    subsample = randperm(112, 55);
 
-    subsample = randperm(112, 55); 
+    % make the data matrix using all channels
+    openclose_low  = cat(2, repmat_low(:, 7:28, subsample, 1),  repmat_low(:, 7:28, subsample, 2));
+    openclose_high = cat(2, repmat_high(:, 7:28, :, 1), repmat_high(:, 7:28, :, 2));
+
+    % reshape to [subjects x features]
+    X_low  = reshape(openclose_low,  [], size(openclose_low,  3))';
+    X_high = reshape(openclose_high, [], size(openclose_high, 3))';
+
+    X = [X_low; X_high];
+    y = [ones(size(X_low, 1), 1); 2*ones(size(X_high, 1), 1)];
+
+    % PCA - retain components explaining 95% of variance
+    [coeff, score, ~, ~, explained] = pca(X);
+    % num_components = find(cumsum(explained) >= 95, 1);
+    num_components = 20;
+    X_pca = score(:, 1:num_components);
+
+    % cross-validation partition
+    cvp = cvpartition(length(y), 'KFold', 10);
+
+    % SVM
+    svmModel = fitcsvm(X_pca, y, 'KernelFunction', 'linear', 'Standardize', true, 'Crossval', 'on', 'CVPartition', cvp);
+    preds    = kfoldPredict(svmModel);
+
+    confusionchart(y, preds);
+    pause(0.5);
+
+    accuracy(loop) = mean(preds == y);
+    fprintf('Loop %d: %d PCA components, accuracy: %.2f%%\n', loop, num_components, accuracy(loop)*100);
+end
+
+fprintf('\nMean accuracy: %.2f%% ± %.2f%%\n', mean(accuracy)*100, std(accuracy)*100);
+
+
+
+%% now with resampling for open and closed
+channels = [1 3];  % add channels here e.g. [3, 7, 12] to experiment
+freqs = 1:28;
+
+for loop = 1:20
+    subsample = randperm(112, 55);
 
     % make the data matrix
-    reactivity_low = repmat_low(:, :, subsample, 1) - repmat_low(:, :, subsample, 2);
-    reactivity_high = repmat_high(:, :, :, 1) - repmat_high(:, :, :, 2);
+    openclose_low  = cat(3, repmat_low(channels, freqs, subsample, 1),  repmat_low(channels, freqs, subsample, 2));
+    openclose_high = cat(3, repmat_high(channels, freqs, :, 1), repmat_high(channels, freqs, :, 2));
 
-    X_low = squeeze(reactivity_low(channel, 7:28, :));
-    X_high = squeeze(reactivity_high(channel, 7:28, :));
+    % reshape to [subjects x features], handles single or multiple channels
+    n_low  = size(openclose_low,  3);
+    n_high = size(openclose_high, 3);
+    X_low  = reshape(openclose_low,  length(channels)*length(freqs), n_low)';
+    X_high = reshape(openclose_high, length(channels)*length(freqs), n_high)';
 
-    y = [ones(size(X_low, 2), 1); 2*ones(size(X_high, 2),1)];
-    X = [X_low'; X_high'];
+    X = [X_low; X_high];
+    y = [ones(n_low, 1); 2*ones(n_high, 1)];
 
-    cvp = cvpartition(length(y), KFold=10);
+    cvp = cvpartition(length(y), 'KFold', 10);
 
-    % this is the actual SVM
-    opts = struct('CVPartition',cvp,'AcquisitionFunctionName', ...
-        'expected-improvement-plus');
+    svmModel = fitcsvm(X, y, 'KernelFunction', 'linear', 'Standardize', true, 'Crossval', 'on', 'CVPartition', cvp);
+    preds    = kfoldPredict(svmModel);
 
-    % svmModel = fitcsvm(X, y, 'KernelFunction','rbf', 'Standardize',true, 'OptimizeHyperparameters','auto', 'HyperparameterOptimizationOptions',opts);
-    svmModel = fitcsvm(X, y, 'KernelFunction','linear', 'Standardize',true, 'Crossval','on', CVPartition=cvp);
-
-
-    preds   = kfoldPredict(svmModel);
-
-    confmat = confusionmat(y, preds);      % raw numeric matrix
-    confusionchart(y, preds);              % interactive plot
-    pause(.5)
-
-    accuracy(loop) = mean(preds==y);
-
+    accuracy(loop) = mean(preds == y);
 end
 
-
+figure(101), hold on
+plot(accuracy)
+disp(mean(accuracy))
