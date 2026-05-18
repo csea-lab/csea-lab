@@ -1,12 +1,13 @@
 % [outputs] = functionName(inputs)
-% function outmat3d = bingham_new_prepro
+function EEG = bingham_art_rej(EEG, params)
 
 thresholdChanTrials = 2.5; 
-    thresholdTrials = 1.25;
-    thresholdChan = 2.5;
+thresholdTrials = 1.25;
+thresholdChan = 2.5;
 
-    ecfgfilename = 'bingham31.ecfg'
-    inmat3d = (EEG_angry);
+ecfgfilename = 'bingham31.ecfg'
+
+inmat3d = EEG.data;
 
 
   % find generally bad channels
