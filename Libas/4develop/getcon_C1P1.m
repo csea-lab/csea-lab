@@ -4,7 +4,9 @@ conmat = load(infile);
 
 eyevec = []; 
 
-% eyevec = repmat([88; 99; 66; 77], 5,1);
+eyevec1 = repmat([52; 51], 5,1);
+eyevec2 = repmat([32; 31], 5,1);
+eyevec = [eyevec1; eyevec2];
 
 stimulustype = conmat(:,4) + 1; % plus one makes numbers interpretable and addable 
 
