@@ -30,7 +30,7 @@ filemat = getfilesindir(pwd, '*ar.mat');
 [spec] = get_FFT_mat3d(filemat, 1:1000, 500);
 
 %% explore the spectrum across the group
-cd '/Users/andreaskeil/Desktop/olfaxis/all_Data_spectrum'
+cd '/Users/andreaskeil/UF Dropbox/Andreas Keil/MobileEEG/all_Data_spectrum'
 
 freqs = 0:0.5:100; 
 filemat_spec = getfilesindir(pwd, '*.spec');
@@ -53,7 +53,7 @@ end
 
 %% explore the spectrum for each group - part 1
 % first high group 
-cd '/Users/andreaskeil/Desktop/olfaxis/all_Data_spectrum/Qbygroup/high'
+cd '/Users/andreaskeil/UF Dropbox/Andreas Keil/MobileEEG/all_Data_spectrum/Qbygroup/high'
 
 channel = 4; 
 
@@ -91,17 +91,18 @@ end
 
 %% explore the spectrum for each group - part 2
 % second, low group 
-cd '/Users/andreaskeil/Desktop/olfaxis/all_Data_spectrum/Qbygroup/low'
+cd '/Users/andreaskeil/UF Dropbox/Andreas Keil/MobileEEG/all_Data_spectrum/Qbygroup/low'
 
-channel = 3; 
+
+channel = 4; 
 
 freqs = 0:0.5:100; 
 filemat_spec = getfilesindir(pwd, '*.spec');
 
 
 
-% loop over single subjects
-%figure(101)
+% %loop over single subjects
+% figure(101)
 % for index2 = 1:2:size(filemat_spec, 1)
 %    a = ReadAvgFile(deblank(filemat_spec(index2, :)));
 %    b = ReadAvgFile(deblank(filemat_spec(index2+1, :)));
@@ -111,9 +112,9 @@ filemat_spec = getfilesindir(pwd, '*.spec');
 %     plot(freqs(1:60), b(channel, 1:60)); 
 %     title(deblank(filemat_spec(index2, :)))
 %     legend('closed', 'open')
-%     pause(1)
+%     pause(.2)
 %     hold off
-%     pause(1)
+%     pause
 % end
 
 % make butterfly plot for each reactivity score
@@ -130,20 +131,20 @@ end
 
 %% compare the groups, across eyes open and closed
 % high first 
-cd '/Users/andreaskeil/Desktop/olfaxis/all_Data_spectrum/Qbygroup/high'
+cd '/Users/andreaskeil/UF Dropbox/Andreas Keil/MobileEEG/all_Data_spectrum/Qbygroup/high'
 freqs = 0:0.5:100; 
 filemat_spec = getfilesindir(pwd, '*.spec');
 MergeAvgFiles(filemat_spec,'GMhigh.at.spec.ar',1,1,[],0,[],[],0,0)
 
 % low next 
-cd '/Users/andreaskeil/Desktop/olfaxis/all_Data_spectrum/Qbygroup/low'
+cd '/Users/andreaskeil/UF Dropbox/Andreas Keil/MobileEEG/all_Data_spectrum/Qbygroup/low'
 freqs = 0:0.5:100; 
 filemat_spec = getfilesindir(pwd, '*.spec');
 MergeAvgFiles(filemat_spec,'GMlow.at.spec.ar',1,1,[],0,[],[],0,0)
 
 %% compare the groups, for eyes open and closed separately
 % high first 
-cd '/Users/andreaskeil/Desktop/olfaxis/all_Data_spectrum/Qbygroup/high'
+cd '/Users/andreaskeil/UF Dropbox/Andreas Keil/MobileEEG/all_Data_spectrum/Qbygroup/high'
 
 filemat_spec = getfilesindir(pwd, '*open*.spec');
 MergeAvgFiles(filemat_spec,'GMhigh.atOPEN.spec.ar',1,1,[],0,[],[],0,0)
@@ -154,7 +155,7 @@ MergeAvgFiles(filemat_spec,'GMhigh.atCLOSED.spec.ar',1,1,[],0,[],[],0,0)
 pause(1)
 
 % low next 
-cd '/Users/andreaskeil/Desktop/olfaxis/all_Data_spectrum/Qbygroup/low'
+cd '/Users/andreaskeil/UF Dropbox/Andreas Keil/MobileEEG/all_Data_spectrum/Qbygroup/low'
 
 filemat_spec = getfilesindir(pwd, '*open*.spec');
 MergeAvgFiles(filemat_spec,'GMlow.atOPEN.spec.ar',1,1,[],0,[],[],0,0)
@@ -164,14 +165,14 @@ MergeAvgFiles(filemat_spec,'GMlow.atCLOSED.spec.ar',1,1,[],0,[],[],0,0)
 
 %% make 4D mats for easier access and comparisons
 
-cd '/Users/andreaskeil/Desktop/olfaxis/all_Data_spectrum/Qbygroup/low'
-filemat = getfilesindir(pwd); 
-[repmat] = makerepmat(filemat, 123, 2, []);
+cd '/Users/andreaskeil/UF Dropbox/Andreas Keil/MobileEEG/all_Data_spectrum/Qbygroup/low'
+filemat = getfilesindir(pwd, '*.spec'); 
+[repmat] = makerepmat(filemat, 112, 2, []);
 repmat_low = repmat;
 
-cd '/Users/andreaskeil/Desktop/olfaxis/all_Data_spectrum/Qbygroup/high'
-filemat = getfilesindir(pwd); 
-[repmat] = makerepmat(filemat, 44, 2, []);
+cd '/Users/andreaskeil/UF Dropbox/Andreas Keil/MobileEEG/all_Data_spectrum/Qbygroup/high'
+filemat = getfilesindir(pwd, '*.spec'); 
+[repmat] = makerepmat(filemat, 55, 2, []);
 repmat_high = repmat;
 
 %% now do some basic stats
@@ -239,4 +240,111 @@ pause(.5)
 
 accuracy = mean(preds==y);
 
+%% now with resampling for open and closed
+% use the 4D tp make an initial benchmark SVM
+channel = 3;
+freqs = 7:35; % was 7:28
+for loop = 1:20
 
+    subsample = randperm(112, 55); 
+
+    % make the data matrix
+   openclose_low = cat(2, repmat_low(channel, freqs, subsample, 1),  repmat_low(channel, freqs, subsample, 2));  
+   openclose_high = cat(2, repmat_high(channel, freqs, :, 1),  repmat_high(channel, freqs, :, 2));  
+
+    X_low = squeeze(openclose_low);
+    X_high = squeeze(openclose_high);
+
+    y = [ones(size(X_low, 2), 1); 2*ones(size(X_high, 2),1)];
+    X = [X_low'; X_high'];
+
+    cvp = cvpartition(length(y), KFold=10);
+
+    % this is the actual SVM
+    opts = struct('CVPartition',cvp,'AcquisitionFunctionName', ...
+        'expected-improvement-plus');
+
+    % svmModel = fitcsvm(X, y, 'KernelFunction','rbf', 'Standardize',true, 'OptimizeHyperparameters','auto', 'HyperparameterOptimizationOptions',opts);
+    svmModel = fitcsvm(X, y, 'KernelFunction','linear', 'Standardize',true, 'Crossval','on', CVPartition=cvp);
+
+    preds   = kfoldPredict(svmModel);
+
+    % confmat = confusionmat(y, preds);      % raw numeric matrix
+    % confusionchart(y, preds);              % interactive plot
+    % pause(.5)
+
+    accuracy(loop) = mean(preds==y);
+
+end
+figure(101), hold on
+plot(accuracy)
+%% SVM with all channels, PCA, resampling for open and closed
+for loop = 1:10
+    subsample = randperm(112, 55);
+
+    % make the data matrix using all channels
+    openclose_low  = cat(2, repmat_low(:, 7:28, subsample, 1),  repmat_low(:, 7:28, subsample, 2));
+    openclose_high = cat(2, repmat_high(:, 7:28, :, 1), repmat_high(:, 7:28, :, 2));
+
+    % reshape to [subjects x features]
+    X_low  = reshape(openclose_low,  [], size(openclose_low,  3))';
+    X_high = reshape(openclose_high, [], size(openclose_high, 3))';
+
+    X = [X_low; X_high];
+    y = [ones(size(X_low, 1), 1); 2*ones(size(X_high, 1), 1)];
+
+    % PCA - retain components explaining 95% of variance
+    [coeff, score, ~, ~, explained] = pca(X);
+    % num_components = find(cumsum(explained) >= 95, 1);
+    num_components = 20;
+    X_pca = score(:, 1:num_components);
+
+    % cross-validation partition
+    cvp = cvpartition(length(y), 'KFold', 10);
+
+    % SVM
+    svmModel = fitcsvm(X_pca, y, 'KernelFunction', 'linear', 'Standardize', true, 'Crossval', 'on', 'CVPartition', cvp);
+    preds    = kfoldPredict(svmModel);
+
+    confusionchart(y, preds);
+    pause(0.5);
+
+    accuracy(loop) = mean(preds == y);
+    fprintf('Loop %d: %d PCA components, accuracy: %.2f%%\n', loop, num_components, accuracy(loop)*100);
+end
+
+fprintf('\nMean accuracy: %.2f%% ± %.2f%%\n', mean(accuracy)*100, std(accuracy)*100);
+
+
+
+%% now with resampling for open and closed
+channels = [1 3];  % add channels here e.g. [3, 7, 12] to experiment
+freqs = 1:28;
+
+for loop = 1:20
+    subsample = randperm(112, 55);
+
+    % make the data matrix
+    openclose_low  = cat(3, repmat_low(channels, freqs, subsample, 1),  repmat_low(channels, freqs, subsample, 2));
+    openclose_high = cat(3, repmat_high(channels, freqs, :, 1), repmat_high(channels, freqs, :, 2));
+
+    % reshape to [subjects x features], handles single or multiple channels
+    n_low  = size(openclose_low,  3);
+    n_high = size(openclose_high, 3);
+    X_low  = reshape(openclose_low,  length(channels)*length(freqs), n_low)';
+    X_high = reshape(openclose_high, length(channels)*length(freqs), n_high)';
+
+    X = [X_low; X_high];
+    y = [ones(n_low, 1); 2*ones(n_high, 1)];
+
+    cvp = cvpartition(length(y), 'KFold', 10);
+
+    svmModel = fitcsvm(X, y, 'KernelFunction', 'linear', 'Standardize', true, 'Crossval', 'on', 'CVPartition', cvp);
+    preds    = kfoldPredict(svmModel);
+
+    accuracy(loop) = mean(preds == y);
+end
+
+figure(101), hold on
+plot(accuracy)
+disp(mean(accuracy))
