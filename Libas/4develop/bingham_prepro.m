@@ -31,9 +31,13 @@ function [EEG, EEG_happy, EEG_angry, EEG_sad, string, checktimevec] =  bingham_p
       [string, checktimevec] = bingham_findgoodtrig(EEG);
       if checktimevec(1) < 60000
           conditionvec = [0; conditionvec]; 
-          maxcount = 94;
+          maxcount = 94;    
+      elseif length(checktimevec)+1 == 91
+          conditionvec = conditionvec(2:92);
+          maxcount = 92;
       else 
           maxcount = 93;
+    
       end
 
       disp(['a total of ' num2str(length(checktimevec)+1) ' markers of type ' string ' were found in the file'])

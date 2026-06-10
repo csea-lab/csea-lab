@@ -29,12 +29,15 @@ trigtimes = zeros(size(EEG.event,2),1);
 
  countervec = [counter1 counter2 counter3 counter4]
 
+
  if ismember(94, countervec )
      countindex = find(countervec == 94);
  elseif ismember(92, countervec )
      countindex = find(countervec == 92);
  elseif  ismember(93, countervec )
      countindex = find(countervec == 93);
+ elseif ismember(91, countervec )
+     countindex = find(countervec == 91);
  end
 
 

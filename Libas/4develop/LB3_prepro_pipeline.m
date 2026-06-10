@@ -83,9 +83,9 @@ EEG.event(find(eventsdiscard)) = [];
 
 %read conditions from log file;d
 conditionvec = feval(convecfun, logpath);
-if strcmpi('all', conditions2select{:})
-    conditions2select = cellstr(string(unique(conditionvec)'));
-end
+% if strcmpi('all', conditions2select{:})      % prompted error 
+%     conditions2select = cellstr(string(unique(conditionvec)'));
+% end
 
 % now we replace the DIN with the condition
 counter = 1;
