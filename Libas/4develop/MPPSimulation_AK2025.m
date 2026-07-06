@@ -16,7 +16,7 @@ outmat = zeros(nSNRs, 9);
 alpha = 1;                % Adjust between 0 and 1 to vary asymmetry
 
 % M for MPP
-M = 100; 
+M = 200; 
 
 %  axes
 faxisall = 0:0.1818:500; 
@@ -55,7 +55,7 @@ for SNR = 1:1:nSNRs
     WaPower = squeeze(wavelet_app_mat_singtrials(mat3d, 1000, 56, 56, 1));
 
     % convert to dB
-    noise_indices = [1:2499, 3001:5500];
+    noise_indices = [1:2000, 3501:5500];
     noise = var(WaPower(noise_indices, :));
     WaPower_db = 20 * log10(zero_negatives(bslcorr(WaPower', 1000:2000)' ./ noise));
 
