@@ -16,16 +16,16 @@ outmat3d = inmat3d; % Creates a new matrix the same size as the input matrix
     stdvalvec = std(trialdata2d')./ max(std(trialdata2d')); % SD of voltage values
     maxtransvalvec = max(diff(trialdata2d'))./ max(max(diff(trialdata2d'))); % Max diff (??) of voltage values
 
-
     % calculate compound quality index
     qualindex = absvalvec+ stdvalvec+ maxtransvalvec;
     figure(103)
     plot(qualindex)
 
-
     % calculate std for the 95% distribution
     cutoff = quantile(qualindex, .95);
     actualdistribution = qualindex(qualindex < cutoff);
+
+     yline(median(qualindex) + threshold.* std(actualdistribution))
 
 
     % detect indices of bad channels; currently anything farther than 3 SD
