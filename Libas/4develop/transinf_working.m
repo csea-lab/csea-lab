@@ -18,7 +18,7 @@ function transinf_working(subjectNumber, cbOrder)
 %                      5: Grasslands=A, Tundra=B, Mountains=C, Desert=D, Forest=E
 %
 % Phases (in order):
-%   1. Baseline 1        – passive viewing (500 ms stim, jittered ITI 1-3 s)
+%   1. Baseline 1        – passive viewing (500 ms stim, jittered ITI 2-3.5 s)
 %   2. Similarity Ratings 1  – PLACEHOLDER (calls similarityRatings())
 %   3. Learning          – A+/B-, B+/C-, C+/D-, D+/E- with feedback
 %   4. Testing           – A/E, C/C, D/D, B/D; no feedback
@@ -39,14 +39,20 @@ rng(subjectNumber * cbOrder);          % reproducible randomisation per subject
 KbName('UnifyKeyNames');
 
 % Locate stimuli parent folder (sibling of this .m file)
-scriptDir   = fileparts(mfilename('fullpath'));
-stimuliDir  = fullfile(scriptDir, 'stimuli');
+stimuliDir  = '/home/andreaskeil/Desktop/As_Exps/transinf/stimuli/';
 
 % Output directory
-dataDir = fullfile(scriptDir, 'data');
-if ~exist(dataDir, 'dir'), mkdir(dataDir); end
-dataFile = fullfile(dataDir, sprintf('sub-%03d_transinf.csv', subjectNumber));
+dataDir = '/home/andreaskeil/Desktop/As_Exps/transinf/data/';
 
+%% ports for EEG event markers
+%make sure ports are closed
+fclose('all');
+WaitSecs(1)
+
+% Port
+% open serial port for trigger writing
+s3 = serial('/dev/ttyUSB1', 'BaudRate', 115200, 'DataBits', 8, 'StopBits', 1, 'Parity', 'none');
+fopen(s3);
 %% =========================================================
 %  1.  CATEGORY / COUNTERBALANCING SETUP
 %% =========================================================
@@ -77,12 +83,12 @@ for r = 1:nCategories
     flds = dir(fullfile(roles.(lbl).folderPath, '*.png'));
     if numel(flds) < nImgsPerCat
         error('Category %s (%s): expected %d PNGs, found %d.', ...
-              lbl, roles.(lbl).folderName, nImgsPerCat, numel(flds));
+            lbl, roles.(lbl).folderName, nImgsPerCat, numel(flds));
     end
     % Shuffle image order per subject/cb for within-category counterbalancing
     shuffIdx = randperm(nImgsPerCat);
     roles.(lbl).imgPaths = arrayfun(@(i) fullfile(roles.(lbl).folderPath, flds(shuffIdx(i)).name), ...
-                                    1:nImgsPerCat, 'UniformOutput', false);
+        1:nImgsPerCat, 'UniformOutput', false);
 end
 
 %% =========================================================
@@ -121,13 +127,13 @@ fixColor     = [1 1 1];
 
 % Text parameters
 Screen('TextFont',  win, 'Arial');
-Screen('TextSize',  win, 48);
+Screen('TextSize',  win, 36);
 Screen('TextStyle', win, 1);   % bold
 
 % Timing constants (seconds)
 BASELINE_STIM_DUR   = 0.500;
-BASELINE_ITI_MIN    = 1.0;
-BASELINE_ITI_MAX    = 3.0;
+BASELINE_ITI_MIN    = 2.0;
+BASELINE_ITI_MAX    = 3.5;
 LEARNING_MAX_RT     = 1.000;   % images stay on until response OR this limit
 LEARNING_ITI_MIN    = 2.0;
 LEARNING_ITI_MAX    = 4.0;
@@ -141,49 +147,165 @@ SetMouse(cx, cy, win);   % park cursor at centre between trials
 %% =========================================================
 %  4.  DATA LOG INITIALISATION
 %% =========================================================
-% Pre-allocate a struct-array; we append rows as we go and write CSV at end
-dataLog = struct('subjectNumber',{}, 'phase',{}, 'block',{}, 'trialNumber',{}, ...
-                 'catRoleLeft',{},   'catRoleRight',{}, ...
-                 'catNameLeft',{},   'catNameRight',{}, ...
-                 'imgFileLeft',{},   'imgFileRight',{}, ...
-                 'correctSide',{},   'responseSide',{}, ...
-                 'correct',{},       'RT_ms',{},         'feedback',{});
-logIdx = 0;
+% log file define and open for baseline 1
+datafilename1 = [dataDir 'tinfLog1' num2str(subjectNumber) '.dat'];
+datafilepointer1 = fopen(datafilename1, 'w');
 
- HideCursor(0,0);
+HideCursor(0,0);
 %% =========================================================
-%  5.  Baseline 1
+%  5.  Baseline 1 Phase
 %% =========================================================
 % write message to subject
-Screen('DrawText', w, 'The experiment will begin shortly ... ', cx-120, cy, 255);
-Screen('Flip', w); % show text
+Screen('DrawText', win, 'The experiment will begin shortly ... ', cx-120, cy, 255);
+Screen('Flip', win); % show text
 KbStrokeWait;
 % clear screen
-Screen('Flip', w);
+Screen('Flip', win);
 
-% randomization
-Rolenamevec_randomized = []; 
-NTrials = nCategories*nImgsPerCat; 
+%% randomization
+NTrials = nCategories*nImgsPerCat; % trials in baseline phase = all pictures
+
+counterA = 0;
+counterB = 0;
+counterC = 0;
+counterD = 0;
+counterE = 0;
+
+Rolenamevec_randomized = []; % make a vector with as many role names as trials
 for randoloop = 1:nImgsPerCat
     Rolenamevec_randomized = [Rolenamevec_randomized roleLabels(randperm(nCategories))];
 end
 
-for trialindex_bsl1 = 1:nCategories*nImgsPerCat
-
-%fixation cross
- Screen('FillOval', w, 255 ,[cx-5 cy-5 cx+5 cy+5]);
-Screen('Flip', w);
- WaitSecs(BASELINE_ITI_MIN + rand(1,1) * (BASELINE_ITI_MAX-BASELINE_ITI_MIN)) % ITI between 1 and 3 secs, uniform
-
-TrialPicturePath =  eval(['roles.' char(Rolenamevec_randomized(trialindex_bsl1)) '.imgPaths{' num2str(counter) '}']);
-TrialPicture = imread(TrialPicturePath); 
-
-% WaitSecs(BASELINE_STIM_DUR)
-
+for trialindex_bsl1 = 1:NTrials-49
+    % first, set the event marker channel to zero
+    fprintf(s3, '00');
+    % start and control counters for each role
+    if strcmp('A', char(Rolenamevec_randomized(trialindex_bsl1))), counterA = counterA+1; counter = counterA;
+    elseif strcmp('B', char(Rolenamevec_randomized(trialindex_bsl1))), counterB = counterB+1;counter = counterB;
+    elseif strcmp('C', char(Rolenamevec_randomized(trialindex_bsl1))), counterC = counterC+1; counter = counterC;
+    elseif strcmp('D', char(Rolenamevec_randomized(trialindex_bsl1))), counterD = counterD+1; counter = counterD;
+    elseif strcmp('E', char(Rolenamevec_randomized(trialindex_bsl1))), counterE = counterE+1; counter = counterE;
+    end
+    
+    %fixation cross
+    Screen('FillOval', win, 255 ,[cx-5 cy-5 cx+5 cy+5]);
+    Screen('Flip', win);
+    WaitSecs(BASELINE_ITI_MIN + rand(1,1) * (BASELINE_ITI_MAX-BASELINE_ITI_MIN)) % ITI between 1 and 3 secs, uniform
+    
+    % make texture for this trial
+    TrialPicturePath =  eval(['roles.' char(Rolenamevec_randomized(trialindex_bsl1)) '.imgPaths{' num2str(counter) '}']);
+    [~, currentfile] = fileparts(TrialPicturePath);
+    TrialPicture = imread(TrialPicturePath);
+    TrialPicture = imresize(TrialPicture, .5);
+    TrialTex=Screen('MakeTexture', win, TrialPicture);
+    
+    %show the picture
+    Screen('DrawTexture', win, TrialTex);
+    Screen('FillOval', win, 255 ,[cx-5 cy-5 cx+5 cy+5]);
+    Screen('Flip', win);
+    fprintf(s3, '01');
+    WaitSecs(BASELINE_STIM_DUR);
+    % this is how long it is on, and now take it off the screen
+    Screen('FillOval', win, 255 ,[cx-5 cy-5 cx+5 cy+5]);
+    Screen('Flip', win);
+    WaitSecs(.2);
+    
+    % Dat file information, add a row in each trial
+    fprintf(datafilepointer1,'%i %i %i %s %s \n', ...
+        subjectNumber, ...
+        1, ...
+        trialindex_bsl1, ...
+        char(Rolenamevec_randomized(trialindex_bsl1)),...
+        currentfile);
+    
 end
 
-% wait a bit before starting trial
-WaitSecs(1.000);
+%% 6 similarity rating
 
+
+%% 7 learning Phase 
+% write message to subject
+Screen('DrawText', win, 'The next task will begin shortly ... ', cx-120, cy, 255);
+Screen('Flip', win); % show text
+KbStrokeWait;
+% clear screen
+Screen('Flip', win);
+
+% randomization
+NTrials = (nCategories-1)*nImgsPerCat/2; % trials in baseline phase = all pictures
+
+counterA = 0;
+counterB = 0;
+counterC = 0;
+counterD = 0;
+counterE = 0;
+
+pairlabelvec = []; 
+for loopindex = 1:nImgsPerCat/2
+    pairlabelvec = [pairlabelvec randperm(4)]; 
+end
+
+
+for trialindex_training = 1:NTrials
+    % first, set the event marker channel to zero
+    fprintf(s3, '00');
+    
+    %Select the stimulus pair    
+    if pairlabelvec(trialindex_training) > 0
+        counterA = counterA+1;
+        TrialPicturePath1 =  eval(['roles.A.imgPaths{' num2str(counterA) '}']);
+        counterB = counterB+1;
+        TrialPicturePath2 =  eval(['roles.B.imgPaths{' num2str(counterB) '}']);
+    end
+    
+    % make the corresponding textures  
+    [~, currentfile1] = fileparts(TrialPicturePath1);
+    [~, currentfile2] = fileparts(TrialPicturePath2);
+    
+    TrialPicture1 = imread(TrialPicturePath1);
+    TrialPicture1 = imresize(TrialPicture1, .5);
+    TrialTex1=Screen('MakeTexture', win, TrialPicture1);
+    
+    TrialPicture2 = imread(TrialPicturePath2);
+    TrialPicture2 = imresize(TrialPicture2, .5);
+    TrialTex2=Screen('MakeTexture', win, TrialPicture2);
+        
+    
+    %fixation cross
+    Screen('FillOval', win, 255 ,[cx-5 cy-5 cx+5 cy+5]);
+    Screen('Flip', win);
+    WaitSecs(BASELINE_ITI_MIN + rand(1,1) * (BASELINE_ITI_MAX-BASELINE_ITI_MIN)) % ITI between 1 and 3 secs, uniform
+    
+       
+    %show the picture pair
+    Screen('DrawTexture', win, TrialTex1, [], [cx-500 cy-200 cx-100 cy+200] );
+    Screen('DrawTexture', win, TrialTex2, [], [cx+100 cy-200 cx+500 cy+200] );
+    Screen('FillOval', win, 255 ,[cx-5 cy-5 cx+5 cy+5]);
+    Screen('Flip', win);
+    fprintf(s3, '01');
+    WaitSecs(BASELINE_STIM_DUR);
+    % this is how long it is on, and now take it off the screen
+    Screen('FillOval', win, 255 ,[cx-5 cy-5 cx+5 cy+5]);
+    Screen('Flip', win);
+    WaitSecs(.2);
+    
+%     % Dat file information, add a row in each trial
+%     fprintf(datafilepointer1,'%i %i %i %s %s \n', ...
+%         subjectNumber, ...
+%         1, ...
+%         trialindex_bsl1, ...
+%         char(Rolenamevec_randomized(trialindex_bsl1)),...
+%         currentfile);
+    
+end
+
+
+
+%% End of entire experiment
+Screen('Flip', win);
+WaitSecs(.2);
+% Close the window and exit
+Screen('CloseAll');
+%%
 
 end % function transinf
