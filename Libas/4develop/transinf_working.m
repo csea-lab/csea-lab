@@ -35,6 +35,9 @@ function transinf_working(subjectNumber, cbOrder)
 %% =========================================================
 %  0.  HOUSEKEEPING
 %% =========================================================
+% close all ports before starting
+fclose(instrfind);
+
 rng(subjectNumber * cbOrder);          % reproducible randomisation per subject
 KbName('UnifyKeyNames');
 
@@ -45,10 +48,6 @@ stimuliDir  = '/home/andreaskeil/Desktop/As_Exps/transinf/stimuli/';
 dataDir = '/home/andreaskeil/Desktop/As_Exps/transinf/data/';
 
 %% ports for EEG event markers
-%make sure ports are closed
-fclose('all');
-WaitSecs(1)
-
 % Port
 % open serial port for trigger writing
 s3 = serial('/dev/ttyUSB1', 'BaudRate', 115200, 'DataBits', 8, 'StopBits', 1, 'Parity', 'none');
@@ -135,23 +134,24 @@ BASELINE_STIM_DUR   = 0.500;
 BASELINE_ITI_MIN    = 2.0;
 BASELINE_ITI_MAX    = 3.5;
 LEARNING_MAX_RT     = 1.000;   % images stay on until response OR this limit
-LEARNING_ITI_MIN    = 2.0;
-LEARNING_ITI_MAX    = 4.0;
+LEARNING_ITI_MIN    = 1.0;
+LEARNING_ITI_MAX    = 2.0;
 FEEDBACK_DUR        = 0.500;
 TEST_MAX_RT         = 1.000;
 
-% Mouse / response
-ShowCursor('Arrow', win);
-SetMouse(cx, cy, win);   % park cursor at centre between trials
+% hide the cursor
+HideCursor(win)
 
 %% =========================================================
 %  4.  DATA LOG INITIALISATION
 %% =========================================================
 % log file define and open for baseline 1
-datafilename1 = [dataDir 'tinfLog1' num2str(subjectNumber) '.dat'];
+datafilename1 = [dataDir 'tinfLog1s' num2str(subjectNumber) '.dat'];
 datafilepointer1 = fopen(datafilename1, 'w');
 
-HideCursor(0,0);
+datafilename2 = [dataDir 'tinfLog2s' num2str(subjectNumber) '.dat'];
+datafilepointer2 = fopen(datafilename2, 'w');
+
 %% =========================================================
 %  5.  Baseline 1 Phase
 %% =========================================================
@@ -231,6 +231,10 @@ KbStrokeWait;
 % clear screen
 Screen('Flip', win);
 
+% mouse cursor
+ShowCursor('Arrow',win);
+SetMouse(cx, cy, win);   % park cursor at centre between trials
+
 % randomization
 NTrials = (nCategories-1)*nImgsPerCat/2; % trials in baseline phase = all pictures
 
@@ -240,22 +244,40 @@ counterC = 0;
 counterD = 0;
 counterE = 0;
 
-pairlabelvec = []; 
+pairlabelvec = [];
+switchsidevec = []; 
 for loopindex = 1:nImgsPerCat/2
-    pairlabelvec = [pairlabelvec randperm(4)]; 
+    pairlabelvec = [pairlabelvec randperm(4)];
+    switchsidevec = [switchsidevec randperm(2)];    
 end
 
+switchsidevec = [switchsidevec fliplr(switchsidevec)];
 
 for trialindex_training = 1:NTrials
     % first, set the event marker channel to zero
     fprintf(s3, '00');
     
     %Select the stimulus pair    
-    if pairlabelvec(trialindex_training) > 0
+    if pairlabelvec(trialindex_training) == 1
         counterA = counterA+1;
         TrialPicturePath1 =  eval(['roles.A.imgPaths{' num2str(counterA) '}']);
         counterB = counterB+1;
         TrialPicturePath2 =  eval(['roles.B.imgPaths{' num2str(counterB) '}']);
+    elseif pairlabelvec(trialindex_training) == 2
+        counterB = counterB+1;
+        TrialPicturePath1 =  eval(['roles.B.imgPaths{' num2str(counterB) '}']);
+        counterC = counterC+1;
+        TrialPicturePath2 =  eval(['roles.C.imgPaths{' num2str(counterC) '}']);
+    elseif pairlabelvec(trialindex_training) == 3
+        counterC = counterC+1;
+        TrialPicturePath1 =  eval(['roles.C.imgPaths{' num2str(counterC) '}']);
+        counterD = counterD+1;
+        TrialPicturePath2 =  eval(['roles.D.imgPaths{' num2str(counterD) '}']);
+    elseif pairlabelvec(trialindex_training) == 4
+        counterD = counterD+1;
+        TrialPicturePath1 =  eval(['roles.D.imgPaths{' num2str(counterD) '}']);
+        counterE = counterE+1;
+        TrialPicturePath2 =  eval(['roles.E.imgPaths{' num2str(counterE) '}']);
     end
     
     % make the corresponding textures  
@@ -268,38 +290,74 @@ for trialindex_training = 1:NTrials
     
     TrialPicture2 = imread(TrialPicturePath2);
     TrialPicture2 = imresize(TrialPicture2, .5);
-    TrialTex2=Screen('MakeTexture', win, TrialPicture2);
-        
+    TrialTex2=Screen('MakeTexture', win, TrialPicture2);        
     
     %fixation cross
     Screen('FillOval', win, 255 ,[cx-5 cy-5 cx+5 cy+5]);
     Screen('Flip', win);
-    WaitSecs(BASELINE_ITI_MIN + rand(1,1) * (BASELINE_ITI_MAX-BASELINE_ITI_MIN)) % ITI between 1 and 3 secs, uniform
-    
-       
+    WaitSecs(LEARNING_ITI_MIN + rand(1,1) * (LEARNING_ITI_MAX-LEARNING_ITI_MIN)) % ITI between 1 and 3 secs, uniform
+           
     %show the picture pair
-    Screen('DrawTexture', win, TrialTex1, [], [cx-500 cy-200 cx-100 cy+200] );
-    Screen('DrawTexture', win, TrialTex2, [], [cx+100 cy-200 cx+500 cy+200] );
+    if switchsidevec(trialindex_training) == 1
+        Screen('DrawTexture', win, TrialTex1, [], [cx-500 cy-200 cx-100 cy+200] );
+        Screen('DrawTexture', win, TrialTex2, [], [cx+100 cy-200 cx+500 cy+200] );
+    elseif switchsidevec(trialindex_training) == 2
+        Screen('DrawTexture', win, TrialTex2, [], [cx-500 cy-200 cx-100 cy+200] );
+        Screen('DrawTexture', win, TrialTex1, [], [cx+100 cy-200 cx+500 cy+200] );
+    end
+        
     Screen('FillOval', win, 255 ,[cx-5 cy-5 cx+5 cy+5]);
-    Screen('Flip', win);
-    fprintf(s3, '01');
-    WaitSecs(BASELINE_STIM_DUR);
-    % this is how long it is on, and now take it off the screen
-    Screen('FillOval', win, 255 ,[cx-5 cy-5 cx+5 cy+5]);
-    Screen('Flip', win);
-    WaitSecs(.2);
+    sFlip = Screen('Flip', win);
+    fprintf(s3, '02');  
     
-%     % Dat file information, add a row in each trial
-%     fprintf(datafilepointer1,'%i %i %i %s %s \n', ...
-%         subjectNumber, ...
-%         1, ...
-%         trialindex_bsl1, ...
-%         char(Rolenamevec_randomized(trialindex_bsl1)),...
-%         currentfile);
+    % wait for mouse click
+        buttons=0;
+            while ~any(buttons) % wait for press
+                [xcoor,~,buttons] = GetMouse;
+                 sPress=GetSecs;
+                % Wait 10 ms before checking the mouse again to prevent
+                % overload of the machine at elevated Priority()
+                WaitSecs(0.01);
+            end
+            
+            % calculate response side: left or right
+            responseside_contin = cx-xcoor;            
+            % positive means left and negative means right
+            if switchsidevec(trialindex_training) == 1 && responseside_contin > 0
+                correctstatus = 1; 
+            elseif switchsidevec(trialindex_training) == 2 && responseside_contin < 0
+                 correctstatus = 1; 
+            else
+                 correctstatus = 0; 
+            end
+                    
+            % Calculate RT
+            RTlearning = 1000*(sPress-sFlip);
+    
+            % and now take it off the screen
+            if correctstatus == 1
+                Screen('DrawText', win, ' CORRECT! ', cx-120, cy, [0 1 0]);
+            elseif  correctstatus == 0
+                Screen('DrawText', win, ' False :-( ', cx-120, cy, [1 0 0]);
+            end
+            Screen('Flip', win); % show text
+            WaitSecs(.5);
+    
+    % Dat file information, add a row in each trial
+    fprintf(datafilepointer2,'%i %i %i %i %i %i %i %i %i %s %s \n', ...
+        subjectNumber, ...
+        2, ...
+        trialindex_training, ...
+        pairlabelvec(trialindex_training),...
+        switchsidevec(trialindex_training),...
+        xcoor,...
+        responseside_contin,...
+        correctstatus,...
+        RTlearning,...
+        currentfile1, ...
+        currentfile2);
     
 end
-
-
 
 %% End of entire experiment
 Screen('Flip', win);
@@ -308,4 +366,4 @@ WaitSecs(.2);
 Screen('CloseAll');
 %%
 
-end % function transinf
+end % main function transinf end
