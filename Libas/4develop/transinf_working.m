@@ -148,31 +148,76 @@ HideCursor(win)
 %  4.  DATA LOG INITIALISATION
 %% =========================================================
 % log file define and open for baseline 1
-datafilename1 = [dataDir 'tinfLog1s' num2str(subjectNumber) '.dat'];
+datafilename1 = [dataDir 'tinfBsl1s' num2str(subjectNumber) '.dat'];
 datafilepointer1 = fopen(datafilename1, 'w');
 
 % log file define and open for ratings 1
-datafileratings1 = [dataDir 'tinfLogrates' num2str(subjectNumber) '.dat'];
+datafileratings1 = [dataDir 'tinfLograte1s' num2str(subjectNumber) '.dat'];
 datafilepointerrate1 = fopen(datafileratings1, 'w');
 
-% log file define and open for Learning 1
-datafilename2 = [dataDir 'tinfLog2s' num2str(subjectNumber) '.dat'];
+% log file define and open for Learning
+datafilename2 = [dataDir 'tinfLearn' num2str(subjectNumber) '.dat'];
 datafilepointer2 = fopen(datafilename2, 'w');
 
+% log file define and open for Testing
+datafilename2b = [dataDir 'tinftest' num2str(subjectNumber) '.dat'];
+datafilepointer2b = fopen(datafilename2b, 'w');
+
 %log file define and open for baseline 2
-datafilename3 = [dataDir 'tinfLog1s' num2str(subjectNumber) '.dat'];
+datafilename3 = [dataDir 'tinfBsl2s' num2str(subjectNumber) '.dat'];
 datafilepointer3 = fopen(datafilename3, 'w');
 
 % log file define and open for ratings 2
-datafileratings2 = [dataDir 'tinfLogrates' num2str(subjectNumber) '.dat'];
+datafileratings2 = [dataDir 'tinfLograte2s' num2str(subjectNumber) '.dat'];
 datafilepointerrate2 = fopen(datafileratings2, 'w');
+
+
+%% =========================================================
+% BEGIN EXPERIMENT
+%% =========================================================
+
+HideCursor(0,0);
+
+        Screen('DrawText', w, 'Please wait for experimenter ...', 10, 10, 255);
+        Screen('Flip', w); % show text
+
+        % wait for mouse press ( no GetClicks  :(  )
+        buttons=0;
+            while ~any(buttons) % wait for press
+                [x,y,buttons] = GetMouse;
+                % Wait 10 ms before checking the mouse again to prevent
+                % overload of the machine at elevated Priority()
+                WaitSecs(0.01);
+            end
+        % clear screen
+        Screen('Flip', w);
+   
+      Screen('DrawText', w, 'Welcome to the experiment. In each trial, you will see a picture', 20, 20, 1275);
+      Screen('DrawText', w, 'Please keep your eyes exactly at the center of the screen and do not look around ', 20, 80, 1275);
+      Screen('DrawText', w, 'There will be a fixation point in the middle that helps you keep your gaze in the middle.', 20, 140, 1275);
+      Screen('DrawText', w, 'You will also be asked occasionally to answer a few questions.', 20, 200, 1275);
+      Screen('DrawText', w, 'Click when ready to start! Thanks for participating!', 20, 260, 1275);
+      Screen('Flip', w); % show text
+
+       WaitSecs(1)
+       
+    % wait for mouse press ( no GetClicks  :(  )
+                     buttons=0;
+                        while ~any(buttons) % wait for press
+                        [thex,they,buttons] = GetMouse;
+                        % Wait 10 ms before checking the mouse again to prevent
+                        % overload of the machine at elevated Priority()
+                        WaitSecs(0.01);
+                        end
+                        %datafilepointer
+                        
 
 %% =========================================================
 %  5.  Baseline 1
 %% =========================================================
 
 % write message to subject
-Screen('DrawText', win, 'The experiment will begin shortly ... ', cx-120, cy, 255);
+Screen('DrawText', win, 'The experiment will begin shortly ... ', 20, 20, 1275);
 Screen('Flip', win); % show text
 KbStrokeWait;
 % clear screen
@@ -192,7 +237,7 @@ for randoloop = 1:nImgsPerCat
     Rolenamevec_randomized = [Rolenamevec_randomized roleLabels(randperm(nCategories))];
 end
 
-for trialindex_bsl1 = 1:NTrials-99
+for trialindex_bsl1 = 1:NTrials
     % first, set the event marker channel to zero
     fprintf(s3, '00');
     % start and control counters for each role
@@ -240,21 +285,21 @@ end
 % 6 similarity rating 1
 %% =========================================================
 
-similarityRatings(win, roles, subjectNumber, dataDir, winRect, datafileratings1, datafilepointerrate1)
+similarityRatings(win, roles, subjectNumber, winRect, datafilepointerrate1)
 
 %% =========================================================
 % 7 learning Phase 1
 %% =========================================================
 
 % write message to subject
-Screen('DrawText', win, 'The next task will begin shortly ... ', cx-120, cy, 255);
+Screen('DrawText', win, 'The next task will begin shortly ... ', 20, 20, 1275);
 Screen('Flip', win); % show text
 KbStrokeWait;
 % clear screen
 Screen('Flip', win);
 
 % mouse cursor
-ShowCursor('Arrow',win);
+HideCursor(win);
 SetMouse(cx, cy, win);   % park cursor at centre between trials
 
 % randomization
@@ -275,7 +320,7 @@ switchsidevec = [switchsidevec fliplr(switchsidevec)];
 
 for trialindex_training = 1:NTrials
     % first, set the event marker channel to zero
-%     fprintf(s3, '00');
+    fprintf(s3, '00');
     
     %Select the stimulus pair    
     if pairlabelvec(trialindex_training) == 1
@@ -319,16 +364,20 @@ for trialindex_training = 1:NTrials
            
     %show the picture pair
     if switchsidevec(trialindex_training) == 1
-        Screen('DrawTexture', win, TrialTex1, [], [cx-500 cy-200 cx-100 cy+200] );
-        Screen('DrawTexture', win, TrialTex2, [], [cx+100 cy-200 cx+500 cy+200] );
+        Screen('DrawTexture', win, TrialTex1, [], [cx-450 cy-200 cx-50 cy+200] );
+        Screen('DrawTexture', win, TrialTex2, [], [cx+50 cy-200 cx+450 cy+200] );
     elseif switchsidevec(trialindex_training) == 2
-        Screen('DrawTexture', win, TrialTex2, [], [cx-500 cy-200 cx-100 cy+200] );
-        Screen('DrawTexture', win, TrialTex1, [], [cx+100 cy-200 cx+500 cy+200] );
+        Screen('DrawTexture', win, TrialTex2, [], [cx-450 cy-200 cx-50 cy+200] );
+        Screen('DrawTexture', win, TrialTex1, [], [cx+50 cy-200 cx+450 cy+200] );
     end
         
     Screen('FillOval', win, 255 ,[cx-5 cy-5 cx+5 cy+5]);
     sFlip = Screen('Flip', win);
-    fprintf(s3, '02');  
+    fprintf(s3, '04');  
+    WaitSecs(1); 
+    fprintf(s3, '00');  
+    SetMouse(cx, cy, win);   % park cursor at centre between trials
+    ShowCursor('Arrow',win);
     
     % wait for mouse click
         buttons=0;
@@ -339,6 +388,8 @@ for trialindex_training = 1:NTrials
                 % overload of the machine at elevated Priority()
                 WaitSecs(0.01);
             end
+            
+      HideCursor(win);
             
             % calculate response side: left or right
             responseside_contin = cx-xcoor;            
@@ -361,7 +412,9 @@ for trialindex_training = 1:NTrials
                 Screen('DrawText', win, ' False :-( ', cx-120, cy, [1 0 0]);
             end
             Screen('Flip', win); % show text
+            fprintf(s3, '02');
             WaitSecs(.5);
+            fprintf(s3, '00');
     
     % Dat file information, add a row in each trial
     fprintf(datafilepointer2,'%i %i %i %i %i %i %i %i %i %s %s \n', ...
@@ -384,14 +437,14 @@ end
 % 8 Testing Phase
 %% =========================================================
 
-Screen('DrawText', win, 'The next task will begin shortly ... ', cx-120, cy, 255);
+Screen('DrawText', win, 'The next task will begin shortly ... ', 20, 20, 1275);
 Screen('Flip', win); % show text
 KbStrokeWait;
 % clear screen
 Screen('Flip', win);
 
 % mouse cursor
-ShowCursor('Arrow',win);
+HideCursor(win);
 SetMouse(cx, cy, win);   % park cursor at centre between trials
 
 % randomization
@@ -416,7 +469,6 @@ for trialindex_training = 1:5
     
      
 %Select the stimulus pair  
-%NEED TO SOMEHOW INCREASE DD COUNTER (RUNS OUT)  
     if pairlabelvec(trialindex_training) == 1
         counterA = counterA+1;
         TrialPicturePath1 =  eval(['roles.A.imgPaths{' num2str(counterA) '}']);
@@ -453,16 +505,20 @@ for trialindex_training = 1:5
            
     %show the picture pair
     if switchsidevec(trialindex_training) == 1
-        Screen('DrawTexture', win, TrialTex1, [], [cx-500 cy-200 cx-100 cy+200] );
-        Screen('DrawTexture', win, TrialTex2, [], [cx+100 cy-200 cx+500 cy+200] );
+        Screen('DrawTexture', win, TrialTex1, [], [cx-450 cy-200 cx-50 cy+200] );
+        Screen('DrawTexture', win, TrialTex2, [], [cx+50 cy-200 cx+450 cy+200] );
     elseif switchsidevec(trialindex_training) == 2
-        Screen('DrawTexture', win, TrialTex2, [], [cx-500 cy-200 cx-100 cy+200] );
-        Screen('DrawTexture', win, TrialTex1, [], [cx+100 cy-200 cx+500 cy+200] );
+        Screen('DrawTexture', win, TrialTex2, [], [cx-450 cy-200 cx-50 cy+200] );
+        Screen('DrawTexture', win, TrialTex1, [], [cx+50 cy-200 cx+450 cy+200] );
     end
-        
+    
     Screen('FillOval', win, 255 ,[cx-5 cy-5 cx+5 cy+5]);
     sFlip = Screen('Flip', win);
-    fprintf(s3, '02');  
+    fprintf(s3, '08');  
+    WaitSecs(1); 
+    SetMouse(cx, cy, win);   % park cursor at centre between trials
+    ShowCursor('Arrow',win);
+    
     
     % wait for mouse click
         buttons=0;
@@ -474,18 +530,9 @@ for trialindex_training = 1:5
                 WaitSecs(0.01);
             end
             
-  %HOW TO GIVE FEEDBACK FOR CC AND DD
-%             % calculate response side: left or right
+  HideCursor(win);
+            
             responseside_contin = cx-xcoor;            
-%             % positive means left and negative means right
-%             if switchsidevec(trialindex_training) == 1 && responseside_contin > 0
-%                 correctstatus = 1; 
-%             elseif switchsidevec(trialindex_training) == 2 && responseside_contin < 0
-%                  correctstatus = 1; 
-%             else
-%                  correctstatus = 0; 
-%             end
-                    
             % Calculate RT
             RTlearning = 1000*(sPress-sFlip);
     
@@ -499,7 +546,7 @@ for trialindex_training = 1:5
             WaitSecs(.5);
             
             
-            fprintf(datafilepointer2,'%i %i %i %i %i %i %i %i %s %s \n', ...
+            fprintf(datafilepointer2b,'%i %i %i %i %i %i %i %i %s %s \n', ...
                 subjectNumber, ...
                 4, ...
                 trialindex_training, ...
@@ -509,22 +556,7 @@ for trialindex_training = 1:5
                 responseside_contin,...
                 RTlearning,...
                 currentfile1, ...
-                currentfile2);
-            
-            
-%             % Dat file information, add a row in each trial
-%     fprintf(datafilepointer2,'%i %i %i %i %i %i %i %i %i %s %s \n', ...
-%         subjectNumber, ...
-%         4, ...
-%         trialindex_training, ...
-%         pairlabelvec(trialindex_training),...
-%         switchsidevec(trialindex_training),...
-%         xcoor,...
-%         responseside_contin,...
-%         correctstatus,...
-%         RTlearning,...
-%         currentfile1, ...
-%         currentfile2);
+                currentfile2);           
     
 end
 
@@ -537,7 +569,7 @@ end
 %% =========================================================
 
 % write message to subject
-Screen('DrawText', win, 'The experiment will begin shortly ... ', cx-120, cy, 255);
+Screen('DrawText', win, 'The next task will begin shortly ... ', 20, 20, 1275);
 Screen('Flip', win); % show text
 KbStrokeWait;
 % clear screen
@@ -557,7 +589,7 @@ for randoloop = 1:nImgsPerCat
     Rolenamevec_randomized = [Rolenamevec_randomized roleLabels(randperm(nCategories))];
 end
 
-for trialindex_bsl2 = 1:NTrials-99
+for trialindex_bsl2 = 1:NTrials
     % first, set the event marker channel to zero
     fprintf(s3, '00');
     % start and control counters for each role
@@ -607,7 +639,7 @@ end
 %% Similarity Ratings 2
 %% =========================================================
 
-similarityRatings(win, roles, subjectNumber, dataDir, winRect, datafileratings2, datafilepointerrate2)
+similarityRatings(win, roles, subjectNumber, winRect, datafilepointerrate2)
 
 
 %% End of entire experiment
@@ -623,8 +655,11 @@ end % main function transinf end
 
 
 %% Similarity Ratings
+function similarityRatings(win, roles, subjectNumber, winRect, datafilepointerrate)
 
-function similarityRatings(win, roles, subjectNumber, dataDir, winRect, datafileratings, datafilepointerrate)
+Screen('DrawText', win, 'Thank you! The next task is about to begin.', 20, 20, 1275);
+Screen('Flip', win);
+KbStrokeWait;
 
 [cx, cy] = RectCenter(winRect);
 scrW = RectWidth(winRect);
@@ -677,9 +712,6 @@ end
 switchsidevec = [switchsidevec fliplr(switchsidevec)];
 
 for trialindex_sim = 1:NTrials
-    % first, set the event marker channel to zero
-%     fprintf(s3, '00');
-
     %Select the stimulus pair
     if pairlabelvec(trialindex_sim) == 1
         counterA = counterA+1;
@@ -753,7 +785,6 @@ for trialindex_sim = 1:NTrials
             thisRT = GetSecs - tStart;
             responseMade = true;
         end
-
         WaitSecs(0.03);
     end
 
@@ -774,7 +805,6 @@ for trialindex_sim = 1:NTrials
         thisRT);
 end
 end
-
 
 
 %%
@@ -805,3 +835,122 @@ for i = 1:length(locationPosTick)
 end
 
 end
+
+%% EYELINK 
+%%
+% EYE TRACKER CLOSE 
+% ------------------------------------------------------------------------------
+function hello_eyetracker
+    Eyelink('Command', 'set_idle_mode'); WaitSecs(0.05);
+    
+    % start recording eye position
+    status=Eyelink('startrecording');
+    if status~=0
+        error('startrecording error, status: ',status); WaitSecs(.1);
+    end
+    
+    Eyelink('Message', 'Start'); WaitSecs(1);
+end
+% ------------------------------------------------------------------------------
+%% shuts down your eye tracker
+% ------------------------------------------------------------------------------
+function goodbye_eyetracker(edfFile)
+
+    Eyelink('StopRecording');
+    Eyelink('Command', 'set_idle_mode'); WaitSecs(0.5);
+    Eyelink('CloseFile');
+    
+     try
+        fprintf('Receiving data file ''%s''\n', edfFile );
+        status=Eyelink('ReceiveFile');
+        
+        if status > 0
+            fprintf('ReceiveFile status %d\n', status);
+        end
+        
+        if 2==exist(edfFile, 'file')
+            fprintf('Data file ''%s'' can be found in ''%s''\n', edfFile, pwd );
+        end
+        
+     catch %#ok<*CTCH>
+        fprintf('Problem receiving data file ''%s''\n', edfFile );
+     end
+end
+% ------------------------------------------------------------------------------
+%% Calibrate and Set up Eye-tracker
+% ------------------------------------------------------------------------------
+function[eye_used, mX, mY] = calibrate_eyetracker(edfFile,w)
+    dummymode = 0;
+        el = EyelinkInitDefaults(w);
+            el.backgroundcolour         = 128;
+            el.msgfontcolour            = WhiteIndex(el.window);
+            el.imgtitlecolour           = WhiteIndex(el.window);
+            el.targetbeep               = 0;
+            el.calibrationtargetcolour  = WhiteIndex(el.window);
+            el.calibrationtargetsize    = 1;
+            el.calibrationtargetwidth   = 0.5;
+        EyelinkUpdateDefaults(el);
+
+        % Initialization of the connection with the Eyelink Gazetracker.
+            % exit program if this fails.
+            if ~EyelinkInit(dummymode)
+                fprintf('Eyelink Init aborted.\n')
+
+                %cleanup;  % cleanup function
+                return;
+            end
+        % open file to record data to
+            res = Eyelink('Openfile', edfFile);
+            if res~=0
+                fprintf('Cannot create EDF file ''%s'' ', edfFile);
+                %cleanup;
+                return;
+            end
+        % make sure we're still connected.
+            if Eyelink('IsConnected')~=1 && ~dummymode
+                %cleanup;
+                return;
+            end
+
+        [mX, mY] = WindowSize(w);
+
+        Eyelink('command', 'add_file_preamble_text ''Recorded by EyelinkToolbox demo-experiment''');
+        Eyelink('command', 'screen_pixel_coords = %ld %ld %ld %ld', 0, 0, mX-1, mY-1);
+        Eyelink('message', 'DISPLAY_COORDS %ld %ld %ld %ld', 0, 0, mX-1, mY-1);
+        Eyelink('command', 'calibration_type = HV13');
+        Eyelink('command', 'generate_default_targets = YES');
+        Eyelink('command', 'saccade_velocity_threshold = 35');
+        Eyelink('command', 'saccade_acceleration_threshold = 9500');
+        [v,vs] = Eyelink('GetTrackerVersion');
+        fprintf('Running experiment on a ''%s'' tracker.\n', vs );
+        vsn = regexp(vs,'\d','match');
+
+        if v == 3 && str2double(vsn{1}) == 4 % if EL 1000 and tracker version 4.xx
+            Eyelink('command', 'file_event_filter = LEFT,RIGHT,FIXATION,SACCADE,BLINK,MESSAGE,BUTTON,INPUT');
+            Eyelink('command', 'file_sample_data  = LEFT,RIGHT,GAZE,HREF,ARE     [arox(ratingnum,:), valx(ratingnum,:), expx(ratingnum,:)] = ratingsgenerface(w, structexmat, ratingorder, texVal, texAro, texExp);  A,GAZERES,STATUS,INPUT,HTARGET');
+            Eyelink('command', 'link_event_filter = LEFT,RIGHT,FIXATION,SACCADE,BLINK,MESSAGE,BUTTON,FIXUPDATE,INPUT');
+            Eyelink('command', 'link_sample_data  = LEFT,RIGHT,GAZE,GAZERES,AREA,STATUS,INPUT,HTARGET');
+        else
+            Eyelink('command', 'file_event_filter = LEFT,RIGHT,FIXATION,SACCADE,BLINK,MESSAGE,BUTTON,FIXUPDATE,INPUT');
+            Eyelink('command', 'file_sample_data  = LEFT,RIGHT,GAZE,HREF,AREA,GAZERES,STATUS,INPUT');
+            Eyelink('command', 'link_event_filter = LEFT,RIGHT,FIXATION,SACCADE,BLINK,MESSAGE,BUTTON,FIXUPDATE,INPUT');
+            Eyelink('command', 'link_sample_data  = LEFT,RIGHT,GAZE,GAZERES,AREA,STATUS,INPUT');
+        end
+
+    %configuration settings
+    Eyelink('command','screen_pixel_coords = %ld %ld %ld %ld', 0, 0, mX-1, mY-1); %mX and mY are max x and y screen coordinates
+    Eyelink('message', 'DISPLAY_COORDS %ld %ld %ld %ld', 0, 0, mX-1, mY-1); 
+
+    % make sure that we get gaze data from the Eyelink
+    Eyelink('Command', 'link_sample_data = LEFT,RIGHT,GAZE,AREA');
+
+    EyelinkDoTrackerSetup(el); WaitSecs(0.05);
+
+    % use the left eye    
+    WaitSecs(0.1);
+    eye_used = Eyelink('EyeAvailable'); % get eye that's tracked
+    if eye_used == el.BINOCULAR; % if both eyes are tracked
+        eye_used = el.LEFT_EYE; % use left eye
+    end
+end
+
