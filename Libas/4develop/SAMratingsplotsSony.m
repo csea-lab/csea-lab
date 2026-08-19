@@ -41,11 +41,11 @@ dy = max(rangeY * 0.01, 1e-6);
 
 for g = 1:3
     idx = (meanratings(:,2) == g);
-    scatter(meanratings(idx,3), meanratings(idx,4), 60, colors(g,:), 'filled');
+    scatter(meanratings(idx,4), meanratings(idx,3), 60, colors(g,:), 'filled');
     
     if showLabels
-        x = meanratings(idx,3);
-        y = meanratings(idx,4);
+        x = meanratings(idx,4);
+        y = meanratings(idx,3);
         video_ids = meanratings(idx,1); % video_id labels
         labels = cellstr(num2str(video_ids)); % convert to strings
         
@@ -58,8 +58,8 @@ end
 axis([ 1 9 1 9])
 hold off;
 legend({'Pleasant','Neutral','Unpleasant'}, 'Location','best');
-xlabel('Arousal');
-ylabel('Valence');
+xlabel('Valence');
+ylabel('Arousal');
 title('Arousal vs Valence by video category');
 %% now pictures
 cd '/Users/andreaskeil/UFL Dropbox/Andreas Keil/SONY_UF_shared2.0/Data'
@@ -115,6 +115,6 @@ end
 axis([ 1 9 1 9])
 hold off;
 legend({'Pleasant1','Neutral1','Unpleasant1', 'Pleasant2', 'Neutral1', 'Unpleasant2'}, 'Location','best');
-xlabel('Arousal');
-ylabel('Valence');
+xlabel('Valence');
+ylabel('Arousal');
 title('Arousal vs Valence by picture category');
