@@ -178,8 +178,8 @@ datafilepointerrate2 = fopen(datafileratings2, 'w');
 
 HideCursor(0,0);
 
-        Screen('DrawText', w, 'Please wait for experimenter ...', 10, 10, 255);
-        Screen('Flip', w); % show text
+        Screen('DrawText', win, 'Please wait for experimenter ...', 10, 10, 255);
+        Screen('Flip', win); % show text
 
         % wait for mouse press ( no GetClicks  :(  )
         buttons=0;
@@ -190,14 +190,14 @@ HideCursor(0,0);
                 WaitSecs(0.01);
             end
         % clear screen
-        Screen('Flip', w);
+        Screen('Flip', win);
    
-      Screen('DrawText', w, 'Welcome to the experiment. In each trial, you will see a picture', 20, 20, 1275);
-      Screen('DrawText', w, 'Please keep your eyes exactly at the center of the screen and do not look around ', 20, 80, 1275);
-      Screen('DrawText', w, 'There will be a fixation point in the middle that helps you keep your gaze in the middle.', 20, 140, 1275);
-      Screen('DrawText', w, 'You will also be asked occasionally to answer a few questions.', 20, 200, 1275);
-      Screen('DrawText', w, 'Click when ready to start! Thanks for participating!', 20, 260, 1275);
-      Screen('Flip', w); % show text
+      Screen('DrawText', win, 'Welcome to the experiment. In each trial, you will see one or two pictures', 20, 20, 1275);
+      Screen('DrawText', win, 'Please keep your eyes exactly at the center of the screen and do not look around ', 20, 80, 1275);
+      Screen('DrawText', win, 'There will be a fixation point in the middle that helps you keep your gaze in the middle.', 20, 140, 1275);
+      Screen('DrawText', win, 'You will also be asked occasionally to answer a few questions about the pictures.', 20, 200, 1275);
+      Screen('DrawText', win, 'Click when ready to start! Thanks for participating!', 20, 260, 1275);
+      Screen('Flip', win); % show text
 
        WaitSecs(1)
        
@@ -656,8 +656,10 @@ end % main function transinf end
 
 %% Similarity Ratings
 function similarityRatings(win, roles, subjectNumber, winRect, datafilepointerrate)
-
-Screen('DrawText', win, 'Thank you! The next task is about to begin.', 20, 20, 1275);
+Screen('DrawText', win, 'Thank you!', 20, 20, 1275);
+Screen('DrawText', win, 'The next task will ask you to rate how similar two pictures are in their meaning.', 20, 80, 1275);
+Screen('DrawText', win, 'You do not need to keep your gaze in the middle of the screen.', 20, 140, 1275);
+Screen('DrawText', win, 'Click when ready to start.', 20, 200, 1275);
 Screen('Flip', win);
 KbStrokeWait;
 
@@ -673,14 +675,12 @@ xOffset = round(scrW * 0.25);
 leftRect  = CenterRectOnPointd([0 0 imgW imgH], cx - xOffset, cy);
 rightRect = CenterRectOnPointd([0 0 imgW imgH], cx + xOffset, cy);
 
-% fixation dot
-fix_cord = [cx-5 cy-5 cx+5 cy+5];
+% fixation dot: NO FIXATION FOR RATINGS
+%fix_cord = [cx-5 cy-5 cx+5 cy+5];
 
 % slider setup (adapted from simrate2)
 locationPosFrac = [0/9, 1/9, 2/9, 3/9, 4/9, 5/9, 6/9, 7/9, 8/9, 9/9]; % 10 selectable locations
 locationPosTick = [0/9, 5/9, 9/9];
-% locationPosFrac = 0:0.2:1;              % 5 selectable positions, 0 to 1
-% locationPosTick = [0 0.5 1];             % only these get drawn/labeled
 sliderWidth   = scrW * 0.6;
 sliderHeight  = 20;
 sliderXcenter = scrW / 2;
@@ -689,7 +689,8 @@ sliderRect    = CenterRectOnPointd([0 0 sliderWidth sliderHeight], sliderXcenter
 sliderBgColor  = [100 100 100];
 locMarkerColor = [0 255 0];
 
-% randomization
+
+%randomization
 allCategoryFolders = {'tundra', 'mountains', 'desert', 'forest', 'grasslands'};
 nCategories        = numel(allCategoryFolders); 
 nImgsPerCat        = 10;
@@ -705,13 +706,13 @@ pairlabelvec = [];
 switchsidevec = [];
 
 for loopindex = 1:nImgsPerCat/2
-    pairlabelvec = [pairlabelvec randperm(4)];
+    pairlabelvec = [pairlabelvec randperm(9)];
     switchsidevec = [switchsidevec randperm(2)];
 end
 
 switchsidevec = [switchsidevec fliplr(switchsidevec)];
 
-for trialindex_sim = 1:NTrials
+for trialindex_sim = 1:NTrials*2
     %Select the stimulus pair
     if pairlabelvec(trialindex_sim) == 1
         counterA = counterA+1;
@@ -733,6 +734,62 @@ for trialindex_sim = 1:NTrials
         TrialPicturePath1 =  eval(['roles.D.imgPaths{' num2str(counterD) '}']);
         counterE = counterE+1;
         TrialPicturePath2 =  eval(['roles.E.imgPaths{' num2str(counterE) '}']);
+    elseif pairlabelvec(trialindex_sim) == 5
+        counterA = counterA+1;
+        TrialPicturePath1 =  eval(['roles.A.imgPaths{' num2str(counterA) '}']);
+        counterA = counterA+1;
+        TrialPicturePath2 =  eval(['roles.A.imgPaths{' num2str(counterA) '}']);
+    elseif pairlabelvec(trialindex_sim) == 6
+        counterB = counterB+1;
+        TrialPicturePath1 =  eval(['roles.B.imgPaths{' num2str(counterB) '}']);
+        counterB = counterB+1;
+        TrialPicturePath2 =  eval(['roles.B.imgPaths{' num2str(counterB) '}']);
+    elseif pairlabelvec(trialindex_sim) == 7
+        counterC = counterC+1;
+        TrialPicturePath1 =  eval(['roles.C.imgPaths{' num2str(counterC) '}']);
+        counterC = counterC+1;
+        TrialPicturePath2 =  eval(['roles.C.imgPaths{' num2str(counterC) '}']);
+    elseif pairlabelvec(trialindex_sim) == 8
+        counterD = counterD+1;
+        TrialPicturePath1 =  eval(['roles.D.imgPaths{' num2str(counterD) '}']);
+        counterD = counterD+1;
+        TrialPicturePath2 =  eval(['roles.D.imgPaths{' num2str(counterD) '}']);
+    elseif pairlabelvec(trialindex_sim) == 9
+        counterE = counterE+1;
+        TrialPicturePath1 =  eval(['roles.E.imgPaths{' num2str(counterE) '}']);
+        counterE = counterE+1;
+        TrialPicturePath2 =  eval(['roles.E.imgPaths{' num2str(counterE) '}']);
+    elseif pairlabelvec(trialindex_sim) == 10
+        counterA = counterA+1;
+        TrialPicturePath1 =  eval(['roles.A.imgPaths{' num2str(counterA) '}']);
+        counterC = counterC+1;
+        TrialPicturePath2 =  eval(['roles.C.imgPaths{' num2str(counterC) '}']);
+    elseif pairlabelvec(trialindex_sim) == 11
+        counterA = counterA+1;
+        TrialPicturePath1 =  eval(['roles.A.imgPaths{' num2str(counterA) '}']);
+        counterD = counterD+1;
+        TrialPicturePath2 =  eval(['roles.D.imgPaths{' num2str(counterD) '}']);
+    if pairlabelvec(trialindex_sim) == 12
+        counterA = counterA+1;
+        TrialPicturePath1 =  eval(['roles.A.imgPaths{' num2str(counterA) '}']);
+        counterE = counterE+1;
+        TrialPicturePath2 =  eval(['roles.E.imgPaths{' num2str(counterE) '}']);
+    elseif pairlabelvec(trialindex_sim) == 13
+        counterB = counterB+1;
+        TrialPicturePath1 =  eval(['roles.B.imgPaths{' num2str(counterB) '}']);
+        counterD = counterD+1;
+        TrialPicturePath2 =  eval(['roles.D.imgPaths{' num2str(counterD) '}']);
+    elseif pairlabelvec(trialindex_sim) == 14
+        counterB = counterB+1;
+        TrialPicturePath1 =  eval(['roles.B.imgPaths{' num2str(counterB) '}']);
+        counterE = counterE+1;
+        TrialPicturePath2 =  eval(['roles.E.imgPaths{' num2str(counterE) '}']);
+    elseif pairlabelvec(trialindex_sim) == 15
+        counterC = counterC+1;
+        TrialPicturePath1 =  eval(['roles.C.imgPaths{' num2str(counterC) '}']);
+        counterE = counterE+1;
+        TrialPicturePath2 =  eval(['roles.E.imgPaths{' num2str(counterE) '}']);
+
     end
 
     % make the corresponding textures
@@ -768,8 +825,8 @@ for trialindex_sim = 1:NTrials
             Screen('DrawTexture', win, TrialTex2, [], leftRect);
         end
 
-        Screen('FillOval', win, 255, fix_cord);
-        DrawFormattedText(win, 'How similar are these pictures based on the meaning they convey??', 'center', cy - 350, 255);
+       % Screen('FillOval', win, 255, fix_cord);
+        DrawFormattedText(win, 'How similar are these pictures based on the meaning they convey?', 'center', cy - 350, 255);
 
         drawSimSlider(win, sliderRect, sliderBgColor, locationPosTick, ...
             sliderWidth, sliderHeight, sliderXcenter, sliderY, locMarkerColor, fillWidth);
