@@ -176,7 +176,7 @@ datafilepointerrate2 = fopen(datafileratings2, 'w');
 % BEGIN EXPERIMENT
 %% =========================================================
 
-HideCursor(0,0);
+HideCursor(win);
 
         Screen('DrawText', win, 'Please wait for experimenter ...', 10, 10, 255);
         Screen('Flip', win); % show text
@@ -237,7 +237,7 @@ for randoloop = 1:nImgsPerCat
     Rolenamevec_randomized = [Rolenamevec_randomized roleLabels(randperm(nCategories))];
 end
 
-for trialindex_bsl1 = 1:NTrials
+for trialindex_bsl1 = 1:10
     % first, set the event marker channel to zero
     fprintf(s3, '00');
     % start and control counters for each role
@@ -377,7 +377,7 @@ for trialindex_training = 1:NTrials
     WaitSecs(1); 
     fprintf(s3, '00');  
     SetMouse(cx, cy, win);   % park cursor at centre between trials
-    ShowCursor('Arrow',win);
+    ShowCursor('Arrow', win);
     
     % wait for mouse click
         buttons=0;
@@ -389,7 +389,7 @@ for trialindex_training = 1:NTrials
                 WaitSecs(0.01);
             end
             
-      HideCursor(win);
+       HideCursor(win);
             
             % calculate response side: left or right
             responseside_contin = cx-xcoor;            
@@ -448,7 +448,7 @@ HideCursor(win);
 SetMouse(cx, cy, win);   % park cursor at centre between trials
 
 % randomization
-NTrials = (nCategories-1)*nImgsPerCat/2; % trials in baseline phase = all pictures
+NTrials = (nCategories-1)*nImgsPerCat/2;
 counterA = 0;
 counterB = 0;
 counterC = 0;
@@ -457,18 +457,24 @@ counterE = 0;
 pairlabelvec = [];
 switchsidevec = []; 
 for loopindex = 1:nImgsPerCat/2
-    pairlabelvec = [pairlabelvec randperm(4)];
+    pairlabelvec = [pairlabelvec randperm(3)];
     switchsidevec = [switchsidevec randperm(2)];    
+end
+
+Rolenamevec_randomized = []; % make a vector with as many role names as trials
+for randoloop = 1:nImgsPerCat
+    Rolenamevec_randomized = [Rolenamevec_randomized roleLabels(randperm(nCategories))];
 end
 
 switchsidevec = [switchsidevec fliplr(switchsidevec)];
 
-for trialindex_training = 1:5
+for trialindex_training = 1:NTrials
     % first, set the event marker channel to zero
      fprintf(s3, '00');
     
      
-%Select the stimulus pair  
+%Select the stimulus pair
+%gives error: Index exceeds the number of array elements (30).
     if pairlabelvec(trialindex_training) == 1
         counterA = counterA+1;
         TrialPicturePath1 =  eval(['roles.A.imgPaths{' num2str(counterA) '}']);
@@ -502,7 +508,7 @@ for trialindex_training = 1:5
     Screen('FillOval', win, 255 ,[cx-5 cy-5 cx+5 cy+5]);
     Screen('Flip', win);
     WaitSecs(LEARNING_ITI_MIN + rand(1,1) * (LEARNING_ITI_MAX-LEARNING_ITI_MIN)) % ITI between 1 and 3 secs, uniform
-           
+    
     %show the picture pair
     if switchsidevec(trialindex_training) == 1
         Screen('DrawTexture', win, TrialTex1, [], [cx-450 cy-200 cx-50 cy+200] );
@@ -514,49 +520,49 @@ for trialindex_training = 1:5
     
     Screen('FillOval', win, 255 ,[cx-5 cy-5 cx+5 cy+5]);
     sFlip = Screen('Flip', win);
-    fprintf(s3, '08');  
-    WaitSecs(1); 
+    fprintf(s3, '08');
+    WaitSecs(1);
     SetMouse(cx, cy, win);   % park cursor at centre between trials
-    ShowCursor('Arrow',win);
+    ShowCursor('Arrow', win);
     
     
     % wait for mouse click
-        buttons=0;
-            while ~any(buttons) % wait for press
-                [xcoor,~,buttons] = GetMouse;
-                 sPress=GetSecs;
-                % Wait 10 ms before checking the mouse again to prevent
-                % overload of the machine at elevated Priority()
-                WaitSecs(0.01);
-            end
-            
-  HideCursor(win);
-            
-            responseside_contin = cx-xcoor;            
-            % Calculate RT
-            RTlearning = 1000*(sPress-sFlip);
+    buttons=0;
+    while ~any(buttons) % wait for press
+        [xcoor,~,buttons] = GetMouse;
+        sPress=GetSecs;
+        % Wait 10 ms before checking the mouse again to prevent
+        % overload of the machine at elevated Priority()
+        WaitSecs(0.01);
+    end
     
-%             % and now take it off the screen
-%             if correctstatus == 1
-%                 Screen('DrawText', win, ' CORRECT! ', cx-120, cy, [0 1 0]);
-%             elseif  correctstatus == 0
-%                 Screen('DrawText', win, ' False :-( ', cx-120, cy, [1 0 0]);
-%             end
-            Screen('Flip', win); % show text
-            WaitSecs(.5);
-            
-            
-            fprintf(datafilepointer2b,'%i %i %i %i %i %i %i %i %s %s \n', ...
-                subjectNumber, ...
-                4, ...
-                trialindex_training, ...
-                pairlabelvec(trialindex_training),...
-                switchsidevec(trialindex_training),...
-                xcoor,...
-                responseside_contin,...
-                RTlearning,...
-                currentfile1, ...
-                currentfile2);           
+    HideCursor(win);
+    
+    responseside_contin = cx-xcoor;
+    % Calculate RT
+    RTlearning = 1000*(sPress-sFlip);
+    
+    %             % and now take it off the screen
+    %             if correctstatus == 1
+    %                 Screen('DrawText', win, ' CORRECT! ', cx-120, cy, [0 1 0]);
+    %             elseif  correctstatus == 0
+    %                 Screen('DrawText', win, ' False :-( ', cx-120, cy, [1 0 0]);
+    %             end
+    Screen('Flip', win); % show text
+    WaitSecs(.5);
+    
+    
+    fprintf(datafilepointer2b,'%i %i %i %i %i %i %i %i %s %s \n', ...
+        subjectNumber, ...
+        4, ...
+        trialindex_training, ...
+        pairlabelvec(trialindex_training),...
+        switchsidevec(trialindex_training),...
+        xcoor,...
+        responseside_contin,...
+        RTlearning,...
+        currentfile1, ...
+        currentfile2);
     
 end
 
@@ -589,7 +595,7 @@ for randoloop = 1:nImgsPerCat
     Rolenamevec_randomized = [Rolenamevec_randomized roleLabels(randperm(nCategories))];
 end
 
-for trialindex_bsl2 = 1:NTrials
+for trialindex_bsl2 = 1:10 %NTrials
     % first, set the event marker channel to zero
     fprintf(s3, '00');
     % start and control counters for each role
@@ -675,8 +681,8 @@ xOffset = round(scrW * 0.25);
 leftRect  = CenterRectOnPointd([0 0 imgW imgH], cx - xOffset, cy);
 rightRect = CenterRectOnPointd([0 0 imgW imgH], cx + xOffset, cy);
 
-% fixation dot: NO FIXATION FOR RATINGS
-%fix_cord = [cx-5 cy-5 cx+5 cy+5];
+% fixation dot: NO FIXATION FOR RATINGS?
+fix_cord = [cx-5 cy-5 cx+5 cy+5];
 
 % slider setup (adapted from simrate2)
 locationPosFrac = [0/9, 1/9, 2/9, 3/9, 4/9, 5/9, 6/9, 7/9, 8/9, 9/9]; % 10 selectable locations
@@ -693,7 +699,7 @@ locMarkerColor = [0 255 0];
 %randomization
 allCategoryFolders = {'tundra', 'mountains', 'desert', 'forest', 'grasslands'};
 nCategories        = numel(allCategoryFolders); 
-nImgsPerCat        = 10;
+nImgsPerCat        = 20;
 NTrials = (nCategories-1)*nImgsPerCat/2; % trials in baseline phase = all pictures
 
 counterA = 0;
@@ -705,14 +711,14 @@ counterE = 0;
 pairlabelvec = [];
 switchsidevec = [];
 
-for loopindex = 1:nImgsPerCat/2
-    pairlabelvec = [pairlabelvec randperm(9)];
-    switchsidevec = [switchsidevec randperm(2)];
+for loopindex = 1:nImgsPerCat/5
+    pairlabelvec = [pairlabelvec randperm(15)];
+    switchsidevec = [switchsidevec randi(2,1,15)];
 end
 
 switchsidevec = [switchsidevec fliplr(switchsidevec)];
 
-for trialindex_sim = 1:NTrials*2
+for trialindex_sim = 1:NTrials
     %Select the stimulus pair
     if pairlabelvec(trialindex_sim) == 1
         counterA = counterA+1;
@@ -789,7 +795,7 @@ for trialindex_sim = 1:NTrials*2
         TrialPicturePath1 =  eval(['roles.C.imgPaths{' num2str(counterC) '}']);
         counterE = counterE+1;
         TrialPicturePath2 =  eval(['roles.E.imgPaths{' num2str(counterE) '}']);
-
+    end
     end
 
     % make the corresponding textures
@@ -825,7 +831,8 @@ for trialindex_sim = 1:NTrials*2
             Screen('DrawTexture', win, TrialTex2, [], leftRect);
         end
 
-       % Screen('FillOval', win, 255, fix_cord);
+        Screen('FillOval', win, 255, fix_cord);
+
         DrawFormattedText(win, 'How similar are these pictures based on the meaning they convey?', 'center', cy - 350, 255);
 
         drawSimSlider(win, sliderRect, sliderBgColor, locationPosTick, ...
