@@ -180,22 +180,22 @@ HideCursor(win);
 
         Screen('DrawText', win, 'Please wait for experimenter ...', 10, 10, 255);
         Screen('Flip', win); % show text
-
-        % wait for mouse press ( no GetClicks  :(  )
-        buttons=0;
-            while ~any(buttons) % wait for press
-                [x,y,buttons] = GetMouse;
-                % Wait 10 ms before checking the mouse again to prevent
-                % overload of the machine at elevated Priority()
-                WaitSecs(0.01);
-            end
+KbStrokeWait
+%         % wait for mouse press ( no GetClicks  :(  )
+%         buttons=0;
+%             while ~any(buttons) % wait for press
+%                 [x,y,buttons] = GetMouse;
+%                 % Wait 10 ms before checking the mouse again to prevent
+%                 % overload of the machine at elevated Priority()
+%                 WaitSecs(0.01);
+%             end
         % clear screen
         Screen('Flip', win);
    
       Screen('DrawText', win, 'Welcome to the experiment. In each trial, you will see one or two pictures', 20, 20, 1275);
-      Screen('DrawText', win, 'Please keep your eyes exactly at the center of the screen and do not look around ', 20, 80, 1275);
+      Screen('DrawText', win, 'Please keep your eyes exactly at the center of the screen and do not look around unless otherwise instructed ', 20, 80, 1275);
       Screen('DrawText', win, 'There will be a fixation point in the middle that helps you keep your gaze in the middle.', 20, 140, 1275);
-      Screen('DrawText', win, 'You will also be asked occasionally to answer a few questions about the pictures.', 20, 200, 1275);
+      Screen('DrawText', win, 'You will sometimes be asked to answer a few questions about the pictures.', 20, 200, 1275);
       Screen('DrawText', win, 'Click when ready to start! Thanks for participating!', 20, 260, 1275);
       Screen('Flip', win); % show text
 
@@ -217,7 +217,8 @@ HideCursor(win);
 %% =========================================================
 
 % write message to subject
-Screen('DrawText', win, 'The experiment will begin shortly ... ', 20, 20, 1275);
+Screen('DrawText', win, 'Please Keep your eyes fixed on the fixation point.', 20, 20, 1275);
+Screen('DrawText', win, 'The task will begin shortly...', 20, 80, 1275);
 Screen('Flip', win); % show text
 KbStrokeWait;
 % clear screen
@@ -292,8 +293,20 @@ similarityRatings(win, roles, subjectNumber, winRect, datafilepointerrate1)
 %% =========================================================
 
 % write message to subject
-Screen('DrawText', win, 'The next task will begin shortly ... ', 20, 20, 1275);
-Screen('Flip', win); % show text
+Screen('DrawText', win, 'In the next task, you will see two pictures.', 20, 20, 1275);
+Screen('DrawText', win, 'Click on the picture you think is correct.', 20, 80, 1275);
+Screen('DrawText', win, 'At first you will have to guess. You will get feedback telling you whether you are right or wrong.', 20, 140, 1275);
+Screen('DrawText', win, 'Use the feedback to learn which picture is correct in each pair.', 20, 200, 1275);
+Screen('DrawText', win, 'You do not need to focus on the fixation dot. Press the space key when ready to begin.', 20, 260, 1275);
+Screen('Flip', win); % show text%         % wait for mouse press ( no GetClicks  :(  )
+%         buttons=0;
+%             while ~any(buttons) % wait for press
+%                 [x,y,buttons] = GetMouse;
+%                 % Wait 10 ms before checking the mouse again to prevent
+%                 % overload of the machine at elevated Priority()
+%                 WaitSecs(0.01);
+%             end
+
 KbStrokeWait;
 % clear screen
 Screen('Flip', win);
@@ -303,7 +316,7 @@ HideCursor(win);
 SetMouse(cx, cy, win);   % park cursor at centre between trials
 
 % randomization
-NTrials = (nCategories-1)*nImgsPerCat/2; % trials in baseline phase = all pictures
+NTrials = (nCategories-1)*nImgsPerCat; % trials in baseline phase = all pictures
 counterA = 0;
 counterB = 0;
 counterC = 0;
@@ -311,7 +324,7 @@ counterD = 0;
 counterE = 0;
 pairlabelvec = [];
 switchsidevec = []; 
-for loopindex = 1:nImgsPerCat/2
+for loopindex = 1:nImgsPerCat
     pairlabelvec = [pairlabelvec randperm(4)];
     switchsidevec = [switchsidevec randperm(2)];    
 end
@@ -326,20 +339,20 @@ for trialindex_training = 1:NTrials
     if pairlabelvec(trialindex_training) == 1
         counterA = counterA+1;
         TrialPicturePath1 =  eval(['roles.A.imgPaths{' num2str(counterA) '}']);
-        counterB = counterB+1;
+          if counterB == 20, counterB = 1; else, counterB = counterB+1; end
         TrialPicturePath2 =  eval(['roles.B.imgPaths{' num2str(counterB) '}']);
     elseif pairlabelvec(trialindex_training) == 2
-        counterB = counterB+1;
+         if counterB == 20, counterB = 1; else, counterB = counterB+1; end
         TrialPicturePath1 =  eval(['roles.B.imgPaths{' num2str(counterB) '}']);
-        counterC = counterC+1;
+          if counterC == 20, counterC = 1; else, counterC = counterC+1; end
         TrialPicturePath2 =  eval(['roles.C.imgPaths{' num2str(counterC) '}']);
     elseif pairlabelvec(trialindex_training) == 3
-        counterC = counterC+1;
+         if counterC == 20, counterC = 1; else, counterC = counterC+1; end
         TrialPicturePath1 =  eval(['roles.C.imgPaths{' num2str(counterC) '}']);
-        counterD = counterD+1;
+         if counterD == 20, counterD = 1; else, counterD = counterD+1; end
         TrialPicturePath2 =  eval(['roles.D.imgPaths{' num2str(counterD) '}']);
     elseif pairlabelvec(trialindex_training) == 4
-        counterD = counterD+1;
+         if counterD == 20, counterD = 1; else, counterD = counterD+1; end
         TrialPicturePath1 =  eval(['roles.D.imgPaths{' num2str(counterD) '}']);
         counterE = counterE+1;
         TrialPicturePath2 =  eval(['roles.E.imgPaths{' num2str(counterE) '}']);
@@ -436,8 +449,11 @@ end
 %% =========================================================
 % 8 Testing Phase
 %% =========================================================
-
-Screen('DrawText', win, 'The next task will begin shortly ... ', 20, 20, 1275);
+Screen('DrawText', win, 'In the next task, you will see two pictures.', 20, 20, 1275);
+Screen('DrawText', win, 'As in the last task, click on the picture you think is correct.', 20, 80, 1275);
+Screen('DrawText', win, 'This time you will NOT get feedback about whether you are right or wrong.', 20, 140, 1275);
+Screen('DrawText', win, 'You do not need to focus on the fixation dot.', 20, 200, 1275);
+Screen('DrawText', win, 'Press the space key when ready to begin.', 20, 260, 1275);
 Screen('Flip', win); % show text
 KbStrokeWait;
 % clear screen
@@ -448,25 +464,25 @@ HideCursor(win);
 SetMouse(cx, cy, win);   % park cursor at centre between trials
 
 % randomization
-NTrials = (nCategories-1)*nImgsPerCat/2;
+NTrials = 3*24; % 3 [pairs types times 24 trials each
 counterA = 0;
 counterB = 0;
 counterC = 0;
 counterD = 0;
 counterE = 0;
+
 pairlabelvec = [];
 switchsidevec = []; 
-for loopindex = 1:nImgsPerCat/2
+
+for loopindex = 1:24
     pairlabelvec = [pairlabelvec randperm(3)];
-    switchsidevec = [switchsidevec randperm(2)];    
+    switchsidevec = [switchsidevec randi(2, 1, 3)];    
 end
 
 Rolenamevec_randomized = []; % make a vector with as many role names as trials
 for randoloop = 1:nImgsPerCat
     Rolenamevec_randomized = [Rolenamevec_randomized roleLabels(randperm(nCategories))];
 end
-
-switchsidevec = [switchsidevec fliplr(switchsidevec)];
 
 for trialindex_training = 1:NTrials
     % first, set the event marker channel to zero
@@ -476,19 +492,19 @@ for trialindex_training = 1:NTrials
 %Select the stimulus pair
 %gives error: Index exceeds the number of array elements (30).
     if pairlabelvec(trialindex_training) == 1
-        counterA = counterA+1;
+         if counterA == 20, counterA = 1; else, counterA = counterA+1; end
         TrialPicturePath1 =  eval(['roles.A.imgPaths{' num2str(counterA) '}']);
-        counterE = counterE+1;
+         if counterE == 20, counterE = 1; else, counterE = counterE+1; end
         TrialPicturePath2 =  eval(['roles.E.imgPaths{' num2str(counterE) '}']);
     elseif pairlabelvec(trialindex_training) == 2
-        counterC = counterC+1;
+        if counterC == 20, counterC = 1; else, counterC = counterC+1; end
         TrialPicturePath1 =  eval(['roles.C.imgPaths{' num2str(counterC) '}']);
-        counterC = counterC+1;
+         if counterC == 20, counterC = 1; else, counterC = counterC+1; end
         TrialPicturePath2 =  eval(['roles.C.imgPaths{' num2str(counterC) '}']);
     elseif pairlabelvec(trialindex_training) == 3
-        counterB = counterB+1;
+         if counterB == 20, counterB = 1; else, counterB = counterB+1; end
         TrialPicturePath1 =  eval(['roles.B.imgPaths{' num2str(counterB) '}']);
-        counterD = counterD+1;
+         if counterD == 20, counterD = 1; else, counterD = counterD+1; end
         TrialPicturePath2 =  eval(['roles.D.imgPaths{' num2str(counterD) '}']);
     end
     
@@ -575,7 +591,8 @@ end
 %% =========================================================
 
 % write message to subject
-Screen('DrawText', win, 'The next task will begin shortly ... ', 20, 20, 1275);
+Screen('DrawText', win, 'Please keep your eyes fixed on the fixation point.', 20, 20, 1275);
+Screen('DrawText', win, 'Press the space key when ready to begin.', 20, 80, 1275);
 Screen('Flip', win); % show text
 KbStrokeWait;
 % clear screen
@@ -665,7 +682,7 @@ function similarityRatings(win, roles, subjectNumber, winRect, datafilepointerra
 Screen('DrawText', win, 'Thank you!', 20, 20, 1275);
 Screen('DrawText', win, 'The next task will ask you to rate how similar two pictures are in their meaning.', 20, 80, 1275);
 Screen('DrawText', win, 'You do not need to keep your gaze in the middle of the screen.', 20, 140, 1275);
-Screen('DrawText', win, 'Click when ready to start.', 20, 200, 1275);
+Screen('DrawText', win, 'Press the space key when ready to start.', 20, 200, 1275);
 Screen('Flip', win);
 KbStrokeWait;
 
@@ -719,6 +736,7 @@ end
 switchsidevec = [switchsidevec fliplr(switchsidevec)];
 
 for trialindex_sim = 1:NTrials
+    pairlabelvec(trialindex_sim)
     %Select the stimulus pair
     if pairlabelvec(trialindex_sim) == 1
         counterA = counterA+1;
@@ -775,7 +793,7 @@ for trialindex_sim = 1:NTrials
         TrialPicturePath1 =  eval(['roles.A.imgPaths{' num2str(counterA) '}']);
         counterD = counterD+1;
         TrialPicturePath2 =  eval(['roles.D.imgPaths{' num2str(counterD) '}']);
-    if pairlabelvec(trialindex_sim) == 12
+    elseif pairlabelvec(trialindex_sim) == 12
         counterA = counterA+1;
         TrialPicturePath1 =  eval(['roles.A.imgPaths{' num2str(counterA) '}']);
         counterE = counterE+1;
