@@ -297,7 +297,7 @@ Screen('DrawText', win, 'In the next task, you will see two pictures.', 20, 20, 
 Screen('DrawText', win, 'Click on the picture you think is correct.', 20, 80, 1275);
 Screen('DrawText', win, 'At first you will have to guess. You will get feedback telling you whether you are right or wrong.', 20, 140, 1275);
 Screen('DrawText', win, 'Use the feedback to learn which picture is correct in each pair.', 20, 200, 1275);
-Screen('DrawText', win, 'You do not need to focus on the fixation dot. Press the space key when ready to begin.', 20, 260, 1275);
+Screen('DrawText', win, 'Please keep your eyes fixed on the fixation point. Press the space key to begin.', 20, 260, 1275);
 Screen('Flip', win); % show text%         % wait for mouse press ( no GetClicks  :(  )
 %         buttons=0;
 %             while ~any(buttons) % wait for press
@@ -452,7 +452,7 @@ end
 Screen('DrawText', win, 'In the next task, you will see two pictures.', 20, 20, 1275);
 Screen('DrawText', win, 'As in the last task, click on the picture you think is correct.', 20, 80, 1275);
 Screen('DrawText', win, 'This time you will NOT get feedback about whether you are right or wrong.', 20, 140, 1275);
-Screen('DrawText', win, 'You do not need to focus on the fixation dot.', 20, 200, 1275);
+Screen('DrawText', win, 'Please keep your eyes fixed on the fixation point.', 20, 200, 1275);
 Screen('DrawText', win, 'Press the space key when ready to begin.', 20, 260, 1275);
 Screen('Flip', win); % show text
 KbStrokeWait;
@@ -733,88 +733,87 @@ for loopindex = 1:nImgsPerCat/5
     switchsidevec = [switchsidevec randi(2,1,15)];
 end
 
-switchsidevec = [switchsidevec fliplr(switchsidevec)];
 
 for trialindex_sim = 1:NTrials
     pairlabelvec(trialindex_sim)
     %Select the stimulus pair
     if pairlabelvec(trialindex_sim) == 1
-        counterA = counterA+1;
+        if counterA == 20, counterA = 1; else, counterA = counterA+1; end
         TrialPicturePath1 =  eval(['roles.A.imgPaths{' num2str(counterA) '}']);
-        counterB = counterB+1;
+        if counterB == 20, counterB = 1; else, counterB = counterB+1; end
         TrialPicturePath2 =  eval(['roles.B.imgPaths{' num2str(counterB) '}']);
     elseif pairlabelvec(trialindex_sim) == 2
-        counterB = counterB+1;
+        if counterB == 20, counterB = 1; else, counterB = counterB+1; end
         TrialPicturePath1 =  eval(['roles.B.imgPaths{' num2str(counterB) '}']);
-        counterC = counterC+1;
+        if counterC == 20, counterC = 1; else, counterC = counterC+1; end
         TrialPicturePath2 =  eval(['roles.C.imgPaths{' num2str(counterC) '}']);
     elseif pairlabelvec(trialindex_sim) == 3
-        counterC = counterC+1;
+        if counterC == 20, counterC = 1; else, counterC = counterC+1; end
         TrialPicturePath1 =  eval(['roles.C.imgPaths{' num2str(counterC) '}']);
-        counterD = counterD+1;
+        if counterD == 20, counterD = 1; else, counterD = counterD+1; end
         TrialPicturePath2 =  eval(['roles.D.imgPaths{' num2str(counterD) '}']);
     elseif pairlabelvec(trialindex_sim) == 4
-        counterD = counterD+1;
+        if counterD == 20, counterD = 1; else, counterD = counterD+1; end
         TrialPicturePath1 =  eval(['roles.D.imgPaths{' num2str(counterD) '}']);
-        counterE = counterE+1;
+        if counterE == 20, counterE = 1; else, counterE = counterE+1; end
         TrialPicturePath2 =  eval(['roles.E.imgPaths{' num2str(counterE) '}']);
     elseif pairlabelvec(trialindex_sim) == 5
-        counterA = counterA+1;
+        if counterA == 20, counterA = 1; else, counterA = counterA+1; end
         TrialPicturePath1 =  eval(['roles.A.imgPaths{' num2str(counterA) '}']);
-        counterA = counterA+1;
+        if counterA == 20, counterA = 1; else, counterA = counterA+1; end
         TrialPicturePath2 =  eval(['roles.A.imgPaths{' num2str(counterA) '}']);
     elseif pairlabelvec(trialindex_sim) == 6
-        counterB = counterB+1;
+        if counterB == 20, counterB = 1; else, counterB = counterB+1; end
         TrialPicturePath1 =  eval(['roles.B.imgPaths{' num2str(counterB) '}']);
-        counterB = counterB+1;
+        if counterB == 20, counterB = 1; else, counterB = counterB+1; end
         TrialPicturePath2 =  eval(['roles.B.imgPaths{' num2str(counterB) '}']);
     elseif pairlabelvec(trialindex_sim) == 7
-        counterC = counterC+1;
+        if counterC == 20, counterC = 1; else, counterC = counterC+1; end
         TrialPicturePath1 =  eval(['roles.C.imgPaths{' num2str(counterC) '}']);
-        counterC = counterC+1;
+        if counterC == 20, counterC = 1; else, counterC = counterC+1; end
         TrialPicturePath2 =  eval(['roles.C.imgPaths{' num2str(counterC) '}']);
     elseif pairlabelvec(trialindex_sim) == 8
-        counterD = counterD+1;
+        if counterD == 20, counterD = 1; else, counterD = counterD+1; end
         TrialPicturePath1 =  eval(['roles.D.imgPaths{' num2str(counterD) '}']);
-        counterD = counterD+1;
+        if counterD == 20, counterD = 1; else, counterD = counterD+1; end
         TrialPicturePath2 =  eval(['roles.D.imgPaths{' num2str(counterD) '}']);
     elseif pairlabelvec(trialindex_sim) == 9
-        counterE = counterE+1;
+        if counterE == 20, counterE = 1; else, counterE = counterE+1; end
         TrialPicturePath1 =  eval(['roles.E.imgPaths{' num2str(counterE) '}']);
-        counterE = counterE+1;
+        if counterE == 20, counterE = 1; else, counterE = counterE+1; end
         TrialPicturePath2 =  eval(['roles.E.imgPaths{' num2str(counterE) '}']);
     elseif pairlabelvec(trialindex_sim) == 10
-        counterA = counterA+1;
+        if counterA == 20, counterA = 1; else, counterA = counterA+1; end
         TrialPicturePath1 =  eval(['roles.A.imgPaths{' num2str(counterA) '}']);
-        counterC = counterC+1;
+        if counterC == 20, counterC = 1; else, counterC = counterC+1; end
         TrialPicturePath2 =  eval(['roles.C.imgPaths{' num2str(counterC) '}']);
     elseif pairlabelvec(trialindex_sim) == 11
-        counterA = counterA+1;
+        if counterA == 20, counterA = 1; else, counterA = counterA+1; end
         TrialPicturePath1 =  eval(['roles.A.imgPaths{' num2str(counterA) '}']);
-        counterD = counterD+1;
+        if counterD == 20, counterD = 1; else, counterD = counterD+1; end
         TrialPicturePath2 =  eval(['roles.D.imgPaths{' num2str(counterD) '}']);
     elseif pairlabelvec(trialindex_sim) == 12
-        counterA = counterA+1;
+        if counterA == 20, counterA = 1; else, counterA = counterA+1; end
         TrialPicturePath1 =  eval(['roles.A.imgPaths{' num2str(counterA) '}']);
-        counterE = counterE+1;
+        if counterE == 20, counterE = 1; else, counterE = counterE+1; end
         TrialPicturePath2 =  eval(['roles.E.imgPaths{' num2str(counterE) '}']);
     elseif pairlabelvec(trialindex_sim) == 13
-        counterB = counterB+1;
+        if counterB == 20, counterB = 1; else, counterB = counterB+1; end
         TrialPicturePath1 =  eval(['roles.B.imgPaths{' num2str(counterB) '}']);
-        counterD = counterD+1;
+        if counterD == 20, counterD = 1; else, counterD = counterD+1; end
         TrialPicturePath2 =  eval(['roles.D.imgPaths{' num2str(counterD) '}']);
     elseif pairlabelvec(trialindex_sim) == 14
-        counterB = counterB+1;
+        if counterB == 20, counterB = 1; else, counterB = counterB+1; end
         TrialPicturePath1 =  eval(['roles.B.imgPaths{' num2str(counterB) '}']);
-        counterE = counterE+1;
+        if counterE == 20, counterE = 1; else, counterE = counterE+1; end
         TrialPicturePath2 =  eval(['roles.E.imgPaths{' num2str(counterE) '}']);
     elseif pairlabelvec(trialindex_sim) == 15
-        counterC = counterC+1;
+        if counterC == 20, counterC = 1; else, counterC = counterC+1; end
         TrialPicturePath1 =  eval(['roles.C.imgPaths{' num2str(counterC) '}']);
-        counterE = counterE+1;
+        if counterE == 20, counterE = 1; else, counterE = counterE+1; end
         TrialPicturePath2 =  eval(['roles.E.imgPaths{' num2str(counterE) '}']);
     end
-    end
+
 
     % make the corresponding textures
     [~, currentfile1] = fileparts(TrialPicturePath1);
