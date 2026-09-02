@@ -192,9 +192,9 @@ KbStrokeWait
         % clear screen
         Screen('Flip', win);
    
-      Screen('DrawText', win, 'Welcome to the experiment. In each trial, you will see one or two pictures', 20, 20, 1275);
-      Screen('DrawText', win, 'Please keep your eyes exactly at the center of the screen and do not look around unless otherwise instructed ', 20, 80, 1275);
-      Screen('DrawText', win, 'There will be a fixation point in the middle that helps you keep your gaze in the middle.', 20, 140, 1275);
+      Screen('DrawText', win, 'Welcome to the experiment. In each trial, you will see 1 or 2 pictures', 20, 20, 1275);
+      Screen('DrawText', win, 'Please keep your eyes in the center of the screen and do not look around unless otherwise instructed ', 20, 80, 1275);
+      Screen('DrawText', win, 'There will be a fixation point in the middle of the screen to help keep your gaze in the middle.', 20, 140, 1275);
       Screen('DrawText', win, 'You will sometimes be asked to answer a few questions about the pictures.', 20, 200, 1275);
       Screen('DrawText', win, 'Click when ready to start! Thanks for participating!', 20, 260, 1275);
       Screen('Flip', win); % show text
@@ -217,8 +217,9 @@ KbStrokeWait
 %% =========================================================
 
 % write message to subject
-Screen('DrawText', win, 'Please Keep your eyes fixed on the fixation point.', 20, 20, 1275);
-Screen('DrawText', win, 'The task will begin shortly...', 20, 80, 1275);
+Screen('DrawText', win, 'The task will begin shortly...', 20, 20, 1275);
+Screen('DrawText', win, 'Please keep your eyes fixed on the fixation point.', 20, 80, 1275);
+Screen('DrawText', win, 'You will not need the mouse for this task.', 20, 140, 1275);
 Screen('Flip', win); % show text
 KbStrokeWait;
 % clear screen
@@ -293,12 +294,15 @@ similarityRatings(win, roles, subjectNumber, winRect, datafilepointerrate1)
 %% =========================================================
 
 % write message to subject
-Screen('DrawText', win, 'In the next task, you will see two pictures.', 20, 20, 1275);
+Screen('DrawText', win, 'In the next task, you will see 2 pictures.', 20, 20, 1275);
 Screen('DrawText', win, 'Click on the picture you think is correct.', 20, 80, 1275);
-Screen('DrawText', win, 'At first you will have to guess. You will get feedback telling you whether you are right or wrong.', 20, 140, 1275);
+Screen('DrawText', win, 'You will get feedback saying you are correct or incorrect.', 20, 140, 1275);
 Screen('DrawText', win, 'Use the feedback to learn which picture is correct in each pair.', 20, 200, 1275);
-Screen('DrawText', win, 'Please keep your eyes fixed on the fixation point. Press the space key to begin.', 20, 260, 1275);
-Screen('Flip', win); % show text%         % wait for mouse press ( no GetClicks  :(  )
+Screen('DrawText', win, 'Please keep your eyes fixed on the fixation point.', 20, 260, 1275);
+Screen('DrawText', win, 'Press any key to begin.', 20, 320, 1275);
+Screen('Flip', win); % show text%         
+
+% wait for mouse press ( no GetClicks  :(  )
 %         buttons=0;
 %             while ~any(buttons) % wait for press
 %                 [x,y,buttons] = GetMouse;
@@ -449,12 +453,12 @@ end
 %% =========================================================
 % 8 Testing Phase
 %% =========================================================
-Screen('DrawText', win, 'In the next task, you will see two pictures.', 20, 20, 1275);
-Screen('DrawText', win, 'As in the last task, click on the picture you think is correct.', 20, 80, 1275);
-Screen('DrawText', win, 'This time you will NOT get feedback about whether you are right or wrong.', 20, 140, 1275);
+Screen('DrawText', win, 'In the next task, you will see 2 pictures.', 20, 20, 1275);
+Screen('DrawText', win, 'Click on the picture you think is correct.', 20, 80, 1275);
+Screen('DrawText', win, 'This time you will NOT get feedback on whether you are correct or not.', 20, 140, 1275);
 Screen('DrawText', win, 'Please keep your eyes fixed on the fixation point.', 20, 200, 1275);
-Screen('DrawText', win, 'Press the space key when ready to begin.', 20, 260, 1275);
-Screen('Flip', win); % show text
+Screen('DrawText', win, 'Press any key when ready to begin.', 20, 260, 1275);
+Screen('Flip', win);
 KbStrokeWait;
 % clear screen
 Screen('Flip', win);
@@ -558,12 +562,6 @@ for trialindex_training = 1:NTrials
     % Calculate RT
     RTlearning = 1000*(sPress-sFlip);
     
-    %             % and now take it off the screen
-    %             if correctstatus == 1
-    %                 Screen('DrawText', win, ' CORRECT! ', cx-120, cy, [0 1 0]);
-    %             elseif  correctstatus == 0
-    %                 Screen('DrawText', win, ' False :-( ', cx-120, cy, [1 0 0]);
-    %             end
     Screen('Flip', win); % show text
     WaitSecs(.5);
     
@@ -592,7 +590,8 @@ end
 
 % write message to subject
 Screen('DrawText', win, 'Please keep your eyes fixed on the fixation point.', 20, 20, 1275);
-Screen('DrawText', win, 'Press the space key when ready to begin.', 20, 80, 1275);
+Screen('DrawText', win, 'You will not need the mouse for this task.', 20, 80, 1275);
+Screen('DrawText', win, 'Press any key when ready to begin.', 20, 140, 1275);
 Screen('Flip', win); % show text
 KbStrokeWait;
 % clear screen
@@ -666,7 +665,7 @@ similarityRatings(win, roles, subjectNumber, winRect, datafilepointerrate2)
 
 
 %% End of entire experiment
-Screen('DrawText', win, 'Thank you! Press any key to exit.', 20, 20, 1275);
+Screen('DrawText', win, 'Thank you for participating! Press any key to exit.', 20, 20, 1275);
 Screen('Flip', win);
 KbStrokeWait;
 
@@ -679,10 +678,10 @@ end % main function transinf end
 
 %% Similarity Ratings
 function similarityRatings(win, roles, subjectNumber, winRect, datafilepointerrate)
-Screen('DrawText', win, 'Thank you!', 20, 20, 1275);
-Screen('DrawText', win, 'The next task will ask you to rate how similar two pictures are in their meaning.', 20, 80, 1275);
-Screen('DrawText', win, 'You do not need to keep your gaze in the middle of the screen.', 20, 140, 1275);
-Screen('DrawText', win, 'Press the space key when ready to start.', 20, 200, 1275);
+Screen('DrawText', win, 'The next task will ask you to rate how similar 2 pictures are in their meaning.', 20, 20, 1275);
+Screen('DrawText', win, 'Use the mouse to rate the pictures on the scale at the bottom of the screen.', 20, 80, 1275);
+Screen('DrawText', win, 'You do not need to keep your gaze on the fixation point.', 20, 140, 1275);
+Screen('DrawText', win, 'Press any key when ready to start.', 20, 200, 1275);
 Screen('Flip', win);
 KbStrokeWait;
 
@@ -698,7 +697,6 @@ xOffset = round(scrW * 0.25);
 leftRect  = CenterRectOnPointd([0 0 imgW imgH], cx - xOffset, cy);
 rightRect = CenterRectOnPointd([0 0 imgW imgH], cx + xOffset, cy);
 
-% fixation dot: NO FIXATION FOR RATINGS?
 fix_cord = [cx-5 cy-5 cx+5 cy+5];
 
 % slider setup (adapted from simrate2)
