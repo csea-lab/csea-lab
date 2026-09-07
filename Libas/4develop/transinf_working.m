@@ -176,28 +176,28 @@ datafilepointerrate2 = fopen(datafileratings2, 'w');
 % BEGIN EXPERIMENT
 %% =========================================================
 
-HideCursor(0,0);
+HideCursor(win);
 
-        Screen('DrawText', w, 'Please wait for experimenter ...', 10, 10, 255);
-        Screen('Flip', w); % show text
-
-        % wait for mouse press ( no GetClicks  :(  )
-        buttons=0;
-            while ~any(buttons) % wait for press
-                [x,y,buttons] = GetMouse;
-                % Wait 10 ms before checking the mouse again to prevent
-                % overload of the machine at elevated Priority()
-                WaitSecs(0.01);
-            end
+        Screen('DrawText', win, 'Please wait for experimenter ...', 10, 10, 255);
+        Screen('Flip', win); % show text
+KbStrokeWait
+%         % wait for mouse press ( no GetClicks  :(  )
+%         buttons=0;
+%             while ~any(buttons) % wait for press
+%                 [x,y,buttons] = GetMouse;
+%                 % Wait 10 ms before checking the mouse again to prevent
+%                 % overload of the machine at elevated Priority()
+%                 WaitSecs(0.01);
+%             end
         % clear screen
-        Screen('Flip', w);
+        Screen('Flip', win);
    
-      Screen('DrawText', w, 'Welcome to the experiment. In each trial, you will see a picture', 20, 20, 1275);
-      Screen('DrawText', w, 'Please keep your eyes exactly at the center of the screen and do not look around ', 20, 80, 1275);
-      Screen('DrawText', w, 'There will be a fixation point in the middle that helps you keep your gaze in the middle.', 20, 140, 1275);
-      Screen('DrawText', w, 'You will also be asked occasionally to answer a few questions.', 20, 200, 1275);
-      Screen('DrawText', w, 'Click when ready to start! Thanks for participating!', 20, 260, 1275);
-      Screen('Flip', w); % show text
+      Screen('DrawText', win, 'Welcome to the experiment. In each section, you will see 1 or 2 pictures', 20, 20, 1275);
+      Screen('DrawText', win, 'Please keep your eyes in the center of the screen and do not look around unless otherwise instructed ', 20, 80, 1275);
+      Screen('DrawText', win, 'There will be a fixation point in the middle of the screen to help keep your gaze in the middle.', 20, 140, 1275);
+      Screen('DrawText', win, 'You will sometimes be asked to answer a few questions about the pictures.', 20, 200, 1275);
+      Screen('DrawText', win, 'Click when ready to start! Thanks for participating!', 20, 260, 1275);
+      Screen('Flip', win); % show text
 
        WaitSecs(1)
        
@@ -217,7 +217,9 @@ HideCursor(0,0);
 %% =========================================================
 
 % write message to subject
-Screen('DrawText', win, 'The experiment will begin shortly ... ', 20, 20, 1275);
+Screen('DrawText', win, 'The task will begin shortly...', 20, 20, 1275);
+Screen('DrawText', win, 'Please keep your eyes fixed on the fixation point.', 20, 80, 1275);
+Screen('DrawText', win, 'You will not need the mouse for this task.', 20, 140, 1275);
 Screen('Flip', win); % show text
 KbStrokeWait;
 % clear screen
@@ -237,7 +239,7 @@ for randoloop = 1:nImgsPerCat
     Rolenamevec_randomized = [Rolenamevec_randomized roleLabels(randperm(nCategories))];
 end
 
-for trialindex_bsl1 = 1:NTrials
+for trialindex_bsl1 = 1:10
     % first, set the event marker channel to zero
     fprintf(s3, '00');
     % start and control counters for each role
@@ -247,19 +249,19 @@ for trialindex_bsl1 = 1:NTrials
     elseif strcmp('D', char(Rolenamevec_randomized(trialindex_bsl1))), counterD = counterD+1; counter = counterD;
     elseif strcmp('E', char(Rolenamevec_randomized(trialindex_bsl1))), counterE = counterE+1; counter = counterE;
     end
-    
+
     %fixation cross
     Screen('FillOval', win, 255 ,[cx-5 cy-5 cx+5 cy+5]);
     Screen('Flip', win);
     WaitSecs(BASELINE_ITI_MIN + rand(1,1) * (BASELINE_ITI_MAX-BASELINE_ITI_MIN)) % ITI between 1 and 3 secs, uniform
-    
+
     % make texture for this trial
     TrialPicturePath =  eval(['roles.' char(Rolenamevec_randomized(trialindex_bsl1)) '.imgPaths{' num2str(counter) '}']);
     [~, currentfile] = fileparts(TrialPicturePath);
     TrialPicture = imread(TrialPicturePath);
     TrialPicture = imresize(TrialPicture, .5);
     TrialTex=Screen('MakeTexture', win, TrialPicture);
-    
+
     %show the picture
     Screen('DrawTexture', win, TrialTex);
     Screen('FillOval', win, 255 ,[cx-5 cy-5 cx+5 cy+5]);
@@ -270,7 +272,7 @@ for trialindex_bsl1 = 1:NTrials
     Screen('FillOval', win, 255 ,[cx-5 cy-5 cx+5 cy+5]);
     Screen('Flip', win);
     WaitSecs(.2);
-    
+
     % Dat file information, add a row in each trial
     fprintf(datafilepointer1,'%i %i %i %s %s \n', ...
         subjectNumber, ...
@@ -278,7 +280,7 @@ for trialindex_bsl1 = 1:NTrials
         trialindex_bsl1, ...
         char(Rolenamevec_randomized(trialindex_bsl1)),...
         currentfile);
-    
+
 end
 
 %% =========================================================
@@ -292,8 +294,23 @@ similarityRatings(win, roles, subjectNumber, winRect, datafilepointerrate1)
 %% =========================================================
 
 % write message to subject
-Screen('DrawText', win, 'The next task will begin shortly ... ', 20, 20, 1275);
-Screen('Flip', win); % show text
+Screen('DrawText', win, 'In the next task, you will see 2 pictures.', 20, 20, 1275);
+Screen('DrawText', win, 'Click on the picture you think is correct.', 20, 80, 1275);
+Screen('DrawText', win, 'You will get feedback saying you are correct or incorrect.', 20, 140, 1275);
+Screen('DrawText', win, 'Use the feedback to learn which picture is correct in each pair.', 20, 200, 1275);
+Screen('DrawText', win, 'Please keep your eyes fixed on the fixation point.', 20, 260, 1275);
+Screen('DrawText', win, 'Press any key to begin.', 20, 320, 1275);
+Screen('Flip', win); % show text%
+
+% wait for mouse press ( no GetClicks  :(  )
+%         buttons=0;
+%             while ~any(buttons) % wait for press
+%                 [x,y,buttons] = GetMouse;
+%                 % Wait 10 ms before checking the mouse again to prevent
+%                 % overload of the machine at elevated Priority()
+%                 WaitSecs(0.01);
+%             end
+
 KbStrokeWait;
 % clear screen
 Screen('Flip', win);
@@ -303,17 +320,17 @@ HideCursor(win);
 SetMouse(cx, cy, win);   % park cursor at centre between trials
 
 % randomization
-NTrials = (nCategories-1)*nImgsPerCat/2; % trials in baseline phase = all pictures
+NTrials = (nCategories-1)*nImgsPerCat; % trials in baseline phase = all pictures
 counterA = 0;
 counterB = 0;
 counterC = 0;
 counterD = 0;
 counterE = 0;
 pairlabelvec = [];
-switchsidevec = []; 
-for loopindex = 1:nImgsPerCat/2
+switchsidevec = [];
+for loopindex = 1:nImgsPerCat
     pairlabelvec = [pairlabelvec randperm(4)];
-    switchsidevec = [switchsidevec randperm(2)];    
+    switchsidevec = [switchsidevec randperm(2)];
 end
 
 switchsidevec = [switchsidevec fliplr(switchsidevec)];
@@ -321,47 +338,47 @@ switchsidevec = [switchsidevec fliplr(switchsidevec)];
 for trialindex_training = 1:NTrials
     % first, set the event marker channel to zero
     fprintf(s3, '00');
-    
-    %Select the stimulus pair    
+
+    %Select the stimulus pair
     if pairlabelvec(trialindex_training) == 1
         counterA = counterA+1;
         TrialPicturePath1 =  eval(['roles.A.imgPaths{' num2str(counterA) '}']);
-        counterB = counterB+1;
+        if counterB == 20, counterB = 1; else, counterB = counterB+1; end
         TrialPicturePath2 =  eval(['roles.B.imgPaths{' num2str(counterB) '}']);
     elseif pairlabelvec(trialindex_training) == 2
-        counterB = counterB+1;
+        if counterB == 20, counterB = 1; else, counterB = counterB+1; end
         TrialPicturePath1 =  eval(['roles.B.imgPaths{' num2str(counterB) '}']);
-        counterC = counterC+1;
+        if counterC == 20, counterC = 1; else, counterC = counterC+1; end
         TrialPicturePath2 =  eval(['roles.C.imgPaths{' num2str(counterC) '}']);
     elseif pairlabelvec(trialindex_training) == 3
-        counterC = counterC+1;
+        if counterC == 20, counterC = 1; else, counterC = counterC+1; end
         TrialPicturePath1 =  eval(['roles.C.imgPaths{' num2str(counterC) '}']);
-        counterD = counterD+1;
+        if counterD == 20, counterD = 1; else, counterD = counterD+1; end
         TrialPicturePath2 =  eval(['roles.D.imgPaths{' num2str(counterD) '}']);
     elseif pairlabelvec(trialindex_training) == 4
-        counterD = counterD+1;
+        if counterD == 20, counterD = 1; else, counterD = counterD+1; end
         TrialPicturePath1 =  eval(['roles.D.imgPaths{' num2str(counterD) '}']);
         counterE = counterE+1;
         TrialPicturePath2 =  eval(['roles.E.imgPaths{' num2str(counterE) '}']);
     end
-    
-    % make the corresponding textures  
+
+    % make the corresponding textures
     [~, currentfile1] = fileparts(TrialPicturePath1);
     [~, currentfile2] = fileparts(TrialPicturePath2);
-    
+
     TrialPicture1 = imread(TrialPicturePath1);
     TrialPicture1 = imresize(TrialPicture1, .5);
     TrialTex1=Screen('MakeTexture', win, TrialPicture1);
-    
+
     TrialPicture2 = imread(TrialPicturePath2);
     TrialPicture2 = imresize(TrialPicture2, .5);
-    TrialTex2=Screen('MakeTexture', win, TrialPicture2);        
-    
+    TrialTex2=Screen('MakeTexture', win, TrialPicture2);
+
     %fixation cross
     Screen('FillOval', win, 255 ,[cx-5 cy-5 cx+5 cy+5]);
     Screen('Flip', win);
     WaitSecs(LEARNING_ITI_MIN + rand(1,1) * (LEARNING_ITI_MAX-LEARNING_ITI_MIN)) % ITI between 1 and 3 secs, uniform
-           
+
     %show the picture pair
     if switchsidevec(trialindex_training) == 1
         Screen('DrawTexture', win, TrialTex1, [], [cx-450 cy-200 cx-50 cy+200] );
@@ -370,75 +387,85 @@ for trialindex_training = 1:NTrials
         Screen('DrawTexture', win, TrialTex2, [], [cx-450 cy-200 cx-50 cy+200] );
         Screen('DrawTexture', win, TrialTex1, [], [cx+50 cy-200 cx+450 cy+200] );
     end
-        
+
     Screen('FillOval', win, 255 ,[cx-5 cy-5 cx+5 cy+5]);
     sFlip = Screen('Flip', win);
-    fprintf(s3, '04');  
-    WaitSecs(1); 
-    fprintf(s3, '00');  
+    fprintf(s3, '04');
+    WaitSecs(1);
+    fprintf(s3, '00');
     SetMouse(cx, cy, win);   % park cursor at centre between trials
-    ShowCursor('Arrow',win);
-    
+    ShowCursor('Arrow', win);
+
     % wait for mouse click
-        buttons=0;
-            while ~any(buttons) % wait for press
-                [xcoor,~,buttons] = GetMouse;
-                 sPress=GetSecs;
-                % Wait 10 ms before checking the mouse again to prevent
-                % overload of the machine at elevated Priority()
-                WaitSecs(0.01);
-            end
-            
-      HideCursor(win);
-            
-            % calculate response side: left or right
-            responseside_contin = cx-xcoor;            
-            % positive means left and negative means right
-            if switchsidevec(trialindex_training) == 1 && responseside_contin > 0
-                correctstatus = 1; 
-            elseif switchsidevec(trialindex_training) == 2 && responseside_contin < 0
-                 correctstatus = 1; 
-            else
-                 correctstatus = 0; 
-            end
-                    
-            % Calculate RT
-            RTlearning = 1000*(sPress-sFlip);
-    
-            % and now take it off the screen
-            if correctstatus == 1
-                Screen('DrawText', win, ' CORRECT! ', cx-120, cy, [0 1 0]);
-            elseif  correctstatus == 0
-                Screen('DrawText', win, ' False :-( ', cx-120, cy, [1 0 0]);
-            end
-            Screen('Flip', win); % show text
-            fprintf(s3, '02');
-            WaitSecs(.5);
-            fprintf(s3, '00');
-    
+    buttons=0;
+    while ~any(buttons) % wait for press
+        [xcoor,~,buttons] = GetMouse;
+        sPress=GetSecs;
+        % Wait 10 ms before checking the mouse again to prevent
+        % overload of the machine at elevated Priority()
+        WaitSecs(0.01);
+    end
+
+    HideCursor(win);
+
+    % calculate response side: left or right
+    responseside_contin = cx-xcoor;
+    % positive means left and negative means right
+    if switchsidevec(trialindex_training) == 1 && responseside_contin > 0
+        correctstatus = 1;
+    elseif switchsidevec(trialindex_training) == 2 && responseside_contin < 0
+        correctstatus = 1;
+    else
+        correctstatus = 0;
+    end
+
+    % Calculate RT
+    RTlearning = 1000*(sPress-sFlip);
+
+    % and now take it off the screen
+    if correctstatus == 1
+        Screen('DrawText', win, ' CORRECT! ', cx-120, cy, [0 1 0]);
+    elseif  correctstatus == 0
+        Screen('DrawText', win, ' False :-( ', cx-120, cy, [1 0 0]);
+    end
+    Screen('Flip', win); % show text
+    fprintf(s3, '02');
+    WaitSecs(.5);
+    fprintf(s3, '00');
+
+    if correctstatus == 1
+        correcttext = 'Correct'
+    elseif  correctstatus == 0
+        correcttext = 'Incorrect'
+    end
+
     % Dat file information, add a row in each trial
     fprintf(datafilepointer2,'%i %i %i %i %i %i %i %i %i %s %s \n', ...
-        subjectNumber, ...
-        2, ...
-        trialindex_training, ...
-        pairlabelvec(trialindex_training),...
-        switchsidevec(trialindex_training),...
-        xcoor,...
-        responseside_contin,...
-        correctstatus,...
-        RTlearning,...
-        currentfile1, ...
-        currentfile2);
-    
+        subjectNumber, ...                      % 1 - Subject ID
+        2, ...                                  % 2 - Block number
+        trialindex_training, ...                % 3 - trial number
+        pairlabelvec(trialindex_training),...   % 4 - pair ID
+        switchsidevec(trialindex_training),...  % 5 - side switch flag (L/R)
+        xcoor,...                               % 6 - response x coordinate
+        responseside_contin,...                 % 7 - left/right sign
+        correctstatus,...                       % 8 - 1/0 correct status
+        correcttext, ...                        % 9 - 'Correct' or 'Incorrect'
+        RTlearning,...                          % 10 - reaction time (ms)
+        currentfile1, ...                       % 11 - Left side pic name
+        currentfile2);                          % 12 - Right side pic name
+
 end
 
 
 %% =========================================================
 % 8 Testing Phase
 %% =========================================================
-
-Screen('DrawText', win, 'The next task will begin shortly ... ', 20, 20, 1275);
-Screen('Flip', win); % show text
+Screen('DrawText', win, 'In the next task, you will see 2 pictures.', 20, 20, 1275);
+Screen('DrawText', win, 'Click on the picture you think is correct.', 20, 80, 1275);
+Screen('DrawText', win, 'This time you will NOT get feedback on whether you are correct or not.', 20, 140, 1275);
+Screen('DrawText', win, 'Please keep your eyes fixed on the fixation point.', 20, 200, 1275);
+Screen('DrawText', win, 'Press any key when ready to begin.', 20, 260, 1275);
+Screen('Flip', win);
 KbStrokeWait;
 % clear screen
 Screen('Flip', win);
@@ -448,61 +475,67 @@ HideCursor(win);
 SetMouse(cx, cy, win);   % park cursor at centre between trials
 
 % randomization
-NTrials = (nCategories-1)*nImgsPerCat/2; % trials in baseline phase = all pictures
+NTrials = 3*24; % 3 [pairs types times 24 trials each
 counterA = 0;
 counterB = 0;
 counterC = 0;
 counterD = 0;
 counterE = 0;
+
 pairlabelvec = [];
-switchsidevec = []; 
-for loopindex = 1:nImgsPerCat/2
-    pairlabelvec = [pairlabelvec randperm(4)];
-    switchsidevec = [switchsidevec randperm(2)];    
+switchsidevec = [];
+
+for loopindex = 1:24
+    pairlabelvec = [pairlabelvec randperm(3)];
+    switchsidevec = [switchsidevec randi(2, 1, 3)];
 end
 
-switchsidevec = [switchsidevec fliplr(switchsidevec)];
+Rolenamevec_randomized = []; % make a vector with as many role names as trials
+for randoloop = 1:nImgsPerCat
+    Rolenamevec_randomized = [Rolenamevec_randomized roleLabels(randperm(nCategories))];
+end
 
-for trialindex_training = 1:5
+for trialindex_training = 1:NTrials
     % first, set the event marker channel to zero
-     fprintf(s3, '00');
-    
-     
-%Select the stimulus pair  
+    fprintf(s3, '00');
+
+
+    %Select the stimulus pair
+    %gives error: Index exceeds the number of array elements (30).
     if pairlabelvec(trialindex_training) == 1
-        counterA = counterA+1;
+        if counterA == 20, counterA = 1; else, counterA = counterA+1; end
         TrialPicturePath1 =  eval(['roles.A.imgPaths{' num2str(counterA) '}']);
-        counterE = counterE+1;
+        if counterE == 20, counterE = 1; else, counterE = counterE+1; end
         TrialPicturePath2 =  eval(['roles.E.imgPaths{' num2str(counterE) '}']);
     elseif pairlabelvec(trialindex_training) == 2
-        counterC = counterC+1;
+        if counterC == 20, counterC = 1; else, counterC = counterC+1; end
         TrialPicturePath1 =  eval(['roles.C.imgPaths{' num2str(counterC) '}']);
-        counterC = counterC+1;
+        if counterC == 20, counterC = 1; else, counterC = counterC+1; end
         TrialPicturePath2 =  eval(['roles.C.imgPaths{' num2str(counterC) '}']);
     elseif pairlabelvec(trialindex_training) == 3
-        counterB = counterB+1;
+        if counterB == 20, counterB = 1; else, counterB = counterB+1; end
         TrialPicturePath1 =  eval(['roles.B.imgPaths{' num2str(counterB) '}']);
-        counterD = counterD+1;
+        if counterD == 20, counterD = 1; else, counterD = counterD+1; end
         TrialPicturePath2 =  eval(['roles.D.imgPaths{' num2str(counterD) '}']);
     end
-    
-    % make the corresponding textures  
+
+    % make the corresponding textures
     [~, currentfile1] = fileparts(TrialPicturePath1);
     [~, currentfile2] = fileparts(TrialPicturePath2);
-    
+
     TrialPicture1 = imread(TrialPicturePath1);
     TrialPicture1 = imresize(TrialPicture1, .5);
     TrialTex1=Screen('MakeTexture', win, TrialPicture1);
-    
+
     TrialPicture2 = imread(TrialPicturePath2);
     TrialPicture2 = imresize(TrialPicture2, .5);
-    TrialTex2=Screen('MakeTexture', win, TrialPicture2);        
-    
+    TrialTex2=Screen('MakeTexture', win, TrialPicture2);
+
     %fixation cross
     Screen('FillOval', win, 255 ,[cx-5 cy-5 cx+5 cy+5]);
     Screen('Flip', win);
     WaitSecs(LEARNING_ITI_MIN + rand(1,1) * (LEARNING_ITI_MAX-LEARNING_ITI_MIN)) % ITI between 1 and 3 secs, uniform
-           
+
     %show the picture pair
     if switchsidevec(trialindex_training) == 1
         Screen('DrawTexture', win, TrialTex1, [], [cx-450 cy-200 cx-50 cy+200] );
@@ -511,53 +544,67 @@ for trialindex_training = 1:5
         Screen('DrawTexture', win, TrialTex2, [], [cx-450 cy-200 cx-50 cy+200] );
         Screen('DrawTexture', win, TrialTex1, [], [cx+50 cy-200 cx+450 cy+200] );
     end
-    
+
     Screen('FillOval', win, 255 ,[cx-5 cy-5 cx+5 cy+5]);
     sFlip = Screen('Flip', win);
-    fprintf(s3, '08');  
-    WaitSecs(1); 
+    fprintf(s3, '08');
+    WaitSecs(1);
     SetMouse(cx, cy, win);   % park cursor at centre between trials
-    ShowCursor('Arrow',win);
-    
-    
+    ShowCursor('Arrow', win);
+
+
     % wait for mouse click
-        buttons=0;
-            while ~any(buttons) % wait for press
-                [xcoor,~,buttons] = GetMouse;
-                 sPress=GetSecs;
-                % Wait 10 ms before checking the mouse again to prevent
-                % overload of the machine at elevated Priority()
-                WaitSecs(0.01);
-            end
-            
-  HideCursor(win);
-            
-            responseside_contin = cx-xcoor;            
-            % Calculate RT
-            RTlearning = 1000*(sPress-sFlip);
-    
-%             % and now take it off the screen
-%             if correctstatus == 1
-%                 Screen('DrawText', win, ' CORRECT! ', cx-120, cy, [0 1 0]);
-%             elseif  correctstatus == 0
-%                 Screen('DrawText', win, ' False :-( ', cx-120, cy, [1 0 0]);
-%             end
-            Screen('Flip', win); % show text
-            WaitSecs(.5);
-            
-            
-            fprintf(datafilepointer2b,'%i %i %i %i %i %i %i %i %s %s \n', ...
-                subjectNumber, ...
-                4, ...
-                trialindex_training, ...
-                pairlabelvec(trialindex_training),...
-                switchsidevec(trialindex_training),...
-                xcoor,...
-                responseside_contin,...
-                RTlearning,...
-                currentfile1, ...
-                currentfile2);           
-    
+    buttons=0;
+    while ~any(buttons) % wait for press
+        [xcoor,~,buttons] = GetMouse;
+        sPress=GetSecs;
+        % Wait 10 ms before checking the mouse again to prevent
+        % overload of the machine at elevated Priority()
+        WaitSecs(0.01);
+    end
+
+    HideCursor(win);
+
+    % calculate response side: left or right
+    responseside_contin = cx-xcoor;
+    % positive means left and negative means right
+    if switchsidevec(trialindex_training) == 1 && responseside_contin > 0
+        correctstatus = 1;
+    elseif switchsidevec(trialindex_training) == 2 && responseside_contin < 0
+        correctstatus = 1;
+    else
+        correctstatus = 0;
+    end
+
+    % Calculate RT
+    RTlearning = 1000*(sPress-sFlip);
+
+    if correctstatus == 1
+        correcttext = 'Correct'
+    elseif  correctstatus == 0
+        correcttext = 'Incorrect'
+    end
+
+    Screen('Flip', win);
+    fprintf(s3, '02');
+    WaitSecs(.5);
+    fprintf(s3, '00'); %% SEE WHAT THIS DOES IN TEST PHASE
+
+
+    fprintf(datafilepointer2b,'%i %i %i %i %i %i %i %i %s %s \n', ...
+        subjectNumber, ...                     % 1 - Subject ID
+        4, ...                                 % 2 - Block number
+        trialindex_training, ...               % 3 - trial number
+        pairlabelvec(trialindex_training),...  % 4 - pair ID
+        switchsidevec(trialindex_training),... % 5 - side switch flag (L/R)
+        xcoor,...                              % 6 - response x coordinate
+        responseside_contin,...                % 7 - left/right sign
+        correctstatus,...                      % 8 - 1/0 correct status
+        correcttext, ...                       % 9 - 'Correct' or 'Incorrect'
+        RTlearning,...                         % 10 - reaction time (ms)
+        currentfile1, ...                      % 11 - Right side pic name
+        currentfile2);                         % 12 - Left side pic name
+
 end
 
 
@@ -569,7 +616,9 @@ end
 %% =========================================================
 
 % write message to subject
-Screen('DrawText', win, 'The next task will begin shortly ... ', 20, 20, 1275);
+Screen('DrawText', win, 'Please keep your eyes fixed on the fixation point.', 20, 20, 1275);
+Screen('DrawText', win, 'You will not need the mouse for this task.', 20, 80, 1275);
+Screen('DrawText', win, 'Press any key when ready to begin.', 20, 140, 1275);
 Screen('Flip', win); % show text
 KbStrokeWait;
 % clear screen
@@ -589,7 +638,7 @@ for randoloop = 1:nImgsPerCat
     Rolenamevec_randomized = [Rolenamevec_randomized roleLabels(randperm(nCategories))];
 end
 
-for trialindex_bsl2 = 1:NTrials
+for trialindex_bsl2 = 1:10 %NTrials
     % first, set the event marker channel to zero
     fprintf(s3, '00');
     % start and control counters for each role
@@ -599,19 +648,19 @@ for trialindex_bsl2 = 1:NTrials
     elseif strcmp('D', char(Rolenamevec_randomized(trialindex_bsl2))), counterD = counterD+1; counter = counterD;
     elseif strcmp('E', char(Rolenamevec_randomized(trialindex_bsl2))), counterE = counterE+1; counter = counterE;
     end
-    
+
     %fixation cross
     Screen('FillOval', win, 255 ,[cx-5 cy-5 cx+5 cy+5]);
     Screen('Flip', win);
     WaitSecs(BASELINE_ITI_MIN + rand(1,1) * (BASELINE_ITI_MAX-BASELINE_ITI_MIN)) % ITI between 1 and 3 secs, uniform
-    
+
     % make texture for this trial
     TrialPicturePath =  eval(['roles.' char(Rolenamevec_randomized(trialindex_bsl2)) '.imgPaths{' num2str(counter) '}']);
     [~, currentfile] = fileparts(TrialPicturePath);
     TrialPicture = imread(TrialPicturePath);
     TrialPicture = imresize(TrialPicture, .5);
     TrialTex=Screen('MakeTexture', win, TrialPicture);
-    
+
     %show the picture
     Screen('DrawTexture', win, TrialTex);
     Screen('FillOval', win, 255 ,[cx-5 cy-5 cx+5 cy+5]);
@@ -622,7 +671,7 @@ for trialindex_bsl2 = 1:NTrials
     Screen('FillOval', win, 255 ,[cx-5 cy-5 cx+5 cy+5]);
     Screen('Flip', win);
     WaitSecs(.2);
-    
+
     % Dat file information, add a row in each trial
     fprintf(datafilepointer3,'%i %i %i %s %s \n', ...
         subjectNumber, ...
@@ -630,7 +679,7 @@ for trialindex_bsl2 = 1:NTrials
         trialindex_bsl2, ...
         char(Rolenamevec_randomized(trialindex_bsl2)),...
         currentfile);
-    
+
 end
 
 
@@ -643,7 +692,7 @@ similarityRatings(win, roles, subjectNumber, winRect, datafilepointerrate2)
 
 
 %% End of entire experiment
-Screen('DrawText', win, 'Thank you! Press any key to exit.', 20, 20, 1275);
+Screen('DrawText', win, 'Thank you for participating! Press any key to exit.', 20, 20, 1275);
 Screen('Flip', win);
 KbStrokeWait;
 
@@ -656,8 +705,10 @@ end % main function transinf end
 
 %% Similarity Ratings
 function similarityRatings(win, roles, subjectNumber, winRect, datafilepointerrate)
-
-Screen('DrawText', win, 'Thank you! The next task is about to begin.', 20, 20, 1275);
+Screen('DrawText', win, 'The next task will ask you to rate how similar 2 pictures are in their meaning.', 20, 20, 1275);
+Screen('DrawText', win, 'Use the mouse to rate the pictures on the scale at the bottom of the screen.', 20, 80, 1275);
+Screen('DrawText', win, 'You do not need to keep your gaze on the fixation point.', 20, 140, 1275);
+Screen('DrawText', win, 'Press any key when ready to start.', 20, 200, 1275);
 Screen('Flip', win);
 KbStrokeWait;
 
@@ -673,14 +724,11 @@ xOffset = round(scrW * 0.25);
 leftRect  = CenterRectOnPointd([0 0 imgW imgH], cx - xOffset, cy);
 rightRect = CenterRectOnPointd([0 0 imgW imgH], cx + xOffset, cy);
 
-% fixation dot
 fix_cord = [cx-5 cy-5 cx+5 cy+5];
 
 % slider setup (adapted from simrate2)
 locationPosFrac = [0/9, 1/9, 2/9, 3/9, 4/9, 5/9, 6/9, 7/9, 8/9, 9/9]; % 10 selectable locations
 locationPosTick = [0/9, 5/9, 9/9];
-% locationPosFrac = 0:0.2:1;              % 5 selectable positions, 0 to 1
-% locationPosTick = [0 0.5 1];             % only these get drawn/labeled
 sliderWidth   = scrW * 0.6;
 sliderHeight  = 20;
 sliderXcenter = scrW / 2;
@@ -689,10 +737,11 @@ sliderRect    = CenterRectOnPointd([0 0 sliderWidth sliderHeight], sliderXcenter
 sliderBgColor  = [100 100 100];
 locMarkerColor = [0 255 0];
 
-% randomization
+
+%randomization
 allCategoryFolders = {'tundra', 'mountains', 'desert', 'forest', 'grasslands'};
-nCategories        = numel(allCategoryFolders); 
-nImgsPerCat        = 10;
+nCategories        = numel(allCategoryFolders);
+nImgsPerCat        = 20;
 NTrials = (nCategories-1)*nImgsPerCat/2; % trials in baseline phase = all pictures
 
 counterA = 0;
@@ -704,36 +753,92 @@ counterE = 0;
 pairlabelvec = [];
 switchsidevec = [];
 
-for loopindex = 1:nImgsPerCat/2
-    pairlabelvec = [pairlabelvec randperm(4)];
-    switchsidevec = [switchsidevec randperm(2)];
+for loopindex = 1:nImgsPerCat/5
+    pairlabelvec = [pairlabelvec randperm(15)];
+    switchsidevec = [switchsidevec randi(2,1,15)];
 end
 
-switchsidevec = [switchsidevec fliplr(switchsidevec)];
 
 for trialindex_sim = 1:NTrials
+    pairlabelvec(trialindex_sim)
     %Select the stimulus pair
     if pairlabelvec(trialindex_sim) == 1
-        counterA = counterA+1;
+        if counterA == 20, counterA = 1; else, counterA = counterA+1; end
         TrialPicturePath1 =  eval(['roles.A.imgPaths{' num2str(counterA) '}']);
-        counterB = counterB+1;
+        if counterB == 20, counterB = 1; else, counterB = counterB+1; end
         TrialPicturePath2 =  eval(['roles.B.imgPaths{' num2str(counterB) '}']);
     elseif pairlabelvec(trialindex_sim) == 2
-        counterB = counterB+1;
+        if counterB == 20, counterB = 1; else, counterB = counterB+1; end
         TrialPicturePath1 =  eval(['roles.B.imgPaths{' num2str(counterB) '}']);
-        counterC = counterC+1;
+        if counterC == 20, counterC = 1; else, counterC = counterC+1; end
         TrialPicturePath2 =  eval(['roles.C.imgPaths{' num2str(counterC) '}']);
     elseif pairlabelvec(trialindex_sim) == 3
-        counterC = counterC+1;
+        if counterC == 20, counterC = 1; else, counterC = counterC+1; end
         TrialPicturePath1 =  eval(['roles.C.imgPaths{' num2str(counterC) '}']);
-        counterD = counterD+1;
+        if counterD == 20, counterD = 1; else, counterD = counterD+1; end
         TrialPicturePath2 =  eval(['roles.D.imgPaths{' num2str(counterD) '}']);
     elseif pairlabelvec(trialindex_sim) == 4
-        counterD = counterD+1;
+        if counterD == 20, counterD = 1; else, counterD = counterD+1; end
         TrialPicturePath1 =  eval(['roles.D.imgPaths{' num2str(counterD) '}']);
-        counterE = counterE+1;
+        if counterE == 20, counterE = 1; else, counterE = counterE+1; end
+        TrialPicturePath2 =  eval(['roles.E.imgPaths{' num2str(counterE) '}']);
+    elseif pairlabelvec(trialindex_sim) == 5
+        if counterA == 20, counterA = 1; else, counterA = counterA+1; end
+        TrialPicturePath1 =  eval(['roles.A.imgPaths{' num2str(counterA) '}']);
+        if counterA == 20, counterA = 1; else, counterA = counterA+1; end
+        TrialPicturePath2 =  eval(['roles.A.imgPaths{' num2str(counterA) '}']);
+    elseif pairlabelvec(trialindex_sim) == 6
+        if counterB == 20, counterB = 1; else, counterB = counterB+1; end
+        TrialPicturePath1 =  eval(['roles.B.imgPaths{' num2str(counterB) '}']);
+        if counterB == 20, counterB = 1; else, counterB = counterB+1; end
+        TrialPicturePath2 =  eval(['roles.B.imgPaths{' num2str(counterB) '}']);
+    elseif pairlabelvec(trialindex_sim) == 7
+        if counterC == 20, counterC = 1; else, counterC = counterC+1; end
+        TrialPicturePath1 =  eval(['roles.C.imgPaths{' num2str(counterC) '}']);
+        if counterC == 20, counterC = 1; else, counterC = counterC+1; end
+        TrialPicturePath2 =  eval(['roles.C.imgPaths{' num2str(counterC) '}']);
+    elseif pairlabelvec(trialindex_sim) == 8
+        if counterD == 20, counterD = 1; else, counterD = counterD+1; end
+        TrialPicturePath1 =  eval(['roles.D.imgPaths{' num2str(counterD) '}']);
+        if counterD == 20, counterD = 1; else, counterD = counterD+1; end
+        TrialPicturePath2 =  eval(['roles.D.imgPaths{' num2str(counterD) '}']);
+    elseif pairlabelvec(trialindex_sim) == 9
+        if counterE == 20, counterE = 1; else, counterE = counterE+1; end
+        TrialPicturePath1 =  eval(['roles.E.imgPaths{' num2str(counterE) '}']);
+        if counterE == 20, counterE = 1; else, counterE = counterE+1; end
+        TrialPicturePath2 =  eval(['roles.E.imgPaths{' num2str(counterE) '}']);
+    elseif pairlabelvec(trialindex_sim) == 10
+        if counterA == 20, counterA = 1; else, counterA = counterA+1; end
+        TrialPicturePath1 =  eval(['roles.A.imgPaths{' num2str(counterA) '}']);
+        if counterC == 20, counterC = 1; else, counterC = counterC+1; end
+        TrialPicturePath2 =  eval(['roles.C.imgPaths{' num2str(counterC) '}']);
+    elseif pairlabelvec(trialindex_sim) == 11
+        if counterA == 20, counterA = 1; else, counterA = counterA+1; end
+        TrialPicturePath1 =  eval(['roles.A.imgPaths{' num2str(counterA) '}']);
+        if counterD == 20, counterD = 1; else, counterD = counterD+1; end
+        TrialPicturePath2 =  eval(['roles.D.imgPaths{' num2str(counterD) '}']);
+    elseif pairlabelvec(trialindex_sim) == 12
+        if counterA == 20, counterA = 1; else, counterA = counterA+1; end
+        TrialPicturePath1 =  eval(['roles.A.imgPaths{' num2str(counterA) '}']);
+        if counterE == 20, counterE = 1; else, counterE = counterE+1; end
+        TrialPicturePath2 =  eval(['roles.E.imgPaths{' num2str(counterE) '}']);
+    elseif pairlabelvec(trialindex_sim) == 13
+        if counterB == 20, counterB = 1; else, counterB = counterB+1; end
+        TrialPicturePath1 =  eval(['roles.B.imgPaths{' num2str(counterB) '}']);
+        if counterD == 20, counterD = 1; else, counterD = counterD+1; end
+        TrialPicturePath2 =  eval(['roles.D.imgPaths{' num2str(counterD) '}']);
+    elseif pairlabelvec(trialindex_sim) == 14
+        if counterB == 20, counterB = 1; else, counterB = counterB+1; end
+        TrialPicturePath1 =  eval(['roles.B.imgPaths{' num2str(counterB) '}']);
+        if counterE == 20, counterE = 1; else, counterE = counterE+1; end
+        TrialPicturePath2 =  eval(['roles.E.imgPaths{' num2str(counterE) '}']);
+    elseif pairlabelvec(trialindex_sim) == 15
+        if counterC == 20, counterC = 1; else, counterC = counterC+1; end
+        TrialPicturePath1 =  eval(['roles.C.imgPaths{' num2str(counterC) '}']);
+        if counterE == 20, counterE = 1; else, counterE = counterE+1; end
         TrialPicturePath2 =  eval(['roles.E.imgPaths{' num2str(counterE) '}']);
     end
+
 
     % make the corresponding textures
     [~, currentfile1] = fileparts(TrialPicturePath1);
@@ -769,7 +874,8 @@ for trialindex_sim = 1:NTrials
         end
 
         Screen('FillOval', win, 255, fix_cord);
-        DrawFormattedText(win, 'How similar are these pictures based on the meaning they convey??', 'center', cy - 350, 255);
+
+        DrawFormattedText(win, 'How similar are these pictures based on the meaning they convey?', 'center', cy - 350, 255);
 
         drawSimSlider(win, sliderRect, sliderBgColor, locationPosTick, ...
             sliderWidth, sliderHeight, sliderXcenter, sliderY, locMarkerColor, fillWidth);
