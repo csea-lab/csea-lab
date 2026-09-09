@@ -1,4 +1,4 @@
-function [ Fcontvec, rcontvec ] = contrast_between_signed( data, groupvector, weights )
+function [ Fcontvec, rcontvec, DFerror] = contrast_between_signed( data, groupvector, weights )
 %  contrast_between calculates fs for a contrast in groups with unequal n
 %  data needs to be arranged such that rows are subjects
 
@@ -16,7 +16,7 @@ for loopindex = 1:size(data,2)
 
     % calulate group means and stats for each loppindex (time or channel)
 
-    for index = 1:length(groups); 
+    for index = 1:length(groups)
       meanvec(index) = mean(data(groupvector == index, loopindex)); 
     end 
     
