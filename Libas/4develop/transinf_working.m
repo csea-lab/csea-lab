@@ -460,11 +460,13 @@ end
 %% =========================================================
 % 8 Testing Phase
 %% =========================================================
-Screen('DrawText', win, 'In the next task, you will see 2 pictures.', 20, 20, 1275);
-Screen('DrawText', win, 'Click on the picture you think is correct.', 20, 80, 1275);
-Screen('DrawText', win, 'This time you will NOT get feedback on whether you are correct or not.', 20, 140, 1275);
-Screen('DrawText', win, 'Please keep your eyes fixed on the fixation point.', 20, 200, 1275);
-Screen('DrawText', win, 'Press any key when ready to begin.', 20, 260, 1275);
+Screen('DrawText', win, 'During the next task, you will see 2 pictures presented on the computer screen.', 20, 20, 1275);
+Screen('DrawText', win, 'Use the mouse to click on the one picture you think is the correct picture.', 20, 80, 1275);
+Screen('DrawText', win, 'After you click on a picture, the pictures will disappear.', 20, 140, 1275);
+Screen('DrawText', win, 'You will NOT get feedback on whether you are correct or not.', 20, 200, 1275);
+Screen('DrawText', win, 'Try to make as many correct responses as possible.', 20, 260, 1275);
+Screen('DrawText', win, 'Please keep your eyes fixed on the fixation point.', 20, 320, 1275);
+Screen('DrawText', win, 'Press any key when ready to begin.', 20, 380, 1275);
 Screen('Flip', win);
 KbStrokeWait;
 % clear screen
@@ -475,7 +477,7 @@ HideCursor(win);
 SetMouse(cx, cy, win);   % park cursor at centre between trials
 
 % randomization
-NTrials = 3*24; % 3 [pairs types times 24 trials each
+NTrials = 3*12; % 3 [pairs types times 12 trials each
 counterA = 0;
 counterB = 0;
 counterC = 0;
@@ -485,7 +487,7 @@ counterE = 0;
 pairlabelvec = [];
 switchsidevec = [];
 
-for loopindex = 1:24
+for loopindex = 1:12
     pairlabelvec = [pairlabelvec randperm(3)];
     switchsidevec = [switchsidevec randi(2, 1, 3)];
 end
@@ -727,8 +729,9 @@ rightRect = CenterRectOnPointd([0 0 imgW imgH], cx + xOffset, cy);
 fix_cord = [cx-5 cy-5 cx+5 cy+5];
 
 % slider setup (adapted from simrate2)
-locationPosFrac = [0/9, 1/9, 2/9, 3/9, 4/9, 5/9, 6/9, 7/9, 8/9, 9/9]; % 10 selectable locations
-locationPosTick = [0/9, 5/9, 9/9];
+locationPosFrac = [0/10, 1/10, 2/10, 3/10, 4/10, 5/10, 6/10, 7/10, 8/10, 9/10, 10/10];
+locationPosTick = [0/10, 5/10, 10/10];
+
 sliderWidth   = scrW * 0.6;
 sliderHeight  = 20;
 sliderXcenter = scrW / 2;
