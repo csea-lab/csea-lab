@@ -27,13 +27,12 @@ outmat3d = inmat3d; % Creates a new matrix the same size as the input matrix
 
      yline(median(qualindex) + threshold.* std(actualdistribution))
 
-
     % detect indices of bad channels; currently anything farther than 3 SD
     % from the median quality index value
 
    BadChanVec =  find(qualindex > median(qualindex) + threshold.* std(actualdistribution));
 
-    % interpolate those channels from 6 nearest neighbors in the cleandata
+    % interpolate those channels using spherical spline interpolation in the cleandata
     % find nearest neighbors
 
     for trial = 1:size(inmat3d,3)
