@@ -68,7 +68,6 @@ if eyecorrflag
 end
 
 
-
 % now get rid of excess event markers
 for indexlat = 1:size(EEG.event,2)
     markertimesinSP(indexlat) = EEG.event(indexlat).latency;
