@@ -144,6 +144,42 @@ TEST_MAX_RT         = 1.000;
 % hide the cursor
 HideCursor(win)
 
+%% 
+% Screen settings
+screens = Screen('Screens');
+screenNumber = max(screens);
+HideCursor(0,0);
+gray = GrayIndex(screenNumber, 0.5);
+[w, wRect] = Screen('OpenWindow', screenNumber, 128, [0 0 1920 1080], 32, 2);
+[center(1), center(2)] = RectCenter(wRect);
+fix_cord = [center-8 center+8];
+Screen('FillRect', w, gray);
+Screen('Flip', w);
+
+% Eyetracker
+edfFile = ['SemS' num2str(subNo)];
+
+calibrate_eyetracker(edfFile, w) % set up and do calibration
+hello_eyetracker; % start recording from eye - tracker
+HideCursor(0,0);
+Screen('Flip', w);
+
+% Priority
+priorityLevel = MaxPriority(w);
+Priority(priorityLevel)
+
+
+
+
+%% open eye tracker
+% Eyetracker
+edfFile = ['tin' num2str(subjectNumber)];
+
+calibrate_eyetracker(edfFile, win) % set up and do calibration
+hello_eyetracker; % start recording from eye - tracker
+HideCursor(0,0);
+
+
 %% =========================================================
 %  4.  DATA LOG INITIALISATION
 %% =========================================================
@@ -196,7 +232,7 @@ KbStrokeWait
       Screen('DrawText', win, 'Please keep your eyes in the center of the screen and do not look around unless otherwise instructed ', 20, 80, 1275);
       Screen('DrawText', win, 'There will be a fixation point in the middle of the screen to help keep your gaze in the middle.', 20, 140, 1275);
       Screen('DrawText', win, 'You will sometimes be asked to answer a few questions about the pictures.', 20, 200, 1275);
-      Screen('DrawText', win, 'Click when ready to start! Thanks for participating!', 20, 260, 1275);
+      Screen('DrawText', win, 'Click when ready to start. Thanks for participating!', 20, 260, 1275);
       Screen('Flip', win); % show text
 
        WaitSecs(1)
@@ -267,6 +303,9 @@ for trialindex_bsl1 = 1:10
     Screen('FillOval', win, 255 ,[cx-5 cy-5 cx+5 cy+5]);
     Screen('Flip', win);
     fprintf(s3, '01');
+    % send event marker to eyelink
+    Eyelink('Message', 'Cue_bsl1');
+    
     WaitSecs(BASELINE_STIM_DUR);
     % this is how long it is on, and now take it off the screen
     Screen('FillOval', win, 255 ,[cx-5 cy-5 cx+5 cy+5]);
@@ -391,6 +430,10 @@ for trialindex_training = 1:NTrials
     Screen('FillOval', win, 255 ,[cx-5 cy-5 cx+5 cy+5]);
     sFlip = Screen('Flip', win);
     fprintf(s3, '04');
+    
+    % send event marker to eyelink
+    Eyelink('Message', 'Cue_learninf');
+    
     WaitSecs(1);
     fprintf(s3, '00');
     SetMouse(cx, cy, win);   % park cursor at centre between trials
@@ -440,7 +483,7 @@ for trialindex_training = 1:NTrials
     end
 
     % Dat file information, add a row in each trial
-    fprintf(datafilepointer2,'%i %i %i %i %i %i %i %i %i %s %s \n', ...
+    fprintf(datafilepointer2,'%i %i %i %i %i %i %i %i %s %i %s %s \n', ...
         subjectNumber, ...                      % 1 - Subject ID
         2, ...                                  % 2 - Block number
         trialindex_training, ...                % 3 - trial number
@@ -477,10 +520,9 @@ HideCursor(win);
 SetMouse(cx, cy, win);   % park cursor at centre between trials
 
 % randomization
-NTrials = 3*12; % 3 [pairs types times 12 trials each
+NTrials = 4*12; % 4 pairs times 12 trials each
 counterA = 0;
 counterB = 0;
-counterC = 0;
 counterD = 0;
 counterE = 0;
 
@@ -488,8 +530,8 @@ pairlabelvec = [];
 switchsidevec = [];
 
 for loopindex = 1:12
-    pairlabelvec = [pairlabelvec randperm(3)];
-    switchsidevec = [switchsidevec randi(2, 1, 3)];
+    pairlabelvec = [pairlabelvec randperm(4)];
+    switchsidevec = [switchsidevec randi(2, 1, 4)];
 end
 
 Rolenamevec_randomized = []; % make a vector with as many role names as trials
@@ -510,13 +552,18 @@ for trialindex_training = 1:NTrials
         if counterE == 20, counterE = 1; else, counterE = counterE+1; end
         TrialPicturePath2 =  eval(['roles.E.imgPaths{' num2str(counterE) '}']);
     elseif pairlabelvec(trialindex_training) == 2
-        if counterC == 20, counterC = 1; else, counterC = counterC+1; end
-        TrialPicturePath1 =  eval(['roles.C.imgPaths{' num2str(counterC) '}']);
-        if counterC == 20, counterC = 1; else, counterC = counterC+1; end
-        TrialPicturePath2 =  eval(['roles.C.imgPaths{' num2str(counterC) '}']);
-    elseif pairlabelvec(trialindex_training) == 3
         if counterB == 20, counterB = 1; else, counterB = counterB+1; end
         TrialPicturePath1 =  eval(['roles.B.imgPaths{' num2str(counterB) '}']);
+        if counterD == 20, counterD = 1; else, counterD = counterD+1; end
+        TrialPicturePath2 =  eval(['roles.D.imgPaths{' num2str(counterD) '}']);
+    elseif pairlabelvec(trialindex_training) == 3
+        if counterA == 20, counterA = 1; else, counterA = counterA+1; end
+        TrialPicturePath1 =  eval(['roles.A.imgPaths{' num2str(counterA) '}']);
+        if counterB == 20, counterB = 1; else, counterB = counterB+1; end
+        TrialPicturePath2 =  eval(['roles.B.imgPaths{' num2str(counterB) '}']);
+    elseif pairlabelvec(trialindex_training) == 4
+        if counterC == 20, counterC = 1; else, counterC = counterC+1; end
+        TrialPicturePath1 =  eval(['roles.C.imgPaths{' num2str(counterC) '}']);
         if counterD == 20, counterD = 1; else, counterD = counterD+1; end
         TrialPicturePath2 =  eval(['roles.D.imgPaths{' num2str(counterD) '}']);
     end
@@ -550,6 +597,10 @@ for trialindex_training = 1:NTrials
     Screen('FillOval', win, 255 ,[cx-5 cy-5 cx+5 cy+5]);
     sFlip = Screen('Flip', win);
     fprintf(s3, '08');
+    
+    % send event marker to eyelink
+    Eyelink('Message', 'Cue_testing');
+    
     WaitSecs(1);
     SetMouse(cx, cy, win);   % park cursor at centre between trials
     ShowCursor('Arrow', win);
@@ -593,7 +644,7 @@ for trialindex_training = 1:NTrials
     fprintf(s3, '00'); %% SEE WHAT THIS DOES IN TEST PHASE
 
 
-    fprintf(datafilepointer2b,'%i %i %i %i %i %i %i %i %s %s \n', ...
+    fprintf(datafilepointer2b,'%i %i %i %i %i %i %i %i %s %i %s %s \n', ...
         subjectNumber, ...                     % 1 - Subject ID
         4, ...                                 % 2 - Block number
         trialindex_training, ...               % 3 - trial number
@@ -668,6 +719,10 @@ for trialindex_bsl2 = 1:10 %NTrials
     Screen('FillOval', win, 255 ,[cx-5 cy-5 cx+5 cy+5]);
     Screen('Flip', win);
     fprintf(s3, '01');
+    
+    % send event marker to eyelink
+    Eyelink('Message', 'Cue_bsl2');
+       
     WaitSecs(BASELINE_STIM_DUR);
     % this is how long it is on, and now take it off the screen
     Screen('FillOval', win, 255 ,[cx-5 cy-5 cx+5 cy+5]);
@@ -692,6 +747,9 @@ end
 
 similarityRatings(win, roles, subjectNumber, winRect, datafilepointerrate2)
 
+%% ciao tracker
+
+goodbye_eyetracker(edfFile);
 
 %% End of entire experiment
 Screen('DrawText', win, 'Thank you for participating! Press any key to exit.', 20, 20, 1275);
@@ -991,9 +1049,9 @@ end
 function[eye_used, mX, mY] = calibrate_eyetracker(edfFile,w)
     dummymode = 0;
         el = EyelinkInitDefaults(w);
-            el.backgroundcolour         = 128;
-            el.msgfontcolour            = WhiteIndex(el.window);
-            el.imgtitlecolour           = WhiteIndex(el.window);
+             %el.backgroundcolour         = 128;
+             el.msgfontcolour            = WhiteIndex(el.window);
+             el.imgtitlecolour           = WhiteIndex(el.window);
             el.targetbeep               = 0;
             el.calibrationtargetcolour  = WhiteIndex(el.window);
             el.calibrationtargetsize    = 1;
