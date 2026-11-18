@@ -30,7 +30,7 @@ filemat = getfilesindir(pwd, '*ar.mat');
 [spec] = get_FFT_mat3d(filemat, 1:1000, 500);
 
 %% explore the spectrum across the group
-cd '/Users/andreaskeil/UF Dropbox/Andreas Keil/MobileEEG/all_Data_spectrum'
+cd '/Users/andreaskeil/UF Dropbox/Andreas Keil/MobileEEG/Kate/SVM_analysis/all_Data_spectrum'
 
 freqs = 0:0.5:100; 
 filemat_spec = getfilesindir(pwd, '*.spec');
@@ -53,7 +53,7 @@ end
 
 %% explore the spectrum for each group - part 1
 % first high group 
-cd '/Users/andreaskeil/UF Dropbox/Andreas Keil/MobileEEG/all_Data_spectrum/Qbygroup/high'
+cd '/Users/andreaskeil/UF Dropbox/Andreas Keil/MobileEEG/Kate/SVM_analysis/all_Data_spectrum/Qbygroup/high'
 
 channel = 4; 
 
@@ -91,7 +91,7 @@ end
 
 %% explore the spectrum for each group - part 2
 % second, low group 
-cd '/Users/andreaskeil/UF Dropbox/Andreas Keil/MobileEEG/all_Data_spectrum/Qbygroup/low'
+cd '/Users/andreaskeil/UF Dropbox/Andreas Keil/MobileEEG/Kate/SVM_analysis/all_Data_spectrum/Qbygroup/low'
 
 
 channel = 4; 
@@ -131,20 +131,20 @@ end
 
 %% compare the groups, across eyes open and closed
 % high first 
-cd '/Users/andreaskeil/UF Dropbox/Andreas Keil/MobileEEG/all_Data_spectrum/Qbygroup/high'
+cd '/Users/andreaskeil/UF Dropbox/Andreas Keil/MobileEEG/Kate/SVM_analysis/all_Data_spectrum/Qbygroup/high'
 freqs = 0:0.5:100; 
 filemat_spec = getfilesindir(pwd, '*.spec');
 MergeAvgFiles(filemat_spec,'GMhigh.at.spec.ar',1,1,[],0,[],[],0,0)
 
 % low next 
-cd '/Users/andreaskeil/UF Dropbox/Andreas Keil/MobileEEG/all_Data_spectrum/Qbygroup/low'
+cd '/Users/andreaskeil/UF Dropbox/Andreas Keil/MobileEEG/Kate/SVM_analysis/all_Data_spectrum/Qbygroup/low'
 freqs = 0:0.5:100; 
 filemat_spec = getfilesindir(pwd, '*.spec');
 MergeAvgFiles(filemat_spec,'GMlow.at.spec.ar',1,1,[],0,[],[],0,0)
 
 %% compare the groups, for eyes open and closed separately
 % high first 
-cd '/Users/andreaskeil/UF Dropbox/Andreas Keil/MobileEEG/all_Data_spectrum/Qbygroup/high'
+cd '/Users/andreaskeil/UF Dropbox/Andreas Keil/MobileEEG/Kate/SVM_analysis/all_Data_spectrum/Qbygroup/high'
 
 filemat_spec = getfilesindir(pwd, '*open*.spec');
 MergeAvgFiles(filemat_spec,'GMhigh.atOPEN.spec.ar',1,1,[],0,[],[],0,0)
@@ -155,7 +155,7 @@ MergeAvgFiles(filemat_spec,'GMhigh.atCLOSED.spec.ar',1,1,[],0,[],[],0,0)
 pause(1)
 
 % low next 
-cd '/Users/andreaskeil/UF Dropbox/Andreas Keil/MobileEEG/all_Data_spectrum/Qbygroup/low'
+cd '/Users/andreaskeil/UF Dropbox/Andreas Keil/MobileEEG/Kate/SVM_analysis/all_Data_spectrum/Qbygroup/low'
 
 filemat_spec = getfilesindir(pwd, '*open*.spec');
 MergeAvgFiles(filemat_spec,'GMlow.atOPEN.spec.ar',1,1,[],0,[],[],0,0)
@@ -165,12 +165,12 @@ MergeAvgFiles(filemat_spec,'GMlow.atCLOSED.spec.ar',1,1,[],0,[],[],0,0)
 
 %% make 4D mats for easier access and comparisons
 
-cd '/Users/andreaskeil/UF Dropbox/Andreas Keil/MobileEEG/all_Data_spectrum/Qbygroup/low'
+cd '/Users/andreaskeil/UF Dropbox/Andreas Keil/MobileEEG/Kate/SVM_analysis/all_Data_spectrum/Qbygroup/low'
 filemat = getfilesindir(pwd, '*.spec'); 
 [repmat] = makerepmat(filemat, 112, 2, []);
 repmat_low = repmat;
 
-cd '/Users/andreaskeil/UF Dropbox/Andreas Keil/MobileEEG/all_Data_spectrum/Qbygroup/high'
+cd '/Users/andreaskeil/UF Dropbox/Andreas Keil/MobileEEG/Kate/SVM_analysis/all_Data_spectrum/Qbygroup/high'
 filemat = getfilesindir(pwd, '*.spec'); 
 [repmat] = makerepmat(filemat, 55, 2, []);
 repmat_high = repmat;
