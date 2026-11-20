@@ -1,4 +1,4 @@
-function [BF] = bootstrap2BF_nonparam(theta1,theta2, plotflag)
+function [BF] = bootstrap2BF_nonparam(theta1,theta2, plotflag, outputflag)
 % This function takes two bootstrapped distributions (>1000 draws needed)
 % dist1 and dist2, which reflect two variables that we wish to compare, eg experimental conditions.
 % It computes then the BF as posterior oddsover prior odds (odds =1, p = 0.5 is default)
@@ -81,25 +81,24 @@ end
 BF_CI = prctile(BF_boot, [2.5 97.5]);
 
 %% Step 5: display detailed results, for now just in command window
-fprintf('-----------------------------------------\n');
-fprintf('Results of the comparisons\n');
-fprintf('Posterior P(θ1 > θ2): %.4f\n', p_post);
-fprintf('Prior     P(θ1 > θ2): %.4f\n', p_prior);
-fprintf('Bayes Factor (BF):    %.4f\n', BF);
-fprintf('95%% bootstrap CI for BF: [%.4f, %.4f]\n', BF_CI(1), BF_CI(2));
-fprintf('-----------------------------------------\n');
-fprintf('Properties of the input distributions:\n');
-fprintf('θ1 mean:    %.4f, median: %.4f, 95%% CI: [%.4f, %.4f]\n', ...
+if outputflag
+    fprintf('-----------------------------------------\n');
+    fprintf('Results of the comparisons\n');
+    fprintf('Posterior P(θ1 > θ2): %.4f\n', p_post);
+    fprintf('Prior     P(θ1 > θ2): %.4f\n', p_prior);
+    fprintf('Bayes Factor (BF):    %.4f\n', BF);
+    fprintf('95%% bootstrap CI for BF: [%.4f, %.4f]\n', BF_CI(1), BF_CI(2));
+    fprintf('-----------------------------------------\n');
+    fprintf('Properties of the input distributions:\n');
+    fprintf('θ1 mean:    %.4f, median: %.4f, 95%% CI: [%.4f, %.4f]\n', ...
         mean_theta1, median_theta1, CI_theta1(1), CI_theta1(2));
-
-fprintf('θ2 mean:    %.4f, median: %.4f, 95%% CI: [%.4f, %.4f]\n', ...
+    fprintf('θ2 mean:    %.4f, median: %.4f, 95%% CI: [%.4f, %.4f]\n', ...
         mean_theta2, median_theta2, CI_theta2(1), CI_theta2(2));
-
-fprintf('(θ1 - θ2) difference:\n');
-fprintf('  mean: %.4f, median: %.4f, 95%% CI: [%.4f, %.4f]\n', ...
+    fprintf('(θ1 - θ2) difference:\n');
+    fprintf('  mean: %.4f, median: %.4f, 95%% CI: [%.4f, %.4f]\n', ...
         mean_diff, median_diff, CI_diff(1), CI_diff(2));
-fprintf('-----------------------------------------\n\n');
-
+    fprintf('-----------------------------------------\n\n');
+end
 %% optional plot: overlaid histograms of the two posterior distributions
 if plotflag
     figure; hold on;
